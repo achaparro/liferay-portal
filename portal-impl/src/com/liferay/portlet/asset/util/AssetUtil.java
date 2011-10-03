@@ -95,14 +95,15 @@ public class AssetUtil {
 				ancestorCategory.getCategoryId()));
 
 			addPortletBreadcrumbEntry(
-				request, ancestorCategory.getTitle(languageId),
+				request, ancestorCategory.getTitleCurrentValue(),
 				portletURL.toString());
 		}
 
 		portletURL.setParameter("categoryId", String.valueOf(assetCategoryId));
 
 		addPortletBreadcrumbEntry(
-			request, assetCategory.getTitle(languageId), portletURL.toString());
+			request, assetCategory.getTitleCurrentValue(),
+			portletURL.toString());
 	}
 
 	public static void addPortletBreadcrumbEntry(

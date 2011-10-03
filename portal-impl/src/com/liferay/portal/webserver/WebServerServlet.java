@@ -663,13 +663,10 @@ public class WebServerServlet extends HttpServlet {
 
 		String fileName = fileVersion.getTitle();
 
-		String extension = GetterUtil.getString(
-			FileUtil.getExtension(fileName));
+		String extension = fileVersion.getExtension();
 
-		if (Validator.isNull(extension) ||
-			!extension.equals(fileVersion.getExtension())) {
-
-			fileName += StringPool.PERIOD + fileVersion.getExtension();
+		if (!fileName.endsWith(StringPool.PERIOD + extension)) {
+			fileName += StringPool.PERIOD + extension;
 		}
 
 		boolean converted = false;
@@ -731,7 +728,8 @@ public class WebServerServlet extends HttpServlet {
 			converted = true;
 		}
 		else {
-			inputStream = fileEntry.getContentStream(version);
+			inputStream = fileVersion.getContentStream(true);
+			contentLength = fileVersion.getSize();
 
 			if (Validator.isNotNull(targetExtension)) {
 				File convertedFile = DocumentConversionUtil.convert(
@@ -748,18 +746,13 @@ public class WebServerServlet extends HttpServlet {
 			}
 		}
 
-		String contentType = fileEntry.getMimeType(version);
+		String contentType = null;
 
-		if (!converted) {
-			if (DLUtil.compareVersions(version, fileEntry.getVersion()) >= 0) {
-				contentLength = fileEntry.getSize();
-			}
-			else {
-				contentLength = fileVersion.getSize();
-			}
+		if (converted) {
+			contentType = MimeTypesUtil.getContentType(fileName);
 		}
 		else {
-			contentType = MimeTypesUtil.getContentType(fileName);
+			contentType = fileVersion.getMimeType();
 		}
 
 		ServletResponseUtil.sendFile(

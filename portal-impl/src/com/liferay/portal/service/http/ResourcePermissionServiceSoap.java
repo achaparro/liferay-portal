@@ -78,20 +78,6 @@ public class ResourcePermissionServiceSoap {
 		}
 	}
 
-	public static void setIndividualResourcePermissions(long groupId,
-		long companyId, java.lang.String name, java.lang.String primKey,
-		long roleId, java.lang.String[] actionIds) throws RemoteException {
-		try {
-			ResourcePermissionServiceUtil.setIndividualResourcePermissions(groupId,
-				companyId, name, primKey, roleId, actionIds);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
 	public static void removeResourcePermission(long groupId, long companyId,
 		java.lang.String name, int scope, java.lang.String primKey,
 		long roleId, java.lang.String actionId) throws RemoteException {
@@ -112,6 +98,20 @@ public class ResourcePermissionServiceSoap {
 		try {
 			ResourcePermissionServiceUtil.removeResourcePermissions(groupId,
 				companyId, name, scope, roleId, actionId);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static void setIndividualResourcePermissions(long groupId,
+		long companyId, java.lang.String name, java.lang.String primKey,
+		long roleId, java.lang.String[] actionIds) throws RemoteException {
+		try {
+			ResourcePermissionServiceUtil.setIndividualResourcePermissions(groupId,
+				companyId, name, primKey, roleId, actionIds);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

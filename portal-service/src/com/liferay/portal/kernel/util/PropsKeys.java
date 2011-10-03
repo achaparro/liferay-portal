@@ -1721,7 +1721,7 @@ public interface PropsKeys {
 
 	public static final String SESSION_VERIFY_SERIALIZABLE_ATTRIBUTE = "session.verify.serializable.attribute";
 
-	public static final String SETUP_DATABASE_DRIVERS_LIST = "setup.database.drivers.list";
+	public static final String SETUP_DATABASE_TYPES = "setup.database.types";
 
 	public static final String SETUP_WIZARD_ENABLED = "setup.wizard.enabled";
 
@@ -1824,8 +1824,6 @@ public interface PropsKeys {
 	public static final String SPRITE_FILE_NAME = "sprite.file.name";
 
 	public static final String SPRITE_PROPERTIES_FILE_NAME = "sprite.properties.file.name";
-
-	public static final String SPRITE_ROOT_DIR = "sprite.root.dir";
 
 	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_COUNTRY_COUNTRY_ID = "sql.data.com.liferay.portal.model.Country.country.id";
 

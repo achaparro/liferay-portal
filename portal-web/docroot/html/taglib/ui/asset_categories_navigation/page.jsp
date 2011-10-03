@@ -50,7 +50,7 @@ PortletURL portletURL = renderResponse.createRenderURL();
 
 		vocabulary = vocabulary.toEscapedModel();
 
-		String vocabularyNavigation = _buildVocabularyNavigation(vocabulary, categoryId, portletURL, locale);
+		String vocabularyNavigation = _buildVocabularyNavigation(vocabulary, categoryId, portletURL, themeDisplay);
 
 		if (Validator.isNotNull(vocabularyNavigation)) {
 			hidePortletWhenEmpty = false;
@@ -113,24 +113,23 @@ if (hidePortletWhenEmpty) {
 </aui:script>
 
 <%!
-private void _buildCategoriesNavigation(List<AssetCategory> categories, long curCategoryId, PortletURL portletURL, StringBundler sb, Locale locale) throws Exception {
+private void _buildCategoriesNavigation(List<AssetCategory> categories, long categoryId, PortletURL portletURL, ThemeDisplay themeDisplay, StringBundler sb) throws Exception {
 	for (AssetCategory category : categories) {
 		category = category.toEscapedModel();
 
-		long categoryId = category.getCategoryId();
-		String title = category.getTitle(locale);
+		String title = category.getTitle(themeDisplay.getLocale());
 
 		List<AssetCategory> categoriesChildren = AssetCategoryServiceUtil.getChildCategories(category.getCategoryId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 
 		sb.append("<li><span>");
 
-		if (categoryId == curCategoryId) {
+		if (categoryId == category.getCategoryId()) {
 			sb.append("<strong>");
 			sb.append(title);
 			sb.append("</strong>");
 		}
 		else {
-			portletURL.setParameter("categoryId", String.valueOf(categoryId));
+			portletURL.setParameter("categoryId", String.valueOf(category.getCategoryId()));
 
 			sb.append("<a href=\"");
 			sb.append(portletURL.toString());
@@ -144,7 +143,7 @@ private void _buildCategoriesNavigation(List<AssetCategory> categories, long cur
 		if (!categoriesChildren.isEmpty()) {
 			sb.append("<ul>");
 
-			_buildCategoriesNavigation(categoriesChildren, curCategoryId, portletURL, sb, locale);
+			_buildCategoriesNavigation(categoriesChildren, categoryId, portletURL, themeDisplay, sb);
 
 			sb.append("</ul>");
 		}
@@ -153,7 +152,7 @@ private void _buildCategoriesNavigation(List<AssetCategory> categories, long cur
 	}
 }
 
-private String _buildVocabularyNavigation(AssetVocabulary vocabulary, long categoryId, PortletURL portletURL, Locale locale) throws Exception {
+private String _buildVocabularyNavigation(AssetVocabulary vocabulary, long categoryId, PortletURL portletURL, ThemeDisplay themeDisplay) throws Exception {
 	List<AssetCategory> categories = AssetCategoryServiceUtil.getVocabularyRootCategories(vocabulary.getVocabularyId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 
 	if (categories.isEmpty()) {
@@ -164,7 +163,7 @@ private String _buildVocabularyNavigation(AssetVocabulary vocabulary, long categ
 
 	sb.append("<div class=\"lfr-asset-category-list-container\"><ul class=\"lfr-asset-category-list\">");
 
-	_buildCategoriesNavigation(categories, categoryId, portletURL, sb, locale);
+	_buildCategoriesNavigation(categories, categoryId, portletURL, themeDisplay, sb);
 
 	sb.append("</ul></div>");
 

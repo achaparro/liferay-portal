@@ -221,6 +221,18 @@ public class ResourceLocalServiceImpl extends ResourceLocalServiceBaseImpl {
 		}
 	}
 
+	public Resource fetchResource(
+			long companyId, String name, int scope, String primKey)
+		throws SystemException {
+
+		if (PropsValues.PERMISSIONS_USER_CHECK_ALGORITHM == 6) {
+			return getResource_6(companyId, name, scope, primKey);
+		}
+		else {
+			return fetchResource_1to5(companyId, name, scope, primKey);
+		}
+	}
+
 	public long getLatestResourceId() throws SystemException {
 		List<Resource> resources = resourcePersistence.findAll(
 			0, 1, new ResourceComparator());
@@ -804,9 +816,8 @@ public class ResourceLocalServiceImpl extends ResourceLocalServiceBaseImpl {
 
 	protected void addResources(
 			long companyId, long groupId, long userId, String name,
-			String primKey, boolean portletActions,
-			boolean addGroupPermissions, boolean addGuestPermissions,
-			PermissionedModel permissionedModel)
+			String primKey, boolean portletActions, boolean addGroupPermissions,
+			boolean addGuestPermissions, PermissionedModel permissionedModel)
 		throws PortalException, SystemException {
 
 		if (!PermissionThreadLocal.isAddResource()) {
@@ -1000,6 +1011,17 @@ public class ResourceLocalServiceImpl extends ResourceLocalServiceBaseImpl {
 				_log.warn(nsre);
 			}
 		}
+	}
+
+	protected Resource fetchResource_1to5(
+			long companyId, String name, int scope, String primKey)
+		throws SystemException {
+
+		ResourceCode resourceCode = resourceCodeLocalService.getResourceCode(
+			companyId, name, scope);
+
+		return resourcePersistence.fetchByC_P(
+			resourceCode.getCodeId(), primKey);
 	}
 
 	protected void filterOwnerActions(String name, List<String> actionIds) {

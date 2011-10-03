@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.Resource;
 import com.liferay.portal.model.ResourceAction;
 import com.liferay.portal.model.ResourceConstants;
@@ -420,7 +421,7 @@ public class ResourcePermissionLocalServiceImpl
 		// to one SQL call may actually slow things down since most of the calls
 		// will pull from the cache after the first request.
 
- 		for (int i = resources.size() - 1; i >= 0; i--) {
+		for (int i = resources.size() - 1; i >= 0; i--) {
 			Resource resource = resources.get(i);
 
 			if (hasResourcePermission(
@@ -769,9 +770,46 @@ public class ResourcePermissionLocalServiceImpl
 			ResourcePermissionConstants.OPERATOR_SET);
 	}
 
+	/**
+	 * Updates the role's permissions at the scope, setting the actions that can
+	 * be performed on resources of the type. Existing actions are replaced.
+	 *
+	 * <p>
+	 * This method can be used to set permissions at any scope, but it is
+	 * generally only used at the individual scope. For example, it could be
+	 * used to set the guest permissions on a blog post.
+	 * </p>
+	 *
+	 * <p>
+	 * Depending on the scope, the value of <code>primKey</code> will have
+	 * different meanings. For more information, see {@link
+	 * com.liferay.portal.model.impl.ResourcePermissionImpl}.
+	 * </p>
+	 *
+	 * @param  companyId the primary key of the company
+	 * @param  name the resource's name, which can be either a class name or a
+	 *         portlet ID
+	 * @param  scope the scope
+	 * @param  primKey the primary key
+	 * @param  roleIdsToActionIds a map of role IDs to action IDs of the actions
+	 * @throws PortalException if a role with the primary key or a resource
+	 *         action with the name and action ID could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void setResourcePermissions(
+			long companyId, String name, int scope, String primKey,
+			Map<Long, String[]> roleIdsToActionIds)
+		throws PortalException, SystemException {
+
+		updateResourcePermission(
+			companyId, name, scope, primKey, 0, roleIdsToActionIds,
+			ResourcePermissionConstants.OPERATOR_SET);
+	}
+
 	protected void doUpdateResourcePermission(
-			long companyId, String name, int scope, String primKey, long roleId,
-			long ownerId, String[] actionIds, int operator)
+			long companyId, String name, int scope, String primKey,
+			long ownerId, long roleId, String[] actionIds, int operator,
+			boolean flush)
 		throws PortalException, SystemException {
 
 		ResourcePermission resourcePermission = null;
@@ -836,6 +874,27 @@ public class ResourcePermissionLocalServiceImpl
 
 		resourcePermissionPersistence.update(resourcePermission, false);
 
+		if (flush) {
+			PermissionCacheUtil.clearCache();
+
+			SearchEngineUtil.updatePermissionFields(name, primKey);
+		}
+	}
+
+	protected void doUpdateResourcePermission(
+			long companyId, String name, int scope, String primKey,
+			long ownerId, Map<Long, String[]> roleIdsToActionIds, int operator)
+		throws PortalException, SystemException {
+
+		for (Map.Entry<Long, String[]> entry : roleIdsToActionIds.entrySet()) {
+			long roleId = entry.getKey();
+			String[] actionIds = entry.getValue();
+
+			doUpdateResourcePermission(
+				companyId, name, scope, primKey, ownerId, roleId, actionIds,
+				operator, false);
+		}
+
 		PermissionCacheUtil.clearCache();
 
 		SearchEngineUtil.updatePermissionFields(name, primKey);
@@ -880,8 +939,8 @@ public class ResourcePermissionLocalServiceImpl
 
 		if (!dbType.equals(DB.TYPE_HYPERSONIC)) {
 			doUpdateResourcePermission(
-				companyId, name, scope, primKey, roleId, ownerId, actionIds,
-				operator);
+				companyId, name, scope, primKey, ownerId, roleId, actionIds,
+				operator, true);
 
 			return;
 		}
@@ -898,7 +957,10 @@ public class ResourcePermissionLocalServiceImpl
 		sb.append(StringPool.POUND);
 		sb.append(roleId);
 
-		String groupName = getClass().getName();
+		Class<?> clazz = getClass();
+
+		String groupName = clazz.getName();
+
 		String key = sb.toString();
 
 		Lock lock = LockRegistry.allocateLock(groupName, key);
@@ -907,7 +969,86 @@ public class ResourcePermissionLocalServiceImpl
 
 		try {
 			doUpdateResourcePermission(
-				companyId, name, scope, primKey, roleId, ownerId, actionIds,
+				companyId, name, scope, primKey, ownerId, roleId, actionIds,
+				operator, true);
+		}
+		finally {
+			lock.unlock();
+
+			LockRegistry.freeLock(groupName, key);
+		}
+	}
+
+	/**
+	 * Updates the role's permissions at the scope, either adding to, removing
+	 * from, or setting the actions that can be performed on resources of the
+	 * type. Automatically creates a new resource permission if none exists, or
+	 * deletes the existing resource permission if it no longer grants
+	 * permissions to perform any action.
+	 *
+	 * <p>
+	 * Depending on the scope, the value of <code>primKey</code> will have
+	 * different meanings. For more information, see {@link
+	 * com.liferay.portal.model.impl.ResourcePermissionImpl}.
+	 * </p>
+	 *
+	 * @param  companyId the primary key of the company
+	 * @param  name the resource's name, which can be either a class name or a
+	 *         portlet ID
+	 * @param  scope the scope
+	 * @param  primKey the primary key
+	 * @param  roleId the primary key of the role
+	 * @param  ownerId the primary key of the owner
+	 * @param  actionIds the action IDs of the actions
+	 * @param  operator whether to add to, remove from, or set/replace the
+	 *         existing actions. Possible values can be found in {@link
+	 *         ResourcePermissionConstants}.
+	 * @throws PortalException if a role with the primary key or a resource
+	 *         action with the name and action ID could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	protected void updateResourcePermission(
+			long companyId, String name, int scope, String primKey,
+			long ownerId, Map<Long, String[]> roleIdsToActionIds, int operator)
+		throws PortalException, SystemException {
+
+		DB db = DBFactoryUtil.getDB();
+
+		String dbType = db.getType();
+
+		if (!dbType.equals(DB.TYPE_HYPERSONIC)) {
+			doUpdateResourcePermission(
+				companyId, name, scope, primKey, ownerId, roleIdsToActionIds,
+				operator);
+
+			return;
+		}
+
+		StringBundler sb = new StringBundler(9);
+
+		sb.append(companyId);
+		sb.append(StringPool.POUND);
+		sb.append(name);
+		sb.append(StringPool.POUND);
+		sb.append(scope);
+		sb.append(StringPool.POUND);
+		sb.append(primKey);
+		sb.append(StringPool.POUND);
+		sb.append(StringUtil.merge(roleIdsToActionIds.keySet()));
+
+		Class<?> clazz = getClass();
+
+		String groupName = clazz.getName();
+
+		String key = sb.toString();
+
+		Lock lock = LockRegistry.allocateLock(groupName, key);
+
+		lock.lock();
+
+		try {
+			doUpdateResourcePermission(
+				companyId, name, scope, primKey, ownerId, roleIdsToActionIds,
 				operator);
 		}
 		finally {

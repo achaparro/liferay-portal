@@ -76,7 +76,7 @@ if (Validator.isNotNull(className)) {
 			curCategoryNames = StringPool.BLANK;
 		}
 
-		String[] categoryIdsTitles = _getCategoryIdsTitles(curCategoryIds, curCategoryNames, vocabulary.getVocabularyId(), locale);
+		String[] categoryIdsTitles = _getCategoryIdsTitles(curCategoryIds, curCategoryNames, vocabulary.getVocabularyId(), themeDisplay);
 	%>
 
 		<span class="aui-field-content">
@@ -124,7 +124,7 @@ else {
 		curCategoryIds = curCategoryIdsParam;
 	}
 
-	String[] categoryIdsTitles = _getCategoryIdsTitles(curCategoryIds, curCategoryNames, 0, locale);
+	String[] categoryIdsTitles = _getCategoryIdsTitles(curCategoryIds, curCategoryNames, 0, themeDisplay);
 %>
 
 	<div class="lfr-tags-selector-content" id="<%= namespace + randomNamespace %>assetCategoriesSelector">
@@ -164,7 +164,7 @@ private long[] _filterCategoryIds(long vocabularyId, long[] categoryIds) throws 
 	return ArrayUtil.toArray(filteredCategoryIds.toArray(new Long[filteredCategoryIds.size()]));
 }
 
-private String[] _getCategoryIdsTitles(String categoryIds, String categoryNames, long vocabularyId, Locale locale) throws PortalException, SystemException {
+private String[] _getCategoryIdsTitles(String categoryIds, String categoryNames, long vocabularyId, ThemeDisplay themeDisplay) throws PortalException, SystemException {
 	if (Validator.isNotNull(categoryIds)) {
 		long[] categoryIdsArray = GetterUtil.getLongValues(StringUtil.split(categoryIds));
 
@@ -184,7 +184,8 @@ private String[] _getCategoryIdsTitles(String categoryIds, String categoryNames,
 
 				category = category.toEscapedModel();
 
-				sb.append(category.getTitle(locale));
+				sb.append(category.getTitle(themeDisplay.getLocale()));
+
 				sb.append(_CATEGORY_SEPARATOR);
 			}
 

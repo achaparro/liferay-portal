@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -661,9 +662,7 @@ public class PermissionLocalServiceImpl extends PermissionLocalServiceBaseImpl {
 			String[] actionIds)
 		throws PortalException, SystemException {
 
-		for (int i = 0; i < actionIds.length; i++) {
-			String actionId = actionIds[i];
-
+		for (String actionId : actionIds) {
 			setRolePermission(
 				roleId, companyId, name, scope, primKey, actionId);
 		}
@@ -688,6 +687,51 @@ public class PermissionLocalServiceImpl extends PermissionLocalServiceBaseImpl {
 		PermissionCacheUtil.clearCache();
 
 		SearchEngineUtil.updatePermissionFields(resourceId);
+	}
+
+	public void setRolesPermissions(
+			long companyId, Map<Long, String[]> roleIdsToActionIds,
+			long resourceId)
+		throws SystemException {
+
+		for (Map.Entry<Long, String[]> entry : roleIdsToActionIds.entrySet()) {
+			long roleId = entry.getKey();
+			String[] actionIds = entry.getValue();
+
+			List<Permission> permissions = permissionFinder.findByR_R(
+				roleId, resourceId);
+
+			rolePersistence.removePermissions(roleId, permissions);
+
+			permissions = getPermissions(companyId, actionIds, resourceId);
+
+			rolePersistence.addPermissions(roleId, permissions);
+		}
+
+		PermissionCacheUtil.clearCache();
+
+		SearchEngineUtil.updatePermissionFields(resourceId);
+	}
+
+	public void setRolesPermissions(
+			long companyId, Map<Long, String[]> roleIdsToActionIds, String name,
+			int scope, String primKey)
+		throws SystemException {
+
+		Resource resource = resourceLocalService.fetchResource(
+			companyId, name, scope, String.valueOf(primKey));
+
+		if (resource == null) {
+			resource = resourceLocalService.addResource(
+				companyId, name, scope, String.valueOf(primKey));
+		}
+
+		if (resource == null) {
+			return;
+		}
+
+		setRolesPermissions(
+			companyId, roleIdsToActionIds, resource.getResourceId());
 	}
 
 	public void setUserPermissions(

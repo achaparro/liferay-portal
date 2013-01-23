@@ -29,7 +29,6 @@ import com.liferay.portal.service.base.PortalPreferencesLocalServiceBaseImpl;
 import com.liferay.portlet.PortalPreferencesImpl;
 import com.liferay.portlet.PortalPreferencesWrapper;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
-import com.liferay.portlet.PortletPreferencesThreadLocal;
 
 import java.util.concurrent.locks.Lock;
 
@@ -169,17 +168,10 @@ public class PortalPreferencesLocalServiceImpl
 		PortalPreferences portalPreferences =
 			portalPreferencesPersistence.fetchByO_O(ownerId, ownerType);
 
-		if (portalPreferences == null) {
-			if (PortletPreferencesThreadLocal.isStrict() &&
-				Validator.isNull(defaultPreferences)) {
+		if ((portalPreferences == null) &&
+			Validator.isNull(defaultPreferences)) {
 
-				return new PortalPreferencesWrapper(
-					new PortalPreferencesImpl());
-			}
-
-			portalPreferences =
-				portalPreferencesLocalService.addPortalPreferences(
-					companyId, ownerId, ownerType, defaultPreferences);
+			return new PortalPreferencesWrapper(new PortalPreferencesImpl());
 		}
 
 		PortalPreferencesImpl portalPreferencesImpl =

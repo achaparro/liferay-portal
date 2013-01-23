@@ -435,8 +435,14 @@ public class PortletContainerImpl implements PortletContainer {
 				request, portlet.getPortletId());
 
 		PortletPreferences portletPreferences =
-			PortletPreferencesLocalServiceUtil.getPreferences(
+			PortletPreferencesLocalServiceUtil.fetchPreferences(
 				portletPreferencesIds);
+
+		if (portletPreferences == null) {
+			portletPreferences =
+				PortletPreferencesLocalServiceUtil.addPreferences(
+					portletPreferencesIds);
+		}
 
 		ServletContext servletContext = (ServletContext)request.getAttribute(
 			WebKeys.CTX);
@@ -880,8 +886,14 @@ public class PortletContainerImpl implements PortletContainer {
 				request, portlet.getPortletId());
 
 		PortletPreferences portletPreferences =
-			PortletPreferencesLocalServiceUtil.getPreferences(
+			PortletPreferencesLocalServiceUtil.fetchPreferences(
 				portletPreferencesIds);
+
+		if (portletPreferences == null) {
+			portletPreferences =
+				PortletPreferencesLocalServiceUtil.addPreferences(
+					portletPreferencesIds);
+		}
 
 		ServletContext servletContext = (ServletContext)request.getAttribute(
 			WebKeys.CTX);

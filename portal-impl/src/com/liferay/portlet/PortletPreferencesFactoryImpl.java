@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
@@ -376,6 +375,13 @@ public class PortletPreferencesFactoryImpl
 			defaultPreferences);
 	}
 
+	public PortletPreferences getPortletSetup(Layout layout, String portletId)
+		throws SystemException {
+
+		return getPortletSetup(
+			LayoutConstants.DEFAULT_PLID, layout, portletId, null);
+	}
+
 	public PortletPreferences getPortletSetup(
 			Layout layout, String portletId, String defaultPreferences)
 		throws SystemException {
@@ -390,8 +396,69 @@ public class PortletPreferencesFactoryImpl
 			String defaultPreferences)
 		throws SystemException {
 
-		return getPortletSetup(
-			scopeGroupId, layout, portletId, defaultPreferences, true);
+		String originalPortletId = portletId;
+
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(
+			layout.getCompanyId(), portletId);
+
+		boolean uniquePerLayout = false;
+		boolean uniquePerGroup = false;
+
+		if (portlet.isPreferencesCompanyWide()) {
+			portletId = PortletConstants.getRootPortletId(portletId);
+		}
+		else {
+			if (portlet.isPreferencesUniquePerLayout()) {
+				uniquePerLayout = true;
+
+				if (portlet.isPreferencesOwnedByGroup()) {
+					uniquePerGroup = true;
+				}
+			}
+			else {
+				if (portlet.isPreferencesOwnedByGroup()) {
+					uniquePerGroup = true;
+					portletId = PortletConstants.getRootPortletId(portletId);
+				}
+			}
+		}
+
+		long ownerId = PortletKeys.PREFS_OWNER_ID_DEFAULT;
+		int ownerType = PortletKeys.PREFS_OWNER_TYPE_LAYOUT;
+		long plid = layout.getPlid();
+
+		Group group = GroupLocalServiceUtil.fetchGroup(scopeGroupId);
+
+		if ((group != null) && group.isLayout()) {
+			plid = group.getClassPK();
+		}
+
+		if (PortletConstants.hasUserId(originalPortletId)) {
+			ownerId = PortletConstants.getUserId(originalPortletId);
+			ownerType = PortletKeys.PREFS_OWNER_TYPE_USER;
+		}
+		else if (!uniquePerLayout) {
+			plid = PortletKeys.PREFS_PLID_SHARED;
+
+			if (uniquePerGroup) {
+				if (scopeGroupId > LayoutConstants.DEFAULT_PLID) {
+					ownerId = scopeGroupId;
+				}
+				else {
+					ownerId = layout.getGroupId();
+				}
+
+				ownerType = PortletKeys.PREFS_OWNER_TYPE_GROUP;
+			}
+			else {
+				ownerId = layout.getCompanyId();
+				ownerType = PortletKeys.PREFS_OWNER_TYPE_COMPANY;
+			}
+		}
+
+		return PortletPreferencesLocalServiceUtil.getPreferences(
+			layout.getCompanyId(), ownerId, ownerType, plid, portletId,
+			defaultPreferences);
 	}
 
 	public PortletPreferences getPortletSetup(PortletRequest portletRequest)
@@ -463,32 +530,6 @@ public class PortletPreferencesFactoryImpl
 		return PortalUtil.getPreferencesValidator(portlet);
 	}
 
-	public PortletPreferences getStrictLayoutPortletSetup(
-			Layout layout, String portletId)
-		throws SystemException {
-
-		long ownerId = PortletKeys.PREFS_OWNER_ID_DEFAULT;
-		int ownerType = PortletKeys.PREFS_OWNER_TYPE_LAYOUT;
-
-		if (PortletConstants.hasUserId(portletId)) {
-			ownerId = PortletConstants.getUserId(portletId);
-			ownerType = PortletKeys.PREFS_OWNER_TYPE_USER;
-		}
-
-		return PortletPreferencesLocalServiceUtil.getStrictPreferences(
-			layout.getCompanyId(), ownerId, ownerType, layout.getPlid(),
-			portletId);
-	}
-
-	public PortletPreferences getStrictPortletSetup(
-			Layout layout, String portletId)
-		throws SystemException {
-
-		return getPortletSetup(
-			LayoutConstants.DEFAULT_PLID, layout, portletId, StringPool.BLANK,
-			true);
-	}
-
 	public String toXML(PortalPreferences portalPreferences) {
 		PortalPreferencesImpl portalPreferencesImpl =
 			(PortalPreferencesImpl)portalPreferences;
@@ -501,81 +542,6 @@ public class PortletPreferencesFactoryImpl
 			(PortletPreferencesImpl)portletPreferences;
 
 		return portletPreferencesImpl.toXML();
-	}
-
-	protected PortletPreferences getPortletSetup(
-			long scopeGroupId, Layout layout, String portletId,
-			String defaultPreferences, boolean strictMode)
-		throws SystemException {
-
-		String originalPortletId = portletId;
-
-		Portlet portlet = PortletLocalServiceUtil.getPortletById(
-			layout.getCompanyId(), portletId);
-
-		boolean uniquePerLayout = false;
-		boolean uniquePerGroup = false;
-
-		if (portlet.isPreferencesCompanyWide()) {
-			portletId = PortletConstants.getRootPortletId(portletId);
-		}
-		else {
-			if (portlet.isPreferencesUniquePerLayout()) {
-				uniquePerLayout = true;
-
-				if (portlet.isPreferencesOwnedByGroup()) {
-					uniquePerGroup = true;
-				}
-			}
-			else {
-				if (portlet.isPreferencesOwnedByGroup()) {
-					uniquePerGroup = true;
-					portletId = PortletConstants.getRootPortletId(portletId);
-				}
-			}
-		}
-
-		long ownerId = PortletKeys.PREFS_OWNER_ID_DEFAULT;
-		int ownerType = PortletKeys.PREFS_OWNER_TYPE_LAYOUT;
-		long plid = layout.getPlid();
-
-		Group group = GroupLocalServiceUtil.fetchGroup(scopeGroupId);
-
-		if ((group != null) && group.isLayout()) {
-			plid = group.getClassPK();
-		}
-
-		if (PortletConstants.hasUserId(originalPortletId)) {
-			ownerId = PortletConstants.getUserId(originalPortletId);
-			ownerType = PortletKeys.PREFS_OWNER_TYPE_USER;
-		}
-		else if (!uniquePerLayout) {
-			plid = PortletKeys.PREFS_PLID_SHARED;
-
-			if (uniquePerGroup) {
-				if (scopeGroupId > LayoutConstants.DEFAULT_PLID) {
-					ownerId = scopeGroupId;
-				}
-				else {
-					ownerId = layout.getGroupId();
-				}
-
-				ownerType = PortletKeys.PREFS_OWNER_TYPE_GROUP;
-			}
-			else {
-				ownerId = layout.getCompanyId();
-				ownerType = PortletKeys.PREFS_OWNER_TYPE_COMPANY;
-			}
-		}
-
-		if (strictMode) {
-			return PortletPreferencesLocalServiceUtil.getStrictPreferences(
-				layout.getCompanyId(), ownerId, ownerType, plid, portletId);
-		}
-
-		return PortletPreferencesLocalServiceUtil.getPreferences(
-			layout.getCompanyId(), ownerId, ownerType, plid, portletId,
-			defaultPreferences);
 	}
 
 	protected void populateMap(

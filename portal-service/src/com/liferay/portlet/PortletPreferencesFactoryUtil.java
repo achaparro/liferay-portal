@@ -155,6 +155,14 @@ public class PortletPreferencesFactoryUtil {
 	}
 
 	public static PortletPreferences getPortletSetup(
+			Layout layout, String portletId)
+		throws SystemException {
+
+		return getPortletPreferencesFactory().getPortletSetup(
+			layout, portletId);
+	}
+
+	public static PortletPreferences getPortletSetup(
 			Layout layout, String portletId, String defaultPreferences)
 		throws SystemException {
 
@@ -205,22 +213,6 @@ public class PortletPreferencesFactoryUtil {
 		Portlet portlet) {
 
 		return getPortletPreferencesFactory().getPreferencesValidator(portlet);
-	}
-
-	public static PortletPreferences getStrictLayoutPortletSetup(
-			Layout layout, String portletId)
-		throws SystemException {
-
-		return getPortletPreferencesFactory().getStrictLayoutPortletSetup(
-			layout, portletId);
-	}
-
-	public static PortletPreferences getStrictPortletSetup(
-			Layout layout, String portletId)
-		throws SystemException {
-
-		return getPortletPreferencesFactory().getStrictPortletSetup(
-			layout, portletId);
 	}
 
 	public static String toXML(PortalPreferences portalPreferences) {

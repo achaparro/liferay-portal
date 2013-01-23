@@ -89,6 +89,9 @@ public interface PortletPreferencesFactory {
 			String defaultPreferences)
 		throws PortalException, SystemException;
 
+	public PortletPreferences getPortletSetup(Layout layout, String portletId)
+		throws SystemException;
+
 	public PortletPreferences getPortletSetup(
 			Layout layout, String portletId, String defaultPreferences)
 		throws SystemException;
@@ -113,14 +116,6 @@ public interface PortletPreferencesFactory {
 	public PortletPreferences getPreferences(HttpServletRequest request);
 
 	public PreferencesValidator getPreferencesValidator(Portlet portlet);
-
-	public PortletPreferences getStrictLayoutPortletSetup(
-			Layout layout, String portletId)
-		throws SystemException;
-
-	public PortletPreferences getStrictPortletSetup(
-			Layout layout, String portletId)
-		throws SystemException;
 
 	public String toXML(PortalPreferences portalPreferences);
 

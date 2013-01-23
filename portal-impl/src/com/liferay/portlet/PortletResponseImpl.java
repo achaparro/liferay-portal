@@ -556,7 +556,7 @@ public abstract class PortletResponseImpl implements LiferayPortletResponse {
 
 			if (_portletSetup == null) {
 				_portletSetup =
-					PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(
+					PortletPreferencesFactoryUtil.getLayoutPortletSetup(
 						layout, _portletName);
 			}
 

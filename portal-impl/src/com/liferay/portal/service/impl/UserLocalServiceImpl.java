@@ -3633,17 +3633,36 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			long groupId, long[] userIds, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
-		userGroupRoleLocalService.deleteUserGroupRoles(userIds, groupId);
+		userIds = filterUserIdsByGroup(groupId, userIds);
 
-		userLocalService.unsetGroupTeamsUsers(groupId, userIds);
+		if (userIds.length > 0) {
+			Group group = groupLocalService.getGroup(groupId);
 
-		groupPersistence.removeUsers(groupId, userIds);
+			if (group.isSite()) {
+				List<Role> siteRoles = roleLocalService.getRoles(
+						RoleConstants.TYPE_SITE, StringPool.BLANK);
 
-		Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(User.class);
+				for (Role siteRole : siteRoles) {
+					userGroupRoleLocalService.deleteUserGroupRoles(
+						userIds, groupId, siteRole.getRoleId());
+				}
+			}
+			else {
+				userGroupRoleLocalService.deleteUserGroupRoles(
+					userIds, groupId);
+			}
 
-		indexer.reindex(userIds);
+			userLocalService.unsetGroupTeamsUsers(groupId, userIds);
 
-		PermissionCacheUtil.clearCache();
+			groupPersistence.removeUsers(groupId, userIds);
+
+			Indexer indexer = IndexerRegistryUtil.nullSafeGetIndexer(
+				User.class);
+
+			indexer.reindex(userIds);
+
+			PermissionCacheUtil.clearCache();
+		}
 	}
 
 	/**
@@ -5436,6 +5455,21 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		// PLACEHOLDER 02
 
 		return authResult;
+	}
+
+	protected long[] filterUserIdsByGroup(long groupId, long[] userIds)
+		throws PortalException, SystemException {
+
+		long[] filteredUserIds = userIds;
+
+		for (long userId : userIds) {
+			if (!hasGroupUser(groupId, userId)) {
+
+				filteredUserIds = ArrayUtil.remove(filteredUserIds, userId);
+			}
+		}
+
+		return filteredUserIds;
 	}
 
 	protected Date getBirthday(

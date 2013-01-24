@@ -3683,7 +3683,31 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		long groupId = group.getGroupId();
 
-		userGroupRoleLocalService.deleteUserGroupRoles(userIds, groupId);
+		long[] groupUsers = filterUserIdsByGroup(groupId, userIds);
+
+		long[] nonGroupUsers = userIds;
+
+		for (long groupUser : groupUsers) {
+			nonGroupUsers = ArrayUtil.remove(nonGroupUsers, groupUser);
+		}
+
+		if (groupUsers.length > 0) {
+			
+			//Group users should keep the rest of their group roles
+			
+			List<Role> organizationRoles = roleLocalService.getRoles(
+					RoleConstants.TYPE_ORGANIZATION, StringPool.BLANK);
+
+			for (Role organizationRole : organizationRoles) {
+				userGroupRoleLocalService.deleteUserGroupRoles(
+					groupUsers, groupId, organizationRole.getRoleId());
+			}
+		}
+
+		if (nonGroupUsers.length > 0) {
+			userGroupRoleLocalService.deleteUserGroupRoles(
+				nonGroupUsers, groupId);
+		}
 
 		organizationPersistence.removeUsers(organizationId, userIds);
 

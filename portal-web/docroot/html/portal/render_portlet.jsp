@@ -51,11 +51,10 @@ boolean modeHelp = layoutTypePortlet.hasModeHelpPortletId(portletId);
 boolean modePreview = layoutTypePortlet.hasModePreviewPortletId(portletId);
 boolean modePrint = layoutTypePortlet.hasModePrintPortletId(portletId);
 
-PortletPreferences portletSetup = PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(layout, portletId);
-
 PortletPreferencesIds portletPreferencesIds = PortletPreferencesFactoryUtil.getPortletPreferencesIds(request, portletId);
 
 PortletPreferences portletPreferences = null;
+PortletPreferences portletSetup = null;
 
 Group group = null;
 boolean privateLayout = false;
@@ -74,7 +73,11 @@ else {
 }
 
 if (allowAddPortletDefaultResource) {
-	portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(portletPreferencesIds);
+	portletPreferences = PortletPreferencesLocalServiceUtil.fetchPreferences(portletPreferencesIds);
+
+	if (portletPreferences == null) {
+		portletPreferences = PortletPreferencesLocalServiceUtil.addPreferences(portletPreferencesIds);
+	}
 
 	String scopeLayoutUuid = portletPreferences.getValue("lfrScopeLayoutUuid", null);
 
@@ -84,12 +87,29 @@ if (allowAddPortletDefaultResource) {
 		if (scopeLayout != null) {
 			portletPreferencesIds = PortletPreferencesFactoryUtil.getPortletPreferencesIds(request, scopeLayout, portletId);
 
-			portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(portletPreferencesIds);
+			portletPreferences = PortletPreferencesLocalServiceUtil.fetchPreferences(portletPreferencesIds);
+
+			if (portletPreferences == null) {
+				portletPreferences = PortletPreferencesLocalServiceUtil.addPreferences(portletPreferencesIds);
+			}
+		}
+	}
+
+	if (portletPreferencesIds.getOwnerType().equals(PortletKeys.PREFS_OWNER_TYPE_LAYOUT)) {
+		portletSetup = portletPreferences;
+	}
+	else {
+		portletSetup = PortletPreferencesFactoryUtil.getLayoutPortletSetup(layout, portletId);
+
+		if (portletSetup == null) {
+			portletSetup = PortletPreferencesFactoryUtil.addLayoutPortletSetup(layout, portletId);
 		}
 	}
 }
 else {
-	portletPreferences = PortletPreferencesLocalServiceUtil.getStrictPreferences(portletPreferencesIds);
+	portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(portletPreferencesIds);
+
+	portletSetup = PortletPreferencesFactoryUtil.getLayoutPortletSetup(layout, portletId);
 }
 
 long portletItemId = ParamUtil.getLong(request, "p_p_i_id");

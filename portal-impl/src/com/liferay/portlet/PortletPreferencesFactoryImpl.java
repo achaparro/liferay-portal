@@ -75,6 +75,23 @@ import javax.xml.stream.events.XMLEvent;
 public class PortletPreferencesFactoryImpl
 	implements PortletPreferencesFactory {
 
+	public PortletPreferences addLayoutPortletSetup(
+			Layout layout, String portletId)
+		throws SystemException {
+
+		long ownerId = PortletKeys.PREFS_OWNER_ID_DEFAULT;
+		int ownerType = PortletKeys.PREFS_OWNER_TYPE_LAYOUT;
+
+		if (PortletConstants.hasUserId(portletId)) {
+			ownerId = PortletConstants.getUserId(portletId);
+			ownerType = PortletKeys.PREFS_OWNER_TYPE_USER;
+		}
+
+		return PortletPreferencesLocalServiceUtil.addPreferences(
+			layout.getCompanyId(), ownerId, ownerType, layout.getPlid(),
+			portletId);
+	}
+
 	public PortletPreferences fromDefaultXML(String xml)
 		throws SystemException {
 

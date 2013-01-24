@@ -34,6 +34,10 @@ import javax.servlet.http.HttpSession;
  */
 public interface PortletPreferencesFactory {
 
+	public PortletPreferences addLayoutPortletSetup(
+			Layout layout, String portletId)
+		throws SystemException;
+
 	public PortletPreferences fromDefaultXML(String xml) throws SystemException;
 
 	public PortletPreferences fromXML(

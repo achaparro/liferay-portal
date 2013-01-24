@@ -348,6 +348,11 @@ public class AddDefaultLayoutSetPrototypesAction extends SimpleAction {
 			PortletPreferencesFactoryUtil.getLayoutPortletSetup(
 				layout, portletId);
 
+		if (portletSetup == null) {
+			portletSetup = PortletPreferencesFactoryUtil.addLayoutPortletSetup(
+				layout, portletId);
+		}
+
 		for (Map.Entry<String, String> entry : preferences.entrySet()) {
 			String key = entry.getKey();
 			String value = entry.getValue();

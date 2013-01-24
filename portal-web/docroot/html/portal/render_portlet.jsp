@@ -53,9 +53,6 @@ boolean modePrint = layoutTypePortlet.hasModePrintPortletId(portletId);
 
 PortletPreferencesIds portletPreferencesIds = PortletPreferencesFactoryUtil.getPortletPreferencesIds(request, portletId);
 
-PortletPreferences portletPreferences = null;
-PortletPreferences portletSetup = null;
-
 Group group = null;
 boolean privateLayout = false;
 
@@ -72,44 +69,39 @@ else {
 	privateLayout = layout.isPrivateLayout();
 }
 
-if (allowAddPortletDefaultResource) {
-	portletPreferences = PortletPreferencesLocalServiceUtil.fetchPreferences(portletPreferencesIds);
+PortletPreferences portletPreferences = PortletPreferencesLocalServiceUtil.fetchPreferences(portletPreferencesIds);
 
-	if (portletPreferences == null) {
-		portletPreferences = PortletPreferencesLocalServiceUtil.addPreferences(portletPreferencesIds);
-	}
+if ((portletPreferences == null) && allowAddPortletDefaultResource) {
+	portletPreferences = PortletPreferencesLocalServiceUtil.addPreferences(portletPreferencesIds);
+}
 
-	String scopeLayoutUuid = portletPreferences.getValue("lfrScopeLayoutUuid", null);
+String scopeLayoutUuid = portletPreferences.getValue("lfrScopeLayoutUuid", null);
 
-	if (Validator.isNotNull(scopeLayoutUuid)) {
-		Layout scopeLayout = LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(scopeLayoutUuid, group.getGroupId(), privateLayout);
+if (Validator.isNotNull(scopeLayoutUuid)) {
+	Layout scopeLayout = LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(scopeLayoutUuid, group.getGroupId(), privateLayout);
 
-		if (scopeLayout != null) {
-			portletPreferencesIds = PortletPreferencesFactoryUtil.getPortletPreferencesIds(request, scopeLayout, portletId);
+	if (scopeLayout != null) {
+		portletPreferencesIds = PortletPreferencesFactoryUtil.getPortletPreferencesIds(request, scopeLayout, portletId);
 
-			portletPreferences = PortletPreferencesLocalServiceUtil.fetchPreferences(portletPreferencesIds);
+		portletPreferences = PortletPreferencesLocalServiceUtil.fetchPreferences(portletPreferencesIds);
 
-			if (portletPreferences == null) {
-				portletPreferences = PortletPreferencesLocalServiceUtil.addPreferences(portletPreferencesIds);
-			}
-		}
-	}
-
-	if (portletPreferencesIds.getOwnerType().equals(PortletKeys.PREFS_OWNER_TYPE_LAYOUT)) {
-		portletSetup = portletPreferences;
-	}
-	else {
-		portletSetup = PortletPreferencesFactoryUtil.getLayoutPortletSetup(layout, portletId);
-
-		if (portletSetup == null) {
-			portletSetup = PortletPreferencesFactoryUtil.addLayoutPortletSetup(layout, portletId);
+		if ((portletPreferences == null) && allowAddPortletDefaultResource) {
+			portletPreferences = PortletPreferencesLocalServiceUtil.addPreferences(portletPreferencesIds);
 		}
 	}
 }
-else {
-	portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(portletPreferencesIds);
 
+PortletPreferences portletSetup = null;
+
+if (portletPreferencesIds.getOwnerType() == PortletKeys.PREFS_OWNER_TYPE_LAYOUT) {
+	portletSetup = portletPreferences;
+}
+else {
 	portletSetup = PortletPreferencesFactoryUtil.getLayoutPortletSetup(layout, portletId);
+
+	if ((portletSetup == null) && allowAddPortletDefaultResource) {
+		portletSetup = PortletPreferencesFactoryUtil.addLayoutPortletSetup(layout, portletId);
+	}
 }
 
 long portletItemId = ParamUtil.getLong(request, "p_p_i_id");

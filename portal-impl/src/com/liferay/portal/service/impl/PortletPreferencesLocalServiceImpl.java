@@ -351,11 +351,11 @@ public class PortletPreferencesLocalServiceImpl
 			Portlet portlet = portletLocalService.getPortletById(
 				companyId, portletId);
 
-			if (Validator.isNull(defaultPreferences) ||
-				((portlet != null) && portlet.isUndeployedPortlet())) {
-
+			if ((portlet != null) && portlet.isUndeployedPortlet()) {
 				return new PortletPreferencesImpl();
 			}
+
+			return null;
 		}
 
 		PortletPreferencesImpl portletPreferencesImpl =

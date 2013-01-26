@@ -97,10 +97,28 @@ if (portletPreferencesIds.getOwnerType() == PortletKeys.PREFS_OWNER_TYPE_LAYOUT)
 	portletSetup = portletPreferences;
 }
 else {
-	portletSetup = PortletPreferencesFactoryUtil.getLayoutPortletSetup(layout, portletId);
+	portletSetup = PortletPreferencesFactoryUtil.fetchLayoutPortletSetup(layout, portletId);
 
 	if ((portletSetup == null) && allowAddPortletDefaultResource) {
-		portletSetup = PortletPreferencesFactoryUtil.addLayoutPortletSetup(layout, portletId);
+		if (stateMax) {
+			// Do we even need a real PortletSetup in this case?
+			//
+			// Reason: We've correctly determined that the portlet is being loaded
+			// dynamically, but that it is not embedded. We know this, because if it
+			// was embedded, earlier code would have created the PortletSetup
+			// automatically. Furthermore, in this condition, there is no way to
+			// access the portlet look and feel to adjust any of it's settings so
+			// the PortletSetup is needless DB garbage.
+
+			portletSetup = new PortletPreferencesImpl();
+		}
+		else {
+			// Can this ever actually happen?
+
+			System.out.println("????????????????????????????????????? Is this broken?");
+
+			portletSetup = PortletPreferencesFactoryUtil.addLayoutPortletSetup(layout, portletId);
+		}
 	}
 }
 

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.impl;
 
+import com.liferay.portal.NoSuchPortletPreferencesException;
 import com.liferay.portal.kernel.concurrent.LockRegistry;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
@@ -96,11 +97,21 @@ public class PortletPreferencesLocalServiceImpl
 			String portletId)
 		throws SystemException {
 
+		return addPreferences(
+			companyId, ownerId, ownerType, plid, portletId, null);
+	}
+
+	public javax.portlet.PortletPreferences addPreferences(
+			long companyId, long ownerId, int ownerType, long plid,
+			String portletId, String defaultPreferences)
+		throws SystemException {
+
 		Portlet portlet = portletLocalService.getPortletById(
 			companyId, portletId);
 
 		PortletPreferences portletPreferences = addPortletPreferences(
-			companyId, ownerId, ownerType, plid, portletId, portlet, null);
+			companyId, ownerId, ownerType, plid, portletId, portlet,
+			defaultPreferences);
 
 		PortletPreferencesImpl portletPreferencesImpl =
 			(PortletPreferencesImpl)PortletPreferencesFactoryUtil.fromXML(
@@ -250,7 +261,7 @@ public class PortletPreferencesLocalServiceImpl
 	public javax.portlet.PortletPreferences getPreferences(
 			long companyId, long ownerId, int ownerType, long plid,
 			String portletId)
-		throws SystemException {
+		throws PortalException, SystemException {
 
 		return getPreferences(
 			companyId, ownerId, ownerType, plid, portletId, null);
@@ -259,7 +270,7 @@ public class PortletPreferencesLocalServiceImpl
 	public javax.portlet.PortletPreferences getPreferences(
 			long companyId, long ownerId, int ownerType, long plid,
 			String portletId, String defaultPreferences)
-		throws SystemException {
+		throws PortalException, SystemException {
 
 		DB db = DBFactoryUtil.getDB();
 
@@ -302,7 +313,7 @@ public class PortletPreferencesLocalServiceImpl
 
 	public javax.portlet.PortletPreferences getPreferences(
 			PortletPreferencesIds portletPreferencesIds)
-		throws SystemException {
+		throws PortalException, SystemException {
 
 		return getPreferences(
 			portletPreferencesIds.getCompanyId(),
@@ -341,7 +352,7 @@ public class PortletPreferencesLocalServiceImpl
 	protected javax.portlet.PortletPreferences doGetPreferences(
 			long companyId, long ownerId, int ownerType, long plid,
 			String portletId, String defaultPreferences)
-		throws SystemException {
+		throws PortalException, SystemException {
 
 		PortletPreferences portletPreferences =
 			portletPreferencesPersistence.fetchByO_O_P_P(
@@ -355,7 +366,7 @@ public class PortletPreferencesLocalServiceImpl
 				return new PortletPreferencesImpl();
 			}
 
-			return null;
+			throw new NoSuchPortletPreferencesException();
 		}
 
 		PortletPreferencesImpl portletPreferencesImpl =

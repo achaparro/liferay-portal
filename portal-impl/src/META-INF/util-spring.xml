@@ -273,6 +273,11 @@
 			<bean class="com.liferay.portal.resiliency.spi.SPIRegistryImpl" />
 		</property>
 	</bean>
+	<bean id="com.liferay.portal.kernel.portlet.RuntimePortletUtil" class="com.liferay.portal.kernel.portlet.RuntimePortletUtil">
+		<property name="runtimePortlet">
+			<bean class="com.liferay.portlet.RuntimePortletImpl" />
+		</property>
+	</bean>
 	<bean id="com.liferay.portal.kernel.sanitizer.SanitizerUtil" class="com.liferay.portal.kernel.sanitizer.SanitizerUtil">
 		<property name="sanitizer">
 			<bean class="com.liferay.portal.sanitizer.SanitizerImpl" />

@@ -345,7 +345,7 @@ public class AddDefaultLayoutSetPrototypesAction extends SimpleAction {
 		throws Exception {
 
 		PortletPreferences portletSetup =
-			PortletPreferencesFactoryUtil.getLayoutPortletSetup(
+			PortletPreferencesFactoryUtil.fetchLayoutPortletSetup(
 				layout, portletId);
 
 		if (portletSetup == null) {

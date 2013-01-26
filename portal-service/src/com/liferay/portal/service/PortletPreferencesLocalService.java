@@ -237,6 +237,11 @@ public interface PortletPreferencesLocalService extends BaseLocalService,
 		long ownerId, int ownerType, long plid, java.lang.String portletId)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	public javax.portlet.PortletPreferences addPreferences(long companyId,
+		long ownerId, int ownerType, long plid, java.lang.String portletId,
+		java.lang.String defaultPreferences)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
 	public javax.portlet.PortletPreferences addPreferences(
 		com.liferay.portal.model.PortletPreferencesIds portletPreferencesIds)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -310,18 +315,21 @@ public interface PortletPreferencesLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public javax.portlet.PortletPreferences getPreferences(long companyId,
 		long ownerId, int ownerType, long plid, java.lang.String portletId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public javax.portlet.PortletPreferences getPreferences(long companyId,
 		long ownerId, int ownerType, long plid, java.lang.String portletId,
 		java.lang.String defaultPreferences)
-		throws com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public javax.portlet.PortletPreferences getPreferences(
 		com.liferay.portal.model.PortletPreferencesIds portletPreferencesIds)
-		throws com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
 
 	public com.liferay.portal.model.PortletPreferences updatePreferences(
 		long ownerId, int ownerType, long plid, java.lang.String portletId,

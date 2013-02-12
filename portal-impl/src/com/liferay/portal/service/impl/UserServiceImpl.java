@@ -1035,6 +1035,13 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 		throws PortalException, SystemException {
 
 		try {
+			userIds = UsersAdminUtil.filterUnsetGroupUserIds(
+				getPermissionChecker(), groupId, userIds);
+
+			if (userIds.length == 0) {
+				return;
+			}
+
 			GroupPermissionUtil.check(
 				getPermissionChecker(), groupId, ActionKeys.ASSIGN_MEMBERS);
 		}
@@ -1086,6 +1093,16 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 	 */
 	public void unsetOrganizationUsers(long organizationId, long[] userIds)
 		throws PortalException, SystemException {
+
+		Group group = groupLocalService.getOrganizationGroup(
+			getUser().getCompanyId(), organizationId);
+
+		userIds = UsersAdminUtil.filterUnsetOrganizationUserIds(
+			getPermissionChecker(), group.getGroupId(), userIds);
+
+		if (userIds.length == 0) {
+			return;
+		}
 
 		OrganizationPermissionUtil.check(
 			getPermissionChecker(), organizationId, ActionKeys.ASSIGN_MEMBERS);
@@ -1917,6 +1934,8 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 					(!GroupPermissionUtil.contains(
 						permissionChecker, group.getGroupId(),
 						ActionKeys.ASSIGN_MEMBERS) ||
+					 GroupPermissionUtil.hasMembershipProtected(
+						 permissionChecker, group.getGroupId(), userId) ||
 					 mandatoryGroups.contains(group))) {
 
 					groupIds = ArrayUtil.append(groupIds, group.getGroupId());
@@ -1995,12 +2014,16 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 
 			for (int i = 0; i < oldOrganizations.size(); i++) {
 				Organization organization = oldOrganizations.get(i);
+				Group organizationGroup = organization.getGroup();
 
 				if (!ArrayUtil.contains(
 						organizationIds, organization.getOrganizationId()) &&
 					(!OrganizationPermissionUtil.contains(
 						permissionChecker, organization.getOrganizationId(),
 						ActionKeys.ASSIGN_MEMBERS) ||
+					 OrganizationPermissionUtil.hasMembershipProtected(
+						 permissionChecker, organizationGroup.getGroupId(),
+						 userId) ||
 					 mandatoryOrganizations.contains(organization))) {
 
 					organizationIds = ArrayUtil.append(
@@ -2419,10 +2442,13 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 
 				if (role.getType() == RoleConstants.TYPE_SITE) {
 					if (!userGroupRoles.contains(oldUserGroupRole) &&
-						!UserGroupRolePermissionUtil.contains(
+						(!UserGroupRolePermissionUtil.contains(
 							permissionChecker, oldUserGroupRole.getGroupId(),
 							oldUserGroupRole.getRoleId()) ||
-						mandatoryRoles.contains(role)) {
+						 GroupPermissionUtil.hasRoleProtected(
+							 getPermissionChecker(),
+							 oldUserGroupRole.getGroupId(), userId, role) ||
+						 mandatoryRoles.contains(role))) {
 
 						userGroupRoles.add(oldUserGroupRole);
 					}
@@ -2439,10 +2465,13 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 							organization, user);
 
 					if (!userGroupRoles.contains(oldUserGroupRole) &&
-						!UserGroupRolePermissionUtil.contains(
+						(OrganizationPermissionUtil.hasRoleProtected(
+							getPermissionChecker(),
+							oldUserGroupRole.getGroupId(), userId, role) ||
+						 !UserGroupRolePermissionUtil.contains(
 							permissionChecker, oldUserGroupRole.getGroupId(),
 							oldUserGroupRole.getRoleId()) ||
-						mandatoryOrganizationRoles.contains(role)) {
+						 mandatoryOrganizationRoles.contains(role))) {
 
 						userGroupRoles.add(oldUserGroupRole);
 					}

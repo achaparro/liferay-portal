@@ -69,11 +69,7 @@ else {
 	privateLayout = layout.isPrivateLayout();
 }
 
-PortletPreferences portletPreferences = PortletPreferencesLocalServiceUtil.fetchPreferences(portletPreferencesIds);
-
-if ((portletPreferences == null) && allowAddPortletDefaultResource) {
-	portletPreferences = PortletPreferencesLocalServiceUtil.addPreferences(portletPreferencesIds);
-}
+PortletPreferences portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(portletPreferencesIds);
 
 String scopeLayoutUuid = portletPreferences.getValue("lfrScopeLayoutUuid", null);
 
@@ -83,11 +79,7 @@ if (Validator.isNotNull(scopeLayoutUuid)) {
 	if (scopeLayout != null) {
 		portletPreferencesIds = PortletPreferencesFactoryUtil.getPortletPreferencesIds(request, scopeLayout, portletId);
 
-		portletPreferences = PortletPreferencesLocalServiceUtil.fetchPreferences(portletPreferencesIds);
-
-		if ((portletPreferences == null) && allowAddPortletDefaultResource) {
-			portletPreferences = PortletPreferencesLocalServiceUtil.addPreferences(portletPreferencesIds);
-		}
+		portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(portletPreferencesIds);
 	}
 }
 
@@ -97,29 +89,7 @@ if (portletPreferencesIds.getOwnerType() == PortletKeys.PREFS_OWNER_TYPE_LAYOUT)
 	portletSetup = portletPreferences;
 }
 else {
-	portletSetup = PortletPreferencesFactoryUtil.fetchLayoutPortletSetup(layout, portletId);
-
-	if ((portletSetup == null) && allowAddPortletDefaultResource) {
-		if (stateMax) {
-			// Do we even need a real PortletSetup in this case?
-			//
-			// Reason: We've correctly determined that the portlet is being loaded
-			// dynamically, but that it is not embedded. We know this, because if it
-			// was embedded, earlier code would have created the PortletSetup
-			// automatically. Furthermore, in this condition, there is no way to
-			// access the portlet look and feel to adjust any of it's settings so
-			// the PortletSetup is needless DB garbage.
-
-			portletSetup = new PortletPreferencesImpl();
-		}
-		else {
-			// Can this ever actually happen?
-
-			System.out.println("????????????????????????????????????? Is this broken?");
-
-			portletSetup = PortletPreferencesFactoryUtil.addLayoutPortletSetup(layout, portletId);
-		}
-	}
+	portletSetup = PortletPreferencesFactoryUtil.getLayoutPortletSetup(layout, portletId);
 }
 
 long portletItemId = ParamUtil.getLong(request, "p_p_i_id");

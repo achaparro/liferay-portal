@@ -472,8 +472,7 @@ public class PortletPreferencesFactoryImpl
 	public PortletPreferences getPortletSetup(Layout layout, String portletId)
 		throws PortalException, SystemException {
 
-		return getPortletSetup(
-			LayoutConstants.DEFAULT_PLID, layout, portletId);
+		return getPortletSetup(LayoutConstants.DEFAULT_PLID, layout, portletId);
 	}
 
 	public PortletPreferences getPortletSetup(

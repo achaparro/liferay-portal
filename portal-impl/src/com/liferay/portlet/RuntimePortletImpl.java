@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@ package com.liferay.portlet;
 
 import com.liferay.portal.kernel.portlet.PortletLayoutListener;
 import com.liferay.portal.kernel.portlet.RuntimePortlet;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
@@ -41,10 +42,9 @@ public class RuntimePortletImpl implements RuntimePortlet {
 		// non-instanceable portlets
 
 		PortletPreferences portletSetup =
-			PortletPreferencesFactoryUtil.fetchPortletSetup(
-				request, portletId);
+			PortletPreferencesFactoryUtil.fetchPortletSetup(request, portletId);
 
-		if (portletSetup == null) {
+		if ((portletSetup == null) && Validator.isNotNull(defaultPreferences)) {
 			PortletPreferencesFactoryUtil.addPortletSetup(
 				request, portletId, defaultPreferences);
 

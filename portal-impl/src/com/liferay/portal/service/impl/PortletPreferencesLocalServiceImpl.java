@@ -339,8 +339,20 @@ public class PortletPreferencesLocalServiceImpl
 		throws PortalException, SystemException {
 
 		PortletPreferences portletPreferences =
-			portletPreferencesPersistence.findByO_O_P_P(
+			portletPreferencesPersistence.fetchByO_O_P_P(
 				ownerId, ownerType, plid, portletId);
+
+		if (portletPreferences == null) {
+			long portletPreferencesId = counterLocalService.increment();
+
+			portletPreferences = portletPreferencesPersistence.create(
+				portletPreferencesId);
+
+			portletPreferences.setOwnerId(ownerId);
+			portletPreferences.setOwnerType(ownerType);
+			portletPreferences.setPlid(plid);
+			portletPreferences.setPortletId(portletId);
+		}
 
 		portletPreferences.setPreferences(xml);
 

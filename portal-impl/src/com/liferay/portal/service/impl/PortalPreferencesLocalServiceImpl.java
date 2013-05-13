@@ -42,22 +42,6 @@ import javax.portlet.PortletPreferences;
 public class PortalPreferencesLocalServiceImpl
 	extends PortalPreferencesLocalServiceBaseImpl {
 
-	public PortletPreferences addPreferences(
-			long companyId, long ownerId, int ownerType)
-		throws SystemException {
-
-		PortalPreferences portalPreferences = addPortalPreferences(
-			companyId, ownerId, ownerType, null);
-
-		PortalPreferencesImpl portalPreferencesImpl =
-			(PortalPreferencesImpl)PortletPreferencesFactoryUtil.fromXML(
-				companyId, ownerId, ownerType,
-				portalPreferences.getPreferences());
-
-		return new PortalPreferencesWrapper(portalPreferencesImpl);
-	}
-
-
 	public PortalPreferences addPortalPreferences(
 			long companyId, long ownerId, int ownerType,
 			String defaultPreferences)
@@ -96,6 +80,21 @@ public class PortalPreferencesLocalServiceImpl
 		}
 
 		return portalPreferences;
+	}
+
+	public PortletPreferences addPreferences(
+			long companyId, long ownerId, int ownerType)
+		throws SystemException {
+
+		PortalPreferences portalPreferences = addPortalPreferences(
+			companyId, ownerId, ownerType, null);
+
+		PortalPreferencesImpl portalPreferencesImpl =
+			(PortalPreferencesImpl)PortletPreferencesFactoryUtil.fromXML(
+				companyId, ownerId, ownerType,
+				portalPreferences.getPreferences());
+
+		return new PortalPreferencesWrapper(portalPreferencesImpl);
 	}
 
 	public PortletPreferences fetchPreferences(

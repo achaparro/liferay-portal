@@ -385,6 +385,36 @@ public class PortletContainerImpl implements PortletContainer {
 		Layout ownerLayout = (Layout)ownerLayoutRequest.getAttribute(
 			WebKeys.LAYOUT);
 
+		boolean allowAddPortletDefaultResource =
+			PortalUtil.isAllowAddPortletDefaultResource(
+				ownerLayoutRequest, portlet);
+
+		if (!allowAddPortletDefaultResource) {
+			String url = null;
+
+			LastPath lastPath = (LastPath)request.getAttribute(
+				WebKeys.LAST_PATH);
+
+			if (lastPath != null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(PortalUtil.getPortalURL(request));
+				sb.append(lastPath.getContextPath());
+				sb.append(lastPath.getPath());
+
+				url = sb.toString();
+			}
+			else {
+				url = String.valueOf(request.getRequestURI());
+			}
+
+			_log.error(
+				"Reject processAction for " + url + " on " +
+					portlet.getPortletId());
+
+			return ActionResult.EMPTY_ACTION_RESULT;
+		}
+
 		Layout layout = (Layout)request.getAttribute(WebKeys.LAYOUT);
 
 		WindowState windowState = WindowStateFactory.getWindowState(
@@ -405,44 +435,8 @@ public class PortletContainerImpl implements PortletContainer {
 				request, portlet.getPortletId());
 
 		PortletPreferences portletPreferences =
-			PortletPreferencesLocalServiceUtil.fetchPreferences(
+			PortletPreferencesLocalServiceUtil.getPreferences(
 				portletPreferencesIds);
-
-		if (portletPreferences == null) {
-			boolean allowAddPortletDefaultResource =
-				PortalUtil.isAllowAddPortletDefaultResource(
-					ownerLayoutRequest, portlet);
-
-			if (!allowAddPortletDefaultResource) {
-				String url = null;
-
-				LastPath lastPath = (LastPath)request.getAttribute(
-					WebKeys.LAST_PATH);
-
-				if (lastPath != null) {
-					StringBundler sb = new StringBundler(3);
-
-					sb.append(PortalUtil.getPortalURL(request));
-					sb.append(lastPath.getContextPath());
-					sb.append(lastPath.getPath());
-
-					url = sb.toString();
-				}
-				else {
-					url = String.valueOf(request.getRequestURI());
-				}
-
-				_log.error(
-					"Reject processAction for " + url + " on " +
-						portlet.getPortletId());
-
-				return ActionResult.EMPTY_ACTION_RESULT;
-			}
-
-			portletPreferences =
-				PortletPreferencesLocalServiceUtil.addPreferences(
-					portletPreferencesIds);
-		}
 
 		ServletContext servletContext = (ServletContext)request.getAttribute(
 			WebKeys.CTX);
@@ -840,6 +834,41 @@ public class PortletContainerImpl implements PortletContainer {
 		Layout ownerLayout = (Layout)ownerLayoutRequest.getAttribute(
 			WebKeys.LAYOUT);
 
+		boolean allowAddPortletDefaultResource =
+			PortalUtil.isAllowAddPortletDefaultResource(
+				ownerLayoutRequest, portlet);
+
+		if (!allowAddPortletDefaultResource) {
+			String url = null;
+
+			LastPath lastPath = (LastPath)request.getAttribute(
+				WebKeys.LAST_PATH);
+
+			if (lastPath != null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(PortalUtil.getPortalURL(request));
+				sb.append(lastPath.getContextPath());
+				sb.append(lastPath.getPath());
+
+				url = sb.toString();
+			}
+			else {
+				url = String.valueOf(request.getRequestURI());
+			}
+
+			response.setHeader(
+				HttpHeaders.CACHE_CONTROL,
+				HttpHeaders.CACHE_CONTROL_NO_CACHE_VALUE);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+			_log.error(
+				"Reject serveResource for " + url + " on " +
+					portlet.getPortletId());
+
+			return;
+		}
+
 		WindowState windowState = (WindowState)request.getAttribute(
 			WebKeys.WINDOW_STATE);
 
@@ -851,49 +880,8 @@ public class PortletContainerImpl implements PortletContainer {
 				request, portlet.getPortletId());
 
 		PortletPreferences portletPreferences =
-			PortletPreferencesLocalServiceUtil.fetchPreferences(
+			PortletPreferencesLocalServiceUtil.getPreferences(
 				portletPreferencesIds);
-
-		if (portletPreferences == null) {
-			boolean allowAddPortletDefaultResource =
-				PortalUtil.isAllowAddPortletDefaultResource(
-					ownerLayoutRequest, portlet);
-
-			if (!allowAddPortletDefaultResource) {
-				String url = null;
-
-				LastPath lastPath = (LastPath)request.getAttribute(
-					WebKeys.LAST_PATH);
-
-				if (lastPath != null) {
-					StringBundler sb = new StringBundler(3);
-
-					sb.append(PortalUtil.getPortalURL(request));
-					sb.append(lastPath.getContextPath());
-					sb.append(lastPath.getPath());
-
-					url = sb.toString();
-				}
-				else {
-					url = String.valueOf(request.getRequestURI());
-				}
-
-				response.setHeader(
-					HttpHeaders.CACHE_CONTROL,
-					HttpHeaders.CACHE_CONTROL_NO_CACHE_VALUE);
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-
-				_log.error(
-					"Reject serveResource for " + url + " on " +
-						portlet.getPortletId());
-
-				return;
-			}
-
-			portletPreferences =
-				PortletPreferencesLocalServiceUtil.addPreferences(
-					portletPreferencesIds);
-		}
 
 		ServletContext servletContext = (ServletContext)request.getAttribute(
 			WebKeys.CTX);

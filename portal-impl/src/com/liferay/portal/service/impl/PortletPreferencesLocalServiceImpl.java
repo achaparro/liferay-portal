@@ -365,7 +365,11 @@ public class PortletPreferencesLocalServiceImpl
 			if (Validator.isNull(defaultPreferences) ||
 				(portlet != null) && portlet.isUndeployedPortlet()) {
 
-				return new PortletPreferencesImpl();
+				defaultPreferences = portlet.getDefaultPreferences();
+
+				return PortletPreferencesFactoryUtil.fromXML(
+						companyId, ownerId, ownerType, plid, portletId,
+						defaultPreferences);
 			}
 
 			throw new NoSuchPortletPreferencesException();

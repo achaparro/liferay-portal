@@ -362,7 +362,9 @@ public class PortletPreferencesLocalServiceImpl
 			Portlet portlet = portletLocalService.getPortletById(
 				companyId, portletId);
 
-			if ((portlet != null) && portlet.isUndeployedPortlet()) {
+			if (Validator.isNull(defaultPreferences) ||
+				(portlet != null) && portlet.isUndeployedPortlet()) {
+
 				return new PortletPreferencesImpl();
 			}
 

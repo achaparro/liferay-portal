@@ -130,30 +130,22 @@ public class AssetCategoryPropertyLocalServiceImpl
 
 	@Override
 	public AssetCategoryProperty updateCategoryProperty(
-			long categoryPropertyId, String key, String value)
-		throws PortalException, SystemException {
-
-		return updateCategoryProperty(0, categoryPropertyId, key, value);	
-	}
-	
-	@Override
-	public AssetCategoryProperty updateCategoryProperty(
 			long userId, long categoryPropertyId, String key, String value)
 		throws PortalException, SystemException {
-				
+
 		validate(key, value);
 
 		AssetCategoryProperty categoryProperty =
 			assetCategoryPropertyPersistence.findByPrimaryKey(
 				categoryPropertyId);
-		
+
 		if (userId != 0) {
 			User user = userPersistence.findByPrimaryKey(userId);
-			
+
 			categoryProperty.setUserId(userId);
 			categoryProperty.setUserName(user.getFullName());
 		}
-		
+
 		categoryProperty.setModifiedDate(new Date());
 		categoryProperty.setKey(key);
 		categoryProperty.setValue(value);
@@ -161,6 +153,14 @@ public class AssetCategoryPropertyLocalServiceImpl
 		assetCategoryPropertyPersistence.update(categoryProperty);
 
 		return categoryProperty;
+	}
+
+	@Override
+	public AssetCategoryProperty updateCategoryProperty(
+			long categoryPropertyId, String key, String value)
+		throws PortalException, SystemException {
+
+		return updateCategoryProperty(0, categoryPropertyId, key, value);
 	}
 
 	protected void validate(String key, String value) throws PortalException {

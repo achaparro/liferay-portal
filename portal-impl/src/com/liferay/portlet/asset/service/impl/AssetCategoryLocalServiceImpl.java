@@ -577,8 +577,8 @@ public class AssetCategoryLocalServiceImpl
 				}
 				else if (updateCategoryProperty) {
 					assetCategoryPropertyLocalService.updateCategoryProperty(
-						oldCategoryProperty.getCategoryPropertyId(), key,
-						value);
+						userId, oldCategoryProperty.getCategoryPropertyId(),
+						key, value);
 				}
 			}
 		}

@@ -785,10 +785,27 @@ public class LayoutTypePortletImpl
 			long userId, String portletId, String columnId, int columnPos)
 		throws PortalException, SystemException {
 
+		try {
+			PermissionChecker permissionChecker =
+				PermissionThreadLocal.getPermissionChecker();
+
+			if ((!LayoutPermissionUtil.contains(
+					permissionChecker, getLayout(), ActionKeys.UPDATE) &&
+				 !isCustomizable()) || !hasPortletId(portletId)) {
+
+				return;
+			}
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			return;
+		}
+
 		_enablePortletLayoutListener = false;
 
 		try {
-			removePortletId(userId, portletId, false);
+			removePortletId(userId, portletId, false, false);
 			addPortletId(userId, portletId, columnId, columnPos, false, true);
 		}
 		finally {

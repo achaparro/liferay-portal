@@ -19,11 +19,12 @@ import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.util.PropsValues;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * @author Sergio González
@@ -73,6 +74,8 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 	protected void updateFileEntries() throws Exception {
 		Connection con = null;
 		PreparedStatement ps = null;
+		PreparedStatement ps2 = null;
+		PreparedStatement ps3 = null;
 		ResultSet rs = null;
 
 		try {
@@ -83,6 +86,22 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 					"version from DLFileEntry");
 
 			rs = ps.executeQuery();
+
+			ps2 = con.prepareStatement(
+				"update DLFileEntry set title = ? where fileEntryId = ?");
+
+			con.prepareStatement(
+				"update DLFileVersion set title = ? where fileEntryId =?" +
+					" and version = ?");
+
+			DatabaseMetaData databaseMetaData = con.getMetaData();
+
+			boolean supportsBatchUpdates =
+				databaseMetaData.supportsBatchUpdates();
+
+			int batchSizeCount = 0;
+			int hibernateJDBCBatchsize =
+				2 * PropsValues.HIBERNATE_JDBC_BATCH_SIZE;
 
 			while (rs.next()) {
 				long fileEntryId = rs.getLong("fileEntryId");
@@ -122,46 +141,37 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 
 				uniqueTitle += periodAndExtension;
 
-				updateFileEntry(fileEntryId, version, uniqueTitle);
+				ps2.setString(1, uniqueTitle);
+				ps2.setLong(2, fileEntryId);
+
+				ps3.setString(1, uniqueTitle);
+				ps3.setLong(2, fileEntryId);
+				ps3.setString(3, version);
+
+				if (supportsBatchUpdates) {
+					ps2.addBatch();
+					ps3.addBatch();
+
+					if (batchSizeCount == hibernateJDBCBatchsize) {
+						ps2.executeBatch();
+						ps3.executeBatch();
+
+						batchSizeCount = 0;
+					}
+					else {
+						batchSizeCount+= 2;
+					}
+				}
+				else {
+					ps2.executeUpdate();
+					ps3.executeUpdate();
+				}
 			}
 		}
 		finally {
 			DataAccess.cleanUp(con, ps, rs);
-		}
-	}
-
-	protected void updateFileEntry(
-			long fileEntryId, String version, String newTitle)
-		throws SQLException {
-
-		Connection con = null;
-		PreparedStatement ps = null;
-
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
-
-			ps = con.prepareStatement(
-				"update DLFileEntry set title = ? where fileEntryId = ?");
-
-			ps.setString(1, newTitle);
-			ps.setLong(2, fileEntryId);
-
-			ps.executeUpdate();
-
-			DataAccess.cleanUp(ps);
-
-			ps = con.prepareStatement(
-				"update DLFileVersion set title = ? where fileEntryId = " +
-					"? and version = ?");
-
-			ps.setString(1, newTitle);
-			ps.setLong(2, fileEntryId);
-			ps.setString(3, version);
-
-			ps.executeUpdate();
-		}
-		finally {
-			DataAccess.cleanUp(con, ps);
+			DataAccess.cleanUp(ps2);
+			DataAccess.cleanUp(ps3);
 		}
 	}
 

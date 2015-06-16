@@ -44,6 +44,7 @@ import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -57,7 +58,9 @@ import com.liferay.portal.verify.VerifyLayout;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.service.AssetEntryLocalService;
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalService;
+import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureException;
 import com.liferay.portlet.dynamicdatamapping.util.DDMFieldsCounter;
 
@@ -67,6 +70,7 @@ import java.sql.ResultSet;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.portlet.PortletPreferences;
@@ -345,6 +349,9 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		if (type.equals("document_library")) {
 			updateDocumentLibraryElements(element);
 		}
+		else if (type.equals("image_gallery")) {
+			updateImageGalleryElements(element);
+		}
 		else if (type.equals("link_to_layout")) {
 			updateLinkToLayoutElements(groupId, element);
 		}
@@ -368,6 +375,60 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 
 		_journalArticleImageLocalService.updateJournalArticleImage(
 			articleImage);
+	}
+
+	protected void updateImageGalleryElements(Element element) {
+		Element dynamicContentElement = element.element("dynamic-content");
+
+		element.attribute("type").setValue("document_library");
+
+		String link = dynamicContentElement.getStringValue();
+
+		Matcher m = _imageUUIDGroupIdPattern.matcher(link);
+
+		if (m.find()) {
+			String uuid = m.group(1);
+
+			long groupId = GetterUtil.getLong(m.group(2));
+
+			try {
+				DLFileEntry dlFileEntry =
+					DLFileEntryLocalServiceUtil.getFileEntryByUuidAndGroupId(
+						uuid, groupId);
+
+				if (dlFileEntry == null) {
+					return;
+				}
+
+				StringBundler sb = new StringBundler(10);
+
+				sb.append(StringPool.SLASH);
+				sb.append("documents");
+				sb.append(StringPool.SLASH);
+				sb.append(dlFileEntry.getGroupId());
+				sb.append(StringPool.SLASH);
+				sb.append(dlFileEntry.getFolderId());
+				sb.append(StringPool.SLASH);
+				sb.append(dlFileEntry.getTitle());
+				sb.append(StringPool.SLASH);
+				sb.append(dlFileEntry.getUuid());
+
+				String path = sb.toString();
+
+				Node node = dynamicContentElement.node(0);
+
+				node.setText(path);
+			}
+			catch (PortalException pe) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"No file entry exists with the key {uuid=" +
+							uuid + ", groupId=" + groupId + "}");
+				}
+
+				return;
+			}
+		}
 	}
 
 	protected void updateLinkToLayoutElements(long groupId, Element element) {
@@ -589,7 +650,8 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 
 			ps = con.prepareStatement(
 				"select id_ from JournalArticle where (content like " +
-					"'%document_library%' or content like '%link_to_layout%')" +
+					"'%document_library%' or content like '%link_to_layout%'" +
+					" or content like '%image_gallery%')" +
 						" and DDMStructureKey != ''");
 
 			rs = ps.executeQuery();
@@ -855,6 +917,9 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 
 	private static final Pattern _friendlyURLPattern = Pattern.compile(
 		"[^a-z0-9_-]");
+
+	private static final Pattern _imageUUIDGroupIdPattern = Pattern.compile(
+		"uuid=([^&]+)&groupId=([^&]+)");
 
 	private AssetEntryLocalService _assetEntryLocalService;
 	private DLAppLocalService _dlAppLocalService;

@@ -917,7 +917,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 
 	private static final Pattern _friendlyURLPattern = Pattern.compile(
 		"[^a-z0-9_-]");
-
 	private static final Pattern _imageUUIDGroupIdPattern = Pattern.compile(
 		"uuid=([^&]+)&groupId=([^&]+)");
 

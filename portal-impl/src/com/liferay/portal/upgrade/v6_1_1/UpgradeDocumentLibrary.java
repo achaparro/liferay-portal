@@ -19,8 +19,10 @@ import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.util.PropsValues;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -72,6 +74,8 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 	protected void updateFileEntries() throws Exception {
 		Connection con = null;
 		PreparedStatement ps = null;
+		PreparedStatement ps2 = null;
+		PreparedStatement ps3 = null;
 		ResultSet rs = null;
 
 		try {
@@ -82,6 +86,22 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 					"version from DLFileEntry");
 
 			rs = ps.executeQuery();
+
+			ps2 = con.prepareStatement(
+				"update DLFileEntry set title = ? where fileEntryId = ?");
+
+			con.prepareStatement(
+				"update DLFileVersion set title = ? where fileEntryId =?" +
+					" and version = ?");
+
+			DatabaseMetaData databaseMetaData = con.getMetaData();
+
+			boolean supportsBatchUpdates =
+				databaseMetaData.supportsBatchUpdates();
+
+			int batchSizeCount = 0;
+			int hibernateJDBCBatchsize =
+				2 * PropsValues.HIBERNATE_JDBC_BATCH_SIZE;
 
 			while (rs.next()) {
 				long fileEntryId = rs.getLong("fileEntryId");
@@ -121,27 +141,37 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 
 				uniqueTitle += periodAndExtension;
 
-				ps = con.prepareStatement(
-					"update DLFileEntry set title = ? where fileEntryId = ?");
+				ps2.setString(1, uniqueTitle);
+				ps2.setLong(2, fileEntryId);
 
-				ps.setString(1, uniqueTitle);
-				ps.setLong(2, fileEntryId);
+				ps3.setString(1, uniqueTitle);
+				ps3.setLong(2, fileEntryId);
+				ps3.setString(3, version);
 
-				ps.executeUpdate();
+				if (supportsBatchUpdates) {
+					ps2.addBatch();
+					ps3.addBatch();
 
-				ps = con.prepareStatement(
-					"update DLFileVersion set title = ? where fileEntryId = " +
-						"? and version = ?");
+					if (batchSizeCount == hibernateJDBCBatchsize) {
+						ps2.executeBatch();
+						ps3.executeBatch();
 
-				ps.setString(1, uniqueTitle);
-				ps.setLong(2, fileEntryId);
-				ps.setString(3, version);
-
-				ps.executeUpdate();
+						batchSizeCount = 0;
+					}
+					else {
+						batchSizeCount+= 2;
+					}
+				}
+				else {
+					ps2.executeUpdate();
+					ps3.executeUpdate();
+				}
 			}
 		}
 		finally {
 			DataAccess.cleanUp(con, ps, rs);
+			DataAccess.cleanUp(ps2);
+			DataAccess.cleanUp(ps3);
 		}
 	}
 

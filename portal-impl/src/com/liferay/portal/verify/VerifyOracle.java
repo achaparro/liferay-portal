@@ -54,10 +54,6 @@ public class VerifyOracle extends VerifyProcess {
 			while (rs.next()) {
 				String tableName = rs.getString(1);
 
-				if (!isPortalTableName(tableName)) {
-					continue;
-				}
-
 				String columnName = rs.getString(2);
 				int dataLength = rs.getInt(3);
 
@@ -66,7 +62,7 @@ public class VerifyOracle extends VerifyProcess {
 						ReleaseInfo.RELEASE_6_0_0_BUILD_NUMBER) ||
 					isBetweenBuildNumbers(
 						buildNumber, ReleaseInfo.RELEASE_6_0_5_BUILD_NUMBER,
-						ReleaseInfo.RELEASE_6_1_20_BUILD_NUMBER)) {
+						ReleaseInfo.RELEASE_6_2_0_BUILD_NUMBER)) {
 
 					// LPS-33903
 

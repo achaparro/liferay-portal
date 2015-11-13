@@ -21,6 +21,7 @@ import com.liferay.portal.upgrade.v6_2_0.UpgradeAssetPublisher;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeBlogs;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeBlogsAggregator;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeCalendar;
+import com.liferay.portal.upgrade.v6_2_0.UpgradeClassName;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeCompany;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeCustomizablePortlets;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeDocumentLibrary;
@@ -66,6 +67,7 @@ public class UpgradeProcess_6_2_0 extends UpgradeProcess {
 		upgrade(UpgradeBlogs.class);
 		upgrade(UpgradeBlogsAggregator.class);
 		upgrade(UpgradeCalendar.class);
+		upgrade(UpgradeClassName.class);
 		upgrade(UpgradeCompany.class);
 		upgrade(UpgradeCustomizablePortlets.class);
 		upgrade(UpgradeDocumentLibrary.class);

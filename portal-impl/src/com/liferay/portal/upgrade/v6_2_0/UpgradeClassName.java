@@ -25,7 +25,8 @@ import java.sql.PreparedStatement;
  */
 public class UpgradeClassName extends UpgradeProcess {
 
-	protected void addClassName(String value) throws Exception {
+	@Override
+	protected void doUpgrade() throws Exception {
 		Connection con = null;
 		PreparedStatement ps = null;
 
@@ -38,18 +39,13 @@ public class UpgradeClassName extends UpgradeProcess {
 
 			ps.setLong(1, 0);
 			ps.setLong(2, increment());
-			ps.setString(3, value);
+			ps.setString(3, "com.liferay.portlet.journal.model.JournalFolder");
 
 			ps.executeUpdate();
 		}
 		finally {
 			DataAccess.cleanUp(con, ps);
 		}
-	}
-
-	@Override
-	protected void doUpgrade() throws Exception {
-		addClassName("com.liferay.portlet.journal.model.JournalFolder");
 	}
 
 }

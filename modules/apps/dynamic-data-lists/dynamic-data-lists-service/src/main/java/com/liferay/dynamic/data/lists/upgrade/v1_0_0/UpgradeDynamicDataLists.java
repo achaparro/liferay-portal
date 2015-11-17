@@ -17,6 +17,7 @@ package com.liferay.dynamic.data.lists.upgrade.v1_0_0;
 import com.liferay.dynamic.data.mapping.model.DDMContent;
 import com.liferay.dynamic.data.mapping.model.DDMStorageLink;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -30,6 +31,8 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portlet.expando.model.ExpandoRow;
+import com.liferay.portlet.expando.model.ExpandoValue;
 import com.liferay.portlet.expando.service.ExpandoRowLocalService;
 import com.liferay.portlet.expando.service.ExpandoTableLocalService;
 import com.liferay.portlet.expando.service.ExpandoValueLocalService;
@@ -41,6 +44,7 @@ import java.sql.Timestamp;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -131,40 +135,29 @@ public class UpgradeDynamicDataLists extends UpgradeProcess {
 		}
 	}
 
-	protected void deleteExpandoData(Set<Long> expandoRowIds) throws Exception {
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+	protected void deleteExpandoData(Set<Long> expandoRowIds)
+		throws PortalException {
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		Set<Long> tableIds = new HashSet<>();
 
-			ps = con.prepareStatement(
-				"select tableId from ExpandoRow where " +
-					getExpandoRowIds(expandoRowIds) + " group by tableId");
+		for (long expandoRowId : expandoRowIds) {
+			ExpandoRow expandoRow = _expandoRowLocalService.fetchExpandoRow(
+				expandoRowId);
 
-			int parameterIndex = 1;
-
-			for (long expandoRowId : expandoRowIds) {
-				ps.setLong(parameterIndex++, expandoRowId);
-			}
-
-			rs = ps.executeQuery();
-
-			while (rs.next()) {
-				long tableId = rs.getLong("tableId");
-
-				runSQL("delete from ExpandoTable where tableId = " + tableId);
-
-				runSQL("delete from ExpandoRow where tableId = " + tableId);
-
-				runSQL("delete from ExpandoColumn where tableId = " + tableId);
-
-				runSQL("delete from ExpandoValue where tableId = " + tableId);
+			if (expandoRow != null) {
+				tableIds.add(expandoRow.getTableId());
 			}
 		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
+
+		for (Long tableId : tableIds) {
+			try {
+				_expandoTableLocalService.deleteTable(tableId);
+			}
+			catch (PortalException e) {
+				_log.error("Unable delete expando table ", e);
+
+				throw e;
+			}
 		}
 	}
 
@@ -194,42 +187,26 @@ public class UpgradeDynamicDataLists extends UpgradeProcess {
 	}
 
 	protected Map<String, String> getExpandoValuesMap(long expandoRowId)
-		throws Exception {
+		throws PortalException {
 
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		List<ExpandoValue> rowValues = _expandoValueLocalService.getRowValues(
+			expandoRowId);
 
-		try {
-			con = DataAccess.getUpgradeOptimizedConnection();
+		Map<String, String> fieldsMap = new HashMap<>();
 
-			StringBundler sb = new StringBundler(4);
-
-			sb.append("select ExpandoColumn.name, ExpandoValue.data_ from ");
-			sb.append("ExpandoValue inner join ExpandoColumn on ");
-			sb.append("ExpandoColumn.columnId = ExpandoValue.columnId where ");
-			sb.append("rowId_ = ?");
-
-			ps = con.prepareStatement(sb.toString());
-
-			ps.setLong(1, expandoRowId);
-
-			rs = ps.executeQuery();
-
-			Map<String, String> fieldsMap = new HashMap<>();
-
-			while (rs.next()) {
-				String name = rs.getString("name");
-				String data_ = rs.getString("data_");
-
-				fieldsMap.put(name, data_);
+		for (ExpandoValue expandoValue : rowValues) {
+			try {
+				fieldsMap.put(
+					expandoValue.getColumn().getName(), expandoValue.getData());
 			}
+			catch (PortalException e) {
+				_log.error("Unable to add expando value data ", e);
 
-			return fieldsMap;
+				throw e;
+			}
 		}
-		finally {
-			DataAccess.cleanUp(con, ps, rs);
-		}
+
+		return fieldsMap;
 	}
 
 	protected String getUpgradeRecordVersionsSQL() {

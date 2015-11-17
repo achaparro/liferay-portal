@@ -1789,45 +1789,6 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			return entryVersionFolderId;
 		}
 
-		protected void addResourcePermissions(
-				int mvccVersion, long resourcePermissionId, long companyId,
-				String name, long scope, long primKey, long roleId,
-				long ownerId, long actionIds)
-			throws Exception {
-
-			Connection con = null;
-			PreparedStatement ps = null;
-
-			try {
-				con = DataAccess.getUpgradeOptimizedConnection();
-
-				StringBundler sb = new StringBundler(4);
-
-				sb.append("insert into ResourcePermission (mvccVersion, ");
-				sb.append("resourcePermissionId, companyId, name, scope, ");
-				sb.append("primKey, roleId, ownerId, actionIds) values (?, ");
-				sb.append("?, ?, ?, ?, ?, ?, ?, ?)");
-
-				String sql = sb.toString();
-
-				ps = con.prepareStatement(sql);
-
-				ps.setLong(1, mvccVersion);
-				ps.setLong(2, resourcePermissionId);
-				ps.setLong(3, companyId);
-				ps.setString(4, name);
-				ps.setLong(5, scope);
-				ps.setLong(6, primKey);
-				ps.setLong(7, roleId);
-				ps.setLong(8, ownerId);
-				ps.setLong(9, actionIds);
-
-				ps.executeUpdate();
-			}
-			finally {
-				DataAccess.cleanUp(con, ps);
-			}
-		}
 		protected long getActionBitwiseValue(String actionId)throws Exception {
 			ResourceAction resourceAction =
 				_resourceActionLocalService.getResourceAction(
@@ -1873,39 +1834,6 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			}
 
 			return StringUtil.toLowerCase(extension);
-		}
-
-		protected long getRoleId(String roleName) throws Exception {
-			Connection con = null;
-			PreparedStatement ps = null;
-			ResultSet rs = null;
-
-			try {
-				con = DataAccess.getUpgradeOptimizedConnection();
-
-				StringBundler sb = new StringBundler(4);
-
-				sb.append("select roleId from role_ where companyId = ? and ");
-				sb.append("name = ?");
-
-				String sql = sb.toString();
-
-				ps = con.prepareStatement(sql);
-
-				ps.setLong(1, _companyId);
-				ps.setString(2, roleName);
-
-				rs = ps.executeQuery();
-
-				if (rs.next()) {
-					return rs.getLong("roleId");
-				}
-
-				return 0;
-			}
-			finally {
-				DataAccess.cleanUp(con, ps, rs);
-			}
 		}
 
 		protected String toJSON(long groupId, String fileEntryUuid) {

@@ -30,6 +30,9 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portlet.expando.service.ExpandoRowLocalService;
+import com.liferay.portlet.expando.service.ExpandoTableLocalService;
+import com.liferay.portlet.expando.service.ExpandoValueLocalService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -46,6 +49,16 @@ import java.util.Set;
  * @author Marcellus Tavares
  */
 public class UpgradeDynamicDataLists extends UpgradeProcess {
+
+	public UpgradeDynamicDataLists(
+		ExpandoRowLocalService expandoRowLocalService,
+		ExpandoTableLocalService expandoTableLocalService,
+		ExpandoValueLocalService expandoValueLocalService) {
+
+		_expandoRowLocalService = expandoRowLocalService;
+		_expandoTableLocalService = expandoTableLocalService;
+		_expandoValueLocalService = expandoValueLocalService;
+	}
 
 	protected void addDDMContent(
 			String uuid_, long contentId, long groupId, long companyId,
@@ -364,6 +377,9 @@ public class UpgradeDynamicDataLists extends UpgradeProcess {
 		UpgradeDynamicDataLists.class);
 
 	private long _ddmContentClassNameId;
+	private final ExpandoRowLocalService _expandoRowLocalService;
 	private long _expandoStorageAdapterClassNameId;
+	private final ExpandoTableLocalService _expandoTableLocalService;
+	private final ExpandoValueLocalService _expandoValueLocalService;
 
 }

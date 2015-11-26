@@ -70,8 +70,8 @@ public class DDLServiceUpgrade implements UpgradeStepRegistrator {
 		ModuleServiceLifecycle moduleServiceLifecycle) {
 	}
 
-	private ExpandoRowLocalService _expandoRowLocalService;
-	private ExpandoTableLocalService _expandoTableLocalService;
-	private ExpandoValueLocalService _expandoValueLocalService;
+	private volatile ExpandoRowLocalService _expandoRowLocalService;
+	private volatile ExpandoTableLocalService _expandoTableLocalService;
+	private volatile ExpandoValueLocalService _expandoValueLocalService;
 
 }

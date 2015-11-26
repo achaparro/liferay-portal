@@ -1633,7 +1633,7 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			throws Exception {
 
 			DLFileEntry dlFileEntry =
-				_dLFileEntryLocalService.createDLFileEntry(fileEntryId);
+				_dlFileEntryLocalService.createDLFileEntry(fileEntryId);
 
 			dlFileEntry.setUuid(uuid);
 			dlFileEntry.setGroupId(groupId);
@@ -1664,7 +1664,7 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 			dlFileEntry.setCustom2ImageId(custom2ImageId);
 			dlFileEntry.setManualCheckInRequired(manualCheckInRequired);
 
-			_dLFileEntryLocalService.updateDLFileEntry(dlFileEntry);
+			_dlFileEntryLocalService.updateDLFileEntry(dlFileEntry);
 		}
 
 		protected void addDLFileVersion(

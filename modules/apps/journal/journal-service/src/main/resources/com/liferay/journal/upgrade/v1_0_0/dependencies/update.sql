@@ -1,3 +1,5 @@
+alter table JournalArticle drop column type_;
+
 alter table JournalFolder add restrictionType INTEGER;
 
 create table JournalFolders_DDMStructures (

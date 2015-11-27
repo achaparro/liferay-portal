@@ -1,5 +1,10 @@
+alter table JournalArticle add lastPublishDate DATE null;
+
 alter table JournalArticle drop column type_;
 
+alter table JournalFeed add lastPublishDate DATE null;
+
+alter table JournalFolder add lastPublishDate DATE null;
 alter table JournalFolder add restrictionType INTEGER;
 
 create table JournalFolders_DDMStructures (

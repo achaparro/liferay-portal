@@ -438,7 +438,6 @@
 
 	<command name="removeViewPermissionsPG">
 		<var name="key_assetHeader" value="${entryTitle}" />
-		<var name="key_entryTitle" value="${entryTitle}" />
 		<var method="StringUtil#replace('${roleName}', ' ', '-')" name="key_roleName" />
 		<var method="StringUtil#lowerCase('${key_roleName}')" name="key_roleName" />
 
@@ -446,11 +445,7 @@
 
 		<execute function="AssertClick" locator1="MenuItem#PERMISSIONS_LEXICON" value1="Permissions" />
 
-		<execute function="SelectFrame" locator1="Permissions#PERMISSIONS_IFRAME" />
-
-		<var name="key_assetTitle" value="${entryTitle}" />
-
-		<execute function="AssertTextEquals#assertPartialText" locator1="Permissions#ASSET_TITLE" value1="${entryTitle}" />
+		<execute macro="IFrame#selectPermissionsFrame" />
 
 		<execute function="Uncheck" locator1="Permissions#CONTENT_PERMISSIONS_VIEW_CHECKBOX" value1="${roleName}" />
 
@@ -469,7 +464,7 @@
 		<var locator="TextInput#DISPLAY_DATE_DAY" name="displayDateDay" />
 		<var locator="TextInput#DISPLAY_DATE_MONTH" name="displayDateMonth" />
 
-		<var method="MathUtil#sum('${displayDateMonth}', '1')" name="displayDateMonth" />
+		<var method="MathUtil#sum('${displayDateMonth}','1')" name="displayDateMonth" />
 
 		<var locator="TextInput#DISPLAY_DATE_YEAR" name="displayDateYear" />
 
@@ -490,7 +485,7 @@
 
 		<var locator="TextInput#DISPLAY_DATE_MINUTE" name="displayDateMinute" />
 
-		<var method="MathUtil#sum('${displayDateMinute}', '2')" name="displayDateMinuteFuture" />
+		<var method="MathUtil#sum('${displayDateMinute}','2')" name="displayDateMinuteFuture" />
 
 		<var name="displayDateMinuteFutureLength" value="${displayDateMinuteFuture?length()}" />
 
@@ -607,7 +602,7 @@
 				<execute macro="Blogs#viewNoEntryCP" />
 			</then>
 			<else>
-				<execute function="Click" locator1="Checkbox#SELECT_ALL" />
+				<execute function="Check#checkAll" locator1="Checkbox#SELECT_ALL" />
 
 				<execute function="Click" locator1="Icon#MOVE_TO_RECYCLE_BIN" />
 
@@ -880,7 +875,7 @@
 	</command>
 
 	<command name="viewNoEntryViaBlogsAggregatorPG">
-		<execute function="AssertElementPresent" locator1="BlogsAggregator#NO_ENTRY_MESSAGE" value1="There are no blogs." />
+		<execute function="AssertElementPresent" locator1="BlogsAggregator#NO_ENTRY_MESSAGE" />
 	</command>
 
 	<command name="viewNoPG">
@@ -904,11 +899,7 @@
 
 		<execute function="AssertClick" locator1="MenuItem#PERMISSIONS_LEXICON" value1="Permissions" />
 
-		<execute function="SelectFrame" locator1="Permissions#PERMISSIONS_IFRAME" />
-
-		<var name="key_assetTitle" value="${entryTitle}" />
-
-		<execute function="AssertTextEquals" locator1="Permissions#ASSET_TITLE" value1="${entryTitle}" />
+		<execute macro="IFrame#selectPermissionsFrame" />
 
 		<execute function="SelectFrame" value1="relative=top" />
 	</command>
@@ -1008,14 +999,6 @@
 		<execute function="AssertTextEquals" locator1="Blogs#RSS_FEED_SUBTITLE" value1="Liferay" />
 		<execute function="AssertTextEquals" locator1="Blogs#RSS_ENTRY_TITLE" value1="${entryTitle}" />
 		<execute function="AssertTextEquals" locator1="Blogs#RSS_ENTRY_CONTENT" value1="${entryContent}" />
-	</command>
-
-	<command name="viewScheduledPost">
-		<execute function="AssertTextEquals" locator1="Blogs#SCHEDULED_ENTRY_STATUS" value1="Scheduled" />
-
-		<var name="key_entryTitle" value="${entryTitle}" />
-
-		<execute function="AssertTextEquals" locator1="Blogs#SCHEDULED_ENTRY_TITLE" value1="${entryTitle}" />
 	</command>
 
 	<command name="viewSubtitle">
@@ -1152,11 +1135,7 @@
 
 		<execute function="AssertClick" locator1="Link#PERMISSIONS" value1="Permissions" />
 
-		<execute function="SelectFrame" locator1="Permissions#PERMISSIONS_IFRAME" />
-
-		<var name="key_assetTitle" value="${entryTitle}" />
-
-		<execute function="AssertTextEquals" locator1="Permissions#ASSET_TITLE" value1="${entryTitle}" />
+		<execute macro="IFrame#selectPermissionsFrame" />
 
 		<if>
 			<equals arg1="${viewPermissionValue}" arg2="checked" />

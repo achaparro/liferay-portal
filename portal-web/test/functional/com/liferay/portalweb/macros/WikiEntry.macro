@@ -32,17 +32,13 @@
 	</command>
 
 	<command name="previewPageContent">
-		<execute function="AssertTextEquals" locator1="Wiki#BODY" value1="${wikiPageContent}" />
+		<execute function="AssertTextEquals" locator1="WikiEntry#BODY" value1="${wikiPageContent}" />
 	</command>
 
 	<command name="previewPageTitle">
 		<var name="key_wikiPageTitle" value="${wikiPageTitle}" />
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="Wiki#PAGE_HEADER" value1="${wikiPageTitle}" />
-	</command>
-
-	<command name="publish">
-		<execute macro="PortletEntry#publish" />
 	</command>
 
 	<command name="saveAsDraft">
@@ -69,6 +65,6 @@
 	</command>
 
 	<command name="viewPageContentBody">
-		<execute function="AssertTextEquals" locator1="Wiki#BODY" value1="${wikiPageContent}" />
+		<execute function="AssertTextEquals" locator1="WikiEntry#BODY" value1="${wikiPageContent}" />
 	</command>
 </definition>

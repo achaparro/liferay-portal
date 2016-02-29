@@ -115,6 +115,7 @@ Liferay-Releng-Dependent-Apps:\
 	com.liferay.portal.search.elasticsearch:1.0.0,\
 	com.liferay.portal.search.solr:1.0.0,\
 	com.liferay.portal.search:1.0.0,\
+	com.liferay.portal.search.web:1.0.0,\
 	com.liferay.portal.security.antisamy:1.0.0,\
 	com.liferay.portal.security.auth.verifier:1.0.0,\
 	com.liferay.portal.security.auto.login:1.0.0,\
@@ -155,7 +156,6 @@ Liferay-Releng-Dependent-Apps:\
 	com.liferay.roles.selector.web:1.0.0,\
 	com.liferay.rtl.css:1.0.0,\
 	com.liferay.search.facet:1.0.0,\
-	com.liferay.search.web:1.0.0,\
 	com.liferay.server.admin.web:1.0.0,\
 	com.liferay.service.access.policy.api:1.0.0,\
 	com.liferay.service.access.policy.service:1.0.0,\

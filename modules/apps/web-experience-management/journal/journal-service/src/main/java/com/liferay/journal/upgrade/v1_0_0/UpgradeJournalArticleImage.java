@@ -15,7 +15,9 @@
 package com.liferay.journal.upgrade.v1_0_0;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.upgrade.AutoBatchPreparedStatementUtil;
 
 import java.sql.PreparedStatement;
@@ -28,11 +30,44 @@ public class UpgradeJournalArticleImage extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		updateJournalArticleImages();
+		updateJournalArticleImagesInstanceId();
+
+		updateJournalArticleImagesName();
 	}
 
-	protected void updateJournalArticleImages() throws Exception {
-		try (PreparedStatement ps1 = connection.prepareStatement(
+	protected void updateJournalArticleImagesInstanceId() throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps1 = connection.prepareStatement(
+				"select articleId, elName from JournalArticleImage where " +
+					"(elInstanceId = '' or elInstanceId is null) group by " +
+						"articleId, elName");
+			ResultSet rs = ps1.executeQuery()) {
+
+			try (PreparedStatement ps2 =
+					AutoBatchPreparedStatementUtil.autoBatch(
+						connection.prepareStatement(
+							"update JournalArticleImage set elInstanceId = ? " +
+								"where articleId = ? and elName = ?"))) {
+
+				while (rs.next()) {
+					long articleId = rs.getLong(1);
+					String elName = rs.getString(3);
+
+					ps2.setString(1, StringUtil.randomString(4));
+					ps2.setLong(2, articleId);
+					ps2.setString(3, elName);
+
+					ps2.addBatch();
+				}
+
+				ps2.executeBatch();
+			}
+		}
+	}
+
+	protected void updateJournalArticleImagesName() throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps1 = connection.prepareStatement(
 				"select articleImageId, elName from JournalArticleImage");
 			ResultSet rs = ps1.executeQuery()) {
 

@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.dao.db.DBProcessContext;
 import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.output.stream.container.OutputStreamContainer;
 import com.liferay.portal.output.stream.container.OutputStreamContainerFactory;
@@ -42,6 +43,10 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.apache.felix.utils.log.Logger;
 
@@ -62,12 +67,50 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 	configurationPid = "com.liferay.portal.upgrade.internal.configuration.ReleaseManagerConfiguration",
 	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
 	property = {
-		"osgi.command.function=execute", "osgi.command.function=list",
+		"osgi.command.function=dryrun", "osgi.command.function=execute",
+		"osgi.command.function=list", "osgi.command.function=queue",
 		"osgi.command.scope=upgrade"
 	},
 	service = Object.class
 )
 public class ReleaseManager {
+
+	public void dryrun() {
+		Set<String> bundleSymbolicNames = _serviceTrackerMap.keySet();
+
+		for (String bundleSymbolicName : bundleSymbolicNames) {
+			String schemaVersionString = getSchemaVersionString(
+				bundleSymbolicName);
+
+			ReleaseGraphManager releaseGraphManager = new ReleaseGraphManager(
+				_serviceTrackerMap.getService(bundleSymbolicName));
+
+			List<List<UpgradeInfo>> upgradeInfosList =
+				releaseGraphManager.getUpgradeInfosList(schemaVersionString);
+
+			int size = upgradeInfosList.size();
+
+			if (size > 1) {
+				System.out.println(
+					"There are " + size + " possible end nodes for " +
+						schemaVersionString);
+			}
+
+			if (size == 0) {
+				continue;
+			}
+
+			List<UpgradeInfo> upgradeInfos = upgradeInfosList.get(0);
+
+			UpgradeInfo lastUpgradeInfo = upgradeInfos.get(
+				upgradeInfos.size() - 1);
+
+			System.out.println(
+				"Would upgrade " + bundleSymbolicName + " from " +
+					schemaVersionString + " to " +
+						lastUpgradeInfo.getToSchemaVersionString());
+		}
+	}
 
 	public void execute(String bundleSymbolicName) {
 		doExecute(bundleSymbolicName, _serviceTrackerMap);
@@ -101,6 +144,14 @@ public class ReleaseManager {
 
 		for (UpgradeInfo upgradeProcess : upgradeProcesses) {
 			System.out.println("\t" + upgradeProcess);
+		}
+	}
+
+	public void queue() {
+		System.out.println("Pending Jobs: " + _queue.size());
+
+		for (Callable<Void> callable : _queue) {
+			System.out.println(callable);
 		}
 	}
 
@@ -143,11 +194,15 @@ public class ReleaseManager {
 				new PropertyServiceReferenceComparator<UpgradeStep>(
 					"upgrade.from.schema.version")),
 			serviceTrackerMapListener);
+
+		_upgradeThread = new UpgradeThread();
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		_serviceTrackerMap.close();
+
+		_upgradeThread.cancel();
 	}
 
 	protected void doExecute(
@@ -190,23 +245,11 @@ public class ReleaseManager {
 
 		OutputStream outputStream = outputStreamContainer.getOutputStream();
 
-		_outputStreamContainerFactoryTracker.runWithSwappedLog(
-			new UpgradeInfosRunnable(
-				bundleSymbolicName, upgradeInfos, outputStream),
-			outputStreamContainer.getDescription(), outputStream);
+		Callable<Void> upgradeCallable = new UpgradeCallable(
+			bundleSymbolicName, upgradeInfos, outputStream,
+			outputStreamContainer);
 
-		try {
-			outputStream.close();
-		}
-		catch (IOException ioe) {
-			throw new RuntimeException(ioe);
-		}
-
-		Release release = _releaseLocalService.fetchRelease(bundleSymbolicName);
-
-		if (release != null) {
-			_releasePublisher.publish(release);
-		}
+		_queue.push(upgradeCallable);
 	}
 
 	protected String getSchemaVersionString(String bundleSymbolicName) {
@@ -226,19 +269,16 @@ public class ReleaseManager {
 		_releaseLocalService = releaseLocalService;
 	}
 
-	@Reference(unbind = "-")
-	protected void setReleasePublisher(ReleasePublisher releasePublisher) {
-		_releasePublisher = releasePublisher;
-	}
-
 	private static Logger _logger;
 
 	private OutputStreamContainerFactoryTracker
 		_outputStreamContainerFactoryTracker;
+	private final BlockingDeque<Callable<Void>> _queue =
+		new LinkedBlockingDeque<>();
 	private ReleaseLocalService _releaseLocalService;
 	private ReleaseManagerConfiguration _releaseManagerConfiguration;
-	private ReleasePublisher _releasePublisher;
 	private ServiceTrackerMap<String, List<UpgradeInfo>> _serviceTrackerMap;
+	private UpgradeThread _upgradeThread;
 
 	private static class UpgradeServiceTrackerCustomizer
 		implements ServiceTrackerCustomizer<UpgradeStep, UpgradeInfo> {
@@ -251,6 +291,8 @@ public class ReleaseManager {
 		public UpgradeInfo addingService(
 			ServiceReference<UpgradeStep> serviceReference) {
 
+			String bundleSymbolicName = (String)serviceReference.getProperty(
+				"upgrade.bundle.symbolic.name");
 			String fromSchemaVersionString =
 				(String)serviceReference.getProperty(
 					"upgrade.from.schema.version");
@@ -270,7 +312,8 @@ public class ReleaseManager {
 			}
 
 			return new UpgradeInfo(
-				fromSchemaVersionString, toSchemaVersionString, upgradeStep);
+				bundleSymbolicName, fromSchemaVersionString,
+				toSchemaVersionString, upgradeStep);
 		}
 
 		@Override
@@ -288,6 +331,70 @@ public class ReleaseManager {
 		}
 
 		private final BundleContext _bundleContext;
+
+	}
+
+	private class UpgradeCallable implements Callable<Void> {
+
+		public UpgradeCallable(
+			String bundleSymbolicName, List<UpgradeInfo> upgradeInfos,
+			OutputStream outputStream,
+			OutputStreamContainer outputStreamContainer) {
+
+			_bundleSymbolicName = bundleSymbolicName;
+			_upgradeInfos = upgradeInfos;
+			_outputStream = outputStream;
+			_outputStreamContainer = outputStreamContainer;
+		}
+
+		@Override
+		public Void call() throws Exception {
+			try {
+				_outputStreamContainerFactoryTracker.runWithSwappedLog(
+					new UpgradeInfosRunnable(
+						_bundleSymbolicName, _upgradeInfos, _outputStream),
+					_outputStreamContainer.getDescription(), _outputStream);
+			}
+			catch (RuntimeException e) {
+				Throwable cause = e.getCause();
+
+				Class<? extends Throwable> clazz = cause.getClass();
+				String className = clazz.getName();
+
+				if (className.contains(
+					"HibernateOptimisticLockingFailureException")) {
+
+					_queue.addFirst(this);
+				}
+			}
+
+			try {
+				_outputStream.close();
+			}
+			catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			}
+
+			return null;
+		}
+
+		@Override
+		public String toString() {
+			StringBundler sb = new StringBundler(_upgradeInfos.size() + 1);
+
+			sb.append("Task: ");
+
+			for (UpgradeInfo upgradeInfo : _upgradeInfos) {
+				sb.append(upgradeInfo.toString());
+			}
+
+			return sb.toString();
+		}
+
+		private final String _bundleSymbolicName;
+		private final OutputStream _outputStream;
+		private final OutputStreamContainer _outputStreamContainer;
+		private final List<UpgradeInfo> _upgradeInfos;
 
 	}
 
@@ -326,10 +433,30 @@ public class ReleaseManager {
 
 		@Override
 		public void run() {
-			for (UpgradeInfo upgradeInfo : _upgradeInfos) {
-				UpgradeStep upgradeStep = upgradeInfo.getUpgradeStep();
+			boolean active = CacheRegistryUtil.isActive();
 
-				try {
+			try {
+				CacheRegistryUtil.setActive(false);
+
+				for (UpgradeInfo upgradeInfo : _upgradeInfos) {
+					UpgradeStep upgradeStep = upgradeInfo.getUpgradeStep();
+
+					String fromSchemaVersionString =
+						upgradeInfo.getFromSchemaVersionString();
+
+					String schemaVersionString = getSchemaVersionString(
+						_bundleSymbolicName);
+
+					if (!fromSchemaVersionString.equals(schemaVersionString)) {
+						_logger.log(
+							Logger.LOG_INFO,
+							"Skipping " + upgradeInfo +
+								". It has been executed in a previous " +
+									"planification");
+
+						continue;
+					}
+
 					upgradeStep.upgrade(
 						new DBProcessContext() {
 
@@ -348,19 +475,59 @@ public class ReleaseManager {
 					_releaseLocalService.updateRelease(
 						_bundleSymbolicName,
 						upgradeInfo.getToSchemaVersionString(),
-						upgradeInfo.getFromSchemaVersionString());
-				}
-				catch (Exception e) {
-					throw new RuntimeException(e);
+						fromSchemaVersionString);
 				}
 			}
-
-			CacheRegistryUtil.clear();
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			finally {
+				CacheRegistryUtil.setActive(active);
+			}
 		}
 
 		private final String _bundleSymbolicName;
 		private final OutputStream _outputStream;
 		private final List<UpgradeInfo> _upgradeInfos;
+
+	}
+
+	private class UpgradeThread extends Thread {
+
+		public void cancel() {
+			_canceled = true;
+
+			interrupt();
+		}
+
+		@Override
+		public void run() {
+			while (!isInterrupted() && !_isCanceled()) {
+				try {
+					Callable<Void> callable = _queue.takeLast();
+
+					callable.call();
+				}
+				catch (InterruptedException ie) {
+					_canceled = true;
+				}
+				catch (Exception e) {
+					_logger.log(Logger.LOG_ERROR, e.getMessage(), e);
+				}
+			}
+		}
+
+		private UpgradeThread() {
+			super("Upgrade Thread");
+
+			start();
+		}
+
+		private boolean _isCanceled() {
+			return _canceled;
+		}
+
+		private volatile boolean _canceled = false;
 
 	}
 

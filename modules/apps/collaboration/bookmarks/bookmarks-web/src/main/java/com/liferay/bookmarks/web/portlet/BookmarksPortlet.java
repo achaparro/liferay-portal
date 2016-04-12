@@ -15,11 +15,13 @@
 package com.liferay.bookmarks.web.portlet;
 
 import com.liferay.bookmarks.constants.BookmarksPortletKeys;
+import com.liferay.bookmarks.service.BookmarksEntryLocalService;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 
 import javax.portlet.Portlet;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Iván Zaera
@@ -54,4 +56,8 @@ import org.osgi.service.component.annotations.Component;
 	service = Portlet.class
 )
 public class BookmarksPortlet extends MVCPortlet {
+
+	@Reference
+	private BookmarksEntryLocalService _bookmarksEntryLocalService;
+
 }

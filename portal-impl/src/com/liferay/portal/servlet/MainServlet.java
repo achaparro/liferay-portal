@@ -96,7 +96,9 @@ import com.liferay.portlet.PortletURLListenerFactory;
 import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceReference;
 import com.liferay.registry.ServiceRegistration;
+import com.liferay.registry.ServiceTracker;
 import com.liferay.registry.dependency.ServiceDependencyListener;
 import com.liferay.registry.dependency.ServiceDependencyManager;
 import com.liferay.social.kernel.util.SocialConfigurationUtil;
@@ -1318,6 +1320,25 @@ public class MainServlet extends ActionServlet {
 
 		_servletContextServiceRegistration = registry.registerService(
 			ServletContext.class, getServletContext(), properties);
+
+		ServiceReference<Object> serviceReference =
+			registry.getServiceReference(
+				"com.liferay.portal.upgrade.registry.UpgradeQueue");
+
+		if (serviceReference != null) {
+			Object service = registry.getService(serviceReference);
+
+			try {
+				synchronized (service) {
+					service.wait();
+				}
+			}
+			catch (InterruptedException e) {
+			}
+			finally {
+				registry.ungetService(serviceReference);
+			}
+		}
 	}
 
 	protected void sendError(

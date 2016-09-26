@@ -50,15 +50,12 @@ public class UpgradeOracleTest {
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		_db = DBManagerUtil.getDB();
-
-		if (_db.getDBType() != DBType.ORACLE) {
-			return;
-		}
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		Assume.assumeTrue(_db.getDBType() == DBType.ORACLE);
+		Assume.assumeTrue(
+			"Database is not set to Oracle", _db.getDBType() == DBType.ORACLE);
 
 		_upgradeOracle = new UpgradeOracle();
 
@@ -75,6 +72,9 @@ public class UpgradeOracleTest {
 
 	@After
 	public void tearDown() throws Exception {
+		Assume.assumeTrue(
+			"Database is not set to Oracle", _db.getDBType() == DBType.ORACLE);
+
 		_db.runSQL(
 			"alter table " + _TABLE_NAME + " modify " + _FIELD_NAME +
 				" varchar2(75 CHAR)");

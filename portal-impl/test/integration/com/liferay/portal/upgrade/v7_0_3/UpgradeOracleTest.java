@@ -130,7 +130,9 @@ public class UpgradeOracleTest {
 
 			rs.next();
 
-			return rs.getInt(1);
+			int dataLength = rs.getInt(1);
+
+			return dataLength / 4;
 		}
 	}
 

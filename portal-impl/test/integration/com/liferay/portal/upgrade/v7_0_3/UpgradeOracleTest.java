@@ -62,12 +62,6 @@ public class UpgradeOracleTest {
 		_db.runSQL(
 			"alter table " + _TABLE_NAME + " modify " + _FIELD_NAME +
 				" varchar2(300 BYTE)");
-
-		Release portalRelease = ReleaseLocalServiceUtil.fetchRelease("portal");
-
-		portalRelease.setBuildNumber(ReleaseInfo.RELEASE_6_1_20_BUILD_NUMBER);
-
-		ReleaseLocalServiceUtil.updateRelease(portalRelease);
 	}
 
 	@After
@@ -88,6 +82,12 @@ public class UpgradeOracleTest {
 
 	@Test
 	public void testUpgradeReduceFieldSizes() throws Exception {
+		Release portalRelease = ReleaseLocalServiceUtil.fetchRelease("portal");
+
+		portalRelease.setBuildNumber(ReleaseInfo.RELEASE_6_1_20_BUILD_NUMBER);
+
+		ReleaseLocalServiceUtil.updateRelease(portalRelease);
+
 		_upgradeOracle.upgrade();
 
 		Assert.assertEquals(75, getCharDataLenght(_TABLE_NAME, _FIELD_NAME));

@@ -115,7 +115,7 @@ public class UpgradeOracleTest {
 
 			int dataLength = rs.getInt(1);
 
-			return dataLength / 4;
+			return dataLength / getNLSLengthSemantics();
 		}
 	}
 
@@ -134,6 +134,27 @@ public class UpgradeOracleTest {
 
 			return rs.getString(1);
 		}
+	}
+
+	protected int getNLSLengthSemantics() throws Exception {
+		try (Connection connection = DataAccess.getUpgradeOptimizedConnection();
+			 PreparedStatement ps = connection.prepareStatement(
+				 "select value from nls_session_parameters where " +
+					 "parameter = 'NLS_LENGTH_SEMANTICS'")) {
+
+			ResultSet rs = ps.executeQuery();
+
+			rs.next();
+
+			String parameter = rs.getString(1);
+
+			if (parameter.equals("CHAR")) {
+				return 1;
+			}
+
+			return 4;
+		}
+
 	}
 
 	private static final String _FIELD_NAME = "INDUSTRY";

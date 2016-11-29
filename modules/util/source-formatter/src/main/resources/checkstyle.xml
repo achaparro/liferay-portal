@@ -92,6 +92,9 @@
 			<message key="chaining.avoid.multiple" value="Avoid multiple chaining on method ''{0}'" />
 			<message key="concat.avoid.too.many" value="Use StringBundler instead of chaining concat when there is more than 3 parts" />
 		</module>
+		<module name="com.liferay.source.formatter.checkstyle.checks.ConstantInPublicAPI">
+			<message key="constant.public.api" value="Do not use constant ''{0}'' in public API for modules, see LPS-69433" />
+		</module>
 		<module name="com.liferay.source.formatter.checkstyle.checks.ConstantName">
 			<message key="name.invalidPrivatePattern" value="Private constant ''{0}'' must match pattern ''{1}''" />
 			<message key="name.invalidProtectedPublicPattern" value="Protected or public constant ''{0}'' must match pattern ''{1}''" />

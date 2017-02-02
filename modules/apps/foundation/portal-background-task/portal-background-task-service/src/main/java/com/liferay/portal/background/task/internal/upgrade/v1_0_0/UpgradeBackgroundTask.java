@@ -24,6 +24,8 @@ public class UpgradeBackgroundTask extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
+		upgradeIndexes("dependencies/update.sql");
+
 		alter(
 			BackgroundTaskTable.class,
 			new AlterColumnType("name", "VARCHAR(255) null"),

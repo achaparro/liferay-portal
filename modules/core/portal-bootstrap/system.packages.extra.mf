@@ -2925,14 +2925,14 @@ Export-Package: com.liferay.ibm.icu;version="4.0.1",com.liferay.ibm.ic
  ce,com.liferay.portal.kernel.util,com.liferay.trash.kernel.model,java
  x.portlet,javax.servlet,javax.servlet.http",com.liferay.portal.kernel
  .tree;version="2.1.0";uses:="com.liferay.portal.kernel.exception",com
- .liferay.portal.kernel.upgrade;version="7.3.0";uses:="com.liferay.por
+ .liferay.portal.kernel.upgrade;version="7.4.0";uses:="com.liferay.por
  tal.kernel.dao.db,com.liferay.portal.kernel.exception,com.liferay.por
  tal.kernel.upgrade.util,com.liferay.portal.kernel.util,com.liferay.po
  rtal.kernel.xml,javax.portlet",com.liferay.portal.kernel.upgrade.dao.
  orm;version="7.0.0";uses:="com.liferay.portal.kernel.dao.db",com.life
  ray.portal.kernel.upgrade.util;version="7.0.0";uses:="com.liferay.por
  tal.kernel.model,com.liferay.portal.kernel.upgrade",com.liferay.porta
- l.kernel.upgrade.v6_2_0;version="7.2.0";uses:="com.liferay.portal.ker
+ l.kernel.upgrade.v6_2_0;version="7.3.0";uses:="com.liferay.portal.ker
  nel.upgrade",com.liferay.portal.kernel.upload;version="6.3.0";uses:="
  com.liferay.portal.kernel.exception,com.liferay.portal.kernel.json,co
  m.liferay.portal.kernel.repository.model,com.liferay.portal.kernel.se

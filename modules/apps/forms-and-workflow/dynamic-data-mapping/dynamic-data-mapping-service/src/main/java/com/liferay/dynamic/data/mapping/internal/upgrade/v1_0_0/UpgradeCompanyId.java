@@ -22,6 +22,13 @@ import com.liferay.portal.kernel.upgrade.BaseUpgradeCompanyId;
 public class UpgradeCompanyId extends BaseUpgradeCompanyId {
 
 	@Override
+	protected void doUpgrade() throws Exception {
+		super.doUpgrade();
+
+		upgradeIndexes("dependencies/update-company-indexes.sql");
+	}
+
+	@Override
 	protected TableUpdater[] getTableUpdaters() {
 		return new TableUpdater[] {
 			new TableUpdater("DDMStorageLink", "DDMStructure", "structureId"),

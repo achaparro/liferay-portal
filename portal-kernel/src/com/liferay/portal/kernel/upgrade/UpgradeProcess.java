@@ -581,10 +581,9 @@ public abstract class UpgradeProcess
 	}
 
 	protected void upgradeIndexes(String fileName) throws Exception {
-		Class<?> upgradeClass = getClass();
+		Class<?> clazz = getClass();
 
-		String template = StringUtil.read(
-			upgradeClass.getResourceAsStream(fileName));
+		String template = StringUtil.read(clazz.getResourceAsStream(fileName));
 
 		runSQLTemplateString(template, false, false);
 	}

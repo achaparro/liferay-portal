@@ -580,6 +580,14 @@ public abstract class UpgradeProcess
 		return name;
 	}
 
+	protected void upgradeIndexes(String fileName) throws Exception {
+		Class<?> clazz = getClass();
+
+		String template = StringUtil.read(clazz.getResourceAsStream(fileName));
+
+		runSQLTemplateString(template, false, false);
+	}
+
 	protected void upgradeTable(String tableName, Object[][] tableColumns)
 		throws Exception {
 

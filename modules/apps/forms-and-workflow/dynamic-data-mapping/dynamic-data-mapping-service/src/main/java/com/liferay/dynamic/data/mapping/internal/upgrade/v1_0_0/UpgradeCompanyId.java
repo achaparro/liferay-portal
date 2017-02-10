@@ -25,10 +25,10 @@ public class UpgradeCompanyId extends BaseUpgradeCompanyId {
 	protected void doUpgrade() throws Exception {
 		super.doUpgrade();
 
-		String template = "create index IX_DB81EB42 on DDMStorageLink " +
-			"(uuid_[$COLUMN_LENGTH:75$], companyId);";
-
-		runSQLTemplateString(template, false, false);
+		runSQLTemplateString(
+			"create index IX_DB81EB42 on DDMStorageLink " +
+				"(uuid_[$COLUMN_LENGTH:75$], companyId)",
+			false, false);
 	}
 
 	@Override

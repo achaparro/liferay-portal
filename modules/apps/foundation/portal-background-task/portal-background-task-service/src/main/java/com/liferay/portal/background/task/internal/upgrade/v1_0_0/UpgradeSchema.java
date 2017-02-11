@@ -12,31 +12,26 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.internal.upgrade.v1_0_0;
+package com.liferay.portal.background.task.internal.upgrade.v1_0_0;
 
-import com.liferay.portal.kernel.upgrade.BaseUpgradeCompanyId;
+import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.StringUtil;
 
 /**
- * @author Brian Wing Shun Chan
+ * @author Miguel Pastor
  */
-public class UpgradeCompanyId extends BaseUpgradeCompanyId {
+public class UpgradeSchema extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		super.doUpgrade();
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			String template = StringUtil.read(
+				UpgradeSchema.class.getResourceAsStream(
+					"dependencies/update.sql"));
 
-		runSQLTemplateString(
-			"create index IX_DB81EB42 on DDMStorageLink " +
-				"(uuid_[$COLUMN_LENGTH:75$], companyId)",
-			false, false);
-	}
-
-	@Override
-	protected TableUpdater[] getTableUpdaters() {
-		return new TableUpdater[] {
-			new TableUpdater("DDMStorageLink", "DDMStructure", "structureId"),
-			new TableUpdater("DDMStructureLink", "DDMStructure", "structureId")
-		};
+			runSQLTemplateString(template, false, false);
+		}
 	}
 
 }

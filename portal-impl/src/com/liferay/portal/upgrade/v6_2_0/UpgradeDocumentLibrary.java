@@ -163,28 +163,25 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 
 						List<DLFolder> list = new ArrayList<>();
 
-						try {
-							try (PreparedStatement ps =
-									connection.prepareStatement(
-										_SELECT_DLFOLDER_BY_PARENT)) {
+						try (PreparedStatement ps =
+								connection.prepareStatement(
+									_SELECT_DLFOLDER_BY_PARENT)) {
 
-								ps.setLong(1, previousId);
-								ps.setLong(2, companyId);
-								ps.setLong(3, parentPrimaryKey);
-								ps.setInt(4, WorkflowConstants.STATUS_IN_TRASH);
-								ps.setFetchSize(size);
+							ps.setLong(1, previousId);
+							ps.setLong(2, companyId);
+							ps.setLong(3, parentPrimaryKey);
+							ps.setInt(4, WorkflowConstants.STATUS_IN_TRASH);
+							ps.setFetchSize(size);
 
-								try (ResultSet rs = ps.executeQuery()) {
-									while (rs.next()) {
-										long folderId = rs.getLong(1);
+							try (ResultSet rs = ps.executeQuery()) {
+								while (rs.next()) {
+									long folderId = rs.getLong(1);
 
-										DLFolder folder = new DLFolder(
-											psFolder);
+									DLFolder folder = new DLFolder(psFolder);
 
-										folder.setFolderId(folderId);
+									folder.setFolderId(folderId);
 
-										list.add(folder);
-									}
+									list.add(folder);
 								}
 							}
 						}
@@ -346,9 +343,13 @@ public class UpgradeDocumentLibrary extends UpgradeProcess {
 					rebuildTree(
 						companyId, psFolder, psFileEntry, psFileVersion,
 						psFileShortcut);
+
 					psFolder.executeBatch();
+
 					psFileEntry.executeBatch();
+
 					psFileVersion.executeBatch();
+
 					psFileShortcut.executeBatch();
 				}
 			}

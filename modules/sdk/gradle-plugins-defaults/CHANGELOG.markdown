@@ -1032,6 +1032,65 @@ the `node_modules` directory of a project with the `clean` task.
 ### Changed
 - [LPS-70555]: Update the [Liferay Gradle Plugins] dependency to version 3.2.0.
 
+## 2.4.30 - 2017-02-12
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins] dependency to version 3.2.1.
+
+### Fixed
+- [LPS-70584]: Avoid internet connection requirement when parsing `service.xml`
+files.
+
+## 2.4.31 - 2017-02-12
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins] dependency to version 3.2.2.
+
+## 2.4.32 - 2017-02-13
+
+### Changed
+- [LPS-70618]: Update the [Liferay Gradle Plugins] dependency to version 3.2.3.
+
+## 2.4.33 - 2017-02-14
+
+### Changed
+- [LPS-70494]: Update the [Liferay Gradle Plugins] dependency to version 3.2.4.
+
+### Fixed
+- [LPS-67863]: Exclude test projects from the `gradlew baseline -PsyncRelease`
+process.
+
+## 2.4.34 - 2017-02-16
+
+### Changed
+- [LPS-70677]: Update the [Liferay Gradle Plugins] dependency to version 3.2.5.
+
+### Removed
+- [LPS-70677]: Remove exclusion of `com.liferay.portal` transitive dependencies
+from the `com.liferay.jasper.jspc` default dependency in the `jspCTool`
+configuration.
+- [LPS-70699]: Disable the update check when building themes.
+
+## 2.4.35 - 2017-02-17
+
+### Changed
+- [LPS-70707]: Update the [Liferay Gradle Plugins] dependency to version 3.2.6.
+
+## 2.4.36 - 2017-02-21
+
+### Added
+- [LPS-70170]: Print out implicit dependency replacements in the `jspC`
+configuration.
+
+## 2.5.0 - 2017-02-22
+
+### Added
+- [LPS-70819]: Publish a JAR file with the compiled JSP classes of an OSGi
+project with the `install` and `uploadArchives` tasks.
+
+### Changed
+- [LPS-66853]: Update the [Liferay Gradle Plugins] dependency to version 3.2.7.
+
 [Liferay CDN]: https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public
 [Liferay Gradle Plugins]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins
 [Liferay Gradle Plugins App Javadoc Builder]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins-app-javadoc-builder
@@ -1130,8 +1189,15 @@ the `node_modules` directory of a project with the `clean` task.
 [LPS-70424]: https://issues.liferay.com/browse/LPS-70424
 [LPS-70451]: https://issues.liferay.com/browse/LPS-70451
 [LPS-70486]: https://issues.liferay.com/browse/LPS-70486
+[LPS-70494]: https://issues.liferay.com/browse/LPS-70494
 [LPS-70515]: https://issues.liferay.com/browse/LPS-70515
 [LPS-70555]: https://issues.liferay.com/browse/LPS-70555
+[LPS-70584]: https://issues.liferay.com/browse/LPS-70584
+[LPS-70618]: https://issues.liferay.com/browse/LPS-70618
+[LPS-70677]: https://issues.liferay.com/browse/LPS-70677
+[LPS-70699]: https://issues.liferay.com/browse/LPS-70699
+[LPS-70707]: https://issues.liferay.com/browse/LPS-70707
+[LPS-70819]: https://issues.liferay.com/browse/LPS-70819
 [LRDOCS-2594]: https://issues.liferay.com/browse/LRDOCS-2594
 [LRDOCS-2841]: https://issues.liferay.com/browse/LRDOCS-2841
 [LRDOCS-2981]: https://issues.liferay.com/browse/LRDOCS-2981

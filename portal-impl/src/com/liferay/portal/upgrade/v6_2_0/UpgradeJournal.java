@@ -210,6 +210,8 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 		setUpStrutureAttributesMappings();
 
+		updateClassNameId();
+
 		updateStructures();
 		updateTemplates();
 
@@ -429,6 +431,28 @@ public class UpgradeJournal extends BaseUpgradePortletPreferences {
 
 				ps2.executeBatch();
 			}
+		}
+	}
+
+	protected void updateClassNameId() throws Exception {
+		try (PreparedStatement ps = connection.prepareStatement(
+				"update ClassName_ set value = ? where value = ?")) {
+
+			ps.setString(
+				1, "com.liferay.portlet.dynamicdatamapping.model.DDMStructure");
+			ps.setString(
+				2, "com.liferay.portlet.journal.model.JournalStructure");
+
+			ps.addBatch();
+
+			ps.setString(
+				1, "com.liferay.portlet.dynamicdatamapping.model.DDMTemplate");
+			ps.setString(
+				2, "com.liferay.portlet.journal.model.JournalTemplate");
+
+			ps.addBatch();
+
+			ps.executeBatch();
 		}
 	}
 

@@ -56,8 +56,25 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		while (matcher.find()) {
 			String match = matcher.group();
-			String whitespace = matcher.group(4);
+
+			if (match.contains("{\n")) {
+				continue;
+			}
+
+			String className = matcher.group(3);
 			String parameterType = matcher.group(5);
+
+			// LPS-70579
+
+			if ((className.equals("AutoResetThreadLocal") ||
+				 className.equals("InitialThreadLocal")) &&
+				(parameterType.startsWith("Map<") ||
+				 parameterType.startsWith("Set<"))) {
+
+				continue;
+			}
+
+			String whitespace = matcher.group(4);
 
 			String replacement = StringUtil.replaceFirst(
 				match, whitespace + "<" + parameterType + ">", "<>");
@@ -570,6 +587,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	protected void checkPackagePath(String fileName, String packagePath) {
 		if (Validator.isNull(packagePath)) {
 			processMessage(fileName, "Missing package");
+
+			return;
 		}
 
 		int pos = fileName.lastIndexOf(CharPool.SLASH);
@@ -582,6 +601,13 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 				fileName,
 				"The declared package '" + packagePath +
 					"' does not match the expected package");
+
+			return;
+		}
+
+		if (packagePath.matches(".*\\.internal\\.([\\w.]+\\.)?impl")) {
+			processMessage(
+				fileName, "Do not use 'impl' inside 'internal', see LPS-70113");
 		}
 	}
 
@@ -4688,7 +4714,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		"(\n\\s*\\* @deprecated)( As of ([0-9\\.]+)(.*?)\n\\s*\\*( @|/))?",
 		Pattern.DOTALL);
 	private final Pattern _diamondOperatorPattern = Pattern.compile(
-		"(return|=)\n?(\t+| )new ([A-Za-z]+)(\\s*)<(.+)>\\(\n*\t*.*\\);\n");
+		"(return|=)\n?(\t+| )new ([A-Za-z]+)(\\s*)<([^>][^;]*?)>" +
+			"\\(\n*\t*.*?\\);\n",
+		Pattern.DOTALL);
 	private final Pattern _fetchByPrimaryKeysMethodPattern = Pattern.compile(
 		"@Override\n\tpublic Map<(.+)> fetchByPrimaryKeys\\(");
 	private final Pattern _ifStatementCriteriaPattern = Pattern.compile(

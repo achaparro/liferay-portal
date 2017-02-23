@@ -232,6 +232,10 @@ public interface Portal {
 	 */
 	public String addPreservedParameters(ThemeDisplay themeDisplay, String url);
 
+	public String addPreservedParameters(
+		ThemeDisplay themeDisplay, String url, boolean typeControlPanel,
+		boolean doAsUser);
+
 	public void addUserLocaleOptionsMessage(HttpServletRequest request);
 
 	/**
@@ -1056,6 +1060,16 @@ public interface Portal {
 		PortletResponse portletResponse, ThemeDisplay themeDisplay,
 		String portletName);
 
+	public String getSiteAdminURL(
+			Company company, Group group, String ppid,
+			Map<String, String[]> params)
+		throws PortalException;
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getSiteAdminURL(Company, Group, String, Map)}
+	 */
+	@Deprecated
 	public String getSiteAdminURL(
 			Group group, String ppid, Map<String, String[]> params)
 		throws PortalException;

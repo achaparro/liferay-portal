@@ -409,7 +409,17 @@ app.server.type=@{app.server.type}]]></echo>
 
 			<antcall inheritAll="false" target="compile" />
 
-			<ant antfile="build-dist.xml" inheritAll="false" target="build-dist-@{app.server.type}" />
+			<if>
+				<equals arg1="@{app.server.type}" arg2="websphere" />
+				<then>
+					<antcall inheritAll="false" target="prepare-test-build-custom">
+						<param name="app.server.type" value="@{app.server.type}" />
+					</antcall>
+				</then>
+				<else>
+					<ant antfile="build-dist.xml" inheritAll="false" target="build-dist-@{app.server.type}" />
+				</else>
+			</if>
 
 			<antcall inheritAll="false" target="prepare-portal-ext-properties" />
 
@@ -1621,7 +1631,7 @@ app.server.type=@{app.server.type}]]></echo>
 		<run-functional-test app.server.type="resin" database.type="mysql" />
 	</target>
 
-	<target name="functional-smoke-tcserver26-mysql56-jdk8">
+	<target name="functional-smoke-tcserver31-mysql56-jdk8">
 		<run-functional-test app.server.type="tcserver" database.type="mysql" />
 	</target>
 
@@ -1689,6 +1699,10 @@ app.server.type=@{app.server.type}]]></echo>
 		<run-functional-test app.server.type="jboss" database.type="mysql" />
 	</target>
 
+	<target name="functional-upgrade-tcserver31-mysql56-jdk8">
+		<run-functional-test app.server.type="tcserver" database.type="mysql" />
+	</target>
+
 	<target name="functional-upgrade-tomcat80-mariadb100-jdk8">
 		<run-functional-test app.server.type="tomcat" database.type="mariadb" />
 	</target>
@@ -1727,6 +1741,30 @@ app.server.type=@{app.server.type}]]></echo>
 
 	<target name="functional-wildfly100-mariadb100-jdk8">
 		<run-functional-test app.server.type="wildfly" database.type="mariadb" />
+	</target>
+
+	<target name="gradle-plugins-test-jdk8">
+		<run-batch-test>
+			<test-action>
+				<for param="gradle.plugin.dir">
+					<path>
+						<dirset
+							dir="modules/sdk"
+							excludes="${gradle.plugins.test.excludes}"
+							includes="gradle-plugins-*"
+						/>
+					</path>
+					<sequential>
+						<if>
+							<resourcecontains resource="@{gradle.plugin.dir}/build.gradle" substring="gradleTest" />
+							<then>
+								<gradle-execute dir="@{gradle.plugin.dir}" task="gradleTest" />
+							</then>
+						</if>
+					</sequential>
+				</for>
+			</test-action>
+		</run-batch-test>
 	</target>
 
 	<target name="integration-db2105-jdk8">
@@ -1813,6 +1851,16 @@ app.server.type=@{app.server.type}]]></echo>
 						<prepare-test-build />
 					</else>
 				</if>
+
+				<echo>unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
+
+				<execute>
+					<![CDATA[
+						mkdir -p modules/core/portal-bootstrap
+
+						unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf
+					]]>
+				</execute>
 			</test-set-up>
 		</run-batch-test>
 	</target>
@@ -2209,6 +2257,16 @@ ${output.content}</echo>
 			</test-action>
 
 			<test-set-up>
+				<echo>unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf</echo>
+
+				<execute>
+					<![CDATA[
+						mkdir -p modules/core/portal-bootstrap
+
+						unzip -p liferay-portal-source.zip modules/core/portal-bootstrap/build/system.packages.extra.mf > modules/core/portal-bootstrap/system.packages.extra.mf
+					]]>
+				</execute>
+
 				<echo>Deleting stale baseline log files.</echo>
 
 				<for param="log.file">

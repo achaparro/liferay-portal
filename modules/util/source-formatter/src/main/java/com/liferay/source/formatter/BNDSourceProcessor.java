@@ -160,6 +160,16 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
+	protected void checkRange(String fileName, String content) {
+		int pos = content.indexOf("\"${range");
+
+		if (pos != -1) {
+			processMessage(
+				fileName, "Do not use range expression, see LPS-70519",
+				getLineCount(content, pos));
+		}
+	}
+
 	protected void checkWildcardImports(
 		String fileName, String absolutePath, String content, Pattern pattern) {
 
@@ -251,6 +261,8 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 
 		content = formatLineBreaks(shortFileName, content);
 		content = formatWhitespace(shortFileName, content);
+
+		checkRange(fileName, content);
 
 		if ((portalSource || subrepository) && isModulesFile(absolutePath) &&
 			!fileName.endsWith("test-bnd.bnd")) {
@@ -498,9 +510,10 @@ public class BNDSourceProcessor extends BaseSourceProcessor {
 			"bnd.bnd",
 			populateDefinitionKeysMap(
 				"-metatype-inherit", "Can-Redefine-Classes",
-				"Can-Retransform-Classes", "Implementation-Version",
-				"JPM-Command", "Liferay-Export-JS-Submodules",
-				"Liferay-JS-Config", "Liferay-Releng-App-Description",
+				"Can-Retransform-Classes", "ConfigurationPath",
+				"Implementation-Version", "JPM-Command",
+				"Liferay-Export-JS-Submodules", "Liferay-JS-Config",
+				"Liferay-Releng-App-Description",
 				"Liferay-Releng-Module-Group-Description",
 				"Liferay-Releng-Module-Group-Title",
 				"Liferay-Require-SchemaVersion", "Liferay-Service",

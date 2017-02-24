@@ -95,6 +95,14 @@ public abstract class DoulosServlet extends HttpServlet {
 		}
 	}
 
+	protected boolean isBlank(String s) {
+		if ((s == null) || s.equals("")) {
+			return true;
+		}
+
+		return false;
+	}
+
 	protected boolean isValidIP(String remoteAddr) {
 		if (_validIps.length == 0) {
 			return true;
@@ -216,7 +224,7 @@ public abstract class DoulosServlet extends HttpServlet {
 				String redirect = responseJSONObject.optString(
 					"doulosRedirect");
 
-				if (redirect != null) {
+				if (!isBlank(redirect)) {
 					response.sendRedirect(redirect);
 
 					return;

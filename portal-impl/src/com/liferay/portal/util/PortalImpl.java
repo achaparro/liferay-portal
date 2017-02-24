@@ -747,6 +747,23 @@ public class PortalImpl implements Portal {
 		ThemeDisplay themeDisplay, Layout layout, String url,
 		boolean doAsUser) {
 
+		return addPreservedParameters(
+			themeDisplay, url, layout.isTypeControlPanel(), doAsUser);
+	}
+
+	@Override
+	public String addPreservedParameters(
+		ThemeDisplay themeDisplay, String url) {
+
+		return addPreservedParameters(
+			themeDisplay, themeDisplay.getLayout(), url, true);
+	}
+
+	@Override
+	public String addPreservedParameters(
+		ThemeDisplay themeDisplay, String url, boolean typeControlPanel,
+		boolean doAsUser) {
+
 		if (doAsUser) {
 			if (Validator.isNotNull(themeDisplay.getDoAsUserId())) {
 				url = HttpUtil.setParameter(
@@ -760,7 +777,7 @@ public class PortalImpl implements Portal {
 			}
 		}
 
-		if (layout.isTypeControlPanel()) {
+		if (typeControlPanel) {
 			if (Validator.isNotNull(themeDisplay.getPpid())) {
 				url = HttpUtil.setParameter(
 					url, "p_p_id", themeDisplay.getPpid());
@@ -785,14 +802,6 @@ public class PortalImpl implements Portal {
 		}
 
 		return url;
-	}
-
-	@Override
-	public String addPreservedParameters(
-		ThemeDisplay themeDisplay, String url) {
-
-		return addPreservedParameters(
-			themeDisplay, themeDisplay.getLayout(), url, true);
 	}
 
 	@Override
@@ -5009,13 +5018,11 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public String getSiteAdminURL(
-			Group group, String ppid, Map<String, String[]> params)
+			Company company, Group group, String ppid,
+			Map<String, String[]> params)
 		throws PortalException {
 
 		StringBundler sb = new StringBundler(7);
-
-		Company company = CompanyLocalServiceUtil.getCompany(
-			group.getCompanyId());
 
 		sb.append(
 			getPortalURL(
@@ -5051,6 +5058,22 @@ public class PortalImpl implements Portal {
 		sb.append(HttpUtil.parameterMapToString(params, true));
 
 		return sb.toString();
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getSiteAdminURL(Company, Group, String, Map)}
+	 */
+	@Deprecated
+	@Override
+	public String getSiteAdminURL(
+			Group group, String ppid, Map<String, String[]> params)
+		throws PortalException {
+
+		Company company = CompanyLocalServiceUtil.getCompany(
+			group.getCompanyId());
+
+		return getSiteAdminURL(company, group, ppid, params);
 	}
 
 	/**

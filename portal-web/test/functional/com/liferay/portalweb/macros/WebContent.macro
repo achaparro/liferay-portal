@@ -25,7 +25,9 @@
 		<if>
 			<isset var="webContentTitle" />
 			<then>
-				<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+				<execute macro="PortletEntry#inputTitle">
+					<var name="title" value="${webContentTitle}" />
+				</execute>
 			</then>
 		</if>
 
@@ -116,7 +118,9 @@
 	</command>
 
 	<command name="addFailWithoutRequiredCategoryAssetTypeCP">
-		<execute function="Type" locator1="TextInput#TITLE" value1="Web Content Title" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="Web Content Title" />
+		</execute>
 
 		<execute macro="AlloyEditor#addContent">
 			<var name="content" value="Web Content Content" />
@@ -136,8 +140,14 @@
 	</command>
 
 	<command name="addFeed">
-		<execute function="Type" locator1="TextInput#NAME" value1="${feedTitle}" />
-		<execute function="Type" locator1="TextArea#DESCRIPTION" value1="${description}" />
+		<execute macro="PortletEntry#inputName">
+			<var name="name" value="${feedTitle}" />
+		</execute>
+
+		<execute macro="PortletEntry#inputDescription">
+			<var name="description" value="${description}" />
+		</execute>
+
 		<execute function="Type" locator1="TextInput#URL" value1="${targetFriendlyUrl}" />
 
 		<execute macro="Panel#expandPanel">
@@ -251,7 +261,9 @@
 			<var name="structureName" value="${structureName}" />
 		</execute>
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitle}" />
+		</execute>
 
 		<var name="key_fieldName" value="${structureFieldName}" />
 
@@ -292,7 +304,9 @@
 
 		<execute function="Click" locator1="Translation#ADD" />
 
-		<execute function="AssertClick" locator1="MenuItem#WEB_CONTENT_LANGUAGE" value1="${localizedLanguage}" />
+		<execute function="AssertClick" locator1="MenuItem#ANY_MENU_ITEM" value1="${localizedLanguage}">
+			<var name="key_menuItem" value="${localizedLanguage}" />
+		</execute>
 
 		<if>
 			<not>
@@ -306,7 +320,9 @@
 		<if>
 			<isset var="localizedTitle" />
 			<then>
-				<execute function="Type" locator1="TextInput#TITLE" value1="${localizedTitle}" />
+				<execute macro="PortletEntry#inputTitle">
+					<var name="title" value="${localizedTitle}" />
+				</execute>
 			</then>
 		</if>
 
@@ -400,7 +416,9 @@
 	</command>
 
 	<command name="addViaCKEditor">
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitle}" />
+		</execute>
 
 		<execute function="Type#typeCKEditorWaitForCKEditor" locator1="CKEditor#BODY_FIELD" value1="${webContentContent}" />
 	</command>
@@ -453,7 +471,9 @@
 			<var name="structureName" value="${selectStructureName}" />
 		</execute>
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitle}" />
+		</execute>
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Structure and Template" />
@@ -482,7 +502,9 @@
 		<execute function="AssertTextEquals" locator1="WCEditWebContent#SELECTED_STRUCTURE" value1="${structureName}" />
 		<execute function="AssertTextEquals" locator1="WCEditWebContent#SELECTED_TEMPLATE" value1="${templateName}" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitle}" />
+		</execute>
 
 		<var name="key_fieldName" value="${fieldName}" />
 
@@ -522,7 +544,9 @@
 	</command>
 
 	<command name="addWithStructureAndWorkflowCP">
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitle}" />
+		</execute>
 
 		<if>
 			<isset var="webContentText" />
@@ -541,7 +565,9 @@
 	<command name="addWithStructureCP">
 		<execute function="Click" locator1="TextInput#TITLE" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitle}" />
+		</execute>
 
 		<if>
 			<isset var="webContentBoolean" />
@@ -638,6 +664,22 @@
 			<isset var="webContentSelect" />
 			<then>
 				<execute function="Select" locator1="DDMField#SELECT" value1="${webContentSelect}" />
+			</then>
+		</if>
+
+		<if>
+			<isset var="WebContentSelectWCFile" />
+			<then>
+				<var name="key_fieldName" value="${fieldName}" />
+				<var name="key_webContentTitle" value="${WebContentSelectWCFile}" />
+
+				<execute function="AssertClick" locator1="DDLEditRecord#WEB_CONTENT_CHOOSE_FROM_WEB_CONTENT_LIBRARY_BUTTON" value1="Select" />
+
+				<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+
+				<execute function="AssertClick" locator1="Link#WEB_CONTENT_ARTICLE" value1="${WebContentSelectWCFile}" />
+
+				<execute function="SelectFrame" value1="relative=top" />
 			</then>
 		</if>
 
@@ -825,7 +867,9 @@
 	</command>
 
 	<command name="editCP">
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitleEdit}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitleEdit}" />
+		</execute>
 
 		<if>
 			<isset var="webContentContentEdit" />
@@ -927,7 +971,9 @@
 	<command name="editNullCP">
 		<var name="key_webContentTitle" value="${webContentTitle}" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="" />
+		</execute>
 
 		<if>
 			<isset var="webContentContent" />
@@ -950,7 +996,9 @@
 
 		<execute function="SelectFrame" locator1="IFrame#EDIT_ASSET" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitleEdit}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitleEdit}" />
+		</execute>
 
 		<execute macro="AlloyEditor#addContent">
 			<var name="content" value="${webContentContentEdit}" />
@@ -968,7 +1016,9 @@
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitleEdit}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitleEdit}" />
+		</execute>
 
 		<execute macro="AlloyEditor#addContent">
 			<var name="content" value="${webContentContentEdit}" />
@@ -978,7 +1028,9 @@
 	</command>
 
 	<command name="editPGViaWCD">
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitleEdit}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitleEdit}" />
+		</execute>
 
 		<if>
 			<isset var="webContentText" />
@@ -1484,7 +1536,9 @@
 	<command name="viewCategorizationVocabularyCP">
 		<var name="count" value="1" />
 
-		<execute function="Type" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="${webContentTitle}" />
+		</execute>
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Metadata" />
@@ -1561,6 +1615,32 @@
 
 				<execute function="SelectFrame" value1="relative=top" />
 			</else>
+		</if>
+	</command>
+
+	<command name="viewCPWithoutContentField">
+		<execute function="AssertTextEquals" locator1="TextInput#TITLE" value1="${webContentTitle}" />
+
+		<if>
+			<equals arg1="${field}" arg2="Web Content" />
+			<then>
+				<var name="key_fieldData" value="${fieldData}" />
+				<var name="key_fieldFieldLabel" value="${fieldFieldLabel}" />
+				<var name="key_fieldName" value="${fieldName}" />
+
+				<execute function="AssertTextEquals" locator1="DDMField#WEB_CONTENT" value1="${fieldFieldLabel}" />
+				<execute function="AssertTextEquals" locator1="DDMField#WEB_CONTENT_TITLE_SELECTED" value1="${fieldData}" />
+			</then>
+		</if>
+
+		<if>
+			<equals arg1="${field}" arg2="Geolocation" />
+			<then>
+				<var name="key_fieldFieldLabel" value="${fieldFieldLabel}" />
+				<var name="key_fieldName" value="${fieldName}" />
+
+				<execute function="AssertTextEquals" locator1="DDMField#GEOLOCATION" value1="${fieldFieldLabel}" />
+			</then>
 		</if>
 	</command>
 
@@ -1945,7 +2025,17 @@
 			<then>
 				<var name="key_localizedLanguage" value="${webContentTranslationLanguage}" />
 
-				<execute function="Click" locator1="Translation#AVAILABLE_TRANSLATION" />
+				<toggle name="LPS-67821">
+					<on>
+						<execute function="Click" locator1="NavTab#TAB_LINK">
+							<var name="key_tab" value="${webContentTranslationLanguage}" />
+						</execute>
+					</on>
+
+					<off>
+						<execute function="Click" locator1="Translation#AVAILABLE_TRANSLATION" />
+					</off>
+				</toggle>
 
 				<if>
 					<isset var="localizedTitle" />
@@ -2025,7 +2115,9 @@
 	</command>
 
 	<command name="viewWCViewableByPermissions">
-		<execute function="Type" locator1="TextInput#TITLE" value1="Web Content Title" />
+		<execute macro="PortletEntry#inputTitle">
+			<var name="title" value="Web Content Title" />
+		</execute>
 
 		<execute macro="Panel#expandPanel">
 			<var name="panelHeading" value="Permissions" />

@@ -2,8 +2,10 @@
 ; Do not manually edit this file.
 ;
 [subrepo]
+	autopull = false
 	cmdver = liferay
-	commit = 3a071a5f42b93e9a88ca7983a4ea340c3b381419
+	commit = 2ab461d60e3fd9b1dfabc7a9b61e0dc7eefd7cd8
+	mergebuttonmergecommits = false
 	mode = push
-	parent = 0e1bf0c53d3a2496d7a329b5bf0eb3aeb994f9d6
+	parent = 474f6d7e0729d66f1238b98d7b9639b048bdf204
 	remote = git@github.com:liferay/com-liferay-marketplace.git

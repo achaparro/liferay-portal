@@ -2615,7 +2615,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected boolean isExcludedPath(
-		String property, String path, int lineCount, String javaTermName) {
+		String property, String path, int lineCount, String parameter) {
 
 		if (property == null) {
 			return false;
@@ -2633,10 +2633,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			return false;
 		}
 
-		String pathWithJavaTermName = null;
+		String pathWithParameter = null;
 
-		if (Validator.isNotNull(javaTermName)) {
-			pathWithJavaTermName = path + StringPool.AT + javaTermName;
+		if (Validator.isNotNull(parameter)) {
+			pathWithParameter = path + StringPool.AT + parameter;
 		}
 
 		String pathWithLineCount = null;
@@ -2646,6 +2646,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		}
 
 		for (String exclude : excludes) {
+			if (Validator.isNull(exclude)) {
+				continue;
+			}
+
 			if (exclude.startsWith("**")) {
 				exclude = exclude.substring(2);
 			}
@@ -2661,13 +2665,39 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			}
 
 			if (path.endsWith(exclude) ||
-				((pathWithJavaTermName != null) &&
-				 pathWithJavaTermName.endsWith(exclude)) ||
+				((pathWithParameter != null) &&
+				 pathWithParameter.endsWith(exclude)) ||
 				((pathWithLineCount != null) &&
 				 pathWithLineCount.endsWith(exclude))) {
 
 				return true;
 			}
+		}
+
+		return false;
+	}
+
+	protected boolean isExcludedPath(
+		String property, String path, String parameter) {
+
+		return isExcludedPath(property, path, -1, parameter);
+	}
+
+	protected boolean isModulesApp(String absolutePath, boolean privateOnly) {
+		if (absolutePath.contains("/modules/private/apps/") ||
+			(!privateOnly && absolutePath.contains("/modules/apps/"))) {
+
+			return true;
+		}
+
+		if (_projectPathPrefix == null) {
+			return false;
+		}
+
+		if (_projectPathPrefix.startsWith(":private:apps") ||
+			(!privateOnly && _projectPathPrefix.startsWith(":apps:"))) {
+
+			return true;
 		}
 
 		return false;
@@ -2679,6 +2709,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 	protected boolean isModulesFile(
 		String absolutePath, boolean includePlugins) {
+
+		if (subrepository) {
+			return true;
+		}
 
 		if (includePlugins) {
 			return absolutePath.contains("/modules/");
@@ -3098,6 +3132,24 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return excludesList.toArray(new String[excludesList.size()]);
 	}
 
+	private String _getProjectPathPrefix() throws Exception {
+		if (!subrepository) {
+			return null;
+		}
+
+		File file = getFile("gradle.properties", PORTAL_MAX_DIR_LEVEL);
+
+		if (!file.exists()) {
+			return null;
+		}
+
+		Properties properties = new Properties();
+
+		properties.load(new FileInputStream(file));
+
+		return properties.getProperty("project.path.prefix");
+	}
+
 	private void _init() {
 		try {
 			_sourceFormatterHelper = new SourceFormatterHelper(
@@ -3107,6 +3159,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			portalSource = _isPortalSource();
 			subrepository = _isSubrepository();
+
+			_projectPathPrefix = _getProjectPathPrefix();
 
 			_sourceFormatterMessagesMap = new HashMap<>();
 		}
@@ -3201,6 +3255,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	private String _oldCopyright;
 	private List<String> _pluginsInsideModulesDirectoryNames;
 	private Properties _portalLanguageProperties;
+	private String _projectPathPrefix;
 	private Properties _properties;
 	private SourceFormatterHelper _sourceFormatterHelper;
 	private Map<String, Set<SourceFormatterMessage>>

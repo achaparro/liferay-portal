@@ -299,9 +299,13 @@ AUI.add(
 			_hideSecondOperandField: function(index) {
 				var instance = this;
 
-				instance._getSecondOperand(index, 'fields').set('visible', false);
-				instance._getSecondOperand(index, 'options').set('visible', false);
-				instance._getSecondOperand(index, 'input').set('visible', false);
+				var secondOperandFields = instance._getSecondOperand(index, 'fields');
+				var secondOperandOptions = instance._getSecondOperand(index, 'options');
+				var secondOperandsInput = instance._getSecondOperand(index, 'input');
+
+				instance._setVisibleToOperandField(secondOperandFields);
+				instance._setVisibleToOperandField(secondOperandOptions);
+				instance._setVisibleToOperandField(secondOperandsInput);
 			},
 
 			_isBinaryCondition: function(index) {
@@ -550,6 +554,12 @@ AUI.add(
 				instance._conditions[index + '-condition-second-operand-type'] = field;
 			},
 
+			_setVisibleToOperandField: function(field) {
+				if (field) {
+					field.set('visible', false);
+				}
+			},
+
 			_updateOperatorList: function(dataType, conditionIndex) {
 				var instance = this;
 
@@ -594,7 +604,7 @@ AUI.add(
 
 				var secondOperandType = instance._getSecondOperandType(index);
 
-				var secondOperandTypeValue = secondOperandType.getValue();
+				var secondOperandTypeValue = secondOperandType ? secondOperandType.getValue() : '';
 
 				if (secondOperandTypeValue && secondOperandType.get('visible')) {
 					var secondOperandFields = instance._getSecondOperand(index, 'fields');
@@ -629,12 +639,14 @@ AUI.add(
 
 				var secondOperandType = instance._getSecondOperandType(index);
 
-				if (instance._getFirstOperandValue(index) && instance._getOperatorValue(index) && !instance._isUnaryCondition(index)) {
-					secondOperandType.set('visible', true);
-				}
-				else {
-					instance._getSecondOperand(index, 'fields').set('value', '');
-					secondOperandType.set('visible', false);
+				if (secondOperandType) {
+					if (instance._getFirstOperandValue(index) && instance._getOperatorValue(index) && !instance._isUnaryCondition(index)) {
+						secondOperandType.set('visible', true);
+					}
+					else {
+						instance._getSecondOperand(index, 'fields').set('value', '');
+						secondOperandType.set('visible', false);
+					}
 				}
 			}
 		};

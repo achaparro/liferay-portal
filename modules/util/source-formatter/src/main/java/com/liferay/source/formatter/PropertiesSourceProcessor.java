@@ -252,7 +252,8 @@ public class PropertiesSourceProcessor extends BaseSourceProcessor {
 				"**/lib/*/dependencies.properties", "**/Language.properties",
 				"**/liferay-plugin-package.properties", "**/portal.properties",
 				"**/portal-ext.properties", "**/portal-legacy-*.properties",
-				"**/portlet.properties", "**/source-formatter.properties"
+				"**/portlet.properties", "**/source-formatter.properties",
+				"**/test.properties"
 			};
 		}
 
@@ -264,9 +265,7 @@ public class PropertiesSourceProcessor extends BaseSourceProcessor {
 	}
 
 	protected String fixIncorrectLicenses(String absolutePath, String content) {
-		if (!absolutePath.contains("/modules/apps/") &&
-			!absolutePath.contains("/modules/private/apps/")) {
-
+		if (!isModulesApp(absolutePath, false)) {
 			return content;
 		}
 
@@ -280,7 +279,7 @@ public class PropertiesSourceProcessor extends BaseSourceProcessor {
 
 		String expectedLicenses = "LGPL";
 
-		if (absolutePath.contains("/modules/private/apps/")) {
+		if (isModulesApp(absolutePath, true)) {
 			expectedLicenses = "DXP";
 		}
 
@@ -571,7 +570,7 @@ public class PropertiesSourceProcessor extends BaseSourceProcessor {
 				if (propertyFileName.contains(StringPool.STAR) ||
 					propertyFileName.endsWith("-ext.properties") ||
 					(portalSource && !hasPrivateAppsDir &&
-					 propertyFileName.contains("/private/apps/"))) {
+					 isModulesApp(propertyFileName, true))) {
 
 					continue;
 				}

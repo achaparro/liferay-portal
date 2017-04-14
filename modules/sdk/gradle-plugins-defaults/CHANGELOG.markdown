@@ -1337,10 +1337,34 @@ OSGi project snapshot with the `install` and `uploadArchives` tasks.
 ### Changed
 - [LPS-71164]: Update the [Liferay Gradle Plugins] dependency to version 3.2.35.
 
-## 3.5.15 - 2017-04-05
+## 3.5.15 - 2017-04-06
 
 ### Changed
 - [LPS-71591]: Update the [Liferay Gradle Plugins] dependency to version 3.2.36.
+
+## 3.5.16 - 2017-04-08
+
+### Changed
+- [LPS-64098]: Update the [Liferay Gradle Plugins] dependency to version 3.2.37.
+
+### Fixed
+- [LPS-71795]: Fix [Gradle issue](https://github.com/gradle/gradle/issues/1094)
+when executing the `findbugsMain` task on OSGi modules that include resource
+files.
+
+## 3.5.17 - 2017-04-11
+
+### Changed
+- [LPS-71826]: Update the [Liferay Gradle Plugins] dependency to version 3.2.38.
+
+### Fixed
+- [LPS-71795]: Generalize [Gradle issue](https://github.com/gradle/gradle/issues/1094)
+fix for all tasks of type `FindBugs` related to source sets.
+
+## 3.5.18 - 2017-04-12
+
+### Changed
+- [LPS-71722]: Update the [Liferay Gradle Plugins] dependency to version 3.2.39.
 
 [Liferay CDN]: https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public
 [Liferay Gradle Plugins]: https://github.com/liferay/liferay-portal/tree/master/modules/sdk/gradle-plugins
@@ -1356,6 +1380,7 @@ OSGi project snapshot with the `install` and `uploadArchives` tasks.
 [LPS-61987]: https://issues.liferay.com/browse/LPS-61987
 [LPS-62970]: https://issues.liferay.com/browse/LPS-62970
 [LPS-63943]: https://issues.liferay.com/browse/LPS-63943
+[LPS-64098]: https://issues.liferay.com/browse/LPS-64098
 [LPS-65179]: https://issues.liferay.com/browse/LPS-65179
 [LPS-66396]: https://issues.liferay.com/browse/LPS-66396
 [LPS-66762]: https://issues.liferay.com/browse/LPS-66762
@@ -1477,6 +1502,9 @@ OSGi project snapshot with the `install` and `uploadArchives` tasks.
 [LPS-71535]: https://issues.liferay.com/browse/LPS-71535
 [LPS-71591]: https://issues.liferay.com/browse/LPS-71591
 [LPS-71603]: https://issues.liferay.com/browse/LPS-71603
+[LPS-71722]: https://issues.liferay.com/browse/LPS-71722
+[LPS-71795]: https://issues.liferay.com/browse/LPS-71795
+[LPS-71826]: https://issues.liferay.com/browse/LPS-71826
 [LRDOCS-2594]: https://issues.liferay.com/browse/LRDOCS-2594
 [LRDOCS-2841]: https://issues.liferay.com/browse/LRDOCS-2841
 [LRDOCS-2981]: https://issues.liferay.com/browse/LRDOCS-2981

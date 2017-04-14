@@ -1,6 +1,11 @@
 # Liferay Gradle Plugins Lang Builder Change Log
 
-## 2.0.0 - 2017-04-05
+## 2.0.0 - 2017-04-06
+
+### Added
+- [LPS-71375]: Add property `translateSubscriptionKey` in `BuildLangTask` in
+order to support the Translator Text Translation API on Microsoft Cognitive
+Services.
 
 ### Added
 - [LPS-71375]: Add property `translateSubscriptionKey` in `BuildLangTask` in

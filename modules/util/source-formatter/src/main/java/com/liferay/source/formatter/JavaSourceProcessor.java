@@ -19,14 +19,22 @@ import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.ImportsFormatter;
 import com.liferay.portal.tools.JavaImportsFormatter;
+import com.liferay.source.formatter.checks.CompatClassImportsCheck;
 import com.liferay.source.formatter.checks.CopyrightCheck;
+import com.liferay.source.formatter.checks.EmptyArrayCheck;
+import com.liferay.source.formatter.checks.EmptyCollectionCheck;
+import com.liferay.source.formatter.checks.GetterUtilCheck;
 import com.liferay.source.formatter.checks.JavaAnnotationsCheck;
 import com.liferay.source.formatter.checks.JavaAssertEqualsCheck;
+import com.liferay.source.formatter.checks.JavaBooleanStatementCheck;
 import com.liferay.source.formatter.checks.JavaBooleanUsageCheck;
 import com.liferay.source.formatter.checks.JavaCleanUpMethodVariablesCheck;
 import com.liferay.source.formatter.checks.JavaCombineLinesCheck;
@@ -42,8 +50,10 @@ import com.liferay.source.formatter.checks.JavaFinderCacheCheck;
 import com.liferay.source.formatter.checks.JavaHibernateSQLCheck;
 import com.liferay.source.formatter.checks.JavaIfStatementCheck;
 import com.liferay.source.formatter.checks.JavaIllegalImportsCheck;
+import com.liferay.source.formatter.checks.JavaIndexableCheck;
 import com.liferay.source.formatter.checks.JavaIOExceptionCheck;
 import com.liferay.source.formatter.checks.JavaLineBreakCheck;
+import com.liferay.source.formatter.checks.JavaLocalSensitiveComparisonCheck;
 import com.liferay.source.formatter.checks.JavaLogClassNameCheck;
 import com.liferay.source.formatter.checks.JavaLogLevelCheck;
 import com.liferay.source.formatter.checks.JavaLongLinesCheck;
@@ -57,7 +67,9 @@ import com.liferay.source.formatter.checks.JavaPackagePathCheck;
 import com.liferay.source.formatter.checks.JavaProcessCallableCheck;
 import com.liferay.source.formatter.checks.JavaRedundantConstructorCheck;
 import com.liferay.source.formatter.checks.JavaResultSetCheck;
+import com.liferay.source.formatter.checks.JavaReturnStatementCheck;
 import com.liferay.source.formatter.checks.JavaSeeAnnotationCheck;
+import com.liferay.source.formatter.checks.JavaServiceImplCheck;
 import com.liferay.source.formatter.checks.JavaSignatureStylingCheck;
 import com.liferay.source.formatter.checks.JavaStaticBlockCheck;
 import com.liferay.source.formatter.checks.JavaStopWatchCheck;
@@ -66,16 +78,21 @@ import com.liferay.source.formatter.checks.JavaSystemEventAnnotationCheck;
 import com.liferay.source.formatter.checks.JavaSystemExceptionCheck;
 import com.liferay.source.formatter.checks.JavaTermDividersCheck;
 import com.liferay.source.formatter.checks.JavaTermOrderCheck;
+import com.liferay.source.formatter.checks.JavaTermStylingCheck;
 import com.liferay.source.formatter.checks.JavaTestMethodAnnotationsCheck;
 import com.liferay.source.formatter.checks.JavaUpgradeClassCheck;
+import com.liferay.source.formatter.checks.JavaVariableTypeCheck;
 import com.liferay.source.formatter.checks.JavaVerifyUpgradeConnectionCheck;
 import com.liferay.source.formatter.checks.JavaWhitespaceCheck;
 import com.liferay.source.formatter.checks.JavaXMLSecurityCheck;
 import com.liferay.source.formatter.checks.LanguageKeysCheck;
 import com.liferay.source.formatter.checks.MethodCallsOrderCheck;
+import com.liferay.source.formatter.checks.PrincipalExceptionCheck;
 import com.liferay.source.formatter.checks.ResourceBundleCheck;
 import com.liferay.source.formatter.checks.SessionKeysCheck;
 import com.liferay.source.formatter.checks.SourceCheck;
+import com.liferay.source.formatter.checks.StringBundlerCheck;
+import com.liferay.source.formatter.checks.StringMethodsCheck;
 import com.liferay.source.formatter.checks.StringUtilCheck;
 import com.liferay.source.formatter.checks.UnparameterizedClassCheck;
 import com.liferay.source.formatter.checks.ValidatorEqualsCheck;
@@ -137,8 +154,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			processMessage(fileName, "Java2HTML");
 		}
 
-		newContent = fixCompatClassImports(absolutePath, newContent);
-
 		ImportsFormatter importsFormatter = new JavaImportsFormatter();
 
 		newContent = importsFormatter.format(
@@ -163,8 +178,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					"reference via service.xml instead");
 		}
 
-		newContent = formatStringBundler(fileName, newContent, _maxLineLength);
-
 		// LPS-46017
 
 		newContent = StringUtil.replace(
@@ -184,63 +197,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					"LPS-47682");
 		}
 
-		// LPS-48156
-
-		newContent = checkPrincipalException(newContent);
-
 		// LPS-62786
 
 		checkPropertyUtils(fileName, newContent);
-
-		if (!fileName.endsWith("GetterUtilTest.java")) {
-			checkGetterUtilGet(fileName, newContent);
-		}
-
-		pos = newContent.indexOf("\npublic ");
-
-		if (pos != -1) {
-			String javaClassContent = newContent.substring(pos + 1);
-
-			int javaClassLineCount = getLineCount(newContent, pos + 1);
-
-			newContent = formatJavaTerms(
-				className, packagePath, file, fileName, absolutePath,
-				newContent, javaClassContent, javaClassLineCount,
-				StringPool.BLANK, _CHECK_JAVA_FIELD_TYPES_EXCLUDES,
-				_JAVATERM_SORT_EXCLUDES);
-		}
-
-		matcher = _anonymousClassPattern.matcher(newContent);
-
-		while (matcher.find()) {
-			if (getLevel(matcher.group()) != 0) {
-				continue;
-			}
-
-			int x = matcher.start() + 1;
-			int y = matcher.end();
-
-			while (true) {
-				String javaClassContent = newContent.substring(x, y);
-
-				if (getLevel(javaClassContent, "{", "}") != 0) {
-					y++;
-
-					continue;
-				}
-
-				int javaClassLineCount = getLineCount(
-					newContent, matcher.start() + 1);
-
-				newContent = formatJavaTerms(
-					StringPool.BLANK, StringPool.BLANK, file, fileName,
-					absolutePath, newContent, javaClassContent,
-					javaClassLineCount, matcher.group(1),
-					_CHECK_JAVA_FIELD_TYPES_EXCLUDES, _JAVATERM_SORT_EXCLUDES);
-
-				break;
-			}
-		}
 
 		return formatJava(fileName, absolutePath, newContent);
 	}
@@ -305,16 +264,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					}
 				}
 
-				String trimmedLine = StringUtil.trimLeading(line);
-
 				line = replacePrimitiveWrapperInstantiation(line);
-
-				checkEmptyCollection(trimmedLine, fileName, lineCount);
-
-				line = formatEmptyArray(line);
-
-				checkInefficientStringMethods(
-					line, fileName, absolutePath, lineCount, true);
 
 				if (lineCount > 1) {
 					sb.append(previousLine);
@@ -339,11 +289,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	@Override
 	protected List<SourceCheck> getModuleSourceChecks() {
 		return _moduleSourceChecks;
-	}
-
-	@Override
-	protected List<SourceCheck> getSourceChecks() {
-		return _sourceChecks;
 	}
 
 	protected String[] getPluginExcludes(String pluginDirectoryName) {
@@ -374,34 +319,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		};
 	}
 
-	protected String getPortalCustomSQLContent() throws Exception {
-		if (!portalSource) {
-			return null;
-		}
-
-		if (_portalCustomSQLContent != null) {
-			return _portalCustomSQLContent;
-		}
-
-		File portalCustomSQLFile = getFile(
-			"portal-impl/src/custom-sql/default.xml", PORTAL_MAX_DIR_LEVEL);
-
-		String portalCustomSQLContent = FileUtil.read(portalCustomSQLFile);
-
-		Matcher matcher = _customSQLFilePattern.matcher(portalCustomSQLContent);
-
-		while (matcher.find()) {
-			File customSQLFile = getFile(
-				"portal-impl/src/" + matcher.group(1), PORTAL_MAX_DIR_LEVEL);
-
-			if (customSQLFile != null) {
-				portalCustomSQLContent += FileUtil.read(customSQLFile);
-			}
-		}
-
-		_portalCustomSQLContent = portalCustomSQLContent;
-
-		return _portalCustomSQLContent;
+	@Override
+	protected List<SourceCheck> getSourceChecks() {
+		return _sourceChecks;
 	}
 
 	@Override
@@ -436,8 +356,6 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 	@Override
 	protected void preFormat() throws Exception {
-		_maxLineLength = sourceFormatterArgs.getMaxLineLength();
-
 		_allowUseServiceUtilInServiceImpl = GetterUtil.getBoolean(
 			getProperty("allow.use.service.util.in.service.impl"));
 	}
@@ -452,6 +370,36 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		}
 
 		return super.processSourceChecks(fileName, absolutePath, content);
+	}
+
+	private List<String> _getAnnotationsExclusions() {
+		return ListUtil.fromArray(
+			new String[] {
+				"ArquillianResource", "Autowired", "BeanReference", "Captor",
+				"Inject", "Mock", "Parameter", "Reference", "ServiceReference",
+				"SuppressWarnings", "Value"
+			});
+	}
+
+	private Map<String, String> _getDefaultPrimitiveValues() {
+		return MapUtil.fromArray(
+			new String[] {
+				"boolean", "false", "char", "'\\\\0'", "byte", "0", "double",
+				"0\\.0", "float", "0\\.0", "int", "0", "long", "0", "short", "0"
+			});
+	}
+
+	private Set<String> _getImmutableFieldTypes() {
+		Set<String> immutableFieldTypes = SetUtil.fromArray(
+			new String[] {
+				"boolean", "byte", "char", "double", "float", "int", "long",
+				"short", "Boolean", "Byte", "Character", "Class", "Double",
+				"Float", "Int", "Long", "Number", "Short", "String"
+			});
+
+		immutableFieldTypes.addAll(getPropertyList("immutable.field.types"));
+
+		return immutableFieldTypes;
 	}
 
 	private Map<String, String> _getModuleFileNamesMap() throws Exception {
@@ -504,6 +452,36 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		fileNames.addAll(getFileNames(excludes, includes));
 
 		return fileNames;
+	}
+
+	private String _getPortalCustomSQLContent() throws Exception {
+		if (!portalSource) {
+			return null;
+		}
+
+		if (_portalCustomSQLContent != null) {
+			return _portalCustomSQLContent;
+		}
+
+		File portalCustomSQLFile = getFile(
+			"portal-impl/src/custom-sql/default.xml", PORTAL_MAX_DIR_LEVEL);
+
+		String portalCustomSQLContent = FileUtil.read(portalCustomSQLFile);
+
+		Matcher matcher = _customSQLFilePattern.matcher(portalCustomSQLContent);
+
+		while (matcher.find()) {
+			File customSQLFile = getFile(
+				"portal-impl/src/" + matcher.group(1), PORTAL_MAX_DIR_LEVEL);
+
+			if (customSQLFile != null) {
+				portalCustomSQLContent += FileUtil.read(customSQLFile);
+			}
+		}
+
+		_portalCustomSQLContent = portalCustomSQLContent;
+
+		return _portalCustomSQLContent;
 	}
 
 	private Collection<String> _getPortalJavaFiles(String[] includes)
@@ -624,11 +602,10 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	private void _populateFileChecks() throws Exception {
 		_sourceChecks.add(new JavaWhitespaceCheck());
 
-		_sourceChecks.add(
-			new CopyrightCheck(
-				getContent(
-					sourceFormatterArgs.getCopyrightFileName(),
-					PORTAL_MAX_DIR_LEVEL)));
+		_sourceChecks.add(new CopyrightCheck(getCopyright()));
+		_sourceChecks.add(new EmptyArrayCheck());
+		_sourceChecks.add(new EmptyCollectionCheck());
+		_sourceChecks.add(new GetterUtilCheck());
 		_sourceChecks.add(new JavaAnnotationsCheck());
 		_sourceChecks.add(new JavaAssertEqualsCheck());
 		_sourceChecks.add(new JavaBooleanUsageCheck());
@@ -674,7 +651,10 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		_sourceChecks.add(new JavaSystemExceptionCheck());
 		_sourceChecks.add(
 			new MethodCallsOrderCheck(getExcludes(METHOD_CALL_SORT_EXCLUDES)));
+		_sourceChecks.add(new PrincipalExceptionCheck());
 		_sourceChecks.add(new SessionKeysCheck());
+		_sourceChecks.add(
+			new StringBundlerCheck(sourceFormatterArgs.getMaxLineLength()));
 		_sourceChecks.add(new StringUtilCheck());
 		_sourceChecks.add(new UnparameterizedClassCheck());
 		_sourceChecks.add(new ValidatorEqualsCheck());
@@ -695,6 +675,17 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			_sourceChecks.add(
 				new ResourceBundleCheck(
 					getExcludes(RUN_OUTSIDE_PORTAL_EXCLUDES)));
+			_sourceChecks.add(
+				new StringMethodsCheck(
+					getExcludes(RUN_OUTSIDE_PORTAL_EXCLUDES)));
+		}
+		else {
+			if (GetterUtil.getBoolean(
+					getProperty("use.portal.compat.import"))) {
+
+				_sourceChecks.add(
+					new CompatClassImportsCheck(getCompatClassNamesMap()));
+			}
 		}
 
 		if (portalSource) {
@@ -716,23 +707,34 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		_sourceChecks.add(
 			new JavaTermOrderCheck(
 				getExcludes(_JAVATERM_SORT_EXCLUDES), portalSource,
-				subrepository, getPortalCustomSQLContent()));
+				subrepository, _getPortalCustomSQLContent()));
 
 		_sourceChecks.add(new JavaTermDividersCheck());
 
 		_sourceChecks.add(
 			new JavaStaticBlockCheck(getExcludes(_JAVATERM_SORT_EXCLUDES)));
 
+		_sourceChecks.add(new JavaBooleanStatementCheck());
 		_sourceChecks.add(new JavaConstructorParameterOrder());
 		_sourceChecks.add(new JavaConstructorSuperCallCheck());
+		_sourceChecks.add(new JavaIndexableCheck());
+		_sourceChecks.add(new JavaLocalSensitiveComparisonCheck());
 		_sourceChecks.add(new JavaRedundantConstructorCheck());
+		_sourceChecks.add(new JavaReturnStatementCheck());
+		_sourceChecks.add(new JavaServiceImplCheck());
 		_sourceChecks.add(new JavaSignatureStylingCheck());
+		_sourceChecks.add(new JavaTermStylingCheck());
 
 		if (portalSource || subrepository) {
 			_sourceChecks.add(new JavaCleanUpMethodVariablesCheck());
 			_sourceChecks.add(
 				new JavaTestMethodAnnotationsCheck(
 					getExcludes(_TEST_ANNOTATIONS_EXCLUDES)));
+			_sourceChecks.add(
+				new JavaVariableTypeCheck(
+					getExcludes(_CHECK_JAVA_FIELD_TYPES_EXCLUDES),
+					_getAnnotationsExclusions(), _getDefaultPrimitiveValues(),
+					_getImmutableFieldTypes()));
 		}
 	}
 
@@ -801,11 +803,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		"upgrade.service.util.excludes";
 
 	private boolean _allowUseServiceUtilInServiceImpl;
-	private final Pattern _anonymousClassPattern = Pattern.compile(
-		"\n(\t+)(\\S.* )?new (.|\\(\n)*\\) \\{\n\n");
 	private final Pattern _customSQLFilePattern = Pattern.compile(
 		"<sql file=\"(.*)\" \\/>");
-	private int _maxLineLength;
 	private final List<SourceCheck> _moduleSourceChecks = new ArrayList<>();
 	private final Pattern _packagePattern = Pattern.compile(
 		"(\n|^)\\s*package (.*);\n");

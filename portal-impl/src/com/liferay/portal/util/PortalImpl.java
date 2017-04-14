@@ -28,6 +28,9 @@ import com.liferay.portal.comment.action.GetCommentsStrutsAction;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
 import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
+import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCache;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
 import com.liferay.portal.kernel.cluster.ClusterInvokeThreadLocal;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
@@ -184,6 +187,7 @@ import com.liferay.portal.kernel.util.StringComparator;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -1185,9 +1189,16 @@ public class PortalImpl implements Portal {
 
 					String canonicalURLSuffix = canonicalURL.substring(pos);
 
-					canonicalURLSuffix = StringUtil.replaceFirst(
-						canonicalURLSuffix, layout.getFriendlyURL(),
-						layout.getFriendlyURL(locale));
+					if (locale.equals(themeDisplay.getLocale())) {
+						canonicalURLSuffix = StringUtil.replaceFirst(
+							canonicalURLSuffix, layout.getFriendlyURL(),
+							themeDisplay.getLayoutFriendlyURL(layout));
+					}
+					else {
+						canonicalURLSuffix = StringUtil.replaceFirst(
+							canonicalURLSuffix, layout.getFriendlyURL(),
+							layout.getFriendlyURL(locale));
+					}
 
 					canonicalURL = canonicalURLPrefix.concat(
 						canonicalURLSuffix);
@@ -1408,12 +1419,22 @@ public class PortalImpl implements Portal {
 
 		String canonicalLayoutFriendlyURL = StringPool.BLANK;
 
-		String defaultLayoutFriendlyURL = layout.getFriendlyURL(
-			getSiteDefaultLocale(layout.getGroupId()));
+		String defaultLayoutFriendlyURL = null;
+
+		Locale siteDefaultLocale = getSiteDefaultLocale(layout.getGroupId());
+
+		if (siteDefaultLocale.equals(themeDisplay.getLocale())) {
+			defaultLayoutFriendlyURL = themeDisplay.getLayoutFriendlyURL(
+				layout);
+		}
+		else {
+			defaultLayoutFriendlyURL = layout.getFriendlyURL(
+				getSiteDefaultLocale(layout.getGroupId()));
+		}
 
 		if ((!layout.isFirstParent() || Validator.isNotNull(parametersURL)) &&
 			(groupFriendlyURL.contains(
-				layout.getFriendlyURL(themeDisplay.getLocale())) ||
+				themeDisplay.getLayoutFriendlyURL(layout)) ||
 			 groupFriendlyURL.contains(
 				 StringPool.SLASH + layout.getLayoutId()))) {
 
@@ -2791,7 +2812,7 @@ public class PortalImpl implements Portal {
 			layout.isTypeControlPanel());
 
 		return groupFriendlyURL.concat(
-			layout.getFriendlyURL(themeDisplay.getLocale()));
+			themeDisplay.getLayoutFriendlyURL(layout));
 	}
 
 	@Override
@@ -2841,7 +2862,7 @@ public class PortalImpl implements Portal {
 			layout.isTypeControlPanel());
 
 		return groupFriendlyURL.concat(
-			layout.getFriendlyURL(themeDisplay.getLocale()));
+			themeDisplay.getLayoutFriendlyURL(layout));
 	}
 
 	@Override
@@ -3569,10 +3590,10 @@ public class PortalImpl implements Portal {
 		String friendlyURL = StringPool.SLASH;
 
 		if (requestURI.contains(layoutFriendlyURL)) {
-			requestURI = StringUtil.replaceFirst(
-				requestURI, layoutFriendlyURL, layout.getFriendlyURL(locale));
-
 			friendlyURL = layout.getFriendlyURL(locale);
+
+			requestURI = StringUtil.replaceFirst(
+				requestURI, layoutFriendlyURL, friendlyURL);
 		}
 
 		LayoutSet layoutSet = layout.getLayoutSet();
@@ -5151,23 +5172,13 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public long getSiteGroupId(long groupId) {
-		if (groupId <= 0) {
-			return 0;
-		}
-
-		Group group = GroupLocalServiceUtil.fetchGroup(groupId);
+		Group group = _getSiteGroup(groupId);
 
 		if (group == null) {
 			return 0;
 		}
 
-		long siteGroupId = groupId;
-
-		if (group.isLayout()) {
-			siteGroupId = group.getParentGroupId();
-		}
-
-		return siteGroupId;
+		return group.getGroupId();
 	}
 
 	@Override
@@ -5185,8 +5196,7 @@ public class PortalImpl implements Portal {
 		}
 
 		for (Layout layout : layouts) {
-			String friendlyURL = layout.getFriendlyURL(
-				themeDisplay.getLocale());
+			String friendlyURL = themeDisplay.getLayoutFriendlyURL(layout);
 
 			if (friendlyURL.equals(PropsValues.AUTH_LOGIN_SITE_URL)) {
 				if (themeDisplay.getLayout() == null) {
@@ -5278,7 +5288,7 @@ public class PortalImpl implements Portal {
 				sb.append("&themeId=");
 			}
 
-			sb.append(HttpUtil.encodeURL(theme.getThemeId()));
+			sb.append(URLCodec.encodeURL(theme.getThemeId()));
 		}
 
 		if (uri.endsWith(".jsp") &&
@@ -5294,7 +5304,7 @@ public class PortalImpl implements Portal {
 				sb.append("&colorSchemeId=");
 			}
 
-			sb.append(HttpUtil.encodeURL(colorScheme.getColorSchemeId()));
+			sb.append(URLCodec.encodeURL(colorScheme.getColorSchemeId()));
 		}
 
 		// Minifier
@@ -6730,7 +6740,7 @@ public class PortalImpl implements Portal {
 		sb.append(clazz.getName());
 
 		sb.append("&previousURL=");
-		sb.append(HttpUtil.encodeURL(getCurrentURL(actionRequest)));
+		sb.append(URLCodec.encodeURL(getCurrentURL(actionRequest)));
 
 		actionResponse.sendRedirect(sb.toString());
 	}
@@ -7263,8 +7273,8 @@ public class PortalImpl implements Portal {
 
 		if (Validator.isNotNull(redirectParam)) {
 			String newRedirectParam = StringUtil.replace(
-				redirectParam, HttpUtil.encodeURL(oldPath),
-				HttpUtil.encodeURL(newPath));
+				redirectParam, URLCodec.encodeURL(oldPath),
+				URLCodec.encodeURL(newPath));
 
 			queryString = StringUtil.replace(
 				queryString, redirectParam, newRedirectParam);
@@ -7462,15 +7472,13 @@ public class PortalImpl implements Portal {
 	protected Set<Group> doGetAncestorSiteGroups(
 		long groupId, boolean checkContentSharingWithChildrenEnabled) {
 
-		Set<Group> groups = new LinkedHashSet<>();
-
-		long siteGroupId = getSiteGroupId(groupId);
-
-		Group siteGroup = GroupLocalServiceUtil.fetchGroup(siteGroupId);
+		Group siteGroup = _getSiteGroup(groupId);
 
 		if (siteGroup == null) {
-			return groups;
+			return Collections.emptySet();
 		}
+
+		Set<Group> groups = null;
 
 		for (Group group : siteGroup.getAncestors()) {
 			if (checkContentSharingWithChildrenEnabled &&
@@ -7479,25 +7487,49 @@ public class PortalImpl implements Portal {
 				continue;
 			}
 
+			if (groups == null) {
+				groups = new LinkedHashSet<>();
+			}
+
 			groups.add(group);
 		}
 
 		if (!siteGroup.isCompany()) {
-			Group companyGroup = GroupLocalServiceUtil.fetchCompanyGroup(
-				siteGroup.getCompanyId());
+			ThreadLocalCache<Group> threadLocalCache =
+				ThreadLocalCacheManager.getThreadLocalCache(
+					Lifecycle.REQUEST, Company.class.getName());
+
+			String cacheKey = StringUtil.toHexString(siteGroup.getCompanyId());
+
+			Group companyGroup = threadLocalCache.get(cacheKey);
+
+			if (companyGroup == null) {
+				companyGroup = GroupLocalServiceUtil.fetchCompanyGroup(
+					siteGroup.getCompanyId());
+
+				threadLocalCache.put(cacheKey, companyGroup);
+			}
 
 			if (companyGroup != null) {
+				if (groups == null) {
+					return Collections.singleton(companyGroup);
+				}
+
 				groups.add(companyGroup);
+
+				return groups;
 			}
+		}
+
+		if (groups == null) {
+			return Collections.emptySet();
 		}
 
 		return groups;
 	}
 
 	protected Group doGetCurrentSiteGroup(long groupId) throws PortalException {
-		long siteGroupId = getSiteGroupId(groupId);
-
-		Group siteGroup = GroupLocalServiceUtil.getGroup(siteGroupId);
+		Group siteGroup = _getSiteGroup(groupId);
 
 		if (!siteGroup.isLayoutPrototype()) {
 			return siteGroup;
@@ -7915,7 +7947,7 @@ public class PortalImpl implements Portal {
 		}
 
 		sb.append(group.getFriendlyURL());
-		sb.append(layout.getFriendlyURL(themeDisplay.getLocale()));
+		sb.append(themeDisplay.getLayoutFriendlyURL(layout));
 
 		sb.append(FRIENDLY_URL_SEPARATOR);
 
@@ -8255,8 +8287,12 @@ public class PortalImpl implements Portal {
 				}
 			}
 			else {
-				LayoutSet curLayoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
-					themeDisplay.getSiteGroupId(), privateLayoutSet);
+				LayoutSet curLayoutSet = layoutSet;
+
+				if (layoutSet.getGroupId() != themeDisplay.getSiteGroupId()) {
+					curLayoutSet = LayoutSetLocalServiceUtil.getLayoutSet(
+						themeDisplay.getSiteGroupId(), privateLayoutSet);
+				}
 
 				if (canonicalURL ||
 					((layoutSet.getLayoutSetId() !=
@@ -8407,6 +8443,24 @@ public class PortalImpl implements Portal {
 		}
 
 		return portletTitle;
+	}
+
+	private Group _getSiteGroup(long groupId) {
+		if (groupId <= 0) {
+			return null;
+		}
+
+		Group group = GroupLocalServiceUtil.fetchGroup(groupId);
+
+		if (group == null) {
+			return null;
+		}
+
+		if (group.isLayout()) {
+			return group.getParentGroup();
+		}
+
+		return group;
 	}
 
 	private static final Log _logWebServerServlet = LogFactoryUtil.getLog(

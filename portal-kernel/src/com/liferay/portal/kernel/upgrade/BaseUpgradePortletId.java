@@ -19,11 +19,7 @@ import com.liferay.layouts.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.PortletConstants;
-import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
-import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -443,63 +439,23 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 			boolean updateName)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(5);
+		String sql = StringBundler.concat(
+			"update ResourcePermission set primKey = replace(primKey, ",
+			"'_LAYOUT_", oldRootPortletId, "', '_LAYOUT_", newRootPortletId,
+			"') where primKey like '%_LAYOUT_", oldRootPortletId,
+			"' and scope = ",
+			String.valueOf(ResourceConstants.SCOPE_INDIVIDUAL));
 
-		sb.append("select distinct companyId, primKey from ");
-		sb.append("ResourcePermission where name = '");
-		sb.append(oldRootPortletId);
-		sb.append("' and scope = ");
-		sb.append(ResourceConstants.SCOPE_INDIVIDUAL);
+		runSQL(sql);
 
-		try (PreparedStatement ps1 = connection.prepareStatement(sb.toString());
-			PreparedStatement ps2 =
-				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
-					connection,
-					"update ResourcePermission set primKey = ? where " +
-						"companyId = ? and primKey = ?");
-			ResultSet rs = ps1.executeQuery()) {
+		sql = StringBundler.concat(
+			"update ResourcePermission set primKey = replace(primKey, ",
+			"'_LAYOUT_", oldRootPortletId, "_', '_LAYOUT_", newRootPortletId,
+			"_') where primKey like '%_LAYOUT_", oldRootPortletId,
+			"_%' and scope = ",
+			String.valueOf(ResourceConstants.SCOPE_INDIVIDUAL));
 
-			while (rs.next()) {
-				String oldPrimKey = rs.getString("primKey");
-
-				int pos = oldPrimKey.indexOf(PortletConstants.LAYOUT_SEPARATOR);
-
-				if (pos != -1) {
-					long plid = GetterUtil.getLong(
-						oldPrimKey.substring(0, pos));
-
-					String portletId = oldPrimKey.substring(
-						pos + PortletConstants.LAYOUT_SEPARATOR.length());
-
-					String instanceId = PortletIdCodec.decodeInstanceId(
-						portletId);
-					long userId = PortletIdCodec.decodeUserId(portletId);
-
-					String newPortletId = PortletIdCodec.encode(
-						newRootPortletId, userId, instanceId);
-
-					String newPrimKey = PortletPermissionUtil.getPrimaryKey(
-						plid, newPortletId);
-
-					ps2.setString(1, newPrimKey);
-
-					long companyId = rs.getLong("companyId");
-
-					ps2.setLong(2, companyId);
-
-					ps2.setString(3, oldPrimKey);
-
-					ps2.addBatch();
-				}
-			}
-
-			ps2.executeBatch();
-		}
-		catch (SQLException sqle) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(sqle, sqle);
-			}
-		}
+		runSQL(sql);
 
 		if (updateName) {
 			runSQL(

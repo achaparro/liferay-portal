@@ -222,41 +222,26 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 			String oldRootPortletId, String newRootPortletId)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(8);
+		String sql = StringBundler.concat(
+			"update PortletPreferences set portletId = '", newRootPortletId,
+			"' where portletId = '", oldRootPortletId, "'");
 
-		sb.append("select portletPreferencesId, portletId from ");
-		sb.append("PortletPreferences where portletId = '");
-		sb.append(oldRootPortletId);
-		sb.append("' OR portletId like '");
-		sb.append(oldRootPortletId);
-		sb.append("_INSTANCE_%' OR portletId like '");
-		sb.append(oldRootPortletId);
-		sb.append("_USER_%_INSTANCE_%'");
+		runSQL(sql);
 
-		try (PreparedStatement ps1 = connection.prepareStatement(sb.toString());
-			PreparedStatement ps2 =
-				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
-					connection,
-					"update PortletPreferences set portletId = ? where " +
-						"portletPreferencesId = ?");
-			ResultSet rs = ps1.executeQuery()) {
+		sql = StringBundler.concat(
+			"update PortletPreferences set portletId = replace(portletId, '",
+			oldRootPortletId, "_INSTANCE_', '", newRootPortletId,
+			"_INSTANCE_') where portletId like '", oldRootPortletId,
+			"_INSTANCE_%'");
 
-			while (rs.next()) {
-				long portletPreferencesId = rs.getLong("portletPreferencesId");
-				String portletId = rs.getString("portletId");
+		runSQL(sql);
 
-				String newPortletId = StringUtil.replaceFirst(
-					portletId, oldRootPortletId, newRootPortletId);
+		sql = StringBundler.concat(
+			"update PortletPreferences set portletId = replace(portletId, '",
+			oldRootPortletId, "_USER_', '", newRootPortletId,
+			"_USER_') where portletId like '", oldRootPortletId, "_USER_%'");
 
-				ps2.setString(1, newPortletId);
-
-				ps2.setLong(2, portletPreferencesId);
-
-				ps2.addBatch();
-			}
-
-			ps2.executeBatch();
-		}
+		runSQL(sql);
 	}
 
 	protected void updateLayout(long plid, String typeSettings)

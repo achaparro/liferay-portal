@@ -442,18 +442,14 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 		String sql = StringBundler.concat(
 			"update ResourcePermission set primKey = replace(primKey, ",
 			"'_LAYOUT_", oldRootPortletId, "', '_LAYOUT_", newRootPortletId,
-			"') where primKey like '%_LAYOUT_", oldRootPortletId,
-			"' and scope = ",
-			String.valueOf(ResourceConstants.SCOPE_INDIVIDUAL));
+			"') where primKey like '%_LAYOUT_", oldRootPortletId, "'");
 
 		runSQL(sql);
 
 		sql = StringBundler.concat(
 			"update ResourcePermission set primKey = replace(primKey, ",
 			"'_LAYOUT_", oldRootPortletId, "_', '_LAYOUT_", newRootPortletId,
-			"_') where primKey like '%_LAYOUT_", oldRootPortletId,
-			"_%' and scope = ",
-			String.valueOf(ResourceConstants.SCOPE_INDIVIDUAL));
+			"_') where primKey like '%_LAYOUT_", oldRootPortletId, "_%'");
 
 		runSQL(sql);
 

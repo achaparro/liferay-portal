@@ -293,6 +293,8 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 				servletContextName, previousBuildNumber);
 		}
 
+		boolean verified = release.getVerified();
+
 		if (buildNumber == release.getBuildNumber()) {
 			if (_log.isDebugEnabled()) {
 				_log.debug(
@@ -308,11 +310,12 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		else {
 			UpgradeProcessUtil.upgradeProcess(
 				release.getBuildNumber(), upgradeProcesses, indexOnUpgrade);
+			verified = false;
 		}
 
 		releaseLocalService.updateRelease(
 			release.getReleaseId(), release.getSchemaVersion(), buildNumber,
-			null, true);
+			null, verified);
 	}
 
 	@Override
@@ -376,6 +379,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		}
 
 		release.setSchemaVersion(schemaVersion);
+		release.setVerified(false);
 
 		releasePersistence.update(release);
 	}

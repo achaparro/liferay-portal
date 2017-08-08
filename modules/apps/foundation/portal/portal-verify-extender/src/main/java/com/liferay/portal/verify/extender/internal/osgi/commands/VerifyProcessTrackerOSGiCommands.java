@@ -67,7 +67,8 @@ import org.osgi.service.component.annotations.Reference;
 	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
 	property = {
 		"osgi.command.function=execute", "osgi.command.function=executeAll",
-		"osgi.command.function=list", "osgi.command.function=show",
+		"osgi.command.function=list", "osgi.command.function=reset",
+		"osgi.command.function=resetAll", "osgi.command.function=show",
 		"osgi.command.function=showReports", "osgi.command.scope=verify"
 	},
 	service = {VerifyProcessTrackerOSGiCommands.class}
@@ -106,6 +107,24 @@ public class VerifyProcessTrackerOSGiCommands {
 	public void list() {
 		for (String verifyProcessName : _verifyProcesses.keySet()) {
 			show(verifyProcessName);
+		}
+	}
+
+	public void reset(final String verifyProcessName) {
+		Release release = releaseLocalService.fetchRelease(verifyProcessName);
+
+		if (release != null) {
+			release.setVerified(false);
+			releaseLocalService.updateRelease(release);
+		}
+
+		System.out.println(
+			verifyProcessName + " verify process will run on next execution");
+	}
+
+	public void resetAll() {
+		for (String verifyProcessName : _verifyProcesses.keySet()) {
+			reset(verifyProcessName);
 		}
 	}
 

@@ -12,30 +12,25 @@
  * details.
  */
 
-package com.liferay.portal.upgrade;
+package com.liferay.portal.upgrade.v7_0_4;
 
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.kernel.util.ReleaseInfo;
-import com.liferay.portal.upgrade.v7_0_4.UpgradeGroup;
-import com.liferay.portal.upgrade.v7_0_4.UpgradeVirtualHost;
+import com.liferay.portal.upgrade.v7_0_4.util.VirtualHostTable;
 
 /**
- * @author Roberto Díaz
+ * @author Jose A. Jimenez Campoy
  */
-public class UpgradeProcess_7_0_4 extends UpgradeProcess {
-
-	@Override
-	public int getThreshold() {
-		return ReleaseInfo.RELEASE_7_0_4_BUILD_NUMBER;
-	}
+public class UpgradeVirtualHost extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		upgrade(UpgradeGroup.class);
-
-		upgrade(UpgradeVirtualHost.class);
-
-		clearIndexesCache();
+		alter(
+			VirtualHostTable.class,
+			new AlterColumnType("hostname", "VARCHAR(200) null"));
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(UpgradeVirtualHost.class);
 
 }

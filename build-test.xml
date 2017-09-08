@@ -453,7 +453,7 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				</else>
 			</if>
 
-			<property name="liferay.compare.urls" value="https://github.com/liferay/liferay-plugins-ee/compare/${liferay.previous.plugins.git.id}...${liferay.plugins.git.id},https://github.com/liferay/liferay-portal-ee/compare/${liferay.previous.portal.git.id}...${liferay.portal.git.id}" />
+			<property name="liferay.compare.urls" value="https://github.com/liferay/liferay-plugins-ee/compare/${liferay.previous.plugins.git.id}...${liferay.plugins.git.id},https://github.com/achaparro/liferay-portal-ee/compare/${liferay.previous.portal.git.id}...${liferay.portal.git.id}" />
 		</sequential>
 	</macrodef>
 
@@ -5782,7 +5782,7 @@ go]]></replacevalue>
 					</then>
 					<else>
 						<execute dir="${project.dir}">
-							<![CDATA[git log --pretty=format:'<a href="https://github.com/liferay/liferay-portal-ee/commit/'%H'" target="_blank">'%H'</a>''<br />'%an'<br />'%s'<br /><br />' ${previous.git.commit.portal.rev.parse}...${git.commit.portal.rev.parse} > ${changelog.dir}/git.log]]>
+							<![CDATA[git log --pretty=format:'<a href="https://github.com/achaparro/liferay-portal-ee/commit/'%H'" target="_blank">'%H'</a>''<br />'%an'<br />'%s'<br /><br />' ${previous.git.commit.portal.rev.parse}...${git.commit.portal.rev.parse} > ${changelog.dir}/git.log]]>
 						</execute>
 
 						<loadfile

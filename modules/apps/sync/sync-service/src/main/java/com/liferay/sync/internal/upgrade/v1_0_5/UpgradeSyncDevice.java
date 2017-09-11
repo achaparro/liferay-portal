@@ -12,30 +12,21 @@
  * details.
  */
 
-package com.liferay.portal.upgrade;
+package com.liferay.sync.internal.upgrade.v1_0_5;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.kernel.util.ReleaseInfo;
-import com.liferay.portal.upgrade.v7_0_4.UpgradeGroup;
-import com.liferay.portal.upgrade.v7_0_4.UpgradeVirtualHost;
+import com.liferay.sync.internal.upgrade.v1_0_5.util.SyncDeviceTable;
 
 /**
- * @author Roberto Díaz
+ * @author Jose A. Jimenez Campoy
  */
-public class UpgradeProcess_7_0_4 extends UpgradeProcess {
-
-	@Override
-	public int getThreshold() {
-		return ReleaseInfo.RELEASE_7_0_4_BUILD_NUMBER;
-	}
+public class UpgradeSyncDevice extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		upgrade(UpgradeGroup.class);
-
-		upgrade(UpgradeVirtualHost.class);
-
-		clearIndexesCache();
+		alter(
+			SyncDeviceTable.class,
+			new AlterColumnType("hostname", "VARCHAR(200) null"));
 	}
 
 }

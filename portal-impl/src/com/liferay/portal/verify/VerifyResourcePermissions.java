@@ -75,8 +75,6 @@ public class VerifyResourcePermissions extends VerifyProcess {
 			}
 
 			doVerify(verifyResourcedModelRunnables);
-
-			verifyLayout(role);
 		}
 	}
 

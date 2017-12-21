@@ -14,6 +14,8 @@
 
 package com.liferay.portal.kernel.upgrade;
 
+import static com.liferay.portal.kernel.model.LayoutTypePortletConstants.DEFAULT_ASSET_PUBLISHER_PORTLET_ID;
+
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.layouts.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
@@ -87,8 +89,7 @@ public abstract class BaseUpgradePortletId extends UpgradeProcess {
 
 			if (!LayoutTypePortletConstants.isLayoutTemplateColumnName(
 					typeSettingId) &&
-				!LayoutTypePortletConstants.isTypeSettingsPortletIdColumnName(
-					typeSettingId)) {
+				!DEFAULT_ASSET_PUBLISHER_PORTLET_ID.equals(typeSettingId)) {
 
 				continue;
 			}

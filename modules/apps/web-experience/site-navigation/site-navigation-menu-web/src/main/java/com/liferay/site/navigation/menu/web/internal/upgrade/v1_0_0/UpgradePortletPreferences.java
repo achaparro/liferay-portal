@@ -32,7 +32,7 @@ public class UpgradePortletPreferences extends BaseUpgradePortletPreferences {
 	@Override
 	protected String[] getPortletIds() {
 		return new String[] {
-			SiteNavigationMenuPortletKeys.SITE_NAVIGATION_MENU
+			SiteNavigationMenuPortletKeys.SITE_NAVIGATION_MENU + "%"
 		};
 	}
 
@@ -77,6 +77,12 @@ public class UpgradePortletPreferences extends BaseUpgradePortletPreferences {
 		else if (displayStyle.equals("relative-with-breadcrumb")) {
 			_upgradeDisplayStylePreferences(
 				portletPreferences, "relative", "0", "auto");
+		}
+		else if (!displayStyle.equals("[custom]")){
+			portletPreferences.setValue(
+				"displayStyle",
+				PortletDisplayTemplateManager.DISPLAY_STYLE_PREFIX +
+				displayStyle);
 		}
 
 		// Remove unsupported preferences

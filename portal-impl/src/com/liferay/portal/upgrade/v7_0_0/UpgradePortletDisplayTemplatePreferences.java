@@ -92,7 +92,7 @@ public class UpgradePortletDisplayTemplatePreferences
 	protected static final String UPDATE_PORTLET_PREFERENCES_WHERE_CLAUSE =
 		"(preferences like '%" + DISPLAY_STYLE_PREFIX_6_2 + "%')";
 
-	private long _getCompanyGroupId(long companyId) throws Exception {
+	protected long _getCompanyGroupId(long companyId) throws Exception {
 		Long companyGroupId = _companyGroupIds.get(companyId);
 
 		if (companyGroupId != null) {
@@ -121,7 +121,7 @@ public class UpgradePortletDisplayTemplatePreferences
 		}
 	}
 
-	private ObjectValuePair<Long, String> _getTemplateGroupAndKey(
+	protected ObjectValuePair<Long, String> _getTemplateGroupAndKey(
 			long displayStyleGroupId, String displayStyle)
 		throws Exception {
 

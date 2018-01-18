@@ -36,63 +36,7 @@ import javax.portlet.PortletPreferences;
 public class UpgradePortletDisplayTemplatePreferences
 	extends BaseUpgradePortletPreferences {
 
-	@Override
-	protected String getUpdatePortletPreferencesWhereClause() {
-		return UPDATE_PORTLET_PREFERENCES_WHERE_CLAUSE;
-	}
-
-	protected void upgradeDisplayStyle(PortletPreferences portletPreferences)
-		throws Exception {
-
-		String displayStyle = GetterUtil.getString(
-			portletPreferences.getValue("displayStyle", null));
-
-		if (Validator.isNull(displayStyle) ||
-			!displayStyle.startsWith(DISPLAY_STYLE_PREFIX_6_2)) {
-
-			return;
-		}
-
-		long displayStyleGroupId = GetterUtil.getLong(
-			portletPreferences.getValue("displayStyleGroupId", null));
-
-		ObjectValuePair<Long, String> objectValuePair = _getTemplateGroupAndKey(
-			displayStyleGroupId, displayStyle);
-
-		if (objectValuePair != null) {
-			portletPreferences.setValue(
-				"displayStyleGroupId", objectValuePair.getKey().toString());
-
-			portletPreferences.setValue(
-				"displayStyle",
-				PortletDisplayTemplateManager.DISPLAY_STYLE_PREFIX +
-					objectValuePair.getValue());
-		}
-	}
-
-	@Override
-	protected String upgradePreferences(
-			long companyId, long ownerId, int ownerType, long plid,
-			String portletId, String xml)
-		throws Exception {
-
-		PortletPreferences portletPreferences =
-			PortletPreferencesFactoryUtil.fromXML(
-				companyId, ownerId, ownerType, plid, portletId, xml);
-
-		_companyGroupId = _getCompanyGroupId(companyId);
-
-		upgradeDisplayStyle(portletPreferences);
-
-		return PortletPreferencesFactoryUtil.toXML(portletPreferences);
-	}
-
-	protected static final String DISPLAY_STYLE_PREFIX_6_2 = "ddmTemplate_";
-
-	protected static final String UPDATE_PORTLET_PREFERENCES_WHERE_CLAUSE =
-		"(preferences like '%" + DISPLAY_STYLE_PREFIX_6_2 + "%')";
-
-	protected long _getCompanyGroupId(long companyId) throws Exception {
+	protected long getCompanyGroupId(long companyId) throws Exception {
 		Long companyGroupId = _companyGroupIds.get(companyId);
 
 		if (companyGroupId != null) {
@@ -121,7 +65,7 @@ public class UpgradePortletDisplayTemplatePreferences
 		}
 	}
 
-	protected ObjectValuePair<Long, String> _getTemplateGroupAndKey(
+	protected ObjectValuePair<Long, String> getTemplateGroupAndKey(
 			long displayStyleGroupId, String displayStyle)
 		throws Exception {
 
@@ -153,6 +97,62 @@ public class UpgradePortletDisplayTemplatePreferences
 			return objectValuePair;
 		}
 	}
+
+	@Override
+	protected String getUpdatePortletPreferencesWhereClause() {
+		return UPDATE_PORTLET_PREFERENCES_WHERE_CLAUSE;
+	}
+
+	protected void upgradeDisplayStyle(PortletPreferences portletPreferences)
+		throws Exception {
+
+		String displayStyle = GetterUtil.getString(
+			portletPreferences.getValue("displayStyle", null));
+
+		if (Validator.isNull(displayStyle) ||
+			!displayStyle.startsWith(DISPLAY_STYLE_PREFIX_6_2)) {
+
+			return;
+		}
+
+		long displayStyleGroupId = GetterUtil.getLong(
+			portletPreferences.getValue("displayStyleGroupId", null));
+
+		ObjectValuePair<Long, String> objectValuePair = getTemplateGroupAndKey(
+			displayStyleGroupId, displayStyle);
+
+		if (objectValuePair != null) {
+			portletPreferences.setValue(
+				"displayStyleGroupId", objectValuePair.getKey().toString());
+
+			portletPreferences.setValue(
+				"displayStyle",
+				PortletDisplayTemplateManager.DISPLAY_STYLE_PREFIX +
+					objectValuePair.getValue());
+		}
+	}
+
+	@Override
+	protected String upgradePreferences(
+			long companyId, long ownerId, int ownerType, long plid,
+			String portletId, String xml)
+		throws Exception {
+
+		PortletPreferences portletPreferences =
+			PortletPreferencesFactoryUtil.fromXML(
+				companyId, ownerId, ownerType, plid, portletId, xml);
+
+		_companyGroupId = getCompanyGroupId(companyId);
+
+		upgradeDisplayStyle(portletPreferences);
+
+		return PortletPreferencesFactoryUtil.toXML(portletPreferences);
+	}
+
+	protected static final String DISPLAY_STYLE_PREFIX_6_2 = "ddmTemplate_";
+
+	protected static final String UPDATE_PORTLET_PREFERENCES_WHERE_CLAUSE =
+		"(preferences like '%" + DISPLAY_STYLE_PREFIX_6_2 + "%')";
 
 	private static final Long _COMPANY_CLASS_NAME_ID =
 		PortalUtil.getClassNameId("com.liferay.portal.kernel.model.Company");

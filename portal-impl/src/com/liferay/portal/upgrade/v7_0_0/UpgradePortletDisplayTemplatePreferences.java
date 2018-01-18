@@ -36,21 +36,6 @@ import javax.portlet.PortletPreferences;
 public class UpgradePortletDisplayTemplatePreferences
 	extends BaseUpgradePortletPreferences {
 
-	protected String getTemplateKey(
-			long displayStyleGroupId, String displayStyle)
-		throws Exception {
-
-		ObjectValuePair<Long, String> objectValuePair = _getTemplateGroupAndKey(
-			displayStyleGroupId, displayStyle);
-
-		if (objectValuePair == null) {
-			return null;
-		}
-		else {
-			return objectValuePair.getValue();
-		}
-	}
-
 	@Override
 	protected String getUpdatePortletPreferencesWhereClause() {
 		return UPDATE_PORTLET_PREFERENCES_WHERE_CLAUSE;
@@ -150,31 +135,22 @@ public class UpgradePortletDisplayTemplatePreferences
 			ps.setLong(2, _companyGroupId);
 			ps.setString(3, uuid);
 
-			Map<Long, String> templateKeys = new HashMap<>();
+			ObjectValuePair objectValuePair = null;
 
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
-					templateKeys.put(
-						rs.getLong("groupId"), rs.getString("templateKey"));
+					long groupId = rs.getLong("groupId");
+
+					objectValuePair = new ObjectValuePair<>(
+						groupId, rs.getString("templateKey"));
+
+					if (groupId == displayStyleGroupId) {
+						return objectValuePair;
+					}
 				}
 			}
 
-			if (templateKeys.isEmpty()) {
-				return null;
-			}
-			else {
-				String templateKeyGroupId = templateKeys.get(
-					displayStyleGroupId);
-
-				if (templateKeyGroupId != null) {
-					return new ObjectValuePair<>(
-						displayStyleGroupId, templateKeyGroupId);
-				}
-				else {
-					return new ObjectValuePair<>(
-						_companyGroupId, templateKeys.get(_companyGroupId));
-				}
-			}
+			return objectValuePair;
 		}
 	}
 

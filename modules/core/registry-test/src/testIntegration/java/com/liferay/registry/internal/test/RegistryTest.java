@@ -46,6 +46,7 @@ import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Version;
 
 /**
  * @author Raymond Augé
@@ -206,6 +207,56 @@ public class RegistryTest {
 			Arrays.toString(interfaceOnes), 1, interfaceOnes.length);
 
 		serviceRegistrationB.unregister();
+
+		interfaceOnes = _registry.getServices(
+			InterfaceOne.class.getName(), filterString);
+
+		Assert.assertNull(interfaceOnes);
+	}
+
+	@Test
+	public void testGetServiceByClassNameAndMinorVersionFilter()
+		throws Exception {
+
+		InterfaceOne interfaceNotMatchFilter = getInstance();
+
+		Map<String, Object> propertiesNotMatchFilter = new HashMap<>();
+
+		propertiesNotMatchFilter.put("version", new Version("2.1.0"));
+
+		ServiceRegistration<InterfaceOne> serviceNotMatchFilter =
+			_registry.registerService(
+				InterfaceOne.class, interfaceNotMatchFilter,
+				propertiesNotMatchFilter);
+
+		InterfaceOne interfaceMatchesFilter = getInstance();
+
+		Map<String, Object> propertiesMatchesFilter = new HashMap<>();
+
+		propertiesMatchesFilter.put("version", new Version("2.0.1"));
+
+		ServiceRegistration<InterfaceOne> serviceMatchesFilter =
+			_registry.registerService(
+				InterfaceOne.class, interfaceMatchesFilter,
+				propertiesMatchesFilter);
+
+		String filterString = "(&(version>=2.0)(!(version>=2.1)))";
+
+		InterfaceOne[] interfaceOnes = _registry.getServices(
+			InterfaceOne.class.getName(), filterString);
+
+		Assert.assertEquals(
+			Arrays.toString(interfaceOnes), 1, interfaceOnes.length);
+
+		serviceNotMatchFilter.unregister();
+
+		interfaceOnes = _registry.getServices(
+			InterfaceOne.class.getName(), filterString);
+
+		Assert.assertEquals(
+			Arrays.toString(interfaceOnes), 1, interfaceOnes.length);
+
+		serviceMatchesFilter.unregister();
 
 		interfaceOnes = _registry.getServices(
 			InterfaceOne.class.getName(), filterString);

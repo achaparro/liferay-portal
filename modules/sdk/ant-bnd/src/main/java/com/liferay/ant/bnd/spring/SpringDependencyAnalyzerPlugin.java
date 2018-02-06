@@ -26,6 +26,7 @@ import aQute.bnd.osgi.Resource;
 import aQute.bnd.osgi.WriteResource;
 import aQute.bnd.service.AnalyzerPlugin;
 
+import aQute.bnd.version.VersionRange;
 import aQute.lib.io.IO;
 
 import java.io.OutputStream;
@@ -91,6 +92,19 @@ public class SpringDependencyAnalyzerPlugin implements AnalyzerPlugin {
 			return "";
 		}
 
+		String schemaVersionFilter =
+			"(release.schema.version=" + property + ")";
+
+		if (VersionRange.isVersionRange(property)) {
+			VersionRange versionRange =
+				VersionRange.parseVersionRange(property);
+
+			schemaVersionFilter = versionRange.toFilter();
+
+			schemaVersionFilter = schemaVersionFilter.replaceAll(
+				"version", "release.schema.version");
+		}
+
 		StringBuffer sb = new StringBuffer(6);
 
 		sb.append("com.liferay.portal.kernel.model.Release ");
@@ -100,9 +114,9 @@ public class SpringDependencyAnalyzerPlugin implements AnalyzerPlugin {
 
 		sb.append(entry.getKey());
 
-		sb.append(")(release.schema.version=");
-		sb.append(property);
-		sb.append("))");
+		sb.append(")");
+		sb.append(schemaVersionFilter);
+		sb.append(")");
 
 		return sb.toString();
 	}

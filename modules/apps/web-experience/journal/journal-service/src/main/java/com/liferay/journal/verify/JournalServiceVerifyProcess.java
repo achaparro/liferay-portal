@@ -48,8 +48,6 @@ import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.SystemEventLocalService;
-import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -58,7 +56,6 @@ import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.upgrade.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.verify.VerifyLayout;
 import com.liferay.portal.verify.VerifyProcess;
@@ -105,7 +102,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		verifyPermissions();
 		verifyResourcedModels();
 		verifyTree();
-		verifyURLTitle();
 		verifyUUIDModels();
 
 		VerifyProcess verifyProcess =
@@ -757,49 +753,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 
 			for (long companyId : companyIds) {
 				_journalFolderLocalService.rebuildTree(companyId);
-			}
-		}
-	}
-
-	protected void verifyURLTitle() throws Exception {
-		try (LoggingTimer loggingTimer = new LoggingTimer();
-			PreparedStatement ps1 = connection.prepareStatement(
-				"select distinct groupId, articleId, urlTitle from " +
-					"JournalArticle");
-			ResultSet rs = ps1.executeQuery()) {
-
-			try (PreparedStatement ps2 =
-					AutoBatchPreparedStatementUtil.autoBatch(
-						connection.prepareStatement(
-							"update JournalArticle set urlTitle = ? where " +
-								"urlTitle = ?"))) {
-
-				while (rs.next()) {
-					long groupId = rs.getLong("groupId");
-					String articleId = rs.getString("articleId");
-					String urlTitle = GetterUtil.getString(
-						rs.getString("urlTitle"));
-
-					String normalizedURLTitle =
-						FriendlyURLNormalizerUtil.
-							normalizeWithPeriodsAndSlashes(urlTitle);
-
-					if (urlTitle.equals(normalizedURLTitle)) {
-						return;
-					}
-
-					normalizedURLTitle =
-						_journalArticleLocalService.getUniqueUrlTitle(
-							groupId, articleId, normalizedURLTitle);
-
-					ps2.setString(1, normalizedURLTitle);
-
-					ps2.setString(2, urlTitle);
-
-					ps2.addBatch();
-				}
-
-				ps2.executeBatch();
 			}
 		}
 	}

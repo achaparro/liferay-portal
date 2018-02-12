@@ -54,10 +54,6 @@ import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.kernel.xml.Document;
-import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.Node;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.upgrade.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.verify.VerifyLayout;
@@ -95,7 +91,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 	@Override
 	protected void doVerify() throws Exception {
 		verifyArticleAssets();
-		verifyArticleContents();
 		verifyArticleExpirationDate();
 		verifyArticleLayouts();
 		verifyArticleStructures();
@@ -263,21 +258,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		}
 	}
 
-	protected void updateElement(long groupId, Element element) {
-		List<Element> dynamicElementElements = element.elements(
-			"dynamic-element");
-
-		for (Element dynamicElementElement : dynamicElementElements) {
-			updateElement(groupId, dynamicElementElement);
-		}
-
-		String type = element.attributeValue("type");
-
-		if (type.equals("link_to_layout")) {
-			updateLinkToLayoutElements(groupId, element);
-		}
-	}
-
 	protected void updateExpirationDate(
 			long groupId, String articleId, Timestamp expirationDate,
 			int status)
@@ -293,20 +273,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 			ps.setInt(4, status);
 
 			ps.executeUpdate();
-		}
-	}
-
-	protected void updateLinkToLayoutElements(long groupId, Element element) {
-		Element dynamicContentElement = element.element("dynamic-content");
-
-		Node node = dynamicContentElement.node(0);
-
-		String text = node.getText();
-
-		if (!text.isEmpty() && !text.endsWith(StringPool.AT + groupId)) {
-			node.setText(
-				dynamicContentElement.getStringValue() + StringPool.AT +
-					groupId);
 		}
 	}
 
@@ -473,43 +439,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 
 			updateCreateAndModifiedDates();
 			updateResourcePrimKey();
-		}
-	}
-
-	protected void verifyArticleContents() throws Exception {
-		try (LoggingTimer loggingTimer = new LoggingTimer();
-			PreparedStatement ps = connection.prepareStatement(
-				"select id_ from JournalArticle where (content like " +
-					"'%link_to_layout%') and DDMStructureKey != ''");
-			ResultSet rs = ps.executeQuery()) {
-
-			while (rs.next()) {
-				long id = rs.getLong("id_");
-
-				JournalArticle article = _journalArticleLocalService.getArticle(
-					id);
-
-				try {
-					Document document = SAXReaderUtil.read(
-						article.getContent());
-
-					Element rootElement = document.getRootElement();
-
-					for (Element element : rootElement.elements()) {
-						updateElement(article.getGroupId(), element);
-					}
-
-					article.setContent(document.asXML());
-
-					_journalArticleLocalService.updateJournalArticle(article);
-				}
-				catch (Exception e) {
-					_log.error(
-						"Unable to update content for article " +
-							article.getId(),
-						e);
-				}
-			}
 		}
 	}
 

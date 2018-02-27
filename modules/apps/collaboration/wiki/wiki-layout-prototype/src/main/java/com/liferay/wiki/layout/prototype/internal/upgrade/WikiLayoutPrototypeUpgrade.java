@@ -33,7 +33,7 @@ public class WikiLayoutPrototypeUpgrade implements UpgradeStepRegistrator {
 			new DummyUpgradeStep());
 
 		registry.register(
-			"com.liferay.wiki.layout.prototype", "1.0.0", "2.0.0",
+			"com.liferay.wiki.layout.prototype", "1.0.0", "1.0.1",
 			new UpgradeLocalizedColumn());
 	}
 

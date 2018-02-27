@@ -16,8 +16,6 @@ package com.liferay.portal.kernel.upgrade;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
@@ -40,9 +38,6 @@ import java.util.Map;
  */
 public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 
-	protected void executeClobUpgrades() throws Exception {
-	}
-
 	protected void upgradeLocalizedColumn(
 			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
 			String columnName, String originalContent,
@@ -57,16 +52,20 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 				"content.Language", clazz.getClassLoader()),
 			resourceBundleLoader);
 
-		for (long companyId : companyIds) {
-			try {
+		try {
+			if (hasColumnType(tableClass, columnName, "TEXT null")) {
+				alter(tableClass, new AlterColumnType(columnName, "TEXT null"));
+			}
+
+			for (long companyId : companyIds) {
 				_upgrade(
 					resourceBundleLoader, tableClass, columnName,
 					originalContent, localizationMapKey, localizationXMLKey,
 					companyId);
 			}
-			catch (Exception e) {
-				throw new SQLException(e);
-			}
+		}
+		catch (Exception e) {
+			throw new SQLException(e);
 		}
 	}
 
@@ -96,39 +95,9 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 		}
 	}
 
-	private void _checkJavaColumnType(Class<?> tableClass, String columnName)
-		throws Exception {
-
-		if (_getJavaColumnType(tableClass, columnName) != Types.CLOB) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					String.format(
-						_CLOB_ERROR, columnName, getTableName(tableClass)));
-			}
-		}
-	}
-
 	private String _escape(String string) {
 		return string.replace(
 			StringPool.APOSTROPHE, StringPool.DOUBLE_APOSTROPHE);
-	}
-
-	private int _getJavaColumnType(Class<?> tableClass, String columnName)
-		throws Exception {
-
-		Object[][] tableColumns = getTableColumns(tableClass);
-
-		for (Object[] column : tableColumns) {
-			String name = (String)column[0];
-
-			if (StringUtil.equalsIgnoreCase(columnName, name)) {
-				return (int)column[1];
-			}
-		}
-
-		throw new IllegalArgumentException(
-			String.format(
-				_INVALID_COLUMN_NAME, columnName, getTableName(tableClass)));
 	}
 
 	private String _getLocalizationXML(
@@ -163,9 +132,6 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 			long companyId)
 		throws Exception {
 
-		_checkJavaColumnType(tableClass, columnName);
-		executeClobUpgrades();
-
 		_upgrade(
 			resourceBundleLoader, getTableName(tableClass), columnName,
 			originalContent, localizationMapKey, localizationXMLKey, companyId);
@@ -195,14 +161,5 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 			throw new SystemException(ioe);
 		}
 	}
-
-	private static final String _CLOB_ERROR =
-		"If column %s is internationalized in %s it should be changed to CLOB";
-
-	private static final String _INVALID_COLUMN_NAME =
-		"Invalid column name %s for %s";
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		BaseUpgradeLocalizedColumn.class);
 
 }

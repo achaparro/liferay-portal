@@ -33,7 +33,7 @@ public class BlogsLayoutPrototypeUpgrade implements UpgradeStepRegistrator {
 			new DummyUpgradeStep());
 
 		registry.register(
-			"com.liferay.blogs.layout.prototype", "1.0.0", "2.0.0",
+			"com.liferay.blogs.layout.prototype", "1.0.0", "1.0.1",
 			new UpgradeLocalizedColumn());
 	}
 

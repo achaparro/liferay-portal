@@ -23,10 +23,12 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.IOException;
 
 import java.sql.SQLException;
+import java.sql.Types;
 
 import java.util.Locale;
 import java.util.Map;
@@ -36,6 +38,42 @@ import java.util.Map;
  */
 public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 
+	protected void upgradeLocalizedColumn(
+			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
+			String columnName, String originalContent,
+			String localizationMapKey, String localizationXMLKey,
+			long[] companyIds)
+		throws SQLException {
+
+		Class<?> clazz = getClass();
+
+		resourceBundleLoader = new AggregateResourceBundleLoader(
+			ResourceBundleUtil.getResourceBundleLoader(
+				"content.Language", clazz.getClassLoader()),
+			resourceBundleLoader);
+
+		try {
+			if (hasColumnType(tableClass, columnName, "VARCHAR null")) {
+				alter(tableClass, new AlterColumnType(columnName, "TEXT null"));
+			}
+
+			for (long companyId : companyIds) {
+				_upgrade(
+					resourceBundleLoader, tableClass, columnName,
+					originalContent, localizationMapKey, localizationXMLKey,
+					companyId);
+			}
+		}
+		catch (Exception e) {
+			throw new SQLException(e);
+		}
+	}
+
+	/**
+	* @deprecated As of 7.0.0,
+	* use {@link BaseUpgradeLocalizedColumn#upgradeLocalizedColumn(ResourceBundleLoader, Class, String, String, String, String, long[])}
+	*/
+	@Deprecated
 	protected void upgradeLocalizedColumn(
 			ResourceBundleLoader resourceBundleLoader, String tableName,
 			String columnName, String originalContent,
@@ -85,6 +123,18 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 		finally {
 			CompanyThreadLocal.setCompanyId(originalCompanyId);
 		}
+	}
+
+	private void _upgrade(
+			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
+			String columnName, String originalContent,
+			String localizationMapKey, String localizationXMLKey,
+			long companyId)
+		throws Exception {
+
+		_upgrade(
+			resourceBundleLoader, getTableName(tableClass), columnName,
+			originalContent, localizationMapKey, localizationXMLKey, companyId);
 	}
 
 	private void _upgrade(

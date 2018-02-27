@@ -45,6 +45,25 @@ public class DBInspector {
 		return _connection.getCatalog();
 	}
 
+	public int getColumnDataType(Class<?> tableClass, String columnName)
+		throws Exception {
+
+		Field tableColumnsField = tableClass.getField("TABLE_COLUMNS");
+
+		Object[][] tableColumns = (Object[][])tableColumnsField.get(null);
+
+		for (Object[] tableColumn : tableColumns) {
+			if (tableColumn[0].equals(columnName)) {
+				return (int)tableColumn[1];
+			}
+		}
+
+		throw new UpgradeException(
+			StringBundler.concat(
+				"Table class ", String.valueOf(tableClass),
+				" does not have column ", columnName));
+	}
+
 	public String getSchema() {
 		try {
 			return _connection.getSchema();
@@ -97,7 +116,7 @@ public class DBInspector {
 				return false;
 			}
 
-			int expectedColumnDataType = _getColumnDataType(
+			int expectedColumnDataType = getColumnDataType(
 				tableClass, columnName);
 			int expectedColumnSize = _getColumnSize(columnType);
 			boolean expectedColumnNullable = _isColumnNullable(columnType);
@@ -188,25 +207,6 @@ public class DBInspector {
 		}
 
 		return name;
-	}
-
-	private int _getColumnDataType(Class<?> tableClass, String columnName)
-		throws Exception {
-
-		Field tableColumnsField = tableClass.getField("TABLE_COLUMNS");
-
-		Object[][] tableColumns = (Object[][])tableColumnsField.get(null);
-
-		for (Object[] tableColumn : tableColumns) {
-			if (tableColumn[0].equals(columnName)) {
-				return (int)tableColumn[1];
-			}
-		}
-
-		throw new UpgradeException(
-			StringBundler.concat(
-				"Table class ", String.valueOf(tableClass),
-				" does not have column ", columnName));
 	}
 
 	private int _getColumnSize(String columnType) throws UpgradeException {

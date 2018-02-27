@@ -14,26 +14,29 @@
 
 package com.liferay.asset.publisher.layout.prototype.internal.upgrade.v1_0_0;
 
-import com.liferay.portal.kernel.upgrade.BaseUpgradeLocalizedColumn;
 import com.liferay.portal.language.LanguageResources;
+import com.liferay.portal.model.impl.LayoutPrototypeModelImpl;
+import com.liferay.portal.upgrade.v7_0_5.BaseUpgradeLocalizedLayoutPrototypeColumns;
 import com.liferay.portal.util.PortalInstances;
 
 /**
  * @author Leon Chi
  */
-public class UpgradeLocalizedColumn extends BaseUpgradeLocalizedColumn {
+public class UpgradeLocalizedColumn
+	extends BaseUpgradeLocalizedLayoutPrototypeColumns {
 
 	@Override
 	protected void doUpgrade() throws Exception {
 		long[] companyIds = PortalInstances.getCompanyIdsBySQL();
 
 		upgradeLocalizedColumn(
-			LanguageResources.RESOURCE_BUNDLE_LOADER, "LayoutPrototype", "name",
-			_NAME, "layout-prototype-web-content-title", "Name", companyIds);
+			LanguageResources.RESOURCE_BUNDLE_LOADER,
+			LayoutPrototypeModelImpl.class, "name", _NAME,
+			"layout-prototype-web-content-title", "Name", companyIds);
 
 		upgradeLocalizedColumn(
-			LanguageResources.RESOURCE_BUNDLE_LOADER, "LayoutPrototype",
-			"description", _DESCRIPTION,
+			LanguageResources.RESOURCE_BUNDLE_LOADER,
+			LayoutPrototypeModelImpl.class, "description", _DESCRIPTION,
 			"layout-prototype-web-content-description", "Description",
 			companyIds);
 	}

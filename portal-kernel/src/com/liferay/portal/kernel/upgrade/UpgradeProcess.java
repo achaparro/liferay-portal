@@ -442,13 +442,14 @@ public abstract class UpgradeProcess
 							sqle.getMessage()));
 				}
 
+				Field tableColumnsField = tableClass.getField("TABLE_COLUMNS");
 				Field tableSQLCreateField = tableClass.getField(
 					"TABLE_SQL_CREATE");
 				Field tableSQLAddIndexesField = tableClass.getField(
 					"TABLE_SQL_ADD_INDEXES");
 
 				upgradeTable(
-					tableName, getTableColumns(tableClass),
+					tableName, (Object[][])tableColumnsField.get(null),
 					(String)tableSQLCreateField.get(null),
 					(String[])tableSQLAddIndexesField.get(null));
 
@@ -537,12 +538,6 @@ public abstract class UpgradeProcess
 		}
 
 		return _portalIndexesSQL.get(tableName);
-	}
-
-	protected Object[][] getTableColumns(Class<?> tableClass) throws Exception {
-		Field tableColumnsField = tableClass.getField("TABLE_COLUMNS");
-
-		return (Object[][])tableColumnsField.get(null);
 	}
 
 	protected String getTableName(Class<?> tableClass) throws Exception {

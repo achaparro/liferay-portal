@@ -38,15 +38,6 @@ import java.util.stream.IntStream;
  */
 public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 
-	protected void executeAlterTable(
-			Class<?> tableClass, String tableColumn, String columnType)
-		throws Exception {
-
-		if (_isAlterNeeded(getTableName(tableClass), tableColumn)) {
-			alter(tableClass, new AlterColumnType(tableColumn, columnType));
-		}
-	}
-
 	protected void upgradeLocalizedColumn(
 			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
 			String columnName, String originalContent,
@@ -62,7 +53,9 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 			resourceBundleLoader);
 
 		try {
-			executeAlterTable(tableClass, columnName, _FIELD_TYPE);
+			if (_isAlterNeeded(getTableName(tableClass), columnName)) {
+				alter(tableClass, new AlterColumnType(columnName, "TEXT null"));
+			}
 
 			for (long companyId : companyIds) {
 				_upgrade(
@@ -181,8 +174,6 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 			throw new SystemException(ioe);
 		}
 	}
-
-	private static final String _FIELD_TYPE = "TEXT null";
 
 	private static final int[] _INVALID_TYPES =
 		{Types.CHAR, Types.NCHAR, Types.NVARCHAR, Types.VARCHAR};

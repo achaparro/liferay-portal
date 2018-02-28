@@ -45,6 +45,28 @@ public class DBInspector {
 		return _connection.getCatalog();
 	}
 
+	public int getDatabaseColumnType(String tableName, String columnName)
+		throws Exception {
+
+		DatabaseMetaData databaseMetaData = _connection.getMetaData();
+
+		try (ResultSet rs = databaseMetaData.getColumns(
+				getCatalog(), getSchema(), normalizeName(tableName),
+				normalizeName(columnName))) {
+
+			if (rs.next()) {
+				return rs.getInt("DATA_TYPE");
+			}
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		throw new IllegalArgumentException(
+			StringBundler.concat(
+				"No column ", columnName, " for table ", tableName));
+	}
+
 	public String getSchema() {
 		try {
 			return _connection.getSchema();

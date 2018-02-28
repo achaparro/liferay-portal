@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.IOException;
 
@@ -32,11 +31,21 @@ import java.sql.Types;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * @author Leon Chi
  */
 public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
+
+	protected void executeAlterTable(
+			Class<?> tableClass, String tableColumn, String columnType)
+		throws Exception {
+
+		if (_isAlterNeeded(getTableName(tableClass), tableColumn)) {
+			alter(tableClass, new AlterColumnType(tableColumn, columnType));
+		}
+	}
 
 	protected void upgradeLocalizedColumn(
 			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
@@ -53,9 +62,7 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 			resourceBundleLoader);
 
 		try {
-			if (hasColumnType(tableClass, columnName, "TEXT null")) {
-				alter(tableClass, new AlterColumnType(columnName, "TEXT null"));
-			}
+			executeAlterTable(tableClass, columnName, _FIELD_TYPE);
 
 			for (long companyId : companyIds) {
 				_upgrade(
@@ -125,6 +132,19 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 		}
 	}
 
+	private boolean _isAlterNeeded(String tableName, String columnName)
+		throws Exception {
+
+		int columnType = getDatabaseColumnType(tableName, columnName);
+		IntStream intStream = IntStream.of(_INVALID_TYPES);
+
+		if (intStream.anyMatch(x -> x == columnType)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	private void _upgrade(
 			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
 			String columnName, String originalContent,
@@ -161,5 +181,10 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 			throw new SystemException(ioe);
 		}
 	}
+
+	private static final String _FIELD_TYPE = "TEXT null";
+
+	private static final int[] _INVALID_TYPES =
+		{Types.CHAR, Types.NCHAR, Types.NVARCHAR, Types.VARCHAR};
 
 }

@@ -27,15 +27,60 @@ import com.liferay.portal.kernel.util.StringBundler;
 import java.io.IOException;
 
 import java.sql.SQLException;
+import java.sql.Types;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * @author Leon Chi
  */
 public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 
+	protected void executeAlterTable(
+			Class<?> tableClass, String tableColumn, String columnType)
+		throws Exception {
+
+		if (_isAlterNeeded(getTableName(tableClass), tableColumn)) {
+			alter(tableClass, new AlterColumnType(tableColumn, columnType));
+		}
+	}
+
+	protected void upgradeLocalizedColumn(
+			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
+			String columnName, String originalContent,
+			String localizationMapKey, String localizationXMLKey,
+			long[] companyIds)
+		throws SQLException {
+
+		Class<?> clazz = getClass();
+
+		resourceBundleLoader = new AggregateResourceBundleLoader(
+			ResourceBundleUtil.getResourceBundleLoader(
+				"content.Language", clazz.getClassLoader()),
+			resourceBundleLoader);
+
+		try {
+			executeAlterTable(tableClass, columnName, _FIELD_TYPE);
+
+			for (long companyId : companyIds) {
+				_upgrade(
+					resourceBundleLoader, tableClass, columnName,
+					originalContent, localizationMapKey, localizationXMLKey,
+					companyId);
+			}
+		}
+		catch (Exception e) {
+			throw new SQLException(e);
+		}
+	}
+
+	/**
+	* @deprecated As of 7.0.0,
+	* use {@link BaseUpgradeLocalizedColumn#upgradeLocalizedColumn(ResourceBundleLoader, Class, String, String, String, String, long[])}
+	*/
+	@Deprecated
 	protected void upgradeLocalizedColumn(
 			ResourceBundleLoader resourceBundleLoader, String tableName,
 			String columnName, String originalContent,
@@ -87,6 +132,31 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 		}
 	}
 
+	private boolean _isAlterNeeded(String tableName, String columnName)
+		throws Exception {
+
+		int columnType = getDatabaseColumnType(tableName, columnName);
+		IntStream intStream = IntStream.of(_INVALID_TYPES);
+
+		if (intStream.anyMatch(x -> x == columnType)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private void _upgrade(
+			ResourceBundleLoader resourceBundleLoader, Class<?> tableClass,
+			String columnName, String originalContent,
+			String localizationMapKey, String localizationXMLKey,
+			long companyId)
+		throws Exception {
+
+		_upgrade(
+			resourceBundleLoader, getTableName(tableClass), columnName,
+			originalContent, localizationMapKey, localizationXMLKey, companyId);
+	}
+
 	private void _upgrade(
 			ResourceBundleLoader resourceBundleLoader, String tableName,
 			String columnName, String originalContent,
@@ -111,5 +181,10 @@ public abstract class BaseUpgradeLocalizedColumn extends UpgradeProcess {
 			throw new SystemException(ioe);
 		}
 	}
+
+	private static final String _FIELD_TYPE = "TEXT null";
+
+	private static final int[] _INVALID_TYPES =
+		{Types.CHAR, Types.NCHAR, Types.NVARCHAR, Types.VARCHAR};
 
 }

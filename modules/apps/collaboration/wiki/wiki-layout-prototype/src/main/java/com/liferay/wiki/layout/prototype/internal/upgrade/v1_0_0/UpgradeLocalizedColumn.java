@@ -16,6 +16,7 @@ package com.liferay.wiki.layout.prototype.internal.upgrade.v1_0_0;
 
 import com.liferay.portal.kernel.upgrade.BaseUpgradeLocalizedColumn;
 import com.liferay.portal.language.LanguageResources;
+import com.liferay.portal.model.impl.LayoutPrototypeModelImpl;
 import com.liferay.portal.util.PortalInstances;
 
 /**
@@ -28,13 +29,14 @@ public class UpgradeLocalizedColumn extends BaseUpgradeLocalizedColumn {
 		long[] companyIds = PortalInstances.getCompanyIdsBySQL();
 
 		upgradeLocalizedColumn(
-			LanguageResources.RESOURCE_BUNDLE_LOADER, "LayoutPrototype", "name",
-			_NAME, "layout-prototype-wiki-title", "Name", companyIds);
+			LanguageResources.RESOURCE_BUNDLE_LOADER,
+			LayoutPrototypeModelImpl.class, "name", _NAME,
+			"layout-prototype-wiki-title", "Name", companyIds);
 
 		upgradeLocalizedColumn(
-			LanguageResources.RESOURCE_BUNDLE_LOADER, "LayoutPrototype",
-			"description", _DESCRIPTION, "layout-prototype-wiki-description",
-			"Description", companyIds);
+			LanguageResources.RESOURCE_BUNDLE_LOADER,
+			LayoutPrototypeModelImpl.class, "description", _DESCRIPTION,
+			"layout-prototype-wiki-description", "Description", companyIds);
 	}
 
 	private static final String _DESCRIPTION =

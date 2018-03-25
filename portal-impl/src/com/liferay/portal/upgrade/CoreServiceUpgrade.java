@@ -16,11 +16,13 @@ package com.liferay.portal.upgrade;
 
 import aQute.bnd.version.Version;
 
+import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.model.ReleaseConstants;
 import com.liferay.portal.kernel.upgrade.CoreUpgradeProcessRegistry;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.upgrade.v7_1.UpgradeProcessRegistry;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,27 +36,23 @@ import java.util.TreeMap;
 /**
  * @author Alberto Chaparro
  */
-public class CoreUpgradeProcess extends UpgradeProcess {
+public class CoreServiceUpgrade extends UpgradeProcess {
 
-	public CoreUpgradeProcess() throws Exception {
-		for (Class<?> coreUpgradeProcessRegistry :
-				_CORE_UPGRADE_PROCESS_REGISTRIES) {
-
-			CoreUpgradeProcessRegistry registry =
-				(CoreUpgradeProcessRegistry)
-					coreUpgradeProcessRegistry.newInstance();
-
-			registry.registerUpgradeProcesses(upgradeProcesses);
-		}
+	public CoreServiceUpgrade() throws Exception {
+		initializeUpgradeProcesses();
 	}
 
-	public Version getLatestSchemaVersion() {
-		return upgradeProcesses.lastKey();
+	public static Version getLatestSchemaVersion() throws Exception {
+		initializeUpgradeProcesses();
+
+		return _upgradeProcesses.lastKey();
 	}
 
-	public Version getRequiredSchemaVersion() {
+	public static Version getRequiredSchemaVersion() throws Exception {
+		initializeUpgradeProcesses();
+
 		NavigableSet<Version> reverseSchemaVersions =
-			upgradeProcesses.descendingKeySet();
+			_upgradeProcesses.descendingKeySet();
 
 		Iterator<Version> itr = reverseSchemaVersions.iterator();
 
@@ -77,11 +75,11 @@ public class CoreUpgradeProcess extends UpgradeProcess {
 		return requiredSchemaVersion;
 	}
 
-	public boolean isInLatestSchemaVersion() throws SQLException {
+	public static boolean isInLatestSchemaVersion() throws Exception {
 		return getLatestSchemaVersion().equals(getCurrentSchemaVersion());
 	}
 
-	public boolean isInRequiredSchemaVersion() throws SQLException {
+	public static boolean isInRequiredSchemaVersion() throws Exception {
 		if (getRequiredSchemaVersion().compareTo(getCurrentSchemaVersion()) <=
 				0) {
 
@@ -96,7 +94,7 @@ public class CoreUpgradeProcess extends UpgradeProcess {
 		for (Version pendingSchemaVersion :
 				getPendingSchemaVersions(getCurrentSchemaVersion())) {
 
-			Class<?> pendingUpgradeClass = upgradeProcesses.get(
+			Class<?> pendingUpgradeClass = _upgradeProcesses.get(
 				pendingSchemaVersion);
 
 			upgrade(pendingUpgradeClass);
@@ -107,10 +105,11 @@ public class CoreUpgradeProcess extends UpgradeProcess {
 		clearIndexesCache();
 	}
 
-	protected Version getCurrentSchemaVersion() throws SQLException {
-		try (PreparedStatement ps = connection.prepareStatement(
-				"select schemaVersion from Release_ where servletContextName " +
-					"= ?");) {
+	protected static Version getCurrentSchemaVersion() throws SQLException {
+		try (Connection con = DataAccess.getUpgradeOptimizedConnection();
+			 PreparedStatement ps = con.prepareStatement(
+				 "select schemaVersion from Release_ where servletContextName " +
+				 "= ?");) {
 
 			ps.setString(1, ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
 
@@ -132,14 +131,32 @@ public class CoreUpgradeProcess extends UpgradeProcess {
 
 	protected Set<Version> getPendingSchemaVersions(Version fromSchemaVersion) {
 		SortedMap<Version, Class<?>> pendingUpgradeProcesses = new TreeMap<>(
-			upgradeProcesses);
+			_upgradeProcesses);
 
 		if (fromSchemaVersion != null) {
-			pendingUpgradeProcesses = upgradeProcesses.tailMap(
+			pendingUpgradeProcesses = _upgradeProcesses.tailMap(
 				fromSchemaVersion, false);
 		}
 
 		return pendingUpgradeProcesses.keySet();
+	}
+
+	protected static void initializeUpgradeProcesses() throws Exception {
+		if (_upgradeProcesses != null) {
+			return;
+		}
+
+		_upgradeProcesses = new TreeMap<>();
+
+		for (Class<?> coreUpgradeProcessRegistry :
+				_CORE_UPGRADE_PROCESS_REGISTRIES) {
+
+			CoreUpgradeProcessRegistry registry =
+				(CoreUpgradeProcessRegistry)
+					coreUpgradeProcessRegistry.newInstance();
+
+			registry.registerUpgradeProcesses(_upgradeProcesses);
+		}
 	}
 
 	protected void updateSchemaVersion(Version newSchemaVersion)
@@ -156,8 +173,7 @@ public class CoreUpgradeProcess extends UpgradeProcess {
 		}
 	}
 
-	protected static TreeMap<Version, Class<?>> upgradeProcesses =
-		new TreeMap<>();
+	private static TreeMap<Version, Class<?>> _upgradeProcesses;
 
 	private static final Class<?>[] _CORE_UPGRADE_PROCESS_REGISTRIES =
 		{UpgradeProcessRegistry.class};

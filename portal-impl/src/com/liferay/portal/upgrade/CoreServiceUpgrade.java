@@ -38,10 +38,6 @@ import java.util.TreeMap;
  */
 public class CoreServiceUpgrade extends UpgradeProcess {
 
-	public CoreServiceUpgrade() throws Exception {
-		initializeUpgradeProcesses();
-	}
-
 	public static Version getLatestSchemaVersion() throws Exception {
 		initializeUpgradeProcesses();
 
@@ -89,27 +85,15 @@ public class CoreServiceUpgrade extends UpgradeProcess {
 		return false;
 	}
 
-	@Override
-	protected void doUpgrade() throws Exception {
-		for (Version pendingSchemaVersion :
-				getPendingSchemaVersions(getCurrentSchemaVersion())) {
-
-			Class<?> pendingUpgradeClass = _upgradeProcesses.get(
-				pendingSchemaVersion);
-
-			upgrade(pendingUpgradeClass);
-
-			updateSchemaVersion(pendingSchemaVersion);
-		}
-
-		clearIndexesCache();
+	public CoreServiceUpgrade() throws Exception {
+		initializeUpgradeProcesses();
 	}
 
 	protected static Version getCurrentSchemaVersion() throws SQLException {
-		try (Connection con = DataAccess.getUpgradeOptimizedConnection();
-			 PreparedStatement ps = con.prepareStatement(
-				 "select schemaVersion from Release_ where servletContextName " +
-				 "= ?");) {
+		try (Connection con = DataAccess.getConnection();
+			PreparedStatement ps = con.prepareStatement(
+				"select schemaVersion from Release_ where servletContextName " +
+					"= ?");) {
 
 			ps.setString(1, ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
 
@@ -127,18 +111,6 @@ public class CoreServiceUpgrade extends UpgradeProcess {
 		}
 
 		return null;
-	}
-
-	protected Set<Version> getPendingSchemaVersions(Version fromSchemaVersion) {
-		SortedMap<Version, Class<?>> pendingUpgradeProcesses = new TreeMap<>(
-			_upgradeProcesses);
-
-		if (fromSchemaVersion != null) {
-			pendingUpgradeProcesses = _upgradeProcesses.tailMap(
-				fromSchemaVersion, false);
-		}
-
-		return pendingUpgradeProcesses.keySet();
 	}
 
 	protected static void initializeUpgradeProcesses() throws Exception {
@@ -159,7 +131,37 @@ public class CoreServiceUpgrade extends UpgradeProcess {
 		}
 	}
 
-	protected void updateSchemaVersion(Version newSchemaVersion)
+	@Override
+	protected void doUpgrade() throws Exception {
+		Version currentSchemaVersion = getCurrentSchemaVersion();
+
+		for (Version pendingSchemaVersion :
+				getPendingSchemaVersions(currentSchemaVersion)) {
+
+			Class<?> pendingUpgradeClass = _upgradeProcesses.get(
+				pendingSchemaVersion);
+
+			upgrade(pendingUpgradeClass);
+
+			currentSchemaVersion = updateSchemaVersion(pendingSchemaVersion);
+		}
+
+		clearIndexesCache();
+	}
+
+	protected Set<Version> getPendingSchemaVersions(Version fromSchemaVersion) {
+		SortedMap<Version, Class<?>> pendingUpgradeProcesses = new TreeMap<>(
+			_upgradeProcesses);
+
+		if (fromSchemaVersion != null) {
+			pendingUpgradeProcesses = _upgradeProcesses.tailMap(
+				fromSchemaVersion, false);
+		}
+
+		return pendingUpgradeProcesses.keySet();
+	}
+
+	protected Version updateSchemaVersion(Version newSchemaVersion)
 		throws SQLException {
 
 		try (PreparedStatement ps = connection.prepareStatement(
@@ -171,13 +173,15 @@ public class CoreServiceUpgrade extends UpgradeProcess {
 
 			ps.execute();
 		}
-	}
 
-	private static TreeMap<Version, Class<?>> _upgradeProcesses;
+		return newSchemaVersion;
+	}
 
 	private static final Class<?>[] _CORE_UPGRADE_PROCESS_REGISTRIES =
 		{UpgradeProcessRegistry.class};
 
 	private static final String _INITIAL_SCHEMA_VERSION = "7.1.0";
+
+	private static TreeMap<Version, Class<?>> _upgradeProcesses;
 
 }

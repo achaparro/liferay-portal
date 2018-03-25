@@ -15,6 +15,7 @@
 package com.liferay.portal.service.impl;
 
 import aQute.bnd.version.Version;
+
 import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -37,7 +38,7 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.base.ReleaseLocalServiceBaseImpl;
-import com.liferay.portal.upgrade.CoreUpgradeProcess;
+import com.liferay.portal.upgrade.CoreServiceUpgrade;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -139,16 +140,13 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 			try (Connection con = DataAccess.getConnection();
 				PreparedStatement ps =
-					con.prepareStatement(INSERT_RELEASE_RECORD);) {
+					con.prepareStatement(_INSERT_RELEASE_RECORD);) {
 
-				java.sql.Date now =
-					new java.sql.Date(System.currentTimeMillis());
-
-				CoreUpgradeProcess coreUpgradeProcess =
-					new CoreUpgradeProcess();
+				java.sql.Date now = new java.sql.Date(
+					System.currentTimeMillis());
 
 				Version latestSchemaVersion =
-					coreUpgradeProcess.getLatestSchemaVersion();
+					CoreServiceUpgrade.getLatestSchemaVersion();
 
 				ps.setDate(1, now);
 				ps.setDate(2, now);
@@ -158,7 +156,6 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 				ps.executeUpdate();
 			}
-
 
 			StartupHelperUtil.setDbNew(true);
 		}
@@ -496,7 +493,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 	private static final String _GET_BUILD_NUMBER =
 		"select buildNumber from Release_ where releaseId = ?";
 
-	private static final String INSERT_RELEASE_RECORD =
+	private static final String _INSERT_RELEASE_RECORD =
 		"insert into Release_ (releaseId, createDate, modifiedDate, " +
 			"servletContextName, schemaVersion, buildNumber, verified) " +
 				"values (1, ?, ?, ?, ?, ?, FALSE)";

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.service.impl;
 
+import aQute.bnd.version.Version;
 import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -31,10 +32,12 @@ import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.service.base.ReleaseLocalServiceBaseImpl;
+import com.liferay.portal.upgrade.CoreUpgradeProcess;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 
@@ -131,9 +134,31 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 			db.runSQLTemplate("portal-tables.sql", false);
 			db.runSQLTemplate("portal-data-common.sql", false);
 			db.runSQLTemplate("portal-data-counter.sql", false);
-			db.runSQLTemplate("portal-data-release.sql", false);
 			db.runSQLTemplate("indexes.sql", false);
 			db.runSQLTemplate("sequences.sql", false);
+
+			try (Connection con = DataAccess.getConnection();
+				PreparedStatement ps =
+					con.prepareStatement(INSERT_RELEASE_RECORD);) {
+
+				java.sql.Date now =
+					new java.sql.Date(System.currentTimeMillis());
+
+				CoreUpgradeProcess coreUpgradeProcess =
+					new CoreUpgradeProcess();
+
+				Version latestSchemaVersion =
+					coreUpgradeProcess.getLatestSchemaVersion();
+
+				ps.setDate(1, now);
+				ps.setDate(2, now);
+				ps.setString(3, ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
+				ps.setString(4, latestSchemaVersion.toString());
+				ps.setInt(5, ReleaseInfo.getBuildNumber());
+
+				ps.executeUpdate();
+			}
+
 
 			StartupHelperUtil.setDbNew(true);
 		}
@@ -470,6 +495,11 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 	private static final String _GET_BUILD_NUMBER =
 		"select buildNumber from Release_ where releaseId = ?";
+
+	private static final String INSERT_RELEASE_RECORD =
+		"insert into Release_ (releaseId, createDate, modifiedDate, " +
+			"servletContextName, schemaVersion, buildNumber, verified) " +
+				"values (1, ?, ?, ?, ?, ?, FALSE)";
 
 	private static final String _TEST_DATABASE_STRING_CASE_SENSITIVITY =
 		"select count(*) from Release_ where releaseId = ? and testString = ?";

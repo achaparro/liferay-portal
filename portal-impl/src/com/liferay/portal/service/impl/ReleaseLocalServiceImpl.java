@@ -405,6 +405,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 			ps.setString(3, ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
 			ps.setString(4, latestSchemaVersion.toString());
 			ps.setInt(5, ReleaseInfo.getBuildNumber());
+			ps.setBoolean(6, false);
 
 			ps.executeUpdate();
 		}
@@ -506,7 +507,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 	private static final String _INSERT_RELEASE_RECORD =
 		"insert into Release_ (releaseId, createDate, modifiedDate, " +
 			"servletContextName, schemaVersion, buildNumber, verified) " +
-				"values (1, ?, ?, ?, ?, ?, FALSE)";
+				"values (1, ?, ?, ?, ?, ?, ?)";
 
 	private static final String _TEST_DATABASE_STRING_CASE_SENSITIVITY =
 		"select count(*) from Release_ where releaseId = ? and testString = ?";

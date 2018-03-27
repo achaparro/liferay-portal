@@ -138,24 +138,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 			db.runSQLTemplate("indexes.sql", false);
 			db.runSQLTemplate("sequences.sql", false);
 
-			try (Connection con = DataAccess.getConnection();
-				PreparedStatement ps =
-					con.prepareStatement(_INSERT_RELEASE_RECORD);) {
-
-				java.sql.Date now = new java.sql.Date(
-					System.currentTimeMillis());
-
-				Version latestSchemaVersion =
-					CoreServiceUpgrade.getLatestSchemaVersion();
-
-				ps.setDate(1, now);
-				ps.setDate(2, now);
-				ps.setString(3, ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
-				ps.setString(4, latestSchemaVersion.toString());
-				ps.setInt(5, ReleaseInfo.getBuildNumber());
-
-				ps.executeUpdate();
-			}
+			addReleaseInfo();
 
 			StartupHelperUtil.setDbNew(true);
 		}
@@ -215,6 +198,8 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		ResultSet rs = null;
 
 		try {
+			int buildNumber;
+
 			con = DataAccess.getConnection();
 
 			ps = con.prepareStatement(_GET_BUILD_NUMBER);
@@ -224,27 +209,30 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 			rs = ps.executeQuery();
 
 			if (rs.next()) {
-				int buildNumber = rs.getInt("buildNumber");
-
-				if (_log.isDebugEnabled()) {
-					_log.debug("Build number " + buildNumber);
-				}
-
-				// Gracefully add state_ column
-
-				try {
-					db.runSQL("alter table Release_ add state_ INTEGER");
-				}
-				catch (Exception e) {
-					if (_log.isDebugEnabled()) {
-						_log.debug(e.getMessage());
-					}
-				}
-
-				testSupportsStringCaseSensitiveQuery();
-
-				return buildNumber;
+				buildNumber = rs.getInt("buildNumber");
 			}
+			else {
+				buildNumber = addReleaseInfo();
+			}
+
+			if (_log.isDebugEnabled()) {
+				_log.debug("Build number " + buildNumber);
+			}
+
+			// Gracefully add state_ column
+
+			try {
+				db.runSQL("alter table Release_ add state_ INTEGER");
+			}
+			catch (Exception e) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(e.getMessage());
+				}
+			}
+
+			testSupportsStringCaseSensitiveQuery();
+
+			return buildNumber;
 		}
 		catch (Exception e) {
 			if (_log.isWarnEnabled()) {
@@ -400,6 +388,28 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		release.setSchemaVersion(schemaVersion);
 
 		releasePersistence.update(release);
+	}
+
+	protected int addReleaseInfo() throws Exception {
+		try (Connection con = DataAccess.getConnection();
+			PreparedStatement ps =
+				con.prepareStatement(_INSERT_RELEASE_RECORD);) {
+
+			java.sql.Date now = new java.sql.Date(System.currentTimeMillis());
+
+			Version latestSchemaVersion =
+				CoreServiceUpgrade.getLatestSchemaVersion();
+
+			ps.setDate(1, now);
+			ps.setDate(2, now);
+			ps.setString(3, ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
+			ps.setString(4, latestSchemaVersion.toString());
+			ps.setInt(5, ReleaseInfo.getBuildNumber());
+
+			ps.executeUpdate();
+		}
+
+		return ReleaseInfo.getBuildNumber();
 	}
 
 	protected void populateVersion() {

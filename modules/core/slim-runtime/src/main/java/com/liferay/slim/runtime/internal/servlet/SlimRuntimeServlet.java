@@ -157,7 +157,7 @@ public class SlimRuntimeServlet extends HttpServlet {
 		if (!CoreServiceUpgrade.isInRequiredSchemaVersion()) {
 			String msg =
 				"You must first upgrade the Core to the required Schema " +
-					"Version " + CoreServiceUpgrade.getRequiredSchemaVersion();
+					"Version";
 
 			System.out.println(msg);
 

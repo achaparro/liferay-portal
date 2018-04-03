@@ -82,6 +82,7 @@ public class StagingLocalizationTest {
 
 	@Before
 	public void setUp() throws Exception {
+		System.out.println("A " + LocaleUtil.getDefault().toString());
 		_availableLocales = LanguageUtil.getAvailableLocales(
 			TestPropsValues.getCompanyId());
 		_defaultLocale = LocaleThreadLocal.getDefaultLocale();
@@ -91,12 +92,15 @@ public class StagingLocalizationTest {
 
 		_sourceGroup = GroupTestUtil.addGroup();
 		_targetGroup = GroupTestUtil.addGroup();
+		System.out.println("B " + LocaleUtil.getDefault().toString());
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		System.out.println("C " + LocaleUtil.getDefault().toString());
 		CompanyTestUtil.resetCompanyLocales(
 			TestPropsValues.getCompanyId(), _availableLocales, _defaultLocale);
+		System.out.println("D " + LocaleUtil.getDefault().toString());
 	}
 
 	@Test

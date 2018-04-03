@@ -31,6 +31,8 @@ import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.User;
@@ -82,6 +84,8 @@ public class StagingLocalizationTest {
 
 	@Before
 	public void setUp() throws Exception {
+		_log.error("A " + LocaleUtil.getDefault());
+
 		_availableLocales = LanguageUtil.getAvailableLocales(
 			TestPropsValues.getCompanyId());
 		_defaultLocale = LocaleThreadLocal.getDefaultLocale();
@@ -91,12 +95,18 @@ public class StagingLocalizationTest {
 
 		_sourceGroup = GroupTestUtil.addGroup();
 		_targetGroup = GroupTestUtil.addGroup();
+
+		_log.error("B " + LocaleUtil.getDefault());
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		_log.error("C " + LocaleUtil.getDefault());
+
 		CompanyTestUtil.resetCompanyLocales(
 			TestPropsValues.getCompanyId(), _availableLocales, _defaultLocale);
+
+		_log.error("D " + LocaleUtil.getDefault());
 	}
 
 	@Test
@@ -299,6 +309,9 @@ public class StagingLocalizationTest {
 
 		return nameMap;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		StagingLocalizationTest.class);
 
 	private Set<Locale> _availableLocales;
 	private Locale _defaultLocale;

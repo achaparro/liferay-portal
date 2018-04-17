@@ -82,7 +82,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		verifyArticleAssets();
 		verifyArticleContents();
 		verifyArticleExpirationDate();
-		verifyArticleLayouts();
 		verifyArticleStructures();
 		verifyContentSearch();
 		verifyFolderAssets();
@@ -458,12 +457,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 						groupId, articleId, expirationDate, status);
 				}
 			}
-		}
-	}
-
-	protected void verifyArticleLayouts() throws Exception {
-		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			verifyUuid("JournalArticle");
 		}
 	}
 

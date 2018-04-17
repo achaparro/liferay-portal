@@ -16,6 +16,7 @@ package com.liferay.portal.upgrade;
 
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeAnnouncements;
+import com.liferay.portal.upgrade.v6_2_0.UpgradeAsset;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeAssetPublisher;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeBlogs;
 import com.liferay.portal.upgrade.v6_2_0.UpgradeBlogsAggregator;
@@ -62,6 +63,7 @@ public class UpgradeProcess_6_2_0 extends Pre7UpgradeProcess {
 		upgrade(new UpgradeSchema());
 
 		upgrade(new UpgradeAnnouncements());
+		upgrade(new UpgradeAsset());
 		upgrade(new UpgradeAssetPublisher());
 		upgrade(new UpgradeBlogs());
 		upgrade(new UpgradeBlogsAggregator());

@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.SystemEventLocalService;
 import com.liferay.portal.kernel.util.LoggingTimer;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
@@ -599,10 +598,6 @@ public class JournalServiceVerifyProcess extends VerifyProcess {
 		_journalArticleResourceLocalService;
 	private JournalContentSearchLocalService _journalContentSearchLocalService;
 	private JournalFolderLocalService _journalFolderLocalService;
-
-	@Reference
-	private Portal _portal;
-
 	private ResourceLocalService _resourceLocalService;
 	private SystemEventLocalService _systemEventLocalService;
 	private final VerifyResourcePermissions _verifyResourcePermissions =

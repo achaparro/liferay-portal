@@ -17,6 +17,8 @@ package com.liferay.portal.verify;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.db.DBInspector;
+import com.liferay.portal.kernel.dao.db.DBType;
+import com.liferay.portal.kernel.dao.db.DBTypeToSQLMap;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
@@ -225,7 +227,24 @@ public class VerifyAuditedModel extends VerifyProcess {
 			verifiableAuditedModel.getRelatedPKColumnName(),
 			") where userName is null");
 
-		runSQL(con, sql);
+		DBTypeToSQLMap dbTypeToSQLMap = new DBTypeToSQLMap(sql);
+
+		sql = StringBundler.concat(
+			"update ", verifiableAuditedModel.getTableName(), " inner join ",
+			verifiableAuditedModel.getRelatedModelName(), " on ",
+			verifiableAuditedModel.getTableName(), StringPool.PERIOD,
+			verifiableAuditedModel.getJoinByTableName(), " = ",
+			verifiableAuditedModel.getRelatedModelName(), StringPool.PERIOD,
+			verifiableAuditedModel.getRelatedPKColumnName(), " set ",
+			verifiableAuditedModel.getTableName(), StringPool.PERIOD,
+			columnName, " = ", verifiableAuditedModel.getRelatedModelName(),
+			StringPool.PERIOD, columnName, " where ",
+			verifiableAuditedModel.getTableName(), ".userName is null");
+
+		dbTypeToSQLMap.add(DBType.MARIADB, sql);
+		dbTypeToSQLMap.add(DBType.MYSQL, sql);
+
+		runSQL(con, dbTypeToSQLMap);
 	}
 
 	private void _bulkVerifyRegularUsers(

@@ -32,6 +32,19 @@ public abstract class BaseDBProcess implements DBProcess {
 	public BaseDBProcess() {
 	}
 
+	public void runSQL(Connection connection, DBTypeToSQLMap dbTypeToSQLMap)
+		throws IOException, SQLException {
+
+		DB db = DBManagerUtil.getDB();
+
+		if (connection == null) {
+			db.runSQL(dbTypeToSQLMap);
+		}
+		else {
+			db.runSQL(connection, dbTypeToSQLMap);
+		}
+	}
+
 	@Override
 	public void runSQL(Connection connection, String template)
 		throws IOException, SQLException {
@@ -45,14 +58,7 @@ public abstract class BaseDBProcess implements DBProcess {
 	public void runSQL(DBTypeToSQLMap dbTypeToSQLMap)
 		throws IOException, SQLException {
 
-		DB db = DBManagerUtil.getDB();
-
-		if (connection == null) {
-			db.runSQL(dbTypeToSQLMap);
-		}
-		else {
-			db.runSQL(connection, dbTypeToSQLMap);
-		}
+		runSQL(connection, dbTypeToSQLMap);
 	}
 
 	@Override

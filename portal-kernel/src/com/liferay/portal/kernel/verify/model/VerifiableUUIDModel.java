@@ -16,6 +16,8 @@ package com.liferay.portal.kernel.verify.model;
 
 /**
  * @author Miguel Pastor
+ * @deprecated As of 7.0.0, with no direct replacement
  */
+@Deprecated
 public interface VerifiableUUIDModel extends VerifiableModel {
 }

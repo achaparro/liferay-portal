@@ -42,14 +42,12 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.SystemEventLocalService;
 import com.liferay.portal.kernel.util.LoggingTimer;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.verify.VerifyLayout;
 import com.liferay.portal.verify.VerifyProcess;
 import com.liferay.portal.verify.VerifyUUID;
 
@@ -71,16 +69,15 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = "verify.process.name=com.liferay.journal.service",
-	service = {JournalServiceVerifyProcess.class, VerifyProcess.class}
+	service = VerifyProcess.class
 )
-public class JournalServiceVerifyProcess extends VerifyLayout {
+public class JournalServiceVerifyProcess extends VerifyProcess {
 
 	@Override
 	protected void doVerify() throws Exception {
 		verifyArticleAssets();
 		verifyArticleContents();
 		verifyArticleExpirationDate();
-		verifyArticleLayouts();
 		verifyArticleStructures();
 		verifyContentSearch();
 		verifyFolderAssets();
@@ -458,12 +455,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		}
 	}
 
-	protected void verifyArticleLayouts() throws Exception {
-		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			verifyUuid("JournalArticle");
-		}
-	}
-
 	protected void verifyArticleStructures() throws PortalException {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			ActionableDynamicQuery actionableDynamicQuery =
@@ -596,10 +587,6 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		_journalArticleResourceLocalService;
 	private JournalContentSearchLocalService _journalContentSearchLocalService;
 	private JournalFolderLocalService _journalFolderLocalService;
-
-	@Reference
-	private Portal _portal;
-
 	private ResourceLocalService _resourceLocalService;
 	private SystemEventLocalService _systemEventLocalService;
 

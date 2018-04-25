@@ -53,6 +53,7 @@ import com.liferay.portal.upgrade.v7_0_0.UpgradeSharding;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeSocial;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeSubscription;
 import com.liferay.portal.upgrade.v7_0_0.UpgradeWebsite;
+import com.liferay.portal.upgrade.v7_0_0.UpgradeWorkflow;
 
 /**
  * @author Julio Camarero
@@ -105,6 +106,7 @@ public class UpgradeProcess_7_0_0 extends UpgradeProcess {
 		upgrade(new UpgradeSocial());
 		upgrade(new UpgradeSubscription());
 		upgrade(new UpgradeWebsite());
+		upgrade(new UpgradeWorkflow());
 
 		upgrade(new UpgradeMobileDeviceRules());
 

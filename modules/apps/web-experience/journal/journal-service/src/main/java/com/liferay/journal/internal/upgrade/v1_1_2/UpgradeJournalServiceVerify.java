@@ -12,14 +12,12 @@
  * details.
  */
 
-package com.liferay.journal.internal.verify;
+package com.liferay.journal.internal.upgrade.v1_1_2;
 
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
-import com.liferay.journal.internal.verify.model.JournalArticleResourceVerifiableModel;
-import com.liferay.journal.internal.verify.model.JournalFeedVerifiableModel;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleConstants;
 import com.liferay.journal.model.JournalArticleResource;
@@ -50,6 +48,7 @@ import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.verify.model.VerifiableUUIDModel;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
@@ -69,9 +68,9 @@ import javax.portlet.PortletPreferences;
  * @author Alexander Chow
  * @author Shinn Lok
  */
-public class JournalServiceVerifyProcess extends UpgradeProcess {
+public class UpgradeJournalServiceVerify extends UpgradeProcess {
 
-	public JournalServiceVerifyProcess(
+	public UpgradeJournalServiceVerify(
 		AssetEntryLocalService assetEntryLocalService,
 		JournalArticleLocalService journalArticleLocalService,
 		JournalArticleResourceLocalService journalArticleResourceLocalService,
@@ -622,7 +621,7 @@ public class JournalServiceVerifyProcess extends UpgradeProcess {
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		JournalServiceVerifyProcess.class);
+		UpgradeJournalServiceVerify.class);
 
 	private final AssetEntryLocalService _assetEntryLocalService;
 	private final JournalArticleLocalService _journalArticleLocalService;
@@ -634,5 +633,35 @@ public class JournalServiceVerifyProcess extends UpgradeProcess {
 	private final Portal _portal;
 	private final ResourceLocalService _resourceLocalService;
 	private final SystemEventLocalService _systemEventLocalService;
+
+	private static class JournalArticleResourceVerifiableModel
+		implements VerifiableUUIDModel {
+
+		@Override
+		public String getPrimaryKeyColumnName() {
+			return "resourcePrimKey";
+		}
+
+		@Override
+		public String getTableName() {
+			return "JournalArticleResource";
+		}
+
+	}
+
+	private static class JournalFeedVerifiableModel
+		implements VerifiableUUIDModel {
+
+		@Override
+		public String getPrimaryKeyColumnName() {
+			return "id_";
+		}
+
+		@Override
+		public String getTableName() {
+			return "JournalFeed";
+		}
+
+	}
 
 }

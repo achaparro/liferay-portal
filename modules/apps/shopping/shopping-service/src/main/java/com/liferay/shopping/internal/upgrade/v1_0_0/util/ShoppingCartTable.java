@@ -72,8 +72,8 @@ TABLE_COLUMNS_MAP.put("insure", Types.BOOLEAN);
 	public static final String TABLE_SQL_DROP = "drop table ShoppingCart";
 
 	public static final String[] TABLE_SQL_ADD_INDEXES = {
-		"create unique index IX_FC46FE16 on ShoppingCart (groupId, userId)",
-		"create index IX_54101CC8 on ShoppingCart (userId)"
+		"create unique index IX_FC46FE16 on ShoppingCart (groupId, userId);",
+		"create index IX_54101CC8 on ShoppingCart (userId);"
 	};
 
 }

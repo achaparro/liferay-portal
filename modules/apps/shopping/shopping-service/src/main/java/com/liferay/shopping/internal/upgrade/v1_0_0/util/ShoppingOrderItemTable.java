@@ -69,7 +69,7 @@ TABLE_COLUMNS_MAP.put("shippedDate", Types.TIMESTAMP);
 	public static final String TABLE_SQL_DROP = "drop table ShoppingOrderItem";
 
 	public static final String[] TABLE_SQL_ADD_INDEXES = {
-		"create index IX_B5F82C7A on ShoppingOrderItem (orderId)"
+		"create index IX_B5F82C7A on ShoppingOrderItem (orderId);"
 	};
 
 }

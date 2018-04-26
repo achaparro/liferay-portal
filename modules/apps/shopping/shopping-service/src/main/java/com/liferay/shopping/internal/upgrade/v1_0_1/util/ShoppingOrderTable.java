@@ -192,9 +192,9 @@ TABLE_COLUMNS_MAP.put("sendShippingEmail", Types.BOOLEAN);
 	public static final String TABLE_SQL_DROP = "drop table ShoppingOrder";
 
 	public static final String[] TABLE_SQL_ADD_INDEXES = {
-		"create index IX_119B5630 on ShoppingOrder (groupId, userId, ppPaymentStatus[$COLUMN_LENGTH:75$])",
-		"create unique index IX_D7D6E87A on ShoppingOrder (number_[$COLUMN_LENGTH:75$])",
-		"create index IX_F474FD89 on ShoppingOrder (ppTxnId[$COLUMN_LENGTH:75$])"
+		"create index IX_119B5630 on ShoppingOrder (groupId, userId, ppPaymentStatus[$COLUMN_LENGTH:75$]);",
+		"create unique index IX_D7D6E87A on ShoppingOrder (number_[$COLUMN_LENGTH:75$]);",
+		"create index IX_F474FD89 on ShoppingOrder (ppTxnId[$COLUMN_LENGTH:75$]);"
 	};
 
 }

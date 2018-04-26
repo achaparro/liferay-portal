@@ -12,16 +12,15 @@
  * details.
  */
 
-package com.liferay.journal.internal.verify;
+package com.liferay.journal.internal.upgrade.v1_1_2;
 
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
 import com.liferay.journal.configuration.JournalServiceConfiguration;
-import com.liferay.journal.internal.verify.model.JournalArticleResourceVerifiableModel;
-import com.liferay.journal.internal.verify.model.JournalFeedVerifiableModel;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleConstants;
+import com.liferay.journal.model.JournalArticleResource;
 import com.liferay.journal.model.JournalContentSearch;
 import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalArticleLocalService;
@@ -34,23 +33,27 @@ import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.SystemEvent;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.SystemEventLocalService;
+import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringBundler;
+import com.liferay.portal.kernel.verify.model.VerifiableUUIDModel;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.Node;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.portal.verify.VerifyLayout;
-import com.liferay.portal.verify.VerifyProcess;
 import com.liferay.portal.verify.VerifyUUID;
 
 import java.sql.PreparedStatement;
@@ -61,22 +64,34 @@ import java.util.List;
 
 import javax.portlet.PortletPreferences;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 /**
  * @author Alexander Chow
  * @author Shinn Lok
  */
-@Component(
-	immediate = true,
-	property = "verify.process.name=com.liferay.journal.service",
-	service = {JournalServiceVerifyProcess.class, VerifyProcess.class}
-)
-public class JournalServiceVerifyProcess extends VerifyLayout {
+public class UpgradeJournalServiceVerify extends UpgradeProcess {
+
+	public UpgradeJournalServiceVerify(
+		AssetEntryLocalService assetEntryLocalService,
+		JournalArticleLocalService journalArticleLocalService,
+		JournalArticleResourceLocalService journalArticleResourceLocalService,
+		JournalContentSearchLocalService journalContentSearchLocalService,
+		JournalFolderLocalService journalFolderLocalService, Portal portal,
+		ResourceLocalService resourceLocalService,
+		SystemEventLocalService systemEventLocalService) {
+
+		_assetEntryLocalService = assetEntryLocalService;
+		_journalArticleLocalService = journalArticleLocalService;
+		_journalArticleResourceLocalService =
+			journalArticleResourceLocalService;
+		_journalContentSearchLocalService = journalContentSearchLocalService;
+		_journalFolderLocalService = journalFolderLocalService;
+		_portal = portal;
+		_resourceLocalService = resourceLocalService;
+		_systemEventLocalService = systemEventLocalService;
+	}
 
 	@Override
-	protected void doVerify() throws Exception {
+	protected void doUpgrade() throws Exception {
 		verifyArticleAssets();
 		verifyArticleContents();
 		verifyArticleExpirationDate();
@@ -87,62 +102,7 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		verifyPermissions();
 		verifyUUIDModels();
 
-		VerifyProcess verifyProcess =
-			new JournalServiceSystemEventVerifyProcess(
-				_journalArticleLocalService,
-				_journalArticleResourceLocalService, _systemEventLocalService);
-
-		verifyProcess.verify();
-	}
-
-	@Reference(unbind = "-")
-	protected void setAssetEntryLocalService(
-		AssetEntryLocalService assetEntryLocalService) {
-
-		_assetEntryLocalService = assetEntryLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setJournalArticleLocalService(
-		JournalArticleLocalService journalArticleLocalService) {
-
-		_journalArticleLocalService = journalArticleLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setJournalArticleResourceLocalService(
-		JournalArticleResourceLocalService journalArticleResourceLocalService) {
-
-		_journalArticleResourceLocalService =
-			journalArticleResourceLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setJournalContentSearchLocalService(
-		JournalContentSearchLocalService journalContentSearchLocalService) {
-
-		_journalContentSearchLocalService = journalContentSearchLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setJournalFolderLocalService(
-		JournalFolderLocalService journalFolderLocalService) {
-
-		_journalFolderLocalService = journalFolderLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setResourceLocalService(
-		ResourceLocalService resourceLocalService) {
-
-		_resourceLocalService = resourceLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setSystemEventLocalService(
-		SystemEventLocalService systemEventLocalService) {
-
-		_systemEventLocalService = systemEventLocalService;
+		verifyJournalArticleDeleteSystemEvents();
 	}
 
 	protected void updateContentSearch(long groupId, String portletId)
@@ -460,7 +420,14 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 
 	protected void verifyArticleLayouts() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			verifyUuid("JournalArticle");
+			runSQL(
+				StringBundler.concat(
+					"update JournalArticle set layoutUuid = (select distinct ",
+					"sourcePrototypeLayoutUuid from Layout where Layout.uuid_ ",
+					"= JournalArticle.layoutUuid) where exists (select 1 from ",
+					"Layout where Layout.uuid_ = JournalArticle.layoutUuid ",
+					"and Layout.uuid_ != Layout.sourcePrototypeLayoutUuid and ",
+					"Layout.sourcePrototypeLayoutUuid != '')"));
 		}
 	}
 
@@ -566,6 +533,72 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 		}
 	}
 
+	protected void verifyJournalArticleDeleteSystemEvents() throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			DynamicQuery dynamicQuery = _systemEventLocalService.dynamicQuery();
+
+			Property classNameIdProperty = PropertyFactoryUtil.forName(
+				"classNameId");
+
+			dynamicQuery.add(
+				classNameIdProperty.eq(
+					_portal.getClassNameId(JournalArticle.class)));
+
+			Property typeProperty = PropertyFactoryUtil.forName("type");
+
+			dynamicQuery.add(typeProperty.eq(SystemEventConstants.TYPE_DELETE));
+
+			List<SystemEvent> systemEvents =
+				_systemEventLocalService.dynamicQuery(dynamicQuery);
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					StringBundler.concat(
+						"Processing ", String.valueOf(systemEvents.size()),
+						" delete system events for journal articles"));
+			}
+
+			for (SystemEvent systemEvent : systemEvents) {
+				JSONObject extraDataJSONObject =
+					JSONFactoryUtil.createJSONObject(
+						systemEvent.getExtraData());
+
+				if (extraDataJSONObject.has("uuid") ||
+					!extraDataJSONObject.has("version")) {
+
+					continue;
+				}
+
+				JournalArticleResource journalArticleResource =
+					_journalArticleResourceLocalService.
+						fetchJournalArticleResourceByUuidAndGroupId(
+							systemEvent.getClassUuid(),
+							systemEvent.getGroupId());
+
+				if (journalArticleResource == null) {
+					continue;
+				}
+
+				JournalArticle journalArticle =
+					_journalArticleLocalService.fetchArticle(
+						systemEvent.getGroupId(),
+						journalArticleResource.getArticleId(),
+						extraDataJSONObject.getDouble("version"));
+
+				if ((journalArticle == null) || journalArticle.isInTrash()) {
+					continue;
+				}
+
+				_systemEventLocalService.deleteSystemEvent(systemEvent);
+			}
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Delete system events verified for journal articles");
+			}
+		}
+	}
+
 	protected void verifyPermissions() throws PortalException {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			List<JournalArticle> articles =
@@ -588,19 +621,47 @@ public class JournalServiceVerifyProcess extends VerifyLayout {
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		JournalServiceVerifyProcess.class);
+		UpgradeJournalServiceVerify.class);
 
-	private AssetEntryLocalService _assetEntryLocalService;
-	private JournalArticleLocalService _journalArticleLocalService;
-	private JournalArticleResourceLocalService
+	private final AssetEntryLocalService _assetEntryLocalService;
+	private final JournalArticleLocalService _journalArticleLocalService;
+	private final JournalArticleResourceLocalService
 		_journalArticleResourceLocalService;
-	private JournalContentSearchLocalService _journalContentSearchLocalService;
-	private JournalFolderLocalService _journalFolderLocalService;
+	private final JournalContentSearchLocalService
+		_journalContentSearchLocalService;
+	private final JournalFolderLocalService _journalFolderLocalService;
+	private final Portal _portal;
+	private final ResourceLocalService _resourceLocalService;
+	private final SystemEventLocalService _systemEventLocalService;
 
-	@Reference
-	private Portal _portal;
+	private static class JournalArticleResourceVerifiableModel
+		implements VerifiableUUIDModel {
 
-	private ResourceLocalService _resourceLocalService;
-	private SystemEventLocalService _systemEventLocalService;
+		@Override
+		public String getPrimaryKeyColumnName() {
+			return "resourcePrimKey";
+		}
+
+		@Override
+		public String getTableName() {
+			return "JournalArticleResource";
+		}
+
+	}
+
+	private static class JournalFeedVerifiableModel
+		implements VerifiableUUIDModel {
+
+		@Override
+		public String getPrimaryKeyColumnName() {
+			return "id_";
+		}
+
+		@Override
+		public String getTableName() {
+			return "JournalFeed";
+		}
+
+	}
 
 }

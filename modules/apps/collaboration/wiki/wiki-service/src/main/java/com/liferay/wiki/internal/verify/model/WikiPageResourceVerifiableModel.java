@@ -18,7 +18,9 @@ import com.liferay.portal.kernel.verify.model.VerifiableUUIDModel;
 
 /**
  * @author Miguel Pastor
+ * @deprecated As of 2.0.0, with no direct replacement
  */
+@Deprecated
 public class WikiPageResourceVerifiableModel implements VerifiableUUIDModel {
 
 	@Override

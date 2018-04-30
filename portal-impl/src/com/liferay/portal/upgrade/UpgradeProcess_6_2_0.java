@@ -125,15 +125,13 @@ public class UpgradeProcess_6_2_0 extends Pre7UpgradeProcess {
 				new JournalArticleResourceVerifiableModel(),
 				new LayoutPrototypeVerifiableModel(),
 				new LayoutSetPrototypeVerifiableModel(),
+				new MBBanVerifiableModel(), new MBDiscussionVerifiableModel(),
+				new MBThreadFlagVerifiableModel(),
+				new MBThreadVerifiableModel(), new PollsVoteVerifiableModel(),
 				new OrganizationVerifiableAuditedModel(),
 				new PasswordPolicyVerifiableModel(), new PhoneVerifiableModel(),
 				new RoleVerifiableModel(), new UserGroupVerifiableModel(),
-				new WebSiteVerifiableModel(),
-				new PollsVoteVerifiableModel(),
-				new MBBanVerifiableModel(),
-				new MBDiscussionVerifiableModel(),
-				new MBThreadFlagVerifiableModel(),
-				new MBThreadVerifiableModel());
+				new WebSiteVerifiableModel());
 		}
 	}
 

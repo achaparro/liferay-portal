@@ -55,7 +55,7 @@ import com.liferay.portal.verify.model.JournalArticleResourceVerifiableModel;
 import com.liferay.portal.verify.model.LayoutPrototypeVerifiableModel;
 import com.liferay.portal.verify.model.LayoutSetPrototypeVerifiableModel;
 import com.liferay.portal.verify.model.MBBan62VerifiableModel;
-import com.liferay.portal.verify.model.MBDiscussion62VerifiableModel;
+import com.liferay.portal.verify.model.MBDiscussionVerifiableModel;
 import com.liferay.portal.verify.model.MBThread62VerifiableModel;
 import com.liferay.portal.verify.model.MBThreadFlag62VerifiableModel;
 import com.liferay.portal.verify.model.OrganizationVerifiableAuditedModel;
@@ -126,7 +126,7 @@ public class UpgradeProcess_6_2_0 extends Pre7UpgradeProcess {
 				new LayoutPrototypeVerifiableModel(),
 				new LayoutSetPrototypeVerifiableModel(),
 				new MBBan62VerifiableModel(),
-				new MBDiscussion62VerifiableModel(),
+				new MBDiscussionVerifiableModel(),
 				new MBThreadFlag62VerifiableModel(),
 				new MBThread62VerifiableModel(),
 				new PollsVote62VerifiableModel(),

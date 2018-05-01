@@ -90,7 +90,6 @@ public class UpgradeJournalServiceVerify extends UpgradeProcess {
 		verifyArticleAssets();
 		verifyArticleContents();
 		verifyArticleExpirationDate();
-		verifyArticleLayouts();
 		verifyArticleStructures();
 		verifyContentSearch();
 		verifyFolderAssets();
@@ -431,19 +430,6 @@ public class UpgradeJournalServiceVerify extends UpgradeProcess {
 						groupId, articleId, expirationDate, status);
 				}
 			}
-		}
-	}
-
-	protected void verifyArticleLayouts() throws Exception {
-		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			runSQL(
-				StringBundler.concat(
-					"update JournalArticle set layoutUuid = (select distinct ",
-					"sourcePrototypeLayoutUuid from Layout where Layout.uuid_ ",
-					"= JournalArticle.layoutUuid) where exists (select 1 from ",
-					"Layout where Layout.uuid_ = JournalArticle.layoutUuid ",
-					"and Layout.uuid_ != Layout.sourcePrototypeLayoutUuid and ",
-					"Layout.sourcePrototypeLayoutUuid != '')"));
 		}
 	}
 

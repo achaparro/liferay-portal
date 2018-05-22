@@ -37,7 +37,7 @@ public class SocialBookmarksTagUtil {
 			HtmlUtil.escapeJS(postURL), HtmlUtil.escapeJS(url));
 	}
 
-	public static List<DropdownItem> getDropdownItemLists(
+	public static List<DropdownItem> getDropdownItems(
 		Locale locale, String[] types, String className, long classPK,
 		String title, String url) {
 

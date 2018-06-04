@@ -44,8 +44,13 @@ import com.liferay.portal.kernel.xml.XPath;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Eudaldo Alonso
@@ -125,57 +130,43 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 	protected void copyJournalArticleImagesToJournalRepository()
 		throws Exception {
 
+		StringBundler sb = new StringBundler(6);
+
+		sb.append("select JournalArticleImage.articleImageId, ");
+		sb.append("JournalArticleImage.groupId, ");
+		sb.append("JournalArticle.resourcePrimKey, JournalArticle.userId ");
+		sb.append("from JournalArticleImage left join JournalArticle on ");
+		sb.append("(JournalArticle.groupId=JournalArticleImage.groupId) and ");
+		sb.append("(JournalArticle.articleId=JournalArticleImage.articleId)");
+
+		List<SaveImageFileEntryCallable> saveImageFileEntryCallables =
+			new ArrayList<>();
+
 		try (LoggingTimer loggingTimer = new LoggingTimer();
-			PreparedStatement ps1 = connection.prepareStatement(
-				"select articleId, articleImageId, groupId from " +
-					"JournalArticleImage");
-			ResultSet rs1 = ps1.executeQuery()) {
+			Statement statement = connection.createStatement();
+			ResultSet rs1 = statement.executeQuery(sb.toString())) {
 
 			while (rs1.next()) {
-				String articleId = rs1.getString(1);
-				long articleImageId = rs1.getLong(2);
-				long groupId = rs1.getLong(3);
+				long articleImageId = rs1.getLong(1);
+				long groupId = rs1.getLong(2);
+				long resourcePrimKey = rs1.getLong(3);
+				long userId = rs1.getLong(4);
 
-				try (PreparedStatement ps2 = connection.prepareStatement(
-						"select resourcePrimKey, userId from JournalArticle " +
-							"where groupId = ? and articleId = ?")) {
+				long folderId = getFolderId(userId, groupId, resourcePrimKey);
 
-					ps2.setLong(1, groupId);
-					ps2.setString(2, articleId);
+				SaveImageFileEntryCallable saveImageFileEntryCallable =
+					new SaveImageFileEntryCallable(
+						articleImageId, folderId, groupId, resourcePrimKey,
+						userId);
 
-					ResultSet rs2 = ps2.executeQuery();
-
-					if (!rs2.next()) {
-						continue;
-					}
-
-					long resourcePrimKey = rs2.getLong(1);
-					long userId = rs2.getLong(2);
-
-					long folderId = getFolderId(
-						userId, groupId, resourcePrimKey);
-
-					FileEntry fileEntry =
-						PortletFileRepositoryUtil.fetchPortletFileEntry(
-							groupId, folderId, String.valueOf(articleImageId));
-
-					if (fileEntry != null) {
-						continue;
-					}
-
-					Image image = _imageLocalService.getImage(articleImageId);
-
-					if (image == null) {
-						continue;
-					}
-
-					PortletFileRepositoryUtil.addPortletFileEntry(
-						groupId, userId, JournalArticle.class.getName(),
-						resourcePrimKey, JournalConstants.SERVICE_NAME,
-						folderId, image.getTextObj(),
-						String.valueOf(articleImageId), image.getType(), false);
-				}
+				saveImageFileEntryCallables.add(saveImageFileEntryCallable);
 			}
+
+			ExecutorService executorService = Executors.newWorkStealingPool();
+
+			executorService.invokeAll(saveImageFileEntryCallables);
+
+			executorService.shutdown();
 		}
 	}
 
@@ -278,5 +269,51 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 		UpgradeImageTypeContent.class);
 
 	private final ImageLocalService _imageLocalService;
+
+	private class SaveImageFileEntryCallable implements Callable<Void> {
+
+		public SaveImageFileEntryCallable(
+			long articleImageId, long folderId, long groupId,
+			long resourcePrimaryKey, long userId) {
+
+			_articleImageId = articleImageId;
+			_folderId = folderId;
+			_groupId = groupId;
+			_resourcePrimaryKey = resourcePrimaryKey;
+			_userId = userId;
+		}
+
+		@Override
+		public Void call() throws Exception {
+			FileEntry fileEntry =
+				PortletFileRepositoryUtil.fetchPortletFileEntry(
+					_groupId, _folderId, String.valueOf(_articleImageId));
+
+			if (fileEntry != null) {
+				return null;
+			}
+
+			Image image = _imageLocalService.getImage(_articleImageId);
+
+			if (image == null) {
+				return null;
+			}
+
+			PortletFileRepositoryUtil.addPortletFileEntry(
+				_groupId, _userId, JournalArticle.class.getName(),
+				_resourcePrimaryKey, JournalConstants.SERVICE_NAME, _folderId,
+				image.getTextObj(), String.valueOf(_articleImageId),
+				image.getType(), false);
+
+			return null;
+		}
+
+		private final long _articleImageId;
+		private final long _folderId;
+		private final long _groupId;
+		private final long _resourcePrimaryKey;
+		private final long _userId;
+
+	}
 
 }

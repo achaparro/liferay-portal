@@ -103,7 +103,7 @@ public class UpgradeMySQL extends UpgradeProcess {
 		try (ResultSet rs = databaseMetaData.getColumns(
 				catalog, schemaPattern, tableName, null)) {
 
-			String modifyClause = null;
+			String modifyClause = StringPool.BLANK;
 
 			while (rs.next()) {
 				if (Types.TIMESTAMP != rs.getInt("DATA_TYPE")) {
@@ -119,7 +119,7 @@ public class UpgradeMySQL extends UpgradeProcess {
 					continue;
 				}
 
-				if (modifyClause != null) {
+				if (!modifyClause.equals(StringPool.BLANK)) {
 					modifyClause += StringPool.COMMA;
 				}
 
@@ -132,15 +132,15 @@ public class UpgradeMySQL extends UpgradeProcess {
 				return;
 			}
 
-			statement.executeUpdate(
-				StringBundler.concat("ALTER TABLE ", tableName, modifyClause));
-
 			if (_log.isInfoEnabled()) {
 				_log.info(
 					StringBundler.concat(
 						"Updating columns for table ", tableName,
 						" to datetime(6)"));
 			}
+
+			statement.executeUpdate(
+				StringBundler.concat("ALTER TABLE ", tableName, modifyClause));
 		}
 	}
 

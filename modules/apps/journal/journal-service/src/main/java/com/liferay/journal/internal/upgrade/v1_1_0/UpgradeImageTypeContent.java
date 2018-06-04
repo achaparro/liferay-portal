@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -51,6 +52,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * @author Eudaldo Alonso
@@ -138,7 +140,7 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 		sb.append("from JournalArticleImage inner join JournalArticle on ");
 		sb.append("(JournalArticle.groupId=JournalArticleImage.groupId and ");
 		sb.append("JournalArticle.articleId=JournalArticleImage.articleId ");
-		sb.append(" and JournalArticle.version=JournalArticleImage.version)");
+		sb.append("and JournalArticle.version=JournalArticleImage.version)");
 
 		List<SaveImageFileEntryCallable> saveImageFileEntryCallables =
 			new ArrayList<>();
@@ -165,9 +167,18 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 
 			ExecutorService executorService = Executors.newWorkStealingPool();
 
-			executorService.invokeAll(saveImageFileEntryCallables);
+			List<Future<Boolean>> results = executorService.invokeAll(
+				saveImageFileEntryCallables);
 
 			executorService.shutdown();
+
+			for (Future<Boolean> result : results) {
+				if (result.equals(false)) {
+					throw new UpgradeException(
+						"Unable to copy journal article images to the file " +
+							"repository");
+				}
+			}
 		}
 	}
 
@@ -271,7 +282,7 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 
 	private final ImageLocalService _imageLocalService;
 
-	private class SaveImageFileEntryCallable implements Callable<Void> {
+	private class SaveImageFileEntryCallable implements Callable<Boolean> {
 
 		public SaveImageFileEntryCallable(
 			long articleImageId, long folderId, long groupId,
@@ -285,7 +296,7 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 		}
 
 		@Override
-		public Void call() throws Exception {
+		public Boolean call() throws Exception {
 			FileEntry fileEntry =
 				PortletFileRepositoryUtil.fetchPortletFileEntry(
 					_groupId, _folderId, String.valueOf(_articleImageId));
@@ -294,17 +305,27 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 				return null;
 			}
 
-			Image image = _imageLocalService.getImage(_articleImageId);
+			try {
+				Image image = _imageLocalService.getImage(_articleImageId);
 
-			if (image == null) {
-				return null;
+				if (image == null) {
+					return null;
+				}
+
+				PortletFileRepositoryUtil.addPortletFileEntry(
+					_groupId, _userId, JournalArticle.class.getName(),
+					_resourcePrimaryKey, JournalConstants.SERVICE_NAME,
+					_folderId, image.getTextObj(),
+					String.valueOf(_articleImageId), image.getType(), false);
 			}
+			catch (Exception e) {
+				_log.error(
+					"Unable to add the journal article image " +
+						_articleImageId + " into the file repository",
+					e);
 
-			PortletFileRepositoryUtil.addPortletFileEntry(
-				_groupId, _userId, JournalArticle.class.getName(),
-				_resourcePrimaryKey, JournalConstants.SERVICE_NAME, _folderId,
-				image.getTextObj(), String.valueOf(_articleImageId),
-				image.getType(), false);
+				return false;
+			}
 
 			return null;
 		}

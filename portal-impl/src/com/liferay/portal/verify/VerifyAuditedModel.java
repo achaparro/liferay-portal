@@ -234,32 +234,31 @@ public class VerifyAuditedModel extends VerifyProcess {
 				verifiableAuditedModel.getRelatedModelName();
 
 			if (relatedModelName != null) {
-				_bulkVerifyFromRelatedModel(
-					con, verifiableAuditedModel, "userId");
+				_verifyFromRelatedModel(con, verifiableAuditedModel, "userId");
 
 				if (verifiableAuditedModel.isUpdateDates()) {
-					_bulkVerifyFromRelatedModel(
+					_verifyFromRelatedModel(
 						con, verifiableAuditedModel, "createDate");
 
-					_bulkVerifyFromRelatedModel(
+					_verifyFromRelatedModel(
 						con, verifiableAuditedModel, "modifiedDate");
 				}
 
 				DBInspector dbInspector = new DBInspector(con);
 
 				if (dbInspector.hasColumn(relatedModelName, "userName")) {
-					_bulkVerifyFromRelatedModel(
+					_verifyFromRelatedModel(
 						con, verifiableAuditedModel, "userName");
 				}
 			}
 
-			_bulkVerifyRegularUsers(con, verifiableAuditedModel);
+			_verifyUserIdRegularUsers(con, verifiableAuditedModel);
 
-			_bulkVerifyUnresolvedUsers(con, verifiableAuditedModel);
+			_verifyUnresolvedUsers(con, verifiableAuditedModel);
 		}
 	}
 
-	private void _bulkVerifyFromRelatedModel(
+	private void _verifyFromRelatedModel(
 			Connection con, VerifiableAuditedModel verifiableAuditedModel,
 			String columnName)
 		throws Exception {
@@ -294,47 +293,7 @@ public class VerifyAuditedModel extends VerifyProcess {
 		runSQL(con, dbTypeToSQLMap);
 	}
 
-	private void _bulkVerifyRegularUsers(
-			Connection con, VerifiableAuditedModel verifiableAuditedModel)
-		throws Exception {
-
-		String selectQuery = StringBundler.concat(
-			"select distinct userId from ",
-			verifiableAuditedModel.getTableName(), " where userName is null");
-
-		String updateQuery = StringBundler.concat(
-			"update ", verifiableAuditedModel.getTableName(),
-			" set userName = ? where userId = ?");
-
-		try (PreparedStatement ps1 = con.prepareStatement(selectQuery);
-			ResultSet rs = ps1.executeQuery();
-			PreparedStatement ps2 = AutoBatchPreparedStatementUtil.autoBatch(
-				con.prepareStatement(updateQuery))) {
-
-			Map<Long, String> fullNames = new HashMap<>();
-
-			while (rs.next()) {
-				long userId = rs.getLong("userId");
-
-				String fullName = getUserName(con, userId);
-
-				if (Validator.isNotNull(fullName)) {
-					fullNames.put(userId, fullName);
-				}
-			}
-
-			for (Map.Entry<Long, String> entry : fullNames.entrySet()) {
-				ps2.setString(1, entry.getValue());
-				ps2.setLong(2, entry.getKey());
-
-				ps2.addBatch();
-			}
-
-			ps2.executeBatch();
-		}
-	}
-
-	private void _bulkVerifyUnresolvedUsers(
+	private void _verifyUnresolvedUsers(
 			Connection con, VerifiableAuditedModel verifiableAuditedModel)
 		throws Exception {
 
@@ -353,8 +312,8 @@ public class VerifyAuditedModel extends VerifyProcess {
 		}
 
 		String userNameSQL = StringBundler.concat(
-			"update ", verifiableAuditedModel.getTableName(),
-			" set", modifyUserId, " userName = ? where userName is null");
+			"update ", verifiableAuditedModel.getTableName(), " set",
+			modifyUserId, " userName = ? where userName is null");
 
 		try (PreparedStatement ps1 = AutoBatchPreparedStatementUtil.autoBatch(
 				con.prepareStatement(createDateSQL));
@@ -365,8 +324,8 @@ public class VerifyAuditedModel extends VerifyProcess {
 
 			if (verifiableAuditedModel.isAnonymousUserAllowed()) {
 				if (verifiableAuditedModel.isUpdateDates()) {
-					Timestamp auditDate =
-						new Timestamp(System.currentTimeMillis());
+					Timestamp auditDate = new Timestamp(
+						System.currentTimeMillis());
 
 					ps1.setTimestamp(1, auditDate);
 
@@ -413,6 +372,46 @@ public class VerifyAuditedModel extends VerifyProcess {
 			ps1.executeBatch();
 			ps2.executeBatch();
 			ps3.executeBatch();
+		}
+	}
+
+	private void _verifyUserIdRegularUsers(
+			Connection con, VerifiableAuditedModel verifiableAuditedModel)
+		throws Exception {
+
+		String selectQuery = StringBundler.concat(
+			"select distinct userId from ",
+			verifiableAuditedModel.getTableName(), " where userName is null");
+
+		String updateQuery = StringBundler.concat(
+			"update ", verifiableAuditedModel.getTableName(),
+			" set userName = ? where userId = ?");
+
+		try (PreparedStatement ps1 = con.prepareStatement(selectQuery);
+			ResultSet rs = ps1.executeQuery();
+			PreparedStatement ps2 = AutoBatchPreparedStatementUtil.autoBatch(
+				con.prepareStatement(updateQuery))) {
+
+			Map<Long, String> fullNames = new HashMap<>();
+
+			while (rs.next()) {
+				long userId = rs.getLong("userId");
+
+				String fullName = getUserName(con, userId);
+
+				if (Validator.isNotNull(fullName)) {
+					fullNames.put(userId, fullName);
+				}
+			}
+
+			for (Map.Entry<Long, String> entry : fullNames.entrySet()) {
+				ps2.setString(1, entry.getValue());
+				ps2.setLong(2, entry.getKey());
+
+				ps2.addBatch();
+			}
+
+			ps2.executeBatch();
 		}
 	}
 

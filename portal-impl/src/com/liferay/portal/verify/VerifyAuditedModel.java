@@ -358,15 +358,18 @@ public class VerifyAuditedModel extends VerifyProcess {
 				con.prepareStatement(userNameSQL))) {
 
 			if (verifiableAuditedModel.isAnonymousUserAllowed()) {
-				Timestamp auditDate = new Timestamp(System.currentTimeMillis());
+				if (verifiableAuditedModel.isUpdateDates()) {
+					Timestamp auditDate =
+						new Timestamp(System.currentTimeMillis());
 
-				ps1.setTimestamp(1, auditDate);
+					ps1.setTimestamp(1, auditDate);
 
-				ps1.addBatch();
+					ps1.addBatch();
 
-				ps2.setTimestamp(1, auditDate);
+					ps2.setTimestamp(1, auditDate);
 
-				ps2.addBatch();
+					ps2.addBatch();
+				}
 
 				ps3.setString(1, "Anonymous");
 

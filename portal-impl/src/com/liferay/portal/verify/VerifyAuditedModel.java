@@ -346,9 +346,15 @@ public class VerifyAuditedModel extends VerifyProcess {
 			"update ", verifiableAuditedModel.getTableName(),
 			" set modifiedDate = ? where modifiedDate is null");
 
+		String modifyUserId = StringPool.BLANK;
+
+		if (!verifiableAuditedModel.isAnonymousUserAllowed()) {
+			modifyUserId = " userId = ?,";
+		}
+
 		String userNameSQL = StringBundler.concat(
 			"update ", verifiableAuditedModel.getTableName(),
-			" set userName = ? where userName is null");
+			" set", modifyUserId, " userName = ? where userName is null");
 
 		try (PreparedStatement ps1 = AutoBatchPreparedStatementUtil.autoBatch(
 				con.prepareStatement(createDateSQL));
@@ -394,9 +400,11 @@ public class VerifyAuditedModel extends VerifyProcess {
 						ps2.addBatch();
 					}
 
+					long userId = (Long)defaultUserArray[1];
 					String defaultUserFullName = (String)defaultUserArray[2];
 
-					ps3.setString(1, defaultUserFullName);
+					ps3.setLong(1, userId);
+					ps3.setString(2, defaultUserFullName);
 
 					ps3.addBatch();
 				}

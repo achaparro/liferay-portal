@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 /**
  * @author Hugo Huijser
  */
-public class JavaUpgradeVersionCheck extends BaseJavaTermCheck {
+public abstract class BaseUpgradeVersionCheck extends BaseJavaTermCheck {
 
 	@Override
 	public boolean isPortalCheck() {
@@ -53,7 +53,7 @@ public class JavaUpgradeVersionCheck extends BaseJavaTermCheck {
 		List<String> implementedClassNames =
 			javaClass.getImplementedClassNames();
 
-		if (!implementedClassNames.contains("UpgradeStepRegistrator")) {
+		if (!implementedClassNames.contains(getImplementedClassName())) {
 			return javaClass.getContent();
 		}
 
@@ -64,7 +64,7 @@ public class JavaUpgradeVersionCheck extends BaseJavaTermCheck {
 
 			String name = childJavaTerm.getName();
 
-			if (name.equals("register")) {
+			if (name.equals(getMethodName())) {
 				_checkLatestUpgradeVersion(
 					fileName, absolutePath, childJavaTerm,
 					javaClass.getImports(), javaClass.getPackageName());
@@ -79,6 +79,14 @@ public class JavaUpgradeVersionCheck extends BaseJavaTermCheck {
 		return new String[] {JAVA_CLASS};
 	}
 
+	protected abstract String getImplementedClassName();
+
+	protected abstract String getMethodName();
+
+	protected abstract String getSQLFileContent(
+			String absolutePath, String className)
+		throws Exception;
+
 	private String _adjustIncrementTypeForJava(
 			String absolutePath, String content, String className,
 			String upgradePackageName, String incrementType)
@@ -91,7 +99,7 @@ public class JavaUpgradeVersionCheck extends BaseJavaTermCheck {
 		if ((className != null) &&
 			content.contains("dependencies/update.sql")) {
 
-			String sqlContent = _getSQLFileContent(absolutePath, className);
+			String sqlContent = getSQLFileContent(absolutePath, className);
 
 			incrementType = _adjustIncrementTypeForSQL(
 				sqlContent, incrementType);
@@ -330,32 +338,6 @@ public class JavaUpgradeVersionCheck extends BaseJavaTermCheck {
 			absolutePath.substring(0, x + 1),
 			StringUtil.replace(className, CharPool.PERIOD, CharPool.SLASH),
 			".java");
-
-		File file = new File(fileLocation);
-
-		if (file.exists()) {
-			return FileUtil.read(file);
-		}
-
-		return null;
-	}
-
-	private String _getSQLFileContent(String absolutePath, String className)
-		throws Exception {
-
-		String fileLocation = StringUtil.replaceLast(
-			absolutePath, "/java/", "/resources/");
-
-		int x = fileLocation.lastIndexOf("/com/liferay/");
-
-		int y = className.lastIndexOf(CharPool.PERIOD);
-
-		String packageName = className.substring(0, y);
-
-		fileLocation = StringBundler.concat(
-			fileLocation.substring(0, x + 1),
-			StringUtil.replace(packageName, CharPool.PERIOD, CharPool.SLASH),
-			"/dependencies/update.sql");
 
 		File file = new File(fileLocation);
 

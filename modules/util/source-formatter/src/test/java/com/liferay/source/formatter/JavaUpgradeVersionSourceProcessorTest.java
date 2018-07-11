@@ -44,12 +44,10 @@ public class JavaUpgradeVersionSourceProcessorTest
 		test("MajorUpgradeByDropTable.testjava", "2.0.0");
 	}
 
-	@Test
 	public void testMinorUpgradeByAlterTableAddColumn() throws Exception {
 		test("MinorUpgradeByAlterTableAddColumn.testjava", "1.1.0");
 	}
 
-	@Test
 	public void testMinorUpgradeByAlterTableAddColumnClause() throws Exception {
 		test("MinorUpgradeByAlterTableAddColumnClause.testjava", "1.1.0");
 	}

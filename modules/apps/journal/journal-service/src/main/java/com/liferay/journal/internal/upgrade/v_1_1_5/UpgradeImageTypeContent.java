@@ -17,6 +17,7 @@ package com.liferay.journal.internal.upgrade.v_1_1_5;
 import com.liferay.document.library.kernel.exception.NoSuchFolderException;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.journal.constants.JournalConstants;
+import com.liferay.journal.internal.upgrade.util.JournalArticleImageUpgradeUtil;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
@@ -60,8 +61,12 @@ import java.util.concurrent.Future;
  */
 public class UpgradeImageTypeContent extends UpgradeProcess {
 
-	public UpgradeImageTypeContent(ImageLocalService imageLocalService) {
+	public UpgradeImageTypeContent(
+		ImageLocalService imageLocalService,
+		JournalArticleImageUpgradeUtil journalArticleImageUpgradeUtil) {
+
 		_imageLocalService = imageLocalService;
+		_journalArticleImageUpgradeUtil = journalArticleImageUpgradeUtil;
 	}
 
 	protected String convertTypeImageElements(
@@ -89,9 +94,7 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 
 				String id = dynamicContentEl.attributeValue("id");
 
-				if ((fileEntryId <= 0) && Validator.isNull(id)) {
-					continue;
-				}
+				String data = String.valueOf(dynamicContentEl.getData());
 
 				FileEntry fileEntry = null;
 
@@ -99,8 +102,13 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 					fileEntry = _getFileEntryById(
 						userId, groupId, resourcePrimKey, id);
 				}
-				else {
+				else if (fileEntryId > 0) {
 					fileEntry = _getFileEntryByFileEntryId(fileEntryId);
+				}
+				else {
+					fileEntry =
+						_journalArticleImageUpgradeUtil.getFileEntryFromURL(
+							data);
 				}
 
 				if (fileEntry == null) {
@@ -318,6 +326,8 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 		UpgradeImageTypeContent.class);
 
 	private final ImageLocalService _imageLocalService;
+	private final JournalArticleImageUpgradeUtil
+		_journalArticleImageUpgradeUtil;
 
 	private class SaveImageFileEntryCallable implements Callable<Boolean> {
 

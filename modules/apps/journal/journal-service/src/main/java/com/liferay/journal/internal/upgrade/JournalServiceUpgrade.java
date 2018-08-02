@@ -167,7 +167,9 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register("1.1.3", "1.1.4", new UpgradeUrlTitle());
 
 		registry.register(
-			"1.1.4", "1.1.5", new UpgradeImageTypeContent(_imageLocalService));
+			"1.1.4", "1.1.5",
+			new UpgradeImageTypeContent(
+				_imageLocalService, _journalArticleImageUpgradeUtil));
 	}
 
 	protected void deleteTempImages() throws Exception {

@@ -84,14 +84,24 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 				"dynamic-content");
 
 			for (Element dynamicContentEl : dynamicContentEls) {
+				long fileEntryId = GetterUtil.getLong(
+					dynamicContentEl.attributeValue("fileEntryId"));
+
 				String id = dynamicContentEl.attributeValue("id");
 
-				if (Validator.isNull(id)) {
+				if ((fileEntryId <= 0) && Validator.isNull(id)) {
 					continue;
 				}
 
-				FileEntry fileEntry = _getFileEntryById(
-					userId, groupId, resourcePrimKey, id);
+				FileEntry fileEntry = null;
+
+				if (Validator.isNotNull(id)) {
+					fileEntry = _getFileEntryById(
+						userId, groupId, resourcePrimKey, id);
+				}
+				else {
+					fileEntry = _getFileEntryByFileEntryId(fileEntryId);
+				}
 
 				if (fileEntry == null) {
 					continue;
@@ -264,6 +274,20 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 				}
 			}
 		}
+	}
+
+	private FileEntry _getFileEntryByFileEntryId(long fileEntryId) {
+		FileEntry fileEntry = null;
+
+		try {
+			fileEntry = PortletFileRepositoryUtil.getPortletFileEntry(
+				fileEntryId);
+		}
+		catch (PortalException pe) {
+			_log.error("Unable to get file entry " + fileEntryId, pe);
+		}
+
+		return fileEntry;
 	}
 
 	private FileEntry _getFileEntryById(

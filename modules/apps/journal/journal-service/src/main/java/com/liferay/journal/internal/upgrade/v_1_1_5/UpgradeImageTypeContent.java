@@ -128,6 +128,12 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 				dynamicContentEl.clearContent();
 
 				dynamicContentEl.addCDATA(jsonObject.toString());
+
+				if (fileEntryId <= 0) {
+					dynamicContentEl.addAttribute(
+						"fileEntryId",
+						String.valueOf(fileEntry.getFileEntryId()));
+				}
 			}
 		}
 

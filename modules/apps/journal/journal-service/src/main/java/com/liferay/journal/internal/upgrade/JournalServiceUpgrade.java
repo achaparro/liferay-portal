@@ -40,13 +40,13 @@ import com.liferay.journal.internal.upgrade.v0_0_8.UpgradeArticleSystemEvents;
 import com.liferay.journal.internal.upgrade.v1_0_0.UpgradeJournalArticleImage;
 import com.liferay.journal.internal.upgrade.v1_0_1.UpgradeJournalContentSearch;
 import com.liferay.journal.internal.upgrade.v1_1_0.UpgradeDocumentLibraryTypeContent;
-import com.liferay.journal.internal.upgrade.v1_1_0.UpgradeImageTypeContent;
 import com.liferay.journal.internal.upgrade.v1_1_0.UpgradeJournalArticleLocalizedValues;
 import com.liferay.journal.internal.upgrade.v1_1_1.UpgradeFileUploadsConfiguration;
 import com.liferay.journal.internal.upgrade.v1_1_2.UpgradeCheckIntervalConfiguration;
 import com.liferay.journal.internal.upgrade.v1_1_3.UpgradeImageContent;
 import com.liferay.journal.internal.upgrade.v1_1_3.UpgradeResourcePermissions;
 import com.liferay.journal.internal.upgrade.v1_1_4.UpgradeUrlTitle;
+import com.liferay.journal.internal.upgrade.v_1_1_5.UpgradeImageTypeContent;
 import com.liferay.portal.configuration.upgrade.PrefsPropsToConfigurationUpgradeHelper;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -149,7 +149,6 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"1.0.2", "1.1.0",
 			new UpgradeDocumentLibraryTypeContent(_dlAppLocalService),
-			new UpgradeImageTypeContent(_imageLocalService),
 			new UpgradeJournalArticleLocalizedValues());
 
 		registry.register(
@@ -166,6 +165,9 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 			new UpgradeResourcePermissions(_resourceActions));
 
 		registry.register("1.1.3", "1.1.4", new UpgradeUrlTitle());
+
+		registry.register(
+			"1.1.4", "1.1.5", new UpgradeImageTypeContent(_imageLocalService));
 	}
 
 	protected void deleteTempImages() throws Exception {

@@ -44,12 +44,22 @@ import java.util.Set;
  */
 public class UpgradeJournalArticleLocalizedValues extends UpgradeProcess {
 
+	protected void createIndex() throws Exception {
+		String template = StringUtil.read(
+			UpgradeJournalArticleLocalizedValues.class.getResourceAsStream(
+				"dependencies/index.sql"));
+
+		runSQLTemplateString(template, false, false);
+	}
+
 	@Override
 	protected void doUpgrade() throws Exception {
 		upgradeSchema();
 
 		updateJournalArticleDefaultLanguageId();
 		updateJournalArticleLocalizedFields();
+
+		createIndex();
 
 		dropTitleColumn();
 		dropDescriptionColumn();

@@ -602,7 +602,7 @@ StagingGroupHelper stagingGroupHelper = StagingGroupHelperUtil.getStagingGroupHe
 					}
 
 					form.fm('<%= randomNamespace %><%= Constants.CMD %>').val(cmd);
-					form.fm('<%= randomNamespace %>className').val(<%= discussionTaglibHelper.getSubscriptionClassName() %>);
+					form.fm('<%= randomNamespace %>className').val('<%= discussionTaglibHelper.getSubscriptionClassName() %>');
 
 					<%= namespace %>sendMessage(form);
 				}

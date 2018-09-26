@@ -389,6 +389,17 @@ public class SubscriptionLocalServiceUtil {
 	}
 
 	/**
+	* Returns all the subscriptions to the class name.
+	*
+	* @param className the entity's class name
+	* @return the subscriptions to the class name
+	*/
+	public static java.util.List<com.liferay.subscription.model.Subscription> getSubscriptions(
+		String className) {
+		return getService().getSubscriptions(className);
+	}
+
+	/**
 	* Returns the number of subscriptions.
 	*
 	* @return the number of subscriptions

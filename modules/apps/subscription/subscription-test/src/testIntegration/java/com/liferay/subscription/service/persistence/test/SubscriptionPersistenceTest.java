@@ -174,6 +174,13 @@ public class SubscriptionPersistenceTest {
 	}
 
 	@Test
+	public void testCountByClassNameId() throws Exception {
+		_persistence.countByClassNameId(RandomTestUtil.nextLong());
+
+		_persistence.countByClassNameId(0L);
+	}
+
+	@Test
 	public void testCountByGroupId() throws Exception {
 		_persistence.countByGroupId(RandomTestUtil.nextLong());
 

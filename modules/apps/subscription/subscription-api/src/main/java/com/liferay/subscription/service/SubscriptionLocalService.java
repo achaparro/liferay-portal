@@ -338,6 +338,15 @@ public interface SubscriptionLocalService extends BaseLocalService,
 		String className, long classPK);
 
 	/**
+	* Returns all the subscriptions to the class name.
+	*
+	* @param className the entity's class name
+	* @return the subscriptions to the class name
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Subscription> getSubscriptions(String className);
+
+	/**
 	* Returns the number of subscriptions.
 	*
 	* @return the number of subscriptions

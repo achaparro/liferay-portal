@@ -18,10 +18,12 @@ import com.liferay.blogs.internal.upgrade.v1_1_0.UpgradeClassNames;
 import com.liferay.blogs.internal.upgrade.v1_1_0.UpgradeFriendlyURL;
 import com.liferay.blogs.internal.upgrade.v1_1_1.UpgradeUrlTitle;
 import com.liferay.blogs.internal.upgrade.v1_1_2.UpgradeBlogsImages;
+import com.liferay.blogs.internal.upgrade.v1_1_3.UpgradeDiscussionSubscriptionClassName;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
+import com.liferay.subscription.service.SubscriptionLocalService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -45,6 +47,11 @@ public class BlogsServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"1.1.1", "1.1.2",
 			new UpgradeBlogsImages(_imageLocalService, _portletFileRepository));
+
+		registry.register(
+			"1.1.2", "1.1.3",
+			new UpgradeDiscussionSubscriptionClassName(
+				_subscriptionLocalService));
 	}
 
 	@Reference
@@ -55,5 +62,8 @@ public class BlogsServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Reference
 	private PortletFileRepository _portletFileRepository;
+
+	@Reference
+	private SubscriptionLocalService _subscriptionLocalService;
 
 }

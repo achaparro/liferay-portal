@@ -16,6 +16,7 @@ package com.liferay.wiki.internal.upgrade;
 
 import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
+import com.liferay.subscription.service.SubscriptionLocalService;
 import com.liferay.wiki.internal.upgrade.v1_0_0.UpgradeCompanyId;
 import com.liferay.wiki.internal.upgrade.v1_0_0.UpgradeKernelPackage;
 import com.liferay.wiki.internal.upgrade.v1_0_0.UpgradeLastPublishDate;
@@ -26,6 +27,7 @@ import com.liferay.wiki.internal.upgrade.v1_0_0.UpgradeSchema;
 import com.liferay.wiki.internal.upgrade.v1_0_0.UpgradeWikiPage;
 import com.liferay.wiki.internal.upgrade.v1_0_0.UpgradeWikiPageResource;
 import com.liferay.wiki.internal.upgrade.v1_1_0.UpgradeWikiNode;
+import com.liferay.wiki.internal.upgrade.v1_2_0.UpgradeDiscussionSubscriptionClassName;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -52,13 +54,17 @@ public class WikiServiceUpgrade implements UpgradeStepRegistrator {
 			new UpgradeWikiPageResource());
 
 		registry.register("1.0.0", "1.1.0", new UpgradeWikiNode());
+
+		registry.register(
+			"1.1.0", "1.2.0",
+			new UpgradeDiscussionSubscriptionClassName(
+				_subscriptionLocalService));
 	}
 
-	@Reference(unbind = "-")
-	protected void setSettingsFactory(SettingsFactory settingsFactory) {
-		_settingsFactory = settingsFactory;
-	}
-
+	@Reference
 	private SettingsFactory _settingsFactory;
+
+	@Reference
+	private SubscriptionLocalService _subscriptionLocalService;
 
 }

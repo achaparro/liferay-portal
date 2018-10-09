@@ -15,12 +15,15 @@
 package com.liferay.comment.page.comments.web.internal.upgrade;
 
 import com.liferay.comment.page.comments.web.internal.constants.PageCommentsPortletKeys;
+import com.liferay.comment.page.comments.web.internal.upgrade.v1_0_1.UpgradeDiscussionSubscriptionClassName;
 import com.liferay.portal.kernel.upgrade.BaseUpgradePortletId;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
+import com.liferay.subscription.service.SubscriptionLocalService;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Adolfo Pérez
@@ -44,6 +47,13 @@ public class PageCommentsWebUpgrade implements UpgradeStepRegistrator {
 		};
 
 		registry.register("0.0.1", "1.0.0", upgradePortletId);
+
+		registry.register("1.0.0", "1.0.1",
+			new UpgradeDiscussionSubscriptionClassName(
+				_subscriptionLocalService));
 	}
+
+	@Reference
+	private SubscriptionLocalService _subscriptionLocalService;
 
 }

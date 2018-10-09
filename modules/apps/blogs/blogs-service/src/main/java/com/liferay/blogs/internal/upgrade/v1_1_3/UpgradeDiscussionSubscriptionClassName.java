@@ -16,13 +16,10 @@ package com.liferay.blogs.internal.upgrade.v1_1_3;
 
 import com.liferay.blogs.model.BlogsEntry;
 import com.liferay.comment.upgrade.BaseUpgradeDiscussionSubscriptionClassName;
-import com.liferay.subscription.model.Subscription;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
-import java.util.List;
-
 /**
- * @author Adolfo Pérez
+ * @author Roberto Díaz
  */
 public class UpgradeDiscussionSubscriptionClassName
 	extends BaseUpgradeDiscussionSubscriptionClassName {
@@ -35,15 +32,9 @@ public class UpgradeDiscussionSubscriptionClassName
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		super.doUpgrade();
+		addSubscriptions();
 
-		List<Subscription> subscriptions =
-			subscriptionLocalService.getSubscriptions(getClassName());
-
-		for (Subscription subscription : subscriptions) {
-			subscriptionLocalService.deleteSubscription(
-				subscription.getSubscriptionId());
-		}
+		deleteSubscriptions();
 	}
 
 	@Override

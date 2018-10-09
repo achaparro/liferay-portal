@@ -16,10 +16,7 @@ package com.liferay.calendar.internal.upgrade.v3_0_1;
 
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.comment.upgrade.BaseUpgradeDiscussionSubscriptionClassName;
-import com.liferay.subscription.model.Subscription;
 import com.liferay.subscription.service.SubscriptionLocalService;
-
-import java.util.List;
 
 /**
  * @author Roberto Díaz
@@ -35,15 +32,8 @@ public class UpgradeDiscussionSubscriptionClassName
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		super.doUpgrade();
-
-		List<Subscription> subscriptions =
-			subscriptionLocalService.getSubscriptions(getClassName());
-
-		for (Subscription subscription : subscriptions) {
-			subscriptionLocalService.deleteSubscription(
-				subscription.getSubscriptionId());
-		}
+		addSubscriptions();
+		deleteSubscriptions();
 	}
 
 	@Override

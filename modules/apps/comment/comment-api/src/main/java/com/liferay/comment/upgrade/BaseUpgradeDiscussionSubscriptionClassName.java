@@ -16,6 +16,7 @@ package com.liferay.comment.upgrade;
 
 import com.liferay.message.boards.model.MBDiscussion;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.subscription.model.Subscription;
 import com.liferay.subscription.service.SubscriptionLocalService;
@@ -28,8 +29,7 @@ import java.util.List;
 public abstract class BaseUpgradeDiscussionSubscriptionClassName
 	extends UpgradeProcess {
 
-	@Override
-	protected void doUpgrade() throws Exception {
+	protected void addSubscriptions() throws PortalException {
 		List<Subscription> subscriptions =
 			subscriptionLocalService.getSubscriptions(getClassName());
 
@@ -39,6 +39,16 @@ public abstract class BaseUpgradeDiscussionSubscriptionClassName
 				MBDiscussion.class.getName() + StringPool.UNDERLINE +
 					getClassName(),
 				subscription.getClassPK());
+		}
+	}
+
+	protected void deleteSubscriptions() throws PortalException {
+		List<Subscription> subscriptions =
+			subscriptionLocalService.getSubscriptions(getClassName());
+
+		for (Subscription subscription : subscriptions) {
+			subscriptionLocalService.deleteSubscription(
+				subscription.getSubscriptionId());
 		}
 	}
 

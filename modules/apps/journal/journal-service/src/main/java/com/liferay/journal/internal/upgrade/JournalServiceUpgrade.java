@@ -50,6 +50,7 @@ import com.liferay.journal.internal.upgrade.v1_1_5.UpgradeContentImages;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalArticleTable;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalFeedTable;
 import com.liferay.journal.internal.upgrade.v2_0_0.util.JournalFolderTable;
+import com.liferay.journal.internal.upgrade.v1_1_6.UpgradeDiscussionSubscriptionClassName;
 import com.liferay.portal.configuration.upgrade.PrefsPropsToConfigurationUpgradeHelper;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -72,6 +73,7 @@ import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
+import com.liferay.subscription.service.SubscriptionLocalService;
 
 import java.io.PrintWriter;
 
@@ -177,7 +179,12 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 			new UpgradeContentImages(_journalArticleImageUpgradeUtil));
 
 		registry.register(
-			"1.1.5", "2.0.0",
+			"1.1.5", "1.1.6",
+			new UpgradeDiscussionSubscriptionClassName(
+				_subscriptionLocalService));
+
+		registry.register(
+			"1.1.6", "2.0.0",
 			new BaseUpgradeSQLServerDatetime(
 				new Class<?>[] {
 					JournalArticleTable.class, JournalFeedTable.class,
@@ -344,6 +351,9 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 	private ResourceActions _resourceActions;
 	private ResourceLocalService _resourceLocalService;
 	private SettingsFactory _settingsFactory;
+
+	@Reference
+	private SubscriptionLocalService _subscriptionLocalService;
 
 	@Reference
 	private SystemEventLocalService _systemEventLocalService;

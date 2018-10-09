@@ -26,11 +26,15 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringUtil;
 
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -40,12 +44,22 @@ import java.util.Set;
  */
 public class UpgradeJournalArticleLocalizedValues extends UpgradeProcess {
 
+	protected void createIndex() throws Exception {
+		String template = StringUtil.read(
+			UpgradeJournalArticleLocalizedValues.class.getResourceAsStream(
+				"dependencies/index.sql"));
+
+		runSQLTemplateString(template, false, false);
+	}
+
 	@Override
 	protected void doUpgrade() throws Exception {
 		upgradeSchema();
 
 		updateJournalArticleDefaultLanguageId();
 		updateJournalArticleLocalizedFields();
+
+		createIndex();
 
 		dropTitleColumn();
 		dropDescriptionColumn();
@@ -81,22 +95,46 @@ public class UpgradeJournalArticleLocalizedValues extends UpgradeProcess {
 				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
 					connection,
 					"update JournalArticle set defaultLanguageId = ? where " +
-						"id_ = ?");
+						"id in (?)");
 
 			ResultSet rs = ps1.executeQuery()) {
 
 			Locale defaultLocale = LocaleUtil.getSiteDefault();
+
+			Map<String, List<Long>> articleIdLists = new HashMap<>();
 
 			while (rs.next()) {
 				String defaultLanguageId =
 					LocalizationUtil.getDefaultLanguageId(
 						rs.getString(2), defaultLocale);
 
-				ps2.setString(1, defaultLanguageId);
+				List<Long> articleIdList = articleIdLists.getOrDefault(
+					defaultLanguageId, new ArrayList<>());
 
-				ps2.setLong(2, rs.getLong(1));
+				articleIdList.add(rs.getLong(1));
 
-				ps2.addBatch();
+				if (articleIdList.size() == _ID_LIST_THRESHOLD) {
+					for (Map.Entry<String, List<Long>> entry :
+							articleIdLists.entrySet()) {
+
+						_addDefaultLanguageIdBatch(
+							ps2, entry.getKey(), entry.getValue());
+					}
+
+					articleIdLists.clear();
+				}
+				else {
+					articleIdLists.put(defaultLanguageId, articleIdList);
+				}
+			}
+
+			if (!articleIdLists.isEmpty()) {
+				for (Map.Entry<String, List<Long>> entry :
+						articleIdLists.entrySet()) {
+
+					_addDefaultLanguageIdBatch(
+						ps2, entry.getKey(), entry.getValue());
+				}
 			}
 
 			ps2.executeBatch();
@@ -188,6 +226,19 @@ public class UpgradeJournalArticleLocalizedValues extends UpgradeProcess {
 		return db.increment();
 	}
 
+	private void _addDefaultLanguageIdBatch(
+			PreparedStatement preparedStatement, String languageId,
+			List<Long> idList)
+		throws Exception {
+
+		Array ids = connection.createArrayOf("NUMERIC", idList.toArray());
+
+		preparedStatement.setString(1, languageId);
+		preparedStatement.setArray(2, ids);
+
+		preparedStatement.addBatch();
+	}
+
 	private void _log(long articleId, String columnName) {
 		if (!_log.isWarnEnabled()) {
 			return;
@@ -198,6 +249,8 @@ public class UpgradeJournalArticleLocalizedValues extends UpgradeProcess {
 				"Truncated the ", columnName, " value for article ", articleId,
 				" because it is too long"));
 	}
+
+	private static final int _ID_LIST_THRESHOLD = 50;
 
 	private static final int _MAX_LENGTH_DESCRIPTION = 4000;
 

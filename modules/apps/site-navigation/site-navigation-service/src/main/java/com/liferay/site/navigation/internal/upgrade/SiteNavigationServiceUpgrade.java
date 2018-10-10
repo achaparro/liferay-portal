@@ -12,30 +12,29 @@
  * details.
  */
 
-package com.liferay.asset.category.property.internal.upgrade;
+package com.liferay.site.navigation.internal.upgrade;
 
-import com.liferay.asset.category.property.internal.upgrade.v1_0_0.UpgradeClassNames;
-import com.liferay.asset.category.property.internal.upgrade.v2_0_0.util.AssetCategoryPropertyTable;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
+import com.liferay.site.navigation.internal.upgrade.v2_0_0.util.SiteNavigationMenuItemTable;
+import com.liferay.site.navigation.internal.upgrade.v2_0_0.util.SiteNavigationMenuTable;
 
 import org.osgi.service.component.annotations.Component;
 
 /**
- * @author Eudaldo Alonso
+ * @author José Ángel Jiménez
  */
 @Component(immediate = true, service = UpgradeStepRegistrator.class)
-public class AssetCategoryPropertyServiceUpgrade
-	implements UpgradeStepRegistrator {
+public class SiteNavigationServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Override
 	public void register(Registry registry) {
-		registry.register("0.0.1", "1.0.0", new UpgradeClassNames());
-
 		registry.register(
 			"1.0.0", "2.0.0",
 			new BaseUpgradeSQLServerDatetime(
-				new Class[] {AssetCategoryPropertyTable.class}));
+				new Class<?>[] {
+					SiteNavigationMenuItemTable.class, SiteNavigationMenuTable.class
+				}));
 	}
 
 }

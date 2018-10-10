@@ -3,4 +3,5 @@ Bundle-SymbolicName: com.liferay.portal.upgrade.api
 Bundle-Version: 3.0.0
 Export-Package:\
 	com.liferay.portal.upgrade.registry,\
-	com.liferay.portal.upgrade.release
+	com.liferay.portal.upgrade.release,\
+	com.liferay.portal.upgrade.constants

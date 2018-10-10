@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.spring.extender.internal.classloader.BundleResolverClassLoader;
+import com.liferay.portal.upgrade.constants.UpgradeConstants;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -302,7 +303,7 @@ public class ModuleApplicationContextExtender extends AbstractExtender {
 
 					@Override
 					public String toString() {
-						return "Initial Database Creation";
+						return UpgradeConstants.INITIAL_DATABASE_CREATION;
 					}
 
 					@Override

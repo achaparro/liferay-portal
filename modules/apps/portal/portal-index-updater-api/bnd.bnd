@@ -1,0 +1,6 @@
+Bundle-Name: Liferay Portal Index Updater API
+Bundle-SymbolicName: com.liferay.portal.index.updater.api
+Bundle-Version: 1.0.0
+Export-Package:\
+	com.liferay.portal.index.updater,\
+	com.liferay.portal.index.updater.exception

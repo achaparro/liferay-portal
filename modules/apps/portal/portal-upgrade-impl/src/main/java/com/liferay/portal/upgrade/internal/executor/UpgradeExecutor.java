@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.dao.db.DBProcessContext;
 import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.model.ReleaseConstants;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
+import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.output.stream.container.OutputStreamContainer;
@@ -188,7 +189,7 @@ public class UpgradeExecutor {
 				}
 			}
 
-			if (!_isInitialDatabaseCreation()) {
+			if (_requiresUpdateIndexes()) {
 				try {
 					_indexUpdater.updateIndexes(_bundleSymbolicName);
 				}
@@ -208,17 +209,21 @@ public class UpgradeExecutor {
 			_outputStream = outputStream;
 		}
 
-		private boolean _isInitialDatabaseCreation() {
+		private boolean _requiresUpdateIndexes() {
 			if (_upgradeInfos.size() != 1) {
-				return false;
+				return true;
 			}
 			else {
 				UpgradeInfo upgradeInfo = _upgradeInfos.get(0);
 
+				UpgradeStep upgradeStep = upgradeInfo.getUpgradeStep();
+
+				if (upgradeStep instanceof DummyUpgradeStep) {
+					return false;
+				}
+
 				String fromSchemaVersion =
 					upgradeInfo.getFromSchemaVersionString();
-
-				UpgradeStep upgradeStep = upgradeInfo.getUpgradeStep();
 
 				String upgradeStepName = upgradeStep.toString();
 
@@ -226,10 +231,10 @@ public class UpgradeExecutor {
 					upgradeStepName.equals(
 						UpgradeConstants.INITIAL_DATABASE_CREATION)) {
 
-					return true;
+					return false;
 				}
 
-				return false;
+				return true;
 			}
 		}
 

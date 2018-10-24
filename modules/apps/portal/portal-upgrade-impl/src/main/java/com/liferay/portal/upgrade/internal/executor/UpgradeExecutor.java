@@ -28,6 +28,7 @@ import com.liferay.portal.output.stream.container.OutputStreamContainer;
 import com.liferay.portal.output.stream.container.OutputStreamContainerFactory;
 import com.liferay.portal.output.stream.container.OutputStreamContainerFactoryTracker;
 import com.liferay.portal.upgrade.internal.graph.ReleaseGraphManager;
+import com.liferay.portal.upgrade.internal.index.updater.IndexUpdater;
 import com.liferay.portal.upgrade.internal.registry.UpgradeInfo;
 import com.liferay.portal.upgrade.internal.release.ReleasePublisher;
 
@@ -36,6 +37,7 @@ import java.io.OutputStream;
 
 import java.util.List;
 
+import org.osgi.framework.Bundle;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -117,6 +119,9 @@ public class UpgradeExecutor {
 	}
 
 	@Reference
+	private IndexUpdater _indexUpdater;
+
+	@Reference
 	private OutputStreamContainerFactoryTracker
 		_outputStreamContainerFactoryTracker;
 
@@ -182,6 +187,14 @@ public class UpgradeExecutor {
 				}
 			}
 
+			if (_requiresUpdateIndexes()) {
+				Bundle bundle = _indexUpdater.getBundle(_bundleSymbolicName);
+
+				if (_indexUpdater.hasIndexes(bundle)) {
+					_indexUpdater.updateIndexes(bundle);
+				}
+			}
+
 			CacheRegistryUtil.clear();
 		}
 
@@ -192,6 +205,30 @@ public class UpgradeExecutor {
 			_bundleSymbolicName = bundleSymbolicName;
 			_upgradeInfos = upgradeInfos;
 			_outputStream = outputStream;
+		}
+
+		private boolean _requiresUpdateIndexes() {
+			if (_upgradeInfos.size() != 1) {
+				return true;
+			}
+			else {
+				UpgradeInfo upgradeInfo = _upgradeInfos.get(0);
+
+				String fromSchemaVersion =
+					upgradeInfo.getFromSchemaVersionString();
+
+				UpgradeStep upgradeStep = upgradeInfo.getUpgradeStep();
+
+				String upgradeStepName = upgradeStep.toString();
+
+				if (fromSchemaVersion.equals("0.0.0") &&
+					upgradeStepName.equals("Initial Database Creation")) {
+
+					return false;
+				}
+
+				return true;
+			}
 		}
 
 		private void _updateReleaseState(int state) {

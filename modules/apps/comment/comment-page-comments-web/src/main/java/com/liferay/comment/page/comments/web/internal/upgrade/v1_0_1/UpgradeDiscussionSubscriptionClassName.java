@@ -25,20 +25,19 @@ public class UpgradeDiscussionSubscriptionClassName
 	extends BaseUpgradeDiscussionSubscriptionClassName {
 
 	public UpgradeDiscussionSubscriptionClassName(
-		SubscriptionLocalService service) {
+		SubscriptionLocalService subscriptionLocalService) {
 
-		subscriptionLocalService = service;
-	}
-
-	@Override
-	protected void doUpgrade() throws Exception {
-		addSubscriptions();
-		deleteSubscriptions();
+		super(subscriptionLocalService);
 	}
 
 	@Override
 	protected String getClassName() {
 		return Layout.class.getName();
+	}
+
+	@Override
+	protected boolean isDeleteOriginalSubscriptions() {
+		return true;
 	}
 
 }

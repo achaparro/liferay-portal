@@ -29,12 +29,31 @@ import java.util.List;
 public abstract class BaseUpgradeDiscussionSubscriptionClassName
 	extends UpgradeProcess {
 
-	protected void addSubscriptions() throws PortalException {
+	public BaseUpgradeDiscussionSubscriptionClassName(
+		SubscriptionLocalService subscriptionLocalService) {
+
+		_subscriptionLocalService = subscriptionLocalService;
+	}
+
+	@Override
+	protected void doUpgrade() throws Exception {
+		_addSubscriptions();
+
+		if (isDeleteOriginalSubscriptions()) {
+			_deleteSubscriptions();
+		}
+	}
+
+	protected abstract String getClassName();
+
+	protected abstract boolean isDeleteOriginalSubscriptions();
+
+	private void _addSubscriptions() throws PortalException {
 		List<Subscription> subscriptions =
-			subscriptionLocalService.getSubscriptions(getClassName());
+			_subscriptionLocalService.getSubscriptions(getClassName());
 
 		for (Subscription subscription : subscriptions) {
-			subscriptionLocalService.addSubscription(
+			_subscriptionLocalService.addSubscription(
 				subscription.getUserId(), subscription.getGroupId(),
 				MBDiscussion.class.getName() + StringPool.UNDERLINE +
 					getClassName(),
@@ -42,18 +61,16 @@ public abstract class BaseUpgradeDiscussionSubscriptionClassName
 		}
 	}
 
-	protected void deleteSubscriptions() throws PortalException {
+	private void _deleteSubscriptions() throws PortalException {
 		List<Subscription> subscriptions =
-			subscriptionLocalService.getSubscriptions(getClassName());
+			_subscriptionLocalService.getSubscriptions(getClassName());
 
 		for (Subscription subscription : subscriptions) {
-			subscriptionLocalService.deleteSubscription(
+			_subscriptionLocalService.deleteSubscription(
 				subscription.getSubscriptionId());
 		}
 	}
 
-	protected abstract String getClassName();
-
-	protected SubscriptionLocalService subscriptionLocalService;
+	private final SubscriptionLocalService _subscriptionLocalService;
 
 }

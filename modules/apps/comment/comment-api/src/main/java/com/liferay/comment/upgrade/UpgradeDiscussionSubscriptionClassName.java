@@ -26,44 +26,48 @@ import java.util.List;
 /**
  * @author Roberto Díaz
  */
-public abstract class BaseUpgradeDiscussionSubscriptionClassName
-	extends UpgradeProcess {
+public class UpgradeDiscussionSubscriptionClassName extends UpgradeProcess {
 
-	public BaseUpgradeDiscussionSubscriptionClassName(
-		SubscriptionLocalService subscriptionLocalService) {
+	public UpgradeDiscussionSubscriptionClassName(
+		SubscriptionLocalService subscriptionLocalService, String className,
+		DeletionMode deletionMode) {
 
 		_subscriptionLocalService = subscriptionLocalService;
+		_className = className;
+		_deletionMode = deletionMode;
+	}
+
+	public enum DeletionMode {
+
+		DELETE_OLD, KEEP_ALL
+
 	}
 
 	@Override
 	protected void doUpgrade() throws Exception {
 		_addSubscriptions();
 
-		if (isDeleteOriginalSubscriptions()) {
+		if (_deletionMode == DeletionMode.DELETE_OLD) {
 			_deleteSubscriptions();
 		}
 	}
 
-	protected abstract String getClassName();
-
-	protected abstract boolean isDeleteOriginalSubscriptions();
-
 	private void _addSubscriptions() throws PortalException {
 		List<Subscription> subscriptions =
-			_subscriptionLocalService.getSubscriptions(getClassName());
+			_subscriptionLocalService.getSubscriptions(_className);
 
 		for (Subscription subscription : subscriptions) {
 			_subscriptionLocalService.addSubscription(
 				subscription.getUserId(), subscription.getGroupId(),
 				MBDiscussion.class.getName() + StringPool.UNDERLINE +
-					getClassName(),
+					_className,
 				subscription.getClassPK());
 		}
 	}
 
 	private void _deleteSubscriptions() throws PortalException {
 		List<Subscription> subscriptions =
-			_subscriptionLocalService.getSubscriptions(getClassName());
+			_subscriptionLocalService.getSubscriptions(_className);
 
 		for (Subscription subscription : subscriptions) {
 			_subscriptionLocalService.deleteSubscription(
@@ -71,6 +75,8 @@ public abstract class BaseUpgradeDiscussionSubscriptionClassName
 		}
 	}
 
+	private final String _className;
+	private final DeletionMode _deletionMode;
 	private final SubscriptionLocalService _subscriptionLocalService;
 
 }

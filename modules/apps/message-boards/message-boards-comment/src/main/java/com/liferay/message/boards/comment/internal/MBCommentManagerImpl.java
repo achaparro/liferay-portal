@@ -379,9 +379,8 @@ public class MBCommentManagerImpl implements CommentManager {
 
 		if (classPKs.isEmpty()) {
 			return new MBDiscussionCommentImpl(
-				treeWalker.getRoot(), treeWalker,
-				Collections.<Long, RatingsEntry>emptyMap(),
-				Collections.<Long, RatingsStats>emptyMap());
+				treeWalker.getRoot(), treeWalker, Collections.emptyMap(),
+				Collections.emptyMap());
 		}
 
 		long[] classPKsArray = ArrayUtil.toLongArray(classPKs);

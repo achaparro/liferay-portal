@@ -55,7 +55,6 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.portal.configuration.upgrade.PrefsPropsToConfigurationUpgradeHelper;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
-import com.liferay.portal.kernel.dao.db.DBProcessContext;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.capabilities.PortalCapabilityLocator;
@@ -71,8 +70,6 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
-import com.liferay.portal.kernel.upgrade.UpgradeException;
-import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
@@ -102,7 +99,18 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register("0.0.3", "0.0.4", new UpgradeSchema());
 
 		registry.register(
-			"0.0.4", "0.0.5", new UpgradeCompanyId(),
+			"0.0.4", "0.0.5",
+			dbProcessContext -> {
+				try {
+					deleteTempImages();
+				}
+				catch (Exception e) {
+					e.printStackTrace(
+						new PrintWriter(
+							dbProcessContext.getOutputStream(), true));
+				}
+			},
+			new UpgradeCompanyId(),
 			new UpgradeJournal(
 				_companyLocalService, _ddmStorageLinkLocalService,
 				_ddmStructureLocalService, _ddmTemplateLinkLocalService,
@@ -114,24 +122,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 				_groupLocalService, _layoutLocalService),
 			new UpgradeJournalDisplayPreferences(),
 			new UpgradeLastPublishDate(),
-			new UpgradePortletSettings(_settingsFactory),
-			new UpgradeStep() {
-
-				@Override
-				public void upgrade(DBProcessContext dbProcessContext)
-					throws UpgradeException {
-
-					try {
-						deleteTempImages();
-					}
-					catch (Exception e) {
-						e.printStackTrace(
-							new PrintWriter(
-								dbProcessContext.getOutputStream(), true));
-					}
-				}
-
-			});
+			new UpgradePortletSettings(_settingsFactory));
 
 		registry.register("0.0.5", "0.0.6", new UpgradeJournalArticleImage());
 

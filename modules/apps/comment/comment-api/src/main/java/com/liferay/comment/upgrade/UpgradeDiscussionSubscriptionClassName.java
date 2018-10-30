@@ -39,7 +39,7 @@ public class UpgradeDiscussionSubscriptionClassName extends UpgradeProcess {
 
 	public enum DeletionMode {
 
-		DELETE_OLD, KEEP_ALL
+		ADD_NEW, DELETE_OLD
 
 	}
 

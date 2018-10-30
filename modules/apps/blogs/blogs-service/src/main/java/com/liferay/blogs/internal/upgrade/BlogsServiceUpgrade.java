@@ -26,6 +26,7 @@ import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
+import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
@@ -42,8 +43,10 @@ public class BlogsServiceUpgrade implements UpgradeStepRegistrator {
 	public void register(Registry registry) {
 		registry.register("0.0.1", "1.0.0", new UpgradeClassNames());
 
+		registry.register("1.0.0", "1.0.1", new DummyUpgradeStep());
+
 		registry.register(
-			"1.0.0", "1.1.0",
+			"1.0.1", "1.1.0",
 			new UpgradeFriendlyURL(_friendlyURLEntryLocalService));
 
 		registry.register("1.1.0", "1.1.1", new UpgradeUrlTitle());
@@ -56,8 +59,7 @@ public class BlogsServiceUpgrade implements UpgradeStepRegistrator {
 			"1.1.2", "1.1.3",
 			new UpgradeDiscussionSubscriptionClassName(
 				_subscriptionLocalService, BlogsEntry.class.getName(),
-				UpgradeDiscussionSubscriptionClassName.DeletionMode.
-					DELETE_OLD));
+				UpgradeDiscussionSubscriptionClassName.DeletionMode.ADD_NEW));
 
 		registry.register(
 			"1.1.3", "2.0.0",
@@ -65,6 +67,13 @@ public class BlogsServiceUpgrade implements UpgradeStepRegistrator {
 				new Class<?>[] {
 					BlogsEntryTable.class, BlogsStatsUserTable.class
 				}));
+
+		registry.register(
+			"2.0.0", "2.0.1",
+			new UpgradeDiscussionSubscriptionClassName(
+				_subscriptionLocalService, BlogsEntry.class.getName(),
+				UpgradeDiscussionSubscriptionClassName.DeletionMode.
+					DELETE_OLD));
 	}
 
 	@Reference

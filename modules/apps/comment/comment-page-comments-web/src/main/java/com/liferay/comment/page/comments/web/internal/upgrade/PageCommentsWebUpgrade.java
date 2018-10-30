@@ -53,6 +53,12 @@ public class PageCommentsWebUpgrade implements UpgradeStepRegistrator {
 			"1.0.0", "1.0.1",
 			new UpgradeDiscussionSubscriptionClassName(
 				_subscriptionLocalService, Layout.class.getName(),
+				UpgradeDiscussionSubscriptionClassName.DeletionMode.ADD_NEW));
+
+		registry.register(
+			"1.0.1", "2.0.0",
+			new UpgradeDiscussionSubscriptionClassName(
+				_subscriptionLocalService, Layout.class.getName(),
 				UpgradeDiscussionSubscriptionClassName.DeletionMode.
 					DELETE_OLD));
 	}

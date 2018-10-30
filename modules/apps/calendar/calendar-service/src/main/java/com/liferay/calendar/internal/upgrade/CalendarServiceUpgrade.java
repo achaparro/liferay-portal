@@ -85,7 +85,9 @@ public class CalendarServiceUpgrade implements UpgradeStepRegistrator {
 				_resourceActionLocalService, _resourcePermissionLocalService,
 				_roleLocalService));
 
-		registry.register("1.0.6", "2.0.0", new UpgradeSchema());
+		registry.register("1.0.6", "1.0.7", new DummyUpgradeStep());
+
+		registry.register("1.0.7", "2.0.0", new UpgradeSchema());
 
 		registry.register(
 			"2.0.0", "3.0.0", new UpgradeCalendarBookingResourceBlock(),
@@ -96,8 +98,14 @@ public class CalendarServiceUpgrade implements UpgradeStepRegistrator {
 			"3.0.0", "3.0.1",
 			new UpgradeDiscussionSubscriptionClassName(
 				_subscriptionLocalService, CalendarBooking.class.getName(),
+				UpgradeDiscussionSubscriptionClassName.DeletionMode.ADD_NEW));
+
+		registry.register(
+			"3.0.1", "4.0.0",
+			new UpgradeDiscussionSubscriptionClassName(
+				_subscriptionLocalService, CalendarBooking.class.getName(),
 				UpgradeDiscussionSubscriptionClassName.DeletionMode.
-					DELETE_OLD));
+					ADD_NEW));
 
 		registry.register(
 			"3.0.1", "4.0.0",
@@ -107,6 +115,13 @@ public class CalendarServiceUpgrade implements UpgradeStepRegistrator {
 					CalendarNotificationTemplateTable.class,
 					CalendarResourceTable.class, CalendarTable.class
 				}));
+
+		registry.register(
+			"4.0.0", "4.0.1",
+			new UpgradeDiscussionSubscriptionClassName(
+				_subscriptionLocalService, CalendarBooking.class.getName(),
+				UpgradeDiscussionSubscriptionClassName.DeletionMode.
+					DELETE_OLD));
 	}
 
 	@Reference

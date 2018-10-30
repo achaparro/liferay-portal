@@ -63,7 +63,7 @@ public class WikiServiceUpgrade implements UpgradeStepRegistrator {
 			"1.1.0", "1.2.0",
 			new UpgradeDiscussionSubscriptionClassName(
 				_subscriptionLocalService, WikiPage.class.getName(),
-				UpgradeDiscussionSubscriptionClassName.DeletionMode.KEEP_ALL));
+				UpgradeDiscussionSubscriptionClassName.DeletionMode.ADD_NEW));
 
 		registry.register(
 			"1.2.0", "2.0.0",

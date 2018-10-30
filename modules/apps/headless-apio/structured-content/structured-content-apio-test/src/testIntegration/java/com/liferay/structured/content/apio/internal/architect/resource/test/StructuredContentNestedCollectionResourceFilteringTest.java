@@ -1070,6 +1070,8 @@ public class StructuredContentNestedCollectionResourceFilteringTest
 
 		stringMap2.put(LocaleUtil.getDefault(), "title2");
 
+		//This is a comment
+
 		JournalTestUtil.addArticle(
 			_group.getGroupId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,

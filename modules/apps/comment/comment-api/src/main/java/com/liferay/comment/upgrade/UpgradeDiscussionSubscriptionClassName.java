@@ -45,6 +45,10 @@ public class UpgradeDiscussionSubscriptionClassName extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
+		if (_subscriptionLocalService.getSubscriptionsCount(_className) > 0) {
+			return;
+		}
+
 		_addSubscriptions();
 
 		if (_deletionMode == DeletionMode.DELETE_OLD) {

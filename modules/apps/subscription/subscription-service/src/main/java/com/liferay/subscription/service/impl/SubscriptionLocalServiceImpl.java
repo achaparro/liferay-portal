@@ -368,6 +368,19 @@ public class SubscriptionLocalServiceImpl
 	}
 
 	/**
+	 * Returns the number of the subscriptions to the class name.
+	 *
+	 * @param  className the entity's class name
+	 * @return the subscriptions to the class name
+	 */
+	@Override
+	public int getSubscriptionsCount(String className) {
+		long classNameId = classNameLocalService.getClassNameId(className);
+
+		return subscriptionPersistence.countByClassNameId(classNameId);
+	}
+
+	/**
 	 * Returns an ordered range of all the subscriptions of the user.
 	 *
 	 * @param  userId the primary key of the user

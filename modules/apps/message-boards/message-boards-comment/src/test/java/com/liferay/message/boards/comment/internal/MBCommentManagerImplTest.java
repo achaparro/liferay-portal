@@ -30,7 +30,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,12 +48,16 @@ public class MBCommentManagerImplTest extends Mockito {
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 
-		setUpMBCommentManagerImpl();
-		setUpPortalUtil();
-		setUpServiceContext();
+		ReflectionTestUtil.setFieldValue(
+			_mbCommentManagerImpl, "_mbMessageLocalService",
+			_mbMessageLocalService);
 
 		ReflectionTestUtil.setFieldValue(
 			_mbCommentManagerImpl, "_portal", _portal);
+
+		setUpMBCommentManagerImpl();
+		setUpPortalUtil();
+		setUpServiceContext();
 	}
 
 	@Test
@@ -225,8 +228,6 @@ public class MBCommentManagerImplTest extends Mockito {
 	}
 
 	protected void setUpMBCommentManagerImpl() throws Exception {
-		_mbCommentManagerImpl.setMBMessageLocalService(_mbMessageLocalService);
-
 		when(
 			_mbMessageDisplay.getThread()
 		).thenReturn(

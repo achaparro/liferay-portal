@@ -1,0 +1,6 @@
+me: revert-schema-version
+Bundle-SymbolicName: revert.schema.version
+Bundle-Version: 1.0.0
+Export-Package: revert.schema.version.constants
+Liferay-Require-SchemiaVersion: 2.1.0
+Liferay-Service: true

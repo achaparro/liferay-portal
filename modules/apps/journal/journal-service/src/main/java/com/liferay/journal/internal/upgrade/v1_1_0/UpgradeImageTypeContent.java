@@ -20,10 +20,14 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Image;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ImageLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -45,11 +49,15 @@ import java.util.concurrent.Future;
 public class UpgradeImageTypeContent extends UpgradeProcess {
 
 	public UpgradeImageTypeContent(
+		GroupLocalService groupLocalService,
 		ImageLocalService imageLocalService,
-		JournalArticleImageUpgradeUtil journalArticleImageUpgradeUtil) {
+		JournalArticleImageUpgradeUtil journalArticleImageUpgradeUtil,
+		UserLocalService userLocalService) {
 
+		_groupLocalService = groupLocalService;
 		_imageLocalService = imageLocalService;
 		_journalArticleImageUpgradeUtil = journalArticleImageUpgradeUtil;
+		_userLocalService = userLocalService;
 	}
 
 	protected void copyJournalArticleImagesToJournalRepository()
@@ -77,7 +85,30 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 
 				long groupId = rs1.getLong(2);
 				long resourcePrimKey = rs1.getLong(3);
+
 				long userId = rs1.getLong(4);
+
+				User user = _userLocalService.fetchUser(userId);
+
+				if (user == null) {
+					Group group = _groupLocalService.getGroup(groupId);
+
+					userId = group.getCreatorUserId();
+
+					user = _userLocalService.fetchUser(userId);
+
+					if (user == null) {
+						userId = _userLocalService.getDefaultUserId(
+							group.getCompanyId());
+
+						if (_log.isWarnEnabled()) {
+							_log.warn(
+								StringBundler.concat(
+									"UserId for ", articleImageId,
+									" has been changed to default user."));
+						}
+					}
+				}
 
 				long folderId = _journalArticleImageUpgradeUtil.getFolderId(
 					userId, groupId, resourcePrimKey);
@@ -117,9 +148,11 @@ public class UpgradeImageTypeContent extends UpgradeProcess {
 	private static final Log _log = LogFactoryUtil.getLog(
 		UpgradeImageTypeContent.class);
 
+	private final GroupLocalService _groupLocalService;
 	private final ImageLocalService _imageLocalService;
 	private final JournalArticleImageUpgradeUtil
 		_journalArticleImageUpgradeUtil;
+	private final UserLocalService _userLocalService;
 
 	private class SaveImageFileEntryCallable implements Callable<Boolean> {
 

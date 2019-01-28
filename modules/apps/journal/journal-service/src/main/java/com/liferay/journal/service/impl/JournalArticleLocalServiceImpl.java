@@ -8521,7 +8521,7 @@ public class JournalArticleLocalServiceImpl
 		}
 	}
 
-	protected void updateFriendlyURLs (
+	protected void updateFriendlyURLs(
 			JournalArticle article, Map<String, String> urlTitleMap)
 		throws PortalException {
 

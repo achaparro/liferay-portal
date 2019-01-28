@@ -460,20 +460,7 @@ public class JournalArticleLocalServiceImpl
 
 		// Friendly URLs
 
-		List<FriendlyURLEntry> friendlyURLEntries =
-			friendlyURLEntryLocalService.getFriendlyURLEntries(
-				groupId,
-				classNameLocalService.getClassNameId(JournalArticle.class),
-				article.getResourcePrimKey());
-
-		for (FriendlyURLEntry friendlyURLEntry : friendlyURLEntries) {
-			friendlyURLEntryLocalService.deleteFriendlyURLEntry(
-				friendlyURLEntry);
-		}
-
-		friendlyURLEntryLocalService.addFriendlyURLEntry(
-			groupId, classNameLocalService.getClassNameId(JournalArticle.class),
-			resourcePrimKey, urlTitleMap, serviceContext);
+		updateFriendlyURLs(article, urlTitleMap);
 
 		// Article localization
 
@@ -5729,20 +5716,7 @@ public class JournalArticleLocalServiceImpl
 
 		// Friendly URLs
 
-		List<FriendlyURLEntry> friendlyURLEntries =
-			friendlyURLEntryLocalService.getFriendlyURLEntries(
-				groupId,
-				classNameLocalService.getClassNameId(JournalArticle.class),
-				article.getResourcePrimKey());
-
-		for (FriendlyURLEntry friendlyURLEntry : friendlyURLEntries) {
-			friendlyURLEntryLocalService.deleteFriendlyURLEntry(
-				friendlyURLEntry);
-		}
-
-		friendlyURLEntryLocalService.addFriendlyURLEntry(
-			groupId, classNameLocalService.getClassNameId(JournalArticle.class),
-			article.getResourcePrimKey(), urlTitleMap, serviceContext);
+		updateFriendlyURLs(article, urlTitleMap);
 
 		// Asset
 
@@ -8545,6 +8519,31 @@ public class JournalArticleLocalServiceImpl
 		finally {
 			serviceContext.setIndexingEnabled(indexingEnabled);
 		}
+	}
+
+	protected void updateFriendlyURLs (
+			JournalArticle article, Map<String, String> urlTitleMap)
+		throws PortalException {
+
+		List<FriendlyURLEntry> friendlyURLEntries =
+			friendlyURLEntryLocalService.getFriendlyURLEntries(
+				article.getGroupId(),
+				classNameLocalService.getClassNameId(JournalArticle.class),
+				article.getResourcePrimKey());
+
+		for (FriendlyURLEntry friendlyURLEntry : friendlyURLEntries) {
+			friendlyURLEntryLocalService.deleteFriendlyURLEntry(
+				friendlyURLEntry);
+		}
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setUuid(article.getUuid());
+
+		friendlyURLEntryLocalService.addFriendlyURLEntry(
+			article.getGroupId(),
+			classNameLocalService.getClassNameId(JournalArticle.class),
+			article.getResourcePrimKey(), urlTitleMap, serviceContext);
 	}
 
 	protected void updatePreviousApprovedArticle(JournalArticle article)

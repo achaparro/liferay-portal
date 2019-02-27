@@ -41,6 +41,8 @@ public class ReleaseInfo {
 
 	public static final int RELEASE_7_0_6_BUILD_NUMBER = 7006;
 
+	public static final int RELEASE_7_0_7_BUILD_NUMBER = 7007;
+
 	public static final int RELEASE_7_0_10_BUILD_NUMBER = 7010;
 
 	public static final int RELEASE_7_1_0_BUILD_NUMBER = 7100;

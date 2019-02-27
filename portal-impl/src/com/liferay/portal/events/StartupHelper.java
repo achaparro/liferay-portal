@@ -183,6 +183,7 @@ public class StartupHelper {
 		"com.liferay.portal.upgrade.UpgradeProcess_7_0_3",
 		"com.liferay.portal.upgrade.UpgradeProcess_7_0_5",
 		"com.liferay.portal.upgrade.UpgradeProcess_7_0_6",
+		"com.liferay.portal.upgrade.UpgradeProcess_7_0_7",
 		"com.liferay.portal.upgrade.PortalUpgradeProcess"
 	};
 

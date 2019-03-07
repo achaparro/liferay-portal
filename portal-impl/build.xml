@@ -315,11 +315,20 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 
 	<target name="build-upgrade-table">
 		<if>
-			<not>
-				<equals arg1="${upgrade.table.dir}" arg2="" />
-			</not>
+			<equals arg1="${upgrade.table.dir}" arg2="" />
 			<then>
-				<antcall target="prepare-upgrade-table" />
+				<property name="directories" value="src/com/liferay/portal/upgrade/v7_1_x/util/,src/com/liferay/portal/upgrade/v7_2_x/util/" />
+			</then>
+			<else>
+				<property name="directories" value="${upgrade.table.dir}" />
+			</else>
+		</if>
+
+		<for list="${directories}" param="directory">
+			<sequential>
+				<antcall target="prepare-upgrade-table">
+					<param name="upgrade.table.dir" value="@{directory}" />
+				</antcall>
 
 				<path id="upgrade.table.builder.classpath">
 					<fileset
@@ -337,10 +346,10 @@ svn://svn.liferay.com/repos/public/alloy/trunk/sandbox/taglibs.
 					<arg value="upgrade.base.dir=." />
 					<arg value="upgrade.osgi.module=false" />
 					<arg value="upgrade.release.info.file=../portal-kernel/src/com/liferay/portal/kernel/util/ReleaseInfo.java" />
-					<arg value="upgrade.table.dir=${upgrade.table.dir}" />
+					<arg value="upgrade.table.dir=@{directory}" />
 				</java>
-			</then>
-		</if>
+			</sequential>
+		</for>
 	</target>
 
 	<target depends="compile" name="build-wsdd">

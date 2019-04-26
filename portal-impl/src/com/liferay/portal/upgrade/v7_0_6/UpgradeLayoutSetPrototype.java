@@ -15,22 +15,23 @@
 package com.liferay.portal.upgrade.v7_0_6;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.upgrade.v7_0_6.util.LayoutSetPrototypeTable;
 
 /**
  * @author Norbert Kocsis
  */
 public class UpgradeLayoutSetPrototype extends UpgradeProcess {
 
+	public UpgradeLayoutSetPrototype(Class<?> tableClass) {
+		_tableClass = tableClass;
+	}
+
 	@Override
 	protected void doUpgrade() throws Exception {
-		alter(
-			LayoutSetPrototypeTable.class,
-			new AlterColumnType("name", "TEXT null"));
+		alter(_tableClass, new AlterColumnType("name", "TEXT null"));
 
-		alter(
-			LayoutSetPrototypeTable.class,
-			new AlterColumnType("description", "TEXT null"));
+		alter(_tableClass, new AlterColumnType("description", "TEXT null"));
 	}
+
+	private final Class<?> _tableClass;
 
 }

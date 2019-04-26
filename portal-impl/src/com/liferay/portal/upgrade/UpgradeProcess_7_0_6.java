@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.upgrade.v7_0_6.UpgradeLayoutSetPrototype;
 import com.liferay.portal.upgrade.v7_0_6.UpgradeRepository;
 import com.liferay.portal.upgrade.v7_0_6.UpgradeThemeId;
+import com.liferay.portal.upgrade.v7_0_6.util.LayoutSetPrototypeTable;
 import com.liferay.portal.upgrade.v7_0_6.util.RepositoryTable;
 
 /**
@@ -33,7 +34,7 @@ public class UpgradeProcess_7_0_6 extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		upgrade(new UpgradeLayoutSetPrototype());
+		upgrade(new UpgradeLayoutSetPrototype(LayoutSetPrototypeTable.class));
 		upgrade(new UpgradeRepository());
 		upgrade(new UpgradeThemeId());
 

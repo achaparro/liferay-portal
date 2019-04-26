@@ -17,6 +17,8 @@ package com.liferay.portal.upgrade.v7_2_x;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.version.Version;
 import com.liferay.portal.upgrade.util.PortalUpgradeProcessRegistry;
+import com.liferay.portal.upgrade.v7_0_6.UpgradeLayoutSetPrototype;
+import com.liferay.portal.upgrade.v7_2_x.util.LayoutSetPrototypeTable;
 
 import java.util.TreeMap;
 
@@ -40,6 +42,10 @@ public class PortalUpgradeProcessRegistryImpl
 		upgradeProcesses.put(new Version(5, 0, 1), new UpgradePersonalMenu());
 
 		upgradeProcesses.put(new Version(5, 0, 2), new UpgradeCountry());
+
+		upgradeProcesses.put(
+			new Version(5, 0, 3),
+			new UpgradeLayoutSetPrototype(LayoutSetPrototypeTable.class));
 	}
 
 }

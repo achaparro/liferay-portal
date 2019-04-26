@@ -15,7 +15,6 @@
 package com.liferay.portal.upgrade.v7_0_6;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.upgrade.v7_0_5.util.LayoutPrototypeTable;
 import com.liferay.portal.upgrade.v7_0_6.util.LayoutSetPrototypeTable;
 
 /**
@@ -33,4 +32,5 @@ public class UpgradeLayoutSetPrototype extends UpgradeProcess {
 			LayoutSetPrototypeTable.class,
 			new AlterColumnType("description", "TEXT null"));
 	}
+
 }

@@ -170,9 +170,24 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		return release;
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	@Transactional
 	public int getBuildNumberOrCreate() throws PortalException {
+		initializeRelease();
+
+		Release release = releasePersistence.fetchByPrimaryKey(
+			ReleaseConstants.DEFAULT_ID);
+
+		return release.getBuildNumber();
+	}
+
+	@Override
+	@Transactional
+	public void initializeRelease() throws PortalException {
 
 		// Gracefully add version column
 
@@ -181,8 +196,6 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		try {
 			db.runSQL(
 				"alter table Release_ add schemaVersion VARCHAR(75) null");
-
-			populateVersion();
 		}
 		catch (Exception e) {
 			if (_log.isDebugEnabled()) {
@@ -231,7 +244,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 			testSupportsStringCaseSensitiveQuery();
 
-			return buildNumber;
+			return;
 		}
 		catch (Exception e) {
 			if (_log.isWarnEnabled()) {
@@ -251,10 +264,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 			testSupportsStringCaseSensitiveQuery();
 
-			Release release = fetchRelease(
-				ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
-
-			return release.getBuildNumber();
+			return;
 		}
 
 		throw new NoSuchReleaseException("The database needs to be populated");
@@ -410,13 +420,6 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		}
 
 		return ReleaseInfo.getBuildNumber();
-	}
-
-	protected void populateVersion() {
-
-		// This method is called if and only if the version column did not
-		// previously exist and was safely added to the database
-
 	}
 
 	protected void testSupportsStringCaseSensitiveQuery() {

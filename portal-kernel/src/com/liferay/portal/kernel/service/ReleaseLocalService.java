@@ -187,6 +187,10 @@ public interface ReleaseLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	@Transactional
 	public int getBuildNumberOrCreate() throws PortalException;
 
@@ -236,6 +240,9 @@ public interface ReleaseLocalService
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getReleasesCount();
+
+	@Transactional
+	public void initializeRelease() throws PortalException;
 
 	public Release updateRelease(
 			long releaseId, String schemaVersion, int buildNumber,

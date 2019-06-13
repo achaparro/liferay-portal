@@ -225,6 +225,10 @@ public class ReleaseLocalServiceWrapper
 		return _releaseLocalService.getActionableDynamicQuery();
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public int getBuildNumberOrCreate()
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -297,6 +301,13 @@ public class ReleaseLocalServiceWrapper
 	@Override
 	public int getReleasesCount() {
 		return _releaseLocalService.getReleasesCount();
+	}
+
+	@Override
+	public void initializeRelease()
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_releaseLocalService.initializeRelease();
 	}
 
 	@Override

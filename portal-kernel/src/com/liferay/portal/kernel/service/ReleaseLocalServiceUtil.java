@@ -219,6 +219,10 @@ public class ReleaseLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
+	/**
+	 * @deprecated As of Mueller (7.2.x), with no direct replacement
+	 */
+	@Deprecated
 	public static int getBuildNumberOrCreate()
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -286,6 +290,12 @@ public class ReleaseLocalServiceUtil {
 	 */
 	public static int getReleasesCount() {
 		return getService().getReleasesCount();
+	}
+
+	public static void initializeRelease()
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		getService().initializeRelease();
 	}
 
 	public static com.liferay.portal.kernel.model.Release updateRelease(

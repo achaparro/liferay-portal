@@ -24,7 +24,6 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.NoSuchReleaseException;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Release;
@@ -67,7 +66,7 @@ public class DBUpgrader {
 	 */
 	@Deprecated
 	public static void checkRequiredBuildNumber(int requiredBuildNumber)
-		throws PortalException {
+		throws Exception {
 
 		_checkRequiredBuildNumber(
 			_getCurrentBuildNumber(), requiredBuildNumber);
@@ -376,15 +375,21 @@ public class DBUpgrader {
 		return buildNumber;
 	}
 
-	private static int _getCurrentBuildNumber() throws NoSuchReleaseException {
-		Release release = ReleaseLocalServiceUtil.fetchRelease(
-			ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
+	private static int _getCurrentBuildNumber() throws Exception {
+		Connection con = DataAccess.getConnection();
 
-		if (release == null) {
-			throw new NoSuchReleaseException("Point to a Liferay database");
+		try (PreparedStatement ps = con.prepareStatement(
+				"select buildNumber from Release_ where releaseId = " +
+					ReleaseConstants.DEFAULT_ID);
+			ResultSet rs = ps.executeQuery()) {
+
+			return rs.getInt("buildNumber");
 		}
+		catch (Exception e) {
+			_log.error("Point to a Liferay database");
 
-		return release.getBuildNumber();
+			throw new NoSuchReleaseException(e);
+		}
 	}
 
 	private static int _getReleaseState() throws Exception {

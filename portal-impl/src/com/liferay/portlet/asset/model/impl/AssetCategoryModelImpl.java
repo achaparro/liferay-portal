@@ -219,26 +219,6 @@ public class AssetCategoryModelImpl
 		return models;
 	}
 
-	public static final String MAPPING_TABLE_ASSETENTRIES_ASSETCATEGORIES_NAME =
-		"AssetEntries_AssetCategories";
-
-	public static final Object[][]
-		MAPPING_TABLE_ASSETENTRIES_ASSETCATEGORIES_COLUMNS = {
-			{"companyId", Types.BIGINT}, {"categoryId", Types.BIGINT},
-			{"entryId", Types.BIGINT}
-		};
-
-	public static final String
-		MAPPING_TABLE_ASSETENTRIES_ASSETCATEGORIES_SQL_CREATE =
-			"create table AssetEntries_AssetCategories (companyId LONG not null,categoryId LONG not null,entryId LONG not null,primary key (categoryId, entryId))";
-
-	public static final boolean
-		FINDER_CACHE_ENABLED_ASSETENTRIES_ASSETCATEGORIES =
-			GetterUtil.getBoolean(
-				com.liferay.portal.util.PropsUtil.get(
-					"value.object.finder.cache.enabled.AssetEntries_AssetCategories"),
-				true);
-
 	public static final long LOCK_EXPIRATION_TIME = GetterUtil.getLong(
 		com.liferay.portal.util.PropsUtil.get(
 			"lock.expiration.time.com.liferay.asset.kernel.model.AssetCategory"));

@@ -35,35 +35,6 @@ public class AssetEntryLocalServiceWrapper
 		_assetEntryLocalService = assetEntryLocalService;
 	}
 
-	@Override
-	public void addAssetCategoryAssetEntries(
-		long categoryId,
-		java.util.List<com.liferay.asset.kernel.model.AssetEntry>
-			assetEntries) {
-
-		_assetEntryLocalService.addAssetCategoryAssetEntries(
-			categoryId, assetEntries);
-	}
-
-	@Override
-	public void addAssetCategoryAssetEntries(long categoryId, long[] entryIds) {
-		_assetEntryLocalService.addAssetCategoryAssetEntries(
-			categoryId, entryIds);
-	}
-
-	@Override
-	public void addAssetCategoryAssetEntry(
-		long categoryId, com.liferay.asset.kernel.model.AssetEntry assetEntry) {
-
-		_assetEntryLocalService.addAssetCategoryAssetEntry(
-			categoryId, assetEntry);
-	}
-
-	@Override
-	public void addAssetCategoryAssetEntry(long categoryId, long entryId) {
-		_assetEntryLocalService.addAssetCategoryAssetEntry(categoryId, entryId);
-	}
-
 	/**
 	 * Adds the asset entry to the database. Also notifies the appropriate model listeners.
 	 *
@@ -104,11 +75,6 @@ public class AssetEntryLocalServiceWrapper
 	}
 
 	@Override
-	public void clearAssetCategoryAssetEntries(long categoryId) {
-		_assetEntryLocalService.clearAssetCategoryAssetEntries(categoryId);
-	}
-
-	@Override
 	public void clearAssetTagAssetEntries(long tagId) {
 		_assetEntryLocalService.clearAssetTagAssetEntries(tagId);
 	}
@@ -124,38 +90,6 @@ public class AssetEntryLocalServiceWrapper
 		long entryId) {
 
 		return _assetEntryLocalService.createAssetEntry(entryId);
-	}
-
-	@Override
-	public void deleteAssetCategoryAssetEntries(
-		long categoryId,
-		java.util.List<com.liferay.asset.kernel.model.AssetEntry>
-			assetEntries) {
-
-		_assetEntryLocalService.deleteAssetCategoryAssetEntries(
-			categoryId, assetEntries);
-	}
-
-	@Override
-	public void deleteAssetCategoryAssetEntries(
-		long categoryId, long[] entryIds) {
-
-		_assetEntryLocalService.deleteAssetCategoryAssetEntries(
-			categoryId, entryIds);
-	}
-
-	@Override
-	public void deleteAssetCategoryAssetEntry(
-		long categoryId, com.liferay.asset.kernel.model.AssetEntry assetEntry) {
-
-		_assetEntryLocalService.deleteAssetCategoryAssetEntry(
-			categoryId, assetEntry);
-	}
-
-	@Override
-	public void deleteAssetCategoryAssetEntry(long categoryId, long entryId) {
-		_assetEntryLocalService.deleteAssetCategoryAssetEntry(
-			categoryId, entryId);
 	}
 
 	/**
@@ -387,49 +321,6 @@ public class AssetEntryLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _assetEntryLocalService.getAncestorEntries(entryId);
-	}
-
-	@Override
-	public java.util.List<com.liferay.asset.kernel.model.AssetEntry>
-		getAssetCategoryAssetEntries(long categoryId) {
-
-		return _assetEntryLocalService.getAssetCategoryAssetEntries(categoryId);
-	}
-
-	@Override
-	public java.util.List<com.liferay.asset.kernel.model.AssetEntry>
-		getAssetCategoryAssetEntries(long categoryId, int start, int end) {
-
-		return _assetEntryLocalService.getAssetCategoryAssetEntries(
-			categoryId, start, end);
-	}
-
-	@Override
-	public java.util.List<com.liferay.asset.kernel.model.AssetEntry>
-		getAssetCategoryAssetEntries(
-			long categoryId, int start, int end,
-			com.liferay.portal.kernel.util.OrderByComparator
-				<com.liferay.asset.kernel.model.AssetEntry> orderByComparator) {
-
-		return _assetEntryLocalService.getAssetCategoryAssetEntries(
-			categoryId, start, end, orderByComparator);
-	}
-
-	@Override
-	public int getAssetCategoryAssetEntriesCount(long categoryId) {
-		return _assetEntryLocalService.getAssetCategoryAssetEntriesCount(
-			categoryId);
-	}
-
-	/**
-	 * Returns the categoryIds of the asset categories associated with the asset entry.
-	 *
-	 * @param entryId the entryId of the asset entry
-	 * @return long[] the categoryIds of asset categories associated with the asset entry
-	 */
-	@Override
-	public long[] getAssetCategoryPrimaryKeys(long entryId) {
-		return _assetEntryLocalService.getAssetCategoryPrimaryKeys(entryId);
 	}
 
 	/**
@@ -708,17 +599,6 @@ public class AssetEntryLocalServiceWrapper
 	}
 
 	@Override
-	public boolean hasAssetCategoryAssetEntries(long categoryId) {
-		return _assetEntryLocalService.hasAssetCategoryAssetEntries(categoryId);
-	}
-
-	@Override
-	public boolean hasAssetCategoryAssetEntry(long categoryId, long entryId) {
-		return _assetEntryLocalService.hasAssetCategoryAssetEntry(
-			categoryId, entryId);
-	}
-
-	@Override
 	public boolean hasAssetTagAssetEntries(long tagId) {
 		return _assetEntryLocalService.hasAssetTagAssetEntries(tagId);
 	}
@@ -938,12 +818,6 @@ public class AssetEntryLocalServiceWrapper
 			companyId, groupIds, userId, className, classTypeId, userName,
 			title, description, assetCategoryIds, assetTagNames,
 			showNonindexable, statuses, andSearch);
-	}
-
-	@Override
-	public void setAssetCategoryAssetEntries(long categoryId, long[] entryIds) {
-		_assetEntryLocalService.setAssetCategoryAssetEntries(
-			categoryId, entryIds);
 	}
 
 	@Override

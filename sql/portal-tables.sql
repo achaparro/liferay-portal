@@ -100,13 +100,6 @@ create table AssetCategory (
 	lastPublishDate DATE null
 );
 
-create table AssetEntries_AssetCategories (
-	companyId LONG not null,
-	categoryId LONG not null,
-	entryId LONG not null,
-	primary key (categoryId, entryId)
-);
-
 create table AssetEntries_AssetTags (
 	companyId LONG not null,
 	entryId LONG not null,

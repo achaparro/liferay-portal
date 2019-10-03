@@ -125,14 +125,16 @@ public interface MessageBoardMessageResource {
 
 	public Page<MessageBoardMessage>
 			getMessageBoardMessageMessageBoardMessagesPage(
-				Long parentMessageBoardMessageId, String search,
-				String filterString, Pagination pagination, String sortString)
+				Long parentMessageBoardMessageId, Boolean flatten,
+				String search, String filterString, Pagination pagination,
+				String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
 			getMessageBoardMessageMessageBoardMessagesPageHttpResponse(
-				Long parentMessageBoardMessageId, String search,
-				String filterString, Pagination pagination, String sortString)
+				Long parentMessageBoardMessageId, Boolean flatten,
+				String search, String filterString, Pagination pagination,
+				String sortString)
 		throws Exception;
 
 	public MessageBoardMessage postMessageBoardMessageMessageBoardMessage(
@@ -148,14 +150,14 @@ public interface MessageBoardMessageResource {
 
 	public Page<MessageBoardMessage>
 			getMessageBoardThreadMessageBoardMessagesPage(
-				Long messageBoardThreadId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long messageBoardThreadId, Boolean flatten, String search,
+				String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
 			getMessageBoardThreadMessageBoardMessagesPageHttpResponse(
-				Long messageBoardThreadId, String search, String filterString,
-				Pagination pagination, String sortString)
+				Long messageBoardThreadId, Boolean flatten, String search,
+				String filterString, Pagination pagination, String sortString)
 		throws Exception;
 
 	public MessageBoardMessage postMessageBoardThreadMessageBoardMessage(
@@ -863,14 +865,14 @@ public interface MessageBoardMessageResource {
 
 		public Page<MessageBoardMessage>
 				getMessageBoardMessageMessageBoardMessagesPage(
-					Long parentMessageBoardMessageId, String search,
-					String filterString, Pagination pagination,
+					Long parentMessageBoardMessageId, Boolean flatten,
+					String search, String filterString, Pagination pagination,
 					String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getMessageBoardMessageMessageBoardMessagesPageHttpResponse(
-					parentMessageBoardMessageId, search, filterString,
+					parentMessageBoardMessageId, flatten, search, filterString,
 					pagination, sortString);
 
 			String content = httpResponse.getContent();
@@ -886,8 +888,8 @@ public interface MessageBoardMessageResource {
 
 		public HttpInvoker.HttpResponse
 				getMessageBoardMessageMessageBoardMessagesPageHttpResponse(
-					Long parentMessageBoardMessageId, String search,
-					String filterString, Pagination pagination,
+					Long parentMessageBoardMessageId, Boolean flatten,
+					String search, String filterString, Pagination pagination,
 					String sortString)
 			throws Exception {
 
@@ -911,6 +913,10 @@ public interface MessageBoardMessageResource {
 			}
 
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (flatten != null) {
+				httpInvoker.parameter("flatten", String.valueOf(flatten));
+			}
 
 			if (search != null) {
 				httpInvoker.parameter("search", String.valueOf(search));
@@ -1016,15 +1022,15 @@ public interface MessageBoardMessageResource {
 
 		public Page<MessageBoardMessage>
 				getMessageBoardThreadMessageBoardMessagesPage(
-					Long messageBoardThreadId, String search,
+					Long messageBoardThreadId, Boolean flatten, String search,
 					String filterString, Pagination pagination,
 					String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getMessageBoardThreadMessageBoardMessagesPageHttpResponse(
-					messageBoardThreadId, search, filterString, pagination,
-					sortString);
+					messageBoardThreadId, flatten, search, filterString,
+					pagination, sortString);
 
 			String content = httpResponse.getContent();
 
@@ -1039,7 +1045,7 @@ public interface MessageBoardMessageResource {
 
 		public HttpInvoker.HttpResponse
 				getMessageBoardThreadMessageBoardMessagesPageHttpResponse(
-					Long messageBoardThreadId, String search,
+					Long messageBoardThreadId, Boolean flatten, String search,
 					String filterString, Pagination pagination,
 					String sortString)
 			throws Exception {
@@ -1064,6 +1070,10 @@ public interface MessageBoardMessageResource {
 			}
 
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (flatten != null) {
+				httpInvoker.parameter("flatten", String.valueOf(flatten));
+			}
 
 			if (search != null) {
 				httpInvoker.parameter("search", String.valueOf(search));

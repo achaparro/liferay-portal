@@ -106,12 +106,14 @@ public class MessageBoardMessageResourceImpl
 	@Override
 	public Page<MessageBoardMessage>
 			getMessageBoardMessageMessageBoardMessagesPage(
-				Long parentMessageBoardMessageId, String search, Filter filter,
-				Pagination pagination, Sort[] sorts)
+				Long parentMessageBoardMessageId, Boolean flatten,
+				String search, Filter filter, Pagination pagination,
+				Sort[] sorts)
 		throws Exception {
 
 		return _getMessageBoardMessagesPage(
-			parentMessageBoardMessageId, search, filter, pagination, sorts);
+			parentMessageBoardMessageId, flatten, search, filter, pagination,
+			sorts);
 	}
 
 	@Override
@@ -126,15 +128,16 @@ public class MessageBoardMessageResourceImpl
 	@Override
 	public Page<MessageBoardMessage>
 			getMessageBoardThreadMessageBoardMessagesPage(
-				Long messageBoardThreadId, String search, Filter filter,
-				Pagination pagination, Sort[] sorts)
+				Long messageBoardThreadId, Boolean flatten, String search,
+				Filter filter, Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		MBThread mbThread = _mbThreadLocalService.getMBThread(
 			messageBoardThreadId);
 
 		return _getMessageBoardMessagesPage(
-			mbThread.getRootMessageId(), search, filter, pagination, sorts);
+			mbThread.getRootMessageId(), flatten, search, filter, pagination,
+			sorts);
 	}
 
 	@Override
@@ -276,8 +279,8 @@ public class MessageBoardMessageResourceImpl
 	}
 
 	private Page<MessageBoardMessage> _getMessageBoardMessagesPage(
-			Long messageBoardMessageId, String search, Filter filter,
-			Pagination pagination, Sort[] sorts)
+			Long messageBoardMessageId, Boolean flatten, String search,
+			Filter filter, Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		return SearchUtil.search(
@@ -285,16 +288,22 @@ public class MessageBoardMessageResourceImpl
 				BooleanFilter booleanFilter =
 					booleanQuery.getPreBooleanFilter();
 
+				String field = "parentMessageId";
+
+				if (GetterUtil.getBoolean(flatten)) {
+					field = "treePath";
+				}
+
+				booleanFilter.add(
+					new TermFilter(
+						field, String.valueOf(messageBoardMessageId)),
+					BooleanClauseOccur.MUST);
+
 				booleanFilter.add(
 					new TermFilter(
 						Field.ENTRY_CLASS_PK,
 						String.valueOf(messageBoardMessageId)),
 					BooleanClauseOccur.MUST_NOT);
-				booleanFilter.add(
-					new TermFilter(
-						"parentMessageId",
-						String.valueOf(messageBoardMessageId)),
-					BooleanClauseOccur.MUST);
 			},
 			filter, MBMessage.class, search, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(

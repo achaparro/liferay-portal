@@ -397,6 +397,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 		message.setBody(body);
 		message.setFormat(format);
 		message.setAnonymous(anonymous);
+		message.setTreePath(message.buildTreePath());
 
 		if (message.isDiscussion()) {
 			long classNameId = classNameLocalService.getClassNameId(
@@ -728,9 +729,10 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 				else if (childrenMessages.size() == 1) {
 					MBMessage childMessage = childrenMessages.get(0);
 
-					childMessage.setRootMessageId(childMessage.getMessageId());
 					childMessage.setParentMessageId(
 						MBMessageConstants.DEFAULT_PARENT_MESSAGE_ID);
+					childMessage.setRootMessageId(childMessage.getMessageId());
+					childMessage.setTreePath(childMessage.buildTreePath());
 
 					mbMessagePersistence.update(childMessage);
 
@@ -765,6 +767,7 @@ public class MBMessageLocalServiceImpl extends MBMessageLocalServiceBaseImpl {
 					for (MBMessage childMessage : childrenMessages) {
 						childMessage.setParentMessageId(
 							message.getParentMessageId());
+						childMessage.setTreePath(childMessage.buildTreePath());
 
 						mbMessagePersistence.update(childMessage);
 					}

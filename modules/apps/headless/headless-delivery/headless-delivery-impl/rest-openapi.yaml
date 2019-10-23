@@ -305,8 +305,8 @@ components:
             type: object
         ContentField:
             description:
-                Represents the value of each field in structured content. Fields can contain different information types
                 (e.g., geolocation, documents, etc.).
+                Represents the value of each field in structured content. Fields can contain different information types
             properties:
                 dataType:
                     description:
@@ -1161,8 +1161,8 @@ components:
             type: object
         MessageBoardMessage:
             description:
-                Represents a message on a message board. Properties follow the [Discussion Forum
                 Posting](https://schema.org/DiscussionForumPosting) specification.
+                Represents a message on a message board. Properties follow the [Discussion Forum
             properties:
                 aggregateRating:
                     allOf:
@@ -2722,9 +2722,9 @@ paths:
             tags: ["Document"]
         post:
             description:
+                (`document`) with the metadata.
                 Creates a new document inside the folder identified by `documentFolderId`. The request body must be
                 `multipart/form-data` with two parts, the file's bytes (`file`), and an optional JSON string
-                (`document`) with the metadata.
             operationId: postDocumentFolderDocument
             parameters:
                 - in: path
@@ -2954,8 +2954,8 @@ paths:
         put:
             description:
                 Replaces the document with the information sent in the request body. Any missing fields are deleted,
-                unless they are required. The request body must be `multipart/form-data` with two parts, the file's
                 bytes (`file`), and an optional JSON string (`document`) with the metadata.
+                unless they are required. The request body must be `multipart/form-data` with two parts, the file's
             operationId: putDocument
             parameters:
                 - in: path
@@ -3306,9 +3306,9 @@ paths:
             tags: ["KnowledgeBaseAttachment"]
         post:
             description:
+                (`knowledgeBaseAttachment`) with the metadata.
                 Creates a new attachment for an existing knowledge base article. The request body must be
                 `multipart/form-data` with two parts, a `file` part with the file's bytes, and an optional JSON string
-                (`knowledgeBaseAttachment`) with the metadata.
             operationId: postKnowledgeBaseArticleKnowledgeBaseAttachment
             parameters:
                 - in: path
@@ -4036,8 +4036,8 @@ paths:
         post:
             description:
                 Creates an attachment for the message board message. The request body must be `multipart/form-data` with
-                two parts, the file's bytes (`file`), and an optional JSON string (`MessageBoardAttachment`) with the
                 metadata.
+                two parts, the file's bytes (`file`), and an optional JSON string (`MessageBoardAttachment`) with the
             operationId: postMessageBoardMessageMessageBoardAttachment
             parameters:
                 - in: path
@@ -4763,8 +4763,8 @@ paths:
         post:
             description:
                 Creates a new attachment for the message board thread. The request body should be `multipart/form-data`
-                with two parts, the file's bytes (`file`), and an optional JSON string (`knowledgeBaseAttachment`) with
                 the metadata.
+                with two parts, the file's bytes (`file`), and an optional JSON string (`knowledgeBaseAttachment`) with
             operationId: postMessageBoardThreadMessageBoardAttachment
             parameters:
                 - in: path
@@ -5479,8 +5479,8 @@ paths:
             tags: ["Document"]
         post:
             description:
-                Creates a new document. The request body must be `multipart/form-data` with two parts, the file's bytes
                 (`file`), and an optional JSON string (`document`) with the metadata.
+                Creates a new document. The request body must be `multipart/form-data` with two parts, the file's bytes
             operationId: postSiteDocument
             parameters:
                 - in: path

@@ -1,0 +1,37 @@
+dependencies {
+	compileInclude group: "jline", name: "jline", version: "2.12"
+	compileInclude group: "mysql", name: "mysql-connector-java", version: "8.0.16"
+}
+
+deploy {
+	from "scripts"
+}
+
+distZip {
+	filesMatching("**/*.jar") {
+		it.path = it.name
+	}
+}
+
+distributions {
+	main {
+		contents {
+			from "scripts"
+			into "/"
+		}
+	}
+}
+
+jar {
+	archiveName "$baseName" + ".jar"
+}
+
+liferayOSGi {
+	expandCompileInclude = true
+}
+
+startScripts {
+	onlyIf {
+		false
+	}
+}

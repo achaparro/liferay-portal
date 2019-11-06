@@ -461,6 +461,15 @@ AUI.add(
 					return instance._getInputLanguage(languageId).val();
 				},
 
+				_afterVal() {
+					var instance = this;
+
+					return new A.Do.AlterReturn(
+						'Return editor content',
+						instance.getValue()
+					);
+				},
+
 				initializer() {
 					var instance = this;
 
@@ -489,6 +498,12 @@ AUI.add(
 						Liferay.on(
 							'submitForm',
 							A.rbind(STR_SUBMIT, instance, inputPlaceholder)
+						),
+						A.Do.after(
+							'_afterVal',
+							inputPlaceholder,
+							'val',
+							instance
 						)
 					];
 

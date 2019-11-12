@@ -1,7 +1,7 @@
 create table AccountEntry (
 	mvccVersion LONG default 0 not null,
-	accountEntryId LONG not null primary key,
-	companyId LONG,
+	accountEntryId LONG not null,
+	companyId LONG not null,
 	userId LONG,
 	userName VARCHAR(75) null,
 	createDate DATE null,
@@ -11,7 +11,8 @@ create table AccountEntry (
 	description STRING null,
 	domains STRING null,
 	logoId LONG,
-	status INTEGER
+	status INTEGER,
+	primary key (accountEntryId, companyId)
 );
 
 create table AccountEntryUserRel (

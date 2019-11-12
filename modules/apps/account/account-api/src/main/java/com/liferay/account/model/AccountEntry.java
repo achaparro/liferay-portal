@@ -55,6 +55,25 @@ public interface AccountEntry extends AccountEntryModel, PersistedModel {
 			}
 
 		};
+	public static final Accessor<AccountEntry, Long> COMPANY_ID_ACCESSOR =
+		new Accessor<AccountEntry, Long>() {
+
+			@Override
+			public Long get(AccountEntry accountEntry) {
+				return accountEntry.getCompanyId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<AccountEntry> getTypeClass() {
+				return AccountEntry.class;
+			}
+
+		};
 
 	public com.liferay.portal.kernel.model.Group getAccountEntryGroup();
 

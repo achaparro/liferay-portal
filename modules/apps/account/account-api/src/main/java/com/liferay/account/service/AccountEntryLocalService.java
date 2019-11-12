@@ -15,6 +15,7 @@
 package com.liferay.account.service;
 
 import com.liferay.account.model.AccountEntry;
+import com.liferay.account.service.persistence.AccountEntryPK;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -85,11 +86,11 @@ public interface AccountEntryLocalService
 	/**
 	 * Creates a new account entry with the primary key. Does not add the account entry to the database.
 	 *
-	 * @param accountEntryId the primary key for the new account entry
+	 * @param accountEntryPK the primary key for the new account entry
 	 * @return the new account entry
 	 */
 	@Transactional(enabled = false)
-	public AccountEntry createAccountEntry(long accountEntryId);
+	public AccountEntry createAccountEntry(AccountEntryPK accountEntryPK);
 
 	public void deactivateAccountEntries(long[] accountEntryIds)
 		throws PortalException;
@@ -116,11 +117,14 @@ public interface AccountEntryLocalService
 	/**
 	 * Deletes the account entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry that was removed
 	 * @throws PortalException if a account entry with the primary key could not be found
 	 */
 	@Indexable(type = IndexableType.DELETE)
+	public AccountEntry deleteAccountEntry(AccountEntryPK accountEntryPK)
+		throws PortalException;
+
 	public AccountEntry deleteAccountEntry(long accountEntryId)
 		throws PortalException;
 
@@ -198,7 +202,7 @@ public interface AccountEntryLocalService
 		DynamicQuery dynamicQuery, Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public AccountEntry fetchAccountEntry(long accountEntryId);
+	public AccountEntry fetchAccountEntry(AccountEntryPK accountEntryPK);
 
 	/**
 	 * Returns a range of all the account entries.
@@ -233,12 +237,12 @@ public interface AccountEntryLocalService
 	/**
 	 * Returns the account entry with the primary key.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry
 	 * @throws PortalException if a account entry with the primary key could not be found
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public AccountEntry getAccountEntry(long accountEntryId)
+	public AccountEntry getAccountEntry(AccountEntryPK accountEntryPK)
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)

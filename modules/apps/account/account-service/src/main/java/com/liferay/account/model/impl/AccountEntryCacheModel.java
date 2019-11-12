@@ -15,6 +15,7 @@
 package com.liferay.account.model.impl;
 
 import com.liferay.account.model.AccountEntry;
+import com.liferay.account.service.persistence.AccountEntryPK;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.CacheModel;
@@ -49,7 +50,7 @@ public class AccountEntryCacheModel
 		AccountEntryCacheModel accountEntryCacheModel =
 			(AccountEntryCacheModel)obj;
 
-		if ((accountEntryId == accountEntryCacheModel.accountEntryId) &&
+		if (accountEntryPK.equals(accountEntryCacheModel.accountEntryPK) &&
 			(mvccVersion == accountEntryCacheModel.mvccVersion)) {
 
 			return true;
@@ -60,7 +61,7 @@ public class AccountEntryCacheModel
 
 	@Override
 	public int hashCode() {
-		int hashCode = HashUtil.hash(0, accountEntryId);
+		int hashCode = HashUtil.hash(0, accountEntryPK);
 
 		return HashUtil.hash(hashCode, mvccVersion);
 	}
@@ -192,6 +193,8 @@ public class AccountEntryCacheModel
 		logoId = objectInput.readLong();
 
 		status = objectInput.readInt();
+
+		accountEntryPK = new AccountEntryPK(accountEntryId, companyId);
 	}
 
 	@Override
@@ -255,5 +258,6 @@ public class AccountEntryCacheModel
 	public String domains;
 	public long logoId;
 	public int status;
+	public transient AccountEntryPK accountEntryPK;
 
 }

@@ -17,8 +17,7 @@ package com.liferay.account.model.impl;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountEntryModel;
 import com.liferay.account.model.AccountEntrySoap;
-import com.liferay.expando.kernel.model.ExpandoBridge;
-import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
+import com.liferay.account.service.persistence.AccountEntryPK;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -27,7 +26,6 @@ import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
-import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 
@@ -100,7 +98,7 @@ public class AccountEntryModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table AccountEntry (mvccVersion LONG default 0 not null,accountEntryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,parentAccountEntryId LONG,name VARCHAR(100) null,description STRING null,domains STRING null,logoId LONG,status INTEGER)";
+		"create table AccountEntry (mvccVersion LONG default 0 not null,accountEntryId LONG not null,companyId LONG not null,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,parentAccountEntryId LONG,name VARCHAR(100) null,description STRING null,domains STRING null,logoId LONG,status INTEGER,primary key (accountEntryId, companyId))";
 
 	public static final String TABLE_SQL_DROP = "drop table AccountEntry";
 
@@ -184,23 +182,24 @@ public class AccountEntryModelImpl
 	}
 
 	@Override
-	public long getPrimaryKey() {
-		return _accountEntryId;
+	public AccountEntryPK getPrimaryKey() {
+		return new AccountEntryPK(_accountEntryId, _companyId);
 	}
 
 	@Override
-	public void setPrimaryKey(long primaryKey) {
-		setAccountEntryId(primaryKey);
+	public void setPrimaryKey(AccountEntryPK primaryKey) {
+		setAccountEntryId(primaryKey.accountEntryId);
+		setCompanyId(primaryKey.companyId);
 	}
 
 	@Override
 	public Serializable getPrimaryKeyObj() {
-		return _accountEntryId;
+		return new AccountEntryPK(_accountEntryId, _companyId);
 	}
 
 	@Override
 	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
-		setPrimaryKey(((Long)primaryKeyObj).longValue());
+		setPrimaryKey((AccountEntryPK)primaryKeyObj);
 	}
 
 	@Override
@@ -583,19 +582,6 @@ public class AccountEntryModelImpl
 	}
 
 	@Override
-	public ExpandoBridge getExpandoBridge() {
-		return ExpandoBridgeFactoryUtil.getExpandoBridge(
-			getCompanyId(), AccountEntry.class.getName(), getPrimaryKey());
-	}
-
-	@Override
-	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
-		ExpandoBridge expandoBridge = getExpandoBridge();
-
-		expandoBridge.setAttributes(serviceContext);
-	}
-
-	@Override
 	public AccountEntry toEscapedModel() {
 		if (_escapedModel == null) {
 			Function<InvocationHandler, AccountEntry>
@@ -658,9 +644,9 @@ public class AccountEntryModelImpl
 
 		AccountEntry accountEntry = (AccountEntry)obj;
 
-		long primaryKey = accountEntry.getPrimaryKey();
+		AccountEntryPK primaryKey = accountEntry.getPrimaryKey();
 
-		if (getPrimaryKey() == primaryKey) {
+		if (getPrimaryKey().equals(primaryKey)) {
 			return true;
 		}
 		else {
@@ -670,7 +656,7 @@ public class AccountEntryModelImpl
 
 	@Override
 	public int hashCode() {
-		return (int)getPrimaryKey();
+		return getPrimaryKey().hashCode();
 	}
 
 	@Override
@@ -705,6 +691,8 @@ public class AccountEntryModelImpl
 	public CacheModel<AccountEntry> toCacheModel() {
 		AccountEntryCacheModel accountEntryCacheModel =
 			new AccountEntryCacheModel();
+
+		accountEntryCacheModel.accountEntryPK = getPrimaryKey();
 
 		accountEntryCacheModel.mvccVersion = getMvccVersion();
 

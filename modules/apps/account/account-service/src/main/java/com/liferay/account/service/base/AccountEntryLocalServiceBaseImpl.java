@@ -16,6 +16,7 @@ package com.liferay.account.service.base;
 
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
+import com.liferay.account.service.persistence.AccountEntryPK;
 import com.liferay.account.service.persistence.AccountEntryPersistence;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DB;
@@ -86,28 +87,28 @@ public abstract class AccountEntryLocalServiceBaseImpl
 	/**
 	 * Creates a new account entry with the primary key. Does not add the account entry to the database.
 	 *
-	 * @param accountEntryId the primary key for the new account entry
+	 * @param accountEntryPK the primary key for the new account entry
 	 * @return the new account entry
 	 */
 	@Override
 	@Transactional(enabled = false)
-	public AccountEntry createAccountEntry(long accountEntryId) {
-		return accountEntryPersistence.create(accountEntryId);
+	public AccountEntry createAccountEntry(AccountEntryPK accountEntryPK) {
+		return accountEntryPersistence.create(accountEntryPK);
 	}
 
 	/**
 	 * Deletes the account entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry that was removed
 	 * @throws PortalException if a account entry with the primary key could not be found
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public AccountEntry deleteAccountEntry(long accountEntryId)
+	public AccountEntry deleteAccountEntry(AccountEntryPK accountEntryPK)
 		throws PortalException {
 
-		return accountEntryPersistence.remove(accountEntryId);
+		return accountEntryPersistence.remove(accountEntryPK);
 	}
 
 	/**
@@ -213,22 +214,22 @@ public abstract class AccountEntryLocalServiceBaseImpl
 	}
 
 	@Override
-	public AccountEntry fetchAccountEntry(long accountEntryId) {
-		return accountEntryPersistence.fetchByPrimaryKey(accountEntryId);
+	public AccountEntry fetchAccountEntry(AccountEntryPK accountEntryPK) {
+		return accountEntryPersistence.fetchByPrimaryKey(accountEntryPK);
 	}
 
 	/**
 	 * Returns the account entry with the primary key.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry
 	 * @throws PortalException if a account entry with the primary key could not be found
 	 */
 	@Override
-	public AccountEntry getAccountEntry(long accountEntryId)
+	public AccountEntry getAccountEntry(AccountEntryPK accountEntryPK)
 		throws PortalException {
 
-		return accountEntryPersistence.findByPrimaryKey(accountEntryId);
+		return accountEntryPersistence.findByPrimaryKey(accountEntryPK);
 	}
 
 	@Override
@@ -240,7 +241,8 @@ public abstract class AccountEntryLocalServiceBaseImpl
 		actionableDynamicQuery.setClassLoader(getClassLoader());
 		actionableDynamicQuery.setModelClass(AccountEntry.class);
 
-		actionableDynamicQuery.setPrimaryKeyPropertyName("accountEntryId");
+		actionableDynamicQuery.setPrimaryKeyPropertyName(
+			"primaryKey.accountEntryId");
 
 		return actionableDynamicQuery;
 	}
@@ -258,7 +260,7 @@ public abstract class AccountEntryLocalServiceBaseImpl
 		indexableActionableDynamicQuery.setModelClass(AccountEntry.class);
 
 		indexableActionableDynamicQuery.setPrimaryKeyPropertyName(
-			"accountEntryId");
+			"primaryKey.accountEntryId");
 
 		return indexableActionableDynamicQuery;
 	}
@@ -270,7 +272,8 @@ public abstract class AccountEntryLocalServiceBaseImpl
 		actionableDynamicQuery.setClassLoader(getClassLoader());
 		actionableDynamicQuery.setModelClass(AccountEntry.class);
 
-		actionableDynamicQuery.setPrimaryKeyPropertyName("accountEntryId");
+		actionableDynamicQuery.setPrimaryKeyPropertyName(
+			"primaryKey.accountEntryId");
 	}
 
 	/**

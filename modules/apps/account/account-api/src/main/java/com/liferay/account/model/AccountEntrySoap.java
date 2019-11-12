@@ -14,6 +14,8 @@
 
 package com.liferay.account.model;
 
+import com.liferay.account.service.persistence.AccountEntryPK;
+
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -89,12 +91,13 @@ public class AccountEntrySoap implements Serializable {
 	public AccountEntrySoap() {
 	}
 
-	public long getPrimaryKey() {
-		return _accountEntryId;
+	public AccountEntryPK getPrimaryKey() {
+		return new AccountEntryPK(_accountEntryId, _companyId);
 	}
 
-	public void setPrimaryKey(long pk) {
-		setAccountEntryId(pk);
+	public void setPrimaryKey(AccountEntryPK pk) {
+		setAccountEntryId(pk.accountEntryId);
+		setCompanyId(pk.companyId);
 	}
 
 	public long getMvccVersion() {

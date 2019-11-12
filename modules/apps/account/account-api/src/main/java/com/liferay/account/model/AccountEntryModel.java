@@ -14,6 +14,7 @@
 
 package com.liferay.account.model;
 
+import com.liferay.account.service.persistence.AccountEntryPK;
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.AuditedModel;
 import com.liferay.portal.kernel.model.BaseModel;
@@ -50,14 +51,14 @@ public interface AccountEntryModel
 	 *
 	 * @return the primary key of this account entry
 	 */
-	public long getPrimaryKey();
+	public AccountEntryPK getPrimaryKey();
 
 	/**
 	 * Sets the primary key of this account entry.
 	 *
 	 * @param primaryKey the primary key of this account entry
 	 */
-	public void setPrimaryKey(long primaryKey);
+	public void setPrimaryKey(AccountEntryPK primaryKey);
 
 	/**
 	 * Returns the mvcc version of this account entry.

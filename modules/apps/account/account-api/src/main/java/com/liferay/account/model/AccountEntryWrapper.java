@@ -257,7 +257,9 @@ public class AccountEntryWrapper
 	 * @return the primary key of this account entry
 	 */
 	@Override
-	public long getPrimaryKey() {
+	public com.liferay.account.service.persistence.AccountEntryPK
+		getPrimaryKey() {
+
 		return model.getPrimaryKey();
 	}
 
@@ -417,7 +419,9 @@ public class AccountEntryWrapper
 	 * @param primaryKey the primary key of this account entry
 	 */
 	@Override
-	public void setPrimaryKey(long primaryKey) {
+	public void setPrimaryKey(
+		com.liferay.account.service.persistence.AccountEntryPK primaryKey) {
+
 		model.setPrimaryKey(primaryKey);
 	}
 

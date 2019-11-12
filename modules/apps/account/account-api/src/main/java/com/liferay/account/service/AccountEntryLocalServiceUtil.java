@@ -87,13 +87,13 @@ public class AccountEntryLocalServiceUtil {
 	/**
 	 * Creates a new account entry with the primary key. Does not add the account entry to the database.
 	 *
-	 * @param accountEntryId the primary key for the new account entry
+	 * @param accountEntryPK the primary key for the new account entry
 	 * @return the new account entry
 	 */
 	public static com.liferay.account.model.AccountEntry createAccountEntry(
-		long accountEntryId) {
+		com.liferay.account.service.persistence.AccountEntryPK accountEntryPK) {
 
-		return getService().createAccountEntry(accountEntryId);
+		return getService().createAccountEntry(accountEntryPK);
 	}
 
 	public static void deactivateAccountEntries(long[] accountEntryIds)
@@ -138,10 +138,18 @@ public class AccountEntryLocalServiceUtil {
 	/**
 	 * Deletes the account entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry that was removed
 	 * @throws PortalException if a account entry with the primary key could not be found
 	 */
+	public static com.liferay.account.model.AccountEntry deleteAccountEntry(
+			com.liferay.account.service.persistence.AccountEntryPK
+				accountEntryPK)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return getService().deleteAccountEntry(accountEntryPK);
+	}
+
 	public static com.liferay.account.model.AccountEntry deleteAccountEntry(
 			long accountEntryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -246,9 +254,9 @@ public class AccountEntryLocalServiceUtil {
 	}
 
 	public static com.liferay.account.model.AccountEntry fetchAccountEntry(
-		long accountEntryId) {
+		com.liferay.account.service.persistence.AccountEntryPK accountEntryPK) {
 
-		return getService().fetchAccountEntry(accountEntryId);
+		return getService().fetchAccountEntry(accountEntryPK);
 	}
 
 	/**
@@ -294,15 +302,16 @@ public class AccountEntryLocalServiceUtil {
 	/**
 	 * Returns the account entry with the primary key.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry
 	 * @throws PortalException if a account entry with the primary key could not be found
 	 */
 	public static com.liferay.account.model.AccountEntry getAccountEntry(
-			long accountEntryId)
+			com.liferay.account.service.persistence.AccountEntryPK
+				accountEntryPK)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return getService().getAccountEntry(accountEntryId);
+		return getService().getAccountEntry(accountEntryPK);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery

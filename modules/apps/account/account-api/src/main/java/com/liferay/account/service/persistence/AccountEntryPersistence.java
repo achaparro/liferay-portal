@@ -18,6 +18,8 @@ import com.liferay.account.exception.NoSuchEntryException;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
+import java.util.Set;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
@@ -156,70 +158,14 @@ public interface AccountEntryPersistence extends BasePersistence<AccountEntry> {
 	/**
 	 * Returns the account entries before and after the current account entry in the ordered set where companyId = &#63;.
 	 *
-	 * @param accountEntryId the primary key of the current account entry
+	 * @param accountEntryPK the primary key of the current account entry
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next account entry
 	 * @throws NoSuchEntryException if a account entry with the primary key could not be found
 	 */
 	public AccountEntry[] findByCompanyId_PrevAndNext(
-			long accountEntryId, long companyId,
-			com.liferay.portal.kernel.util.OrderByComparator<AccountEntry>
-				orderByComparator)
-		throws NoSuchEntryException;
-
-	/**
-	 * Returns all the account entries that the user has permission to view where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @return the matching account entries that the user has permission to view
-	 */
-	public java.util.List<AccountEntry> filterFindByCompanyId(long companyId);
-
-	/**
-	 * Returns a range of all the account entries that the user has permission to view where companyId = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AccountEntryModelImpl</code>.
-	 * </p>
-	 *
-	 * @param companyId the company ID
-	 * @param start the lower bound of the range of account entries
-	 * @param end the upper bound of the range of account entries (not inclusive)
-	 * @return the range of matching account entries that the user has permission to view
-	 */
-	public java.util.List<AccountEntry> filterFindByCompanyId(
-		long companyId, int start, int end);
-
-	/**
-	 * Returns an ordered range of all the account entries that the user has permissions to view where companyId = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AccountEntryModelImpl</code>.
-	 * </p>
-	 *
-	 * @param companyId the company ID
-	 * @param start the lower bound of the range of account entries
-	 * @param end the upper bound of the range of account entries (not inclusive)
-	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching account entries that the user has permission to view
-	 */
-	public java.util.List<AccountEntry> filterFindByCompanyId(
-		long companyId, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AccountEntry>
-			orderByComparator);
-
-	/**
-	 * Returns the account entries before and after the current account entry in the ordered set of account entries that the user has permission to view where companyId = &#63;.
-	 *
-	 * @param accountEntryId the primary key of the current account entry
-	 * @param companyId the company ID
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next account entry
-	 * @throws NoSuchEntryException if a account entry with the primary key could not be found
-	 */
-	public AccountEntry[] filterFindByCompanyId_PrevAndNext(
-			long accountEntryId, long companyId,
+			AccountEntryPK accountEntryPK, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<AccountEntry>
 				orderByComparator)
 		throws NoSuchEntryException;
@@ -238,14 +184,6 @@ public interface AccountEntryPersistence extends BasePersistence<AccountEntry> {
 	 * @return the number of matching account entries
 	 */
 	public int countByCompanyId(long companyId);
-
-	/**
-	 * Returns the number of account entries that the user has permission to view where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @return the number of matching account entries that the user has permission to view
-	 */
-	public int filterCountByCompanyId(long companyId);
 
 	/**
 	 * Returns all the account entries where companyId = &#63; and status = &#63;.
@@ -371,7 +309,7 @@ public interface AccountEntryPersistence extends BasePersistence<AccountEntry> {
 	/**
 	 * Returns the account entries before and after the current account entry in the ordered set where companyId = &#63; and status = &#63;.
 	 *
-	 * @param accountEntryId the primary key of the current account entry
+	 * @param accountEntryPK the primary key of the current account entry
 	 * @param companyId the company ID
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
@@ -379,68 +317,7 @@ public interface AccountEntryPersistence extends BasePersistence<AccountEntry> {
 	 * @throws NoSuchEntryException if a account entry with the primary key could not be found
 	 */
 	public AccountEntry[] findByC_S_PrevAndNext(
-			long accountEntryId, long companyId, int status,
-			com.liferay.portal.kernel.util.OrderByComparator<AccountEntry>
-				orderByComparator)
-		throws NoSuchEntryException;
-
-	/**
-	 * Returns all the account entries that the user has permission to view where companyId = &#63; and status = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param status the status
-	 * @return the matching account entries that the user has permission to view
-	 */
-	public java.util.List<AccountEntry> filterFindByC_S(
-		long companyId, int status);
-
-	/**
-	 * Returns a range of all the account entries that the user has permission to view where companyId = &#63; and status = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AccountEntryModelImpl</code>.
-	 * </p>
-	 *
-	 * @param companyId the company ID
-	 * @param status the status
-	 * @param start the lower bound of the range of account entries
-	 * @param end the upper bound of the range of account entries (not inclusive)
-	 * @return the range of matching account entries that the user has permission to view
-	 */
-	public java.util.List<AccountEntry> filterFindByC_S(
-		long companyId, int status, int start, int end);
-
-	/**
-	 * Returns an ordered range of all the account entries that the user has permissions to view where companyId = &#63; and status = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>AccountEntryModelImpl</code>.
-	 * </p>
-	 *
-	 * @param companyId the company ID
-	 * @param status the status
-	 * @param start the lower bound of the range of account entries
-	 * @param end the upper bound of the range of account entries (not inclusive)
-	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching account entries that the user has permission to view
-	 */
-	public java.util.List<AccountEntry> filterFindByC_S(
-		long companyId, int status, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<AccountEntry>
-			orderByComparator);
-
-	/**
-	 * Returns the account entries before and after the current account entry in the ordered set of account entries that the user has permission to view where companyId = &#63; and status = &#63;.
-	 *
-	 * @param accountEntryId the primary key of the current account entry
-	 * @param companyId the company ID
-	 * @param status the status
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next account entry
-	 * @throws NoSuchEntryException if a account entry with the primary key could not be found
-	 */
-	public AccountEntry[] filterFindByC_S_PrevAndNext(
-			long accountEntryId, long companyId, int status,
+			AccountEntryPK accountEntryPK, long companyId, int status,
 			com.liferay.portal.kernel.util.OrderByComparator<AccountEntry>
 				orderByComparator)
 		throws NoSuchEntryException;
@@ -463,15 +340,6 @@ public interface AccountEntryPersistence extends BasePersistence<AccountEntry> {
 	public int countByC_S(long companyId, int status);
 
 	/**
-	 * Returns the number of account entries that the user has permission to view where companyId = &#63; and status = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param status the status
-	 * @return the number of matching account entries that the user has permission to view
-	 */
-	public int filterCountByC_S(long companyId, int status);
-
-	/**
 	 * Caches the account entry in the entity cache if it is enabled.
 	 *
 	 * @param accountEntry the account entry
@@ -488,39 +356,40 @@ public interface AccountEntryPersistence extends BasePersistence<AccountEntry> {
 	/**
 	 * Creates a new account entry with the primary key. Does not add the account entry to the database.
 	 *
-	 * @param accountEntryId the primary key for the new account entry
+	 * @param accountEntryPK the primary key for the new account entry
 	 * @return the new account entry
 	 */
-	public AccountEntry create(long accountEntryId);
+	public AccountEntry create(AccountEntryPK accountEntryPK);
 
 	/**
 	 * Removes the account entry with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry that was removed
 	 * @throws NoSuchEntryException if a account entry with the primary key could not be found
 	 */
-	public AccountEntry remove(long accountEntryId) throws NoSuchEntryException;
+	public AccountEntry remove(AccountEntryPK accountEntryPK)
+		throws NoSuchEntryException;
 
 	public AccountEntry updateImpl(AccountEntry accountEntry);
 
 	/**
 	 * Returns the account entry with the primary key or throws a <code>NoSuchEntryException</code> if it could not be found.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry
 	 * @throws NoSuchEntryException if a account entry with the primary key could not be found
 	 */
-	public AccountEntry findByPrimaryKey(long accountEntryId)
+	public AccountEntry findByPrimaryKey(AccountEntryPK accountEntryPK)
 		throws NoSuchEntryException;
 
 	/**
 	 * Returns the account entry with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param accountEntryId the primary key of the account entry
+	 * @param accountEntryPK the primary key of the account entry
 	 * @return the account entry, or <code>null</code> if a account entry with the primary key could not be found
 	 */
-	public AccountEntry fetchByPrimaryKey(long accountEntryId);
+	public AccountEntry fetchByPrimaryKey(AccountEntryPK accountEntryPK);
 
 	/**
 	 * Returns all the account entries.
@@ -589,5 +458,7 @@ public interface AccountEntryPersistence extends BasePersistence<AccountEntry> {
 	 * @return the number of account entries
 	 */
 	public int countAll();
+
+	public Set<String> getCompoundPKColumnNames();
 
 }

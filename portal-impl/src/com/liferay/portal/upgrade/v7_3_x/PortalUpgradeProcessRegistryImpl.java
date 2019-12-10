@@ -53,7 +53,7 @@ public class PortalUpgradeProcessRegistryImpl
 		upgradeProcesses.put(new Version(8, 0, 0), new UpgradeCompanyInfo());
 
 		upgradeProcesses.put(
-			new Version(9, 0, 0),
+			new Version(8, 1, 0),
 			new UpgradePrimaryKeyCompanyId(
 				"Account_", "Address", "AnnouncementsDelivery",
 				"AnnouncementsEntry", "AnnouncementsFlag", "AssetCategory",

@@ -51,7 +51,7 @@ public class PortalUpgradeProcessRegistryImpl
 				"ResourcePermission"));
 
 		upgradeProcesses.put(
-			new Version(8, 0, 0),
+			new Version(7, 2, 0),
 			new UpgradePrimaryKeyCompanyId(
 				"Account_", "Address", "AnnouncementsDelivery",
 				"AnnouncementsEntry", "AnnouncementsFlag", "AssetCategory",

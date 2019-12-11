@@ -36,6 +36,7 @@ const handleFieldDuplicated = (
 
 	const label = sub(Liferay.Language.get('copy-of-x'), [localizedLabel]);
 	const newFieldName = fieldNameGenerator(label);
+	const oldFieldName = field.fieldName;
 	const visitor = new PagesVisitor(field.settingsContext.pages);
 
 	const duplicatedField = {
@@ -60,6 +61,24 @@ const handleFieldDuplicated = (
 						},
 						value: label
 					};
+				} else if (field.fieldName === 'validation') {
+					const expression = field.value.expression;
+
+					if (expression && expression.value) {
+						field = {
+							...field,
+							value: {
+								...field.value,
+								expression: {
+									...field.value.expression,
+									value: expression.value.replace(
+										oldFieldName,
+										newFieldName
+									)
+								}
+							}
+						};
+					}
 				}
 				return {
 					...field

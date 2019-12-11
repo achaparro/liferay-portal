@@ -22,6 +22,7 @@ import com.liferay.fragment.internal.upgrade.v2_2_1.UpgradeFragmentEntry;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeMVCCVersion;
+import com.liferay.portal.kernel.upgrade.UpgradePrimaryKeyCompanyId;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.portal.upgrade.step.util.UpgradeStepFactory;
 
@@ -83,6 +84,11 @@ public class FragmentServiceUpgrade implements UpgradeStepRegistrator {
 			});
 
 		registry.register("2.2.0", "2.2.1", new UpgradeFragmentEntry());
+
+		registry.register(
+			"2.2.1", "2.3.0",
+			new UpgradePrimaryKeyCompanyId(
+				"FragmentCollection", "FragmentEntry", "FragmentEntryLink"));
 	}
 
 }

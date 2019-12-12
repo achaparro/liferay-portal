@@ -34,7 +34,7 @@ public class UpgradeSchema extends UpgradeProcess {
 
 		String template = StringUtil.read(
 			UpgradeSchema.class.getResourceAsStream(
-				"/META-INF/sql/tables.sql"));
+				"dependencies/update.sql"));
 
 		runSQLTemplateString(template, false, true);
 	}

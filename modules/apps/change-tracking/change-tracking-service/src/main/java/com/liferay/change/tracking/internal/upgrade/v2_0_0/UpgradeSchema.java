@@ -24,17 +24,8 @@ public class UpgradeSchema extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		runSQL("drop table CTCollection");
-		runSQL("drop table CTCollection_CTEntryAggregate");
-		runSQL("drop table CTCollections_CTEntries");
-		runSQL("drop table CTEntry");
-		runSQL("drop table CTEntryAggregate");
-		runSQL("drop table CTEntryAggregates_CTEntries");
-		runSQL("drop table CTProcess");
-
 		String template = StringUtil.read(
-			UpgradeSchema.class.getResourceAsStream(
-				"/META-INF/sql/tables.sql"));
+			UpgradeSchema.class.getResourceAsStream("dependencies/update.sql"));
 
 		runSQLTemplateString(template, false, true);
 	}

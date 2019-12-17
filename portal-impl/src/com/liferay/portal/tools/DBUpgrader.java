@@ -235,6 +235,8 @@ public class DBUpgrader {
 			release = ReleaseLocalServiceUtil.addRelease(
 				ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME,
 				ReleaseInfo.getParentBuildNumber());
+
+			StartupHelperUtil.initResourceActions();
 		}
 
 		_checkReleaseState(release.getState());

@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.internal.upgrade.v3_3_1;
+package com.liferay.dynamic.data.mapping.internal.upgrade.v3_2_2;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;

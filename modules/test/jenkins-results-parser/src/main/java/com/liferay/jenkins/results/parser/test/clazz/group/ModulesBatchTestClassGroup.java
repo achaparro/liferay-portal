@@ -61,9 +61,10 @@ public abstract class ModulesBatchTestClassGroup extends BatchTestClassGroup {
 	}
 
 	protected ModulesBatchTestClassGroup(
-		String batchName, PortalTestClassJob portalTestClassJob) {
+		String batchName, BuildProfile buildProfile,
+		PortalTestClassJob portalTestClassJob) {
 
-		super(batchName, portalTestClassJob);
+		super(batchName, buildProfile, portalTestClassJob);
 
 		try {
 			File modulesDir = new File(
@@ -128,6 +129,11 @@ public abstract class ModulesBatchTestClassGroup extends BatchTestClassGroup {
 							modulesDir));
 				}
 			}
+
+			excludesPathMatchers.addAll(
+				getPathMatchers(
+					getFirstPropertyValue("modules.excludes." + buildProfile),
+					modulesDir));
 
 			if (testRelevantChanges) {
 				moduleDirsList.addAll(

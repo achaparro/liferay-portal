@@ -184,8 +184,7 @@ public class DataListViewResourceImpl
 
 		dataListView = _toDataListView(
 			_deDataListViewLocalService.updateDEDataListView(
-				dataListViewId,
-				MapUtil.toString(dataListView.getAppliedFilters()),
+				dataListViewId, _toJSON(dataListView.getAppliedFilters()),
 				Arrays.toString(dataListView.getFieldNames()),
 				LocalizedValueUtil.toLocaleStringMap(dataListView.getName()),
 				dataListView.getSortField()));
@@ -237,6 +236,20 @@ public class DataListViewResourceImpl
 		};
 	}
 
+	private String _toJSON(Map<String, Object> appliedFilters) {
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		if (MapUtil.isEmpty(appliedFilters)) {
+			return jsonObject.toString();
+		}
+
+		for (Map.Entry<String, Object> entry : appliedFilters.entrySet()) {
+			jsonObject.put(entry.getKey(), entry.getValue());
+		}
+
+		return jsonObject.toString();
+	}
+
 	private Map<String, Object> _toMap(String json) throws Exception {
 		Map<String, Object> map = new HashMap<>();
 
@@ -249,7 +262,17 @@ public class DataListViewResourceImpl
 		while (iterator.hasNext()) {
 			String key = iterator.next();
 
-			map.put(key, jsonObject.get(key));
+			if (jsonObject.get(key) instanceof JSONObject) {
+				map.put(
+					key,
+					_toMap(
+						jsonObject.get(
+							key
+						).toString()));
+			}
+			else {
+				map.put(key, jsonObject.get(key));
+			}
 		}
 
 		return map;

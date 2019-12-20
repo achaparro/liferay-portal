@@ -34,7 +34,7 @@ page import="com.liferay.portal.kernel.util.ParamUtil" %>
 <portlet:defineObjects />
 
 <%
-String tabs = ParamUtil.getString(request, "tabs", "results-rankings");
+String tabs = ParamUtil.getString(request, "tabs", "result-rankings");
 %>
 
 <clay:navigation-bar
@@ -44,8 +44,8 @@ String tabs = ParamUtil.getString(request, "tabs", "results-rankings");
 			{
 				add(
 					navigationItem -> {
-						navigationItem.setActive(tabs.equals("results-rankings"));
-						navigationItem.setHref(renderResponse.createRenderURL(), "tabs", "results-rankings");
+						navigationItem.setActive(tabs.equals("result-rankings"));
+						navigationItem.setHref(renderResponse.createRenderURL(), "tabs", "result-rankings");
 						navigationItem.setLabel(LanguageUtil.get(request, "result-rankings"));
 					});
 			}
@@ -54,7 +54,7 @@ String tabs = ParamUtil.getString(request, "tabs", "results-rankings");
 />
 
 <c:choose>
-	<c:when test='<%= tabs.equals("results-rankings") %>'>
+	<c:when test='<%= tabs.equals("result-rankings") %>'>
 		<liferay-util:include page="/view_results_rankings.jsp" servletContext="<%= application %>" />
 	</c:when>
 </c:choose>

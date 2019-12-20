@@ -69,29 +69,6 @@ public class JavaCleanUpMethodVariablesCheck extends BaseJavaTermCheck {
 		return new String[] {JAVA_CLASS};
 	}
 
-	private void _checkMissingVariable(
-		String fileName, String variableName, JavaClass javaClass) {
-
-		String setterMethodName = "set" + variableName.substring(1);
-
-		for (JavaTerm javaTerm : javaClass.getChildJavaTerms()) {
-			if (!javaTerm.isJavaMethod()) {
-				continue;
-			}
-
-			if (StringUtil.equalsIgnoreCase(
-					javaTerm.getName(), setterMethodName)) {
-
-				addMessage(
-					fileName,
-					"Variable '" + variableName +
-						"' is missing in method 'cleanUp'");
-
-				return;
-			}
-		}
-	}
-
 	private String _formatVariables(
 		String fileName, String cleanUpMethodContent, JavaClass javaClass) {
 
@@ -110,10 +87,36 @@ public class JavaCleanUpMethodVariablesCheck extends BaseJavaTermCheck {
 
 			String variableName = javaTerm.getName();
 
+			Pattern pattern = Pattern.compile(
+				"\tprivate\\s+(((final|static|transient|volatile)\\s+)*)" +
+					"([\\s\\S]*?)" + variableName);
+
+			String variableContent = javaTerm.getContent();
+
+			Matcher matcher = pattern.matcher(variableContent);
+
+			if (!matcher.find()) {
+				return cleanUpMethodContent;
+			}
+
+			String modifierDefinition = StringUtil.trim(
+				variableContent.substring(matcher.start(1), matcher.start(4)));
+
+			boolean isFinal = false;
+
+			if (modifierDefinition.contains("final")) {
+				isFinal = true;
+			}
+
 			int pos = cleanUpMethodContent.indexOf(variableName + " =");
 
 			if (pos == -1) {
-				_checkMissingVariable(fileName, variableName, javaClass);
+				if (!isFinal && !javaTerm.isStatic()) {
+					addMessage(
+						fileName,
+						"Variable '" + variableName +
+							"' is missing in method 'cleanUp'");
+				}
 
 				continue;
 			}
@@ -124,27 +127,11 @@ public class JavaCleanUpMethodVariablesCheck extends BaseJavaTermCheck {
 
 			previousPos = pos;
 
-			Pattern pattern = Pattern.compile(
-				"\t(private|protected|public)\\s+" +
-					"(((final|static|transient|volatile)( |\n))*)([\\s\\S]*?)" +
-						variableName);
-
-			String variableContent = javaTerm.getContent();
-
-			Matcher matcher = pattern.matcher(variableContent);
-
-			if (!matcher.find()) {
+			if (isFinal) {
 				continue;
 			}
 
-			String modifierDefinition = StringUtil.trim(
-				variableContent.substring(matcher.start(1), matcher.start(6)));
-
-			if (modifierDefinition.contains("final")) {
-				continue;
-			}
-
-			String javaFieldType = StringUtil.trim(matcher.group(6));
+			String javaFieldType = StringUtil.trim(matcher.group(4));
 
 			pattern = Pattern.compile(
 				javaTerm.getName() + " =\\s+[a-z]\\w*\\.");

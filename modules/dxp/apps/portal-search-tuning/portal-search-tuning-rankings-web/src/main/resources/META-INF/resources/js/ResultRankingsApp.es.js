@@ -18,7 +18,7 @@ import ErrorBoundary from './components/shared/ErrorBoundary.es';
 export default function({context, props}) {
 	return (
 		<ThemeContext.Provider value={context}>
-			<div className="results-rankings-root">
+			<div className="result-rankings-root">
 				<ErrorBoundary
 					component={Liferay.Language.get('result-rankings')}
 				>

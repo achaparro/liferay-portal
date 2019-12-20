@@ -12,13 +12,12 @@
 import {fetch} from 'frontend-js-web';
 
 /**
- * Fetches documents and maps the data response to the expected object shape
- * of {items: [{}, {}, ...], total: 10}.
- * @param {string} url The base url to fetch documents.
+ * Fetches basic response given the url and parameters.
+ * @param {string} url The base url to fetch.
  * @param {Object} params The url parameters to be included in the request.
  * @returns {Promise} The fetch request promise.
  */
-export function fetchDocuments(url, params) {
+export function fetchResponse(url, params) {
 	const fetchUrl = new URL(url);
 
 	Object.keys(params).forEach(property => {
@@ -27,10 +26,19 @@ export function fetchDocuments(url, params) {
 		}
 	});
 
-	return fetch(fetchUrl)
-		.then(response => response.json())
-		.then(data => ({
-			items: data.documents,
-			total: data.total
-		}));
+	return fetch(fetchUrl).then(response => response.json());
+}
+
+/**
+ * Fetches documents and maps the data response to the expected object shape
+ * of {items: [{}, {}, ...], total: 10}.
+ * @param {string} url The base url to fetch documents.
+ * @param {Object} params The url parameters to be included in the request.
+ * @returns {Promise} The fetch request promise.
+ */
+export function fetchDocuments(url, params) {
+	return fetchResponse(url, params).then(data => ({
+		items: data.documents,
+		total: data.total
+	}));
 }

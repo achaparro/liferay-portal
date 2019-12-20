@@ -41,9 +41,10 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 	}
 
 	protected ModulesJUnitBatchTestClassGroup(
-		String batchName, PortalTestClassJob portalTestClassJob) {
+		String batchName, BuildProfile buildProfile,
+		PortalTestClassJob portalTestClassJob) {
 
-		super(batchName, portalTestClassJob);
+		super(batchName, buildProfile, portalTestClassJob);
 	}
 
 	@Override

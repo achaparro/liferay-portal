@@ -555,6 +555,14 @@ const INITIAL_STATE = {
 	masterLayoutData: LayoutDataShape,
 
 	/**
+	 * If current master is being used
+	 * @default false
+	 * @review
+	 * @type {boolean}
+	 */
+	masterUsed: Config.bool().value(false),
+
+	/**
 	 * @default []
 	 * @review
 	 * @type {Array<{name: string, status: { label: string, style: string }, title: string, usagesCount: number}>}

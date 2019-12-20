@@ -15,6 +15,7 @@
 package com.liferay.portal.search.tuning.rankings.web.internal.portlet.action;
 
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
@@ -27,10 +28,14 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.search.index.IndexNameBuilder;
 import com.liferay.portal.search.tuning.rankings.web.internal.configuration.DefaultResultRankingsConfiguration;
 import com.liferay.portal.search.tuning.rankings.web.internal.configuration.ResultRankingsConfiguration;
 import com.liferay.portal.search.tuning.rankings.web.internal.constants.ResultRankingsConstants;
 import com.liferay.portal.search.tuning.rankings.web.internal.constants.ResultRankingsPortletKeys;
+import com.liferay.portal.search.tuning.rankings.web.internal.exception.DuplicateAliasStringException;
+import com.liferay.portal.search.tuning.rankings.web.internal.exception.DuplicateQueryStringException;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.DuplicateQueryStringsDetector;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.Ranking;
 import com.liferay.portal.search.tuning.rankings.web.internal.index.RankingIndexReader;
@@ -52,6 +57,7 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequest;
+import javax.portlet.PortletURL;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -116,10 +122,24 @@ public class EditRankingMVCActionCommand extends BaseMVCActionCommand {
 
 			sendRedirect(actionRequest, actionResponse, redirect);
 		}
-		catch (DuplicateQueryStringException dqse) {
-			SessionErrors.add(actionRequest, Exception.class);
+		catch (Exception e) {
+			LiferayPortletResponse liferayPortletResponse =
+				portal.getLiferayPortletResponse(actionResponse);
 
-			actionResponse.setRenderParameter("mvcPath", "/error.jsp");
+			PortletURL renderURL = liferayPortletResponse.createRenderURL();
+
+			renderURL.setParameter(
+				"mvcRenderCommandName", "addResultsRankingEntry");
+			renderURL.setParameter(
+				"redirect", editRankingMVCActionRequest.getRedirect());
+
+			actionRequest.setAttribute(WebKeys.REDIRECT, renderURL.toString());
+
+			SessionErrors.add(actionRequest, e.getClass());
+
+			hideDefaultErrorMessage(actionRequest);
+
+			sendRedirect(actionRequest, actionResponse);
 		}
 	}
 
@@ -358,8 +378,9 @@ public class EditRankingMVCActionCommand extends BaseMVCActionCommand {
 	}
 
 	protected void guardDuplicateQueryString(
-		ActionRequest actionRequest,
-		EditRankingMVCActionRequest editRankingMVCActionRequest) {
+			ActionRequest actionRequest,
+			EditRankingMVCActionRequest editRankingMVCActionRequest)
+		throws DuplicateQueryStringException {
 
 		_guardDuplicateQueryStrings(
 			actionRequest, editRankingMVCActionRequest,
@@ -378,15 +399,26 @@ public class EditRankingMVCActionCommand extends BaseMVCActionCommand {
 				actionRequest, actionResponse,
 				editRankingMVCActionRequest.getRedirect());
 		}
-		catch (DuplicateQueryStringException dqse) {
-			SessionErrors.add(actionRequest, Exception.class);
+		catch (Exception e) {
+			if (e instanceof DuplicateAliasStringException) {
+				SessionErrors.add(actionRequest, Exception.class);
 
-			actionResponse.setRenderParameter("mvcPath", "/error.jsp");
+				actionResponse.setRenderParameter(
+					"mvcRenderCommandName", "editResultsRankingEntry");
+			}
+			else {
+				SessionErrors.add(actionRequest, Exception.class);
+
+				actionResponse.setRenderParameter("mvcPath", "/error.jsp");
+			}
 		}
 	}
 
 	@Reference
 	protected DuplicateQueryStringsDetector duplicateQueryStringsDetector;
+
+	@Reference
+	protected IndexNameBuilder indexNameBuilder;
 
 	@Reference
 	protected Portal portal;
@@ -427,16 +459,18 @@ public class EditRankingMVCActionCommand extends BaseMVCActionCommand {
 		String resultsRankingUid = ParamUtil.getString(
 			actionRequest, "resultsRankingUid");
 
-		if (duplicateQueryStringsDetector.detect(
-				duplicateQueryStringsDetector.builder().index(
-					index).queryStrings(
-						queryStrings).unlessRankingId(
-							resultsRankingUid).build())) {
+		List<String> duplicateQueryStrings =
+			duplicateQueryStringsDetector.detect(
+				duplicateQueryStringsDetector.builder(
+				).index(
+					index
+				).queryStrings(
+					queryStrings
+				).unlessRankingId(
+					resultsRankingUid
+				).build());
 
-			return true;
-		}
-
-		return false;
+		return ListUtil.isNotEmpty(duplicateQueryStrings);
 	}
 
 	private List<String> _getAliases(
@@ -463,9 +497,8 @@ public class EditRankingMVCActionCommand extends BaseMVCActionCommand {
 		String index = editRankingMVCActionRequest.getIndexName();
 
 		if (Validator.isBlank(index)) {
-			long companyId = portal.getCompanyId(actionRequest);
-
-			index = "liferay-" + companyId;
+			index = indexNameBuilder.getIndexName(
+				portal.getCompanyId(actionRequest));
 		}
 
 		return index;
@@ -527,9 +560,6 @@ public class EditRankingMVCActionCommand extends BaseMVCActionCommand {
 
 	private final ResultRankingsConfiguration _resultRankingsConfiguration =
 		new DefaultResultRankingsConfiguration();
-
-	private class DuplicateQueryStringException extends RuntimeException {
-	}
 
 	private class EditRankingMVCActionRequest {
 

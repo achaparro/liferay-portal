@@ -46,9 +46,7 @@ definition {
 
 		Button.click(button = "Customize Results");
 
-		Alert.viewErrorMessage(errorMessage = "A ranking already exists");
-
-		Navigator.gotoBack();
+		Alert.viewErrorMessage(errorMessage = "A ranking with that search query already exists.");
 
 		PortletEntry.inputText(
 			fieldLabel = "Search Query",
@@ -56,7 +54,7 @@ definition {
 
 		Button.click(button = "Customize Results");
 
-		Alert.viewErrorMessage(errorMessage = "A ranking already exists");
+		Alert.viewErrorMessage(errorMessage = "A ranking with that search query already exists.");
 
 		ProductMenu.gotoPortlet(
 			category = "Search Tuning",
@@ -73,31 +71,19 @@ definition {
 
 		SearchTuning.addResultRanking(searchQuery = "Web Content");
 
-		Type(
-			locator1 = "SearchTuning#RESULT_RANKINGS_ALIAS_FIELD",
-			value1 = "Article");
-
-		KeyPress(
-			locator1 = "SearchTuning#RESULT_RANKINGS_ALIAS_FIELD",
-			value1 = ",");
+		SearchTuning.configureAliases(addAlias = "Article");
 
 		Button.clickSave();
 
-		Alert.viewErrorMessage(errorMessage = "A ranking already exists");
+		Alert.viewErrorMessage(errorMessage = "Aliases must be unique across all rankings. The following aliases already exist: Article.");
 
-		Navigator.gotoBack();
-
-		Type(
-			locator1 = "SearchTuning#RESULT_RANKINGS_ALIAS_FIELD",
-			value1 = "Journal");
-
-		KeyPress(
-			locator1 = "SearchTuning#RESULT_RANKINGS_ALIAS_FIELD",
-			value1 = ",");
+		SearchTuning.configureAliases(
+			addAlias = "Journal",
+			deleteAlias = "Article");
 
 		Button.clickSave();
 
-		Alert.viewErrorMessage(errorMessage = "A ranking already exists");
+		Alert.viewErrorMessage(errorMessage = "Aliases must be unique across all rankings. The following aliases already exist: Journal.");
 	}
 
 	test AssertDeletedResultRanking {
@@ -659,7 +645,7 @@ definition {
 		DragAndDrop.javaScriptDragAndDropToObject(
 			key_assetTitle = "New Site Journal",
 			locator1 = "SearchTuning#RESULT_RANKINGS_RESULT_DRAG_HANDLE",
-			locator2 = "//li[contains(@class,'results-ranking-item-pinned')][3]",
+			locator2 = "//li[contains(@class,'result-ranking-item-pinned')][3]",
 			value1 = "");
 
 		Button.clickSave();

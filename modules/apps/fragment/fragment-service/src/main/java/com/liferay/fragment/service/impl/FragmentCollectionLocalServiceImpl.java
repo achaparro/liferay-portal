@@ -72,6 +72,15 @@ public class FragmentCollectionLocalServiceImpl
 
 		User user = userLocalService.getUser(userId);
 
+		long companyId = user.getCompanyId();
+
+		if (serviceContext != null) {
+			companyId = serviceContext.getCompanyId();
+		}
+		else {
+			serviceContext = new ServiceContext();
+		}
+
 		validate(name);
 
 		if (Validator.isNull(fragmentCollectionKey)) {
@@ -91,7 +100,7 @@ public class FragmentCollectionLocalServiceImpl
 
 		fragmentCollection.setUuid(serviceContext.getUuid());
 		fragmentCollection.setGroupId(groupId);
-		fragmentCollection.setCompanyId(user.getCompanyId());
+		fragmentCollection.setCompanyId(companyId);
 		fragmentCollection.setUserId(user.getUserId());
 		fragmentCollection.setUserName(user.getFullName());
 		fragmentCollection.setCreateDate(
@@ -254,6 +263,13 @@ public class FragmentCollectionLocalServiceImpl
 	protected void validate(String name) throws PortalException {
 		if (Validator.isNull(name)) {
 			throw new FragmentCollectionNameException("Name must not be null");
+		}
+
+		if (name.contains(StringPool.PERIOD) ||
+			name.contains(StringPool.SLASH)) {
+
+			throw new FragmentCollectionNameException(
+				"Name contains invalid characters");
 		}
 	}
 

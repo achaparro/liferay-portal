@@ -102,6 +102,15 @@ public class FragmentEntryLocalServiceImpl
 
 		User user = userLocalService.getUser(userId);
 
+		long companyId = user.getCompanyId();
+
+		if (serviceContext != null) {
+			companyId = serviceContext.getCompanyId();
+		}
+		else {
+			serviceContext = new ServiceContext();
+		}
+
 		if (Validator.isNull(fragmentEntryKey)) {
 			fragmentEntryKey = generateFragmentEntryKey(groupId, name);
 		}
@@ -124,7 +133,7 @@ public class FragmentEntryLocalServiceImpl
 
 		fragmentEntry.setUuid(serviceContext.getUuid());
 		fragmentEntry.setGroupId(groupId);
-		fragmentEntry.setCompanyId(user.getCompanyId());
+		fragmentEntry.setCompanyId(companyId);
 		fragmentEntry.setUserId(user.getUserId());
 		fragmentEntry.setUserName(user.getFullName());
 		fragmentEntry.setCreateDate(serviceContext.getCreateDate(new Date()));
@@ -438,6 +447,13 @@ public class FragmentEntryLocalServiceImpl
 	protected void validate(String name) throws PortalException {
 		if (Validator.isNull(name)) {
 			throw new FragmentEntryNameException("Name must not be null");
+		}
+
+		if (name.contains(StringPool.PERIOD) ||
+			name.contains(StringPool.SLASH)) {
+
+			throw new FragmentEntryNameException(
+				"Name contains invalid characters");
 		}
 
 		int nameMaxLength = ModelHintsUtil.getMaxLength(

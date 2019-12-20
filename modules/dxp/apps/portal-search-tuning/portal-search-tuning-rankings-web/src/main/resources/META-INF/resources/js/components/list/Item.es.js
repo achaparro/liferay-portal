@@ -416,10 +416,10 @@ class Item extends PureComponent {
 					over && canDrop && hoverPosition === HOVER_TYPES.BOTTOM,
 				'list-item-dragging': dragging,
 				'list-item-has-clicks': !isNil(clicks),
-				'results-ranking-item-focus': focus,
-				'results-ranking-item-hidden': hidden,
-				'results-ranking-item-pinned': pinned,
-				'results-ranking-item-reorder': reorder
+				'result-ranking-item-focus': focus,
+				'result-ranking-item-hidden': hidden,
+				'result-ranking-item-pinned': pinned,
+				'result-ranking-item-reorder': reorder
 			}
 		);
 

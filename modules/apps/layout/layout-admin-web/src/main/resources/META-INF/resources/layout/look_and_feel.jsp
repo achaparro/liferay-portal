@@ -111,20 +111,56 @@ if (layoutPageTemplateEntry == null) {
 		<p>
 			<b><liferay-ui:message key="master-name" />:</b> <%= (masterLayoutPageTemplateEntry != null) ? masterLayoutPageTemplateEntry.getName() : LanguageUtil.get(request, "blank") %>
 		</p>
+
+		<c:if test="<%= masterLayoutPageTemplateEntry != null %>">
+			<clay:button
+				elementClasses="btn-secondary"
+				id='<%= renderResponse.getNamespace() + "editMasterButton" %>'
+				label="edit-master"
+				style="<%= false %>"
+			/>
+		</c:if>
 	</div>
 </c:if>
 
-<c:if test="<%= selLayout.getMasterLayoutPlid() <= 0 %>">
-	<aui:script>
-		Liferay.Util.toggleRadio(
-			'<portlet:namespace />regularInheritLookAndFeel',
-			'<portlet:namespace />inheritThemeOptions',
-			'<portlet:namespace />themeOptions'
-		);
-		Liferay.Util.toggleRadio(
-			'<portlet:namespace />regularUniqueLookAndFeel',
-			'<portlet:namespace />themeOptions',
-			'<portlet:namespace />inheritThemeOptions'
-		);
-	</aui:script>
-</c:if>
+<c:choose>
+	<c:when test="<%= selLayout.getMasterLayoutPlid() <= 0 %>">
+		<aui:script>
+			Liferay.Util.toggleRadio(
+				'<portlet:namespace />regularInheritLookAndFeel',
+				'<portlet:namespace />inheritThemeOptions',
+				'<portlet:namespace />themeOptions'
+			);
+			Liferay.Util.toggleRadio(
+				'<portlet:namespace />regularUniqueLookAndFeel',
+				'<portlet:namespace />themeOptions',
+				'<portlet:namespace />inheritThemeOptions'
+			);
+		</aui:script>
+	</c:when>
+	<c:otherwise>
+
+		<%
+		Layout masterLayout = LayoutLocalServiceUtil.getLayout(selLayout.getMasterLayoutPlid());
+
+		Layout masterDraftLayout = LayoutLocalServiceUtil.fetchLayout(PortalUtil.getClassNameId(Layout.class), masterLayout.getPlid());
+
+		String editPageURL = HttpUtil.addParameter(PortalUtil.getLayoutFullURL(selLayout, themeDisplay), "p_l_mode", Constants.EDIT);
+
+		String editMasterURL = HttpUtil.addParameter(HttpUtil.addParameter(PortalUtil.getLayoutFullURL(masterDraftLayout, themeDisplay), "p_l_mode", Constants.EDIT), "p_l_back_url", editPageURL);
+		%>
+
+		<aui:script>
+			var editMasterButton = document.getElementById(
+				'<portlet:namespace />editMasterButton'
+			);
+
+			var editMasterButtonEventListener = editMasterButton.addEventListener(
+				'click',
+				function(event) {
+					Liferay.Util.navigate('<%= editMasterURL %>');
+				}
+			);
+		</aui:script>
+	</c:otherwise>
+</c:choose>

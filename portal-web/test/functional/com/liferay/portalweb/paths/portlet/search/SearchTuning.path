@@ -46,7 +46,7 @@
 </tr>
 <tr>
 	<td>RESULT_RANKINGS_RESULT_DRAG_HANDLE</td>
-	<td>//li[contains(@class,'results-ranking-item-pinned') and contains(.,'${key_assetTitle}')]//span[@draggable]</td>
+	<td>//li[contains(@class,'result-ranking-item-pinned') and contains(.,'${key_assetTitle}')]//span[@draggable]</td>
 	<td></td>
 </tr>
 <tr>

@@ -22,7 +22,8 @@ import {
 	FETCH_HIDDEN_DOCUMENTS_URL,
 	FETCH_SEARCH_DOCUMENTS_URL,
 	FETCH_VISIBLE_DOCUMENTS_URL,
-	FORM_NAME
+	FORM_NAME,
+	VALIDATE_FORM_URL
 } from '../mocks/data.es';
 
 import '@testing-library/jest-dom/extend-expect';
@@ -42,6 +43,7 @@ function renderTestResultRankingsForm(props) {
 			formName={FORM_NAME}
 			initialInactive={false}
 			searchQuery=""
+			validateFormUrl={VALIDATE_FORM_URL}
 			{...props}
 		/>
 	);
@@ -52,7 +54,7 @@ describe('ResultRankingsForm', () => {
 		const {container} = renderTestResultRankingsForm();
 
 		expect(
-			container.querySelector('.results-ranking-form-root')
+			container.querySelector('.result-rankings-form-root')
 		).toBeInTheDocument();
 	});
 

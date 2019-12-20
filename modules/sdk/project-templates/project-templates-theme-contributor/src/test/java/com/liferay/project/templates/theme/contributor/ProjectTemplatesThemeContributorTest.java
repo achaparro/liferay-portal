@@ -96,7 +96,7 @@ public class ProjectTemplatesThemeContributorTest
 	public void testBuildTemplateThemeContributorCustom71() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
 			"theme-contributor", "my-contributor-custom", "--contributor-type",
-			"foo-bar", "--liferay-version", "7.1");
+			"foo-bar", "--liferay-version", "7.1.3");
 
 		testContains(
 			gradleProjectDir, "bnd.bnd",
@@ -116,7 +116,7 @@ public class ProjectTemplatesThemeContributorTest
 		File mavenProjectDir = buildTemplateWithMaven(
 			temporaryFolder, "theme-contributor", "my-contributor-custom",
 			"com.test", mavenExecutor, "-DcontributorType=foo-bar",
-			"-Dpackage=my.contributor.custom", "-DliferayVersion=7.1");
+			"-Dpackage=my.contributor.custom", "-DliferayVersion=7.1.3");
 
 		testContains(
 			mavenProjectDir, "bnd.bnd",
@@ -131,7 +131,7 @@ public class ProjectTemplatesThemeContributorTest
 	public void testBuildTemplateThemeContributorCustom72() throws Exception {
 		File gradleProjectDir = _buildTemplateWithGradle(
 			"theme-contributor", "my-contributor-custom", "--contributor-type",
-			"foo-bar", "--liferay-version", "7.2");
+			"foo-bar", "--liferay-version", "7.2.1");
 
 		testContains(
 			gradleProjectDir, "bnd.bnd",
@@ -151,7 +151,7 @@ public class ProjectTemplatesThemeContributorTest
 		File mavenProjectDir = buildTemplateWithMaven(
 			temporaryFolder, "theme-contributor", "my-contributor-custom",
 			"com.test", mavenExecutor, "-DcontributorType=foo-bar",
-			"-Dpackage=my.contributor.custom", "-DliferayVersion=7.2");
+			"-Dpackage=my.contributor.custom", "-DliferayVersion=7.2.1");
 
 		testContains(
 			mavenProjectDir, "bnd.bnd",
@@ -170,7 +170,7 @@ public class ProjectTemplatesThemeContributorTest
 			temporaryFolder, _gradleDistribution, "theme-contributor",
 			"my-contributor", "build/libs/my.contributor-1.0.0.jar",
 			"--contributor-type", "my-contributor",
-			"--dependency-management-enabled");
+			"--dependency-management-enabled", "--liferay-version", "7.2.1");
 	}
 
 	@Rule

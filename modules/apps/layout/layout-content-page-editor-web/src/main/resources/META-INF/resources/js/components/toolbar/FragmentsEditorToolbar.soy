@@ -6,6 +6,7 @@
 {template .render}
 	{@param? _conversionDraft: bool}
 	{@param? _handleDiscardDraft: any}
+	{@param? _handlePublish: any}
 	{@param? _handleToggleContextualSidebarButtonClick: any}
 	{@param? _online: bool}
 	{@param? _publishButtonEnabled: bool}
@@ -16,6 +17,7 @@
 	{@param? draft: bool}
 	{@param? hasUpdatePermissions: bool }
 	{@param? lastSaveDate: string}
+	{@param? masterUsed: bool }
 	{@param? portletNamespace: string}
 	{@param? publishURL: string}
 	{@param? redirectURL: string}
@@ -37,6 +39,10 @@
 
 		{if $selectedSidebarPanelId}
 			{sp}fragments-editor-toolbar--padded
+		{/if}
+
+		{if $masterUsed}
+			{sp}fragments-editor-toolbar__master-used
 		{/if}
 	{/let}
 
@@ -140,12 +146,18 @@
 						{let $publishLabel kind="text"}
 							{if $singleSegmentsExperienceMode}
 								{msg desc=""}save-variant{/msg}
+							{elseif $masterUsed}
+								{msg desc=""}publish-master{/msg}
 							{else}
 								{msg desc=""}publish{/msg}
 							{/if}
 						{/let}
 						<li class="nav-item">
-							<form action="{$publishURL}" method="POST">
+							<form
+								action="{$publishURL}"
+								data-onsubmit="{$_handlePublish}"
+								method="POST"
+							>
 								<input
 									name="{$portletNamespace ?: ''}classPK"
 									type="hidden"

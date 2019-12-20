@@ -228,7 +228,7 @@ class List extends PureComponent {
 		const {selectedIds} = this.state;
 
 		return (
-			<div className="results-ranking-list-root">
+			<div className="result-ranking-list-root">
 				<ItemDragLayer />
 
 				<SearchBar

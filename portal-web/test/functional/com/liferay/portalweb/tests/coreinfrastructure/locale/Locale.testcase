@@ -208,6 +208,43 @@ definition {
 	}
 
 	@priority = "4"
+	test ViewDefaultAvailableTimeZonesForInstancesAndUsers {
+		property test.name.skip.portal.instance = "Locale#ViewDefaultAvailableTimeZonesForInstancesAndUsers";
+
+		User.firstLoginPG();
+
+		PortalSettings.gotoConfiguration(
+			configurationCategory = "Localization",
+			configurationName = "Time Zone",
+			configurationScope = "Virtual Instance Scope");
+
+		task ("Assert some default available time zones for instances and users") {
+			for (var timeZone : list "(UTC) Coordinated Universal Time,(UTC +08:00) China Standard Time") {
+				AssertElementPresent(
+					locator1 = "Select#TIME_ZONE",
+					value1 = "${timeZone}");
+			}
+		}
+
+		ProductMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "Users and Organizations");
+
+		User.gotoEditCP(userScreenName = "test");
+
+		UserNavigator.gotoDisplaySettings();
+
+		task ("Assert some default available time zones for instances and users") {
+			for (var timeZone : list "(UTC) Coordinated Universal Time,(UTC +08:00) China Standard Time") {
+				AssertElementPresent(
+					locator1 = "Select#TIME_ZONE",
+					value1 = "${timeZone}");
+			}
+		}
+	}
+
+	@priority = "4"
 	test ViewDefaultEnabledLocales {
 		User.firstLoginPG();
 

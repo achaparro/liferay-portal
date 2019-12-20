@@ -23,7 +23,8 @@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
 <%@ page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
 page import="com.liferay.portal.kernel.util.Constants" %><%@
-page import="com.liferay.portal.kernel.util.ParamUtil" %>
+page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
+page import="com.liferay.portal.search.tuning.rankings.web.internal.exception.DuplicateQueryStringException" %>
 
 <liferay-frontend:defineObjects />
 
@@ -43,6 +44,13 @@ portletDisplay.setURLBack(redirect);
 renderResponse.setTitle(LanguageUtil.get(request, "new-ranking"));
 %>
 
+<div class="result-rankings-alert-container sheet-lg">
+	<liferay-ui:error exception="<%= DuplicateQueryStringException.class %>" message="ranking-with-that-search-query-already-exists" />
+	<liferay-ui:error exception="<%= Exception.class %>" message="an-unexpected-error-occurred" />
+
+	<liferay-ui:error-principal />
+</div>
+
 <portlet:actionURL name="/results_ranking/edit" var="addResultsRankingEntryURL" />
 
 <liferay-frontend:edit-form
@@ -53,6 +61,7 @@ renderResponse.setTitle(LanguageUtil.get(request, "new-ranking"));
 			<liferay-ui:message key="customize-how-users-see-results-for-a-given-search-query" />
 		</div>
 
+		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.ADD %>" />
 		<aui:input name="resultActionCmd" type="hidden" value="<%= resultActionCmd %>" />
 		<aui:input name="resultActionUid" type="hidden" value="<%= resultActionUid %>" />

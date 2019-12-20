@@ -113,10 +113,37 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 	}
 
+	public static enum BuildProfile {
+
+		DXP {
+
+			private static final String _TEXT = "dxp";
+
+			@Override
+			public String toString() {
+				return _TEXT;
+			}
+
+		},
+		PORTAL {
+
+			private static final String _TEXT = "portal";
+
+			@Override
+			public String toString() {
+				return _TEXT;
+			}
+
+		}
+
+	}
+
 	protected BatchTestClassGroup(
-		String batchName, PortalTestClassJob portalTestClassJob) {
+		String batchName, BuildProfile buildProfile,
+		PortalTestClassJob portalTestClassJob) {
 
 		this.batchName = batchName;
+		this.buildProfile = buildProfile;
 
 		portalGitWorkingDirectory =
 			portalTestClassJob.getPortalGitWorkingDirectory();
@@ -420,6 +447,7 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 	protected final Map<Integer, AxisTestClassGroup> axisTestClassGroups =
 		new HashMap<>();
 	protected final String batchName;
+	protected final BuildProfile buildProfile;
 	protected final List<PathMatcher> excludesPathMatchers = new ArrayList<>();
 	protected final List<PathMatcher> includesPathMatchers = new ArrayList<>();
 	protected boolean includeStableTestSuite;

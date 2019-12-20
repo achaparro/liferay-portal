@@ -57,7 +57,7 @@ addDecorator(storyFn => {
 	return (
 		<ClayIconSpriteContext.Provider value={context.spritemap}>
 			<ThemeContext.Provider value={context}>
-				<div className="results-rankings-root">{storyFn()}</div>
+				<div className="result-rankings-root">{storyFn()}</div>
 			</ThemeContext.Provider>
 		</ClayIconSpriteContext.Provider>
 	);
@@ -80,6 +80,7 @@ storiesOf('Pages|ResultRankingsForm', module).add('default', () => (
 		saveActionUrl="#"
 		searchQuery={text('Search Term', 'example')}
 		status={1}
+		validateFormUrl="http://www.mocky.io/v2/5d9dfbea3200008407329b6f"
 	/>
 ));
 

@@ -15,9 +15,12 @@
 package com.liferay.portal.search.tuning.rankings.web.internal.index;
 
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchResponse;
+import com.liferay.portal.search.hits.SearchHit;
+import com.liferay.portal.search.hits.SearchHits;
 import com.liferay.portal.search.query.BooleanQuery;
 import com.liferay.portal.search.query.IdsQuery;
 import com.liferay.portal.search.query.Queries;
@@ -27,8 +30,10 @@ import com.liferay.portal.search.query.TermsQuery;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
@@ -47,11 +52,11 @@ public class DuplicateQueryStringsDetectorImpl
 	}
 
 	@Override
-	public boolean detect(Criteria criteria) {
+	public List<String> detect(Criteria criteria) {
 		Collection<String> queryStrings = criteria.getQueryStrings();
 
 		if (queryStrings.isEmpty()) {
-			return false;
+			return Collections.emptyList();
 		}
 
 		SearchSearchResponse searchSearchResponse = searchEngineAdapter.execute(
@@ -60,15 +65,22 @@ public class DuplicateQueryStringsDetectorImpl
 					setIndexNames(RankingIndexDefinition.INDEX_NAME);
 					setQuery(getCriteriaQuery(criteria));
 					setScoreEnabled(false);
-					setSize(0);
 				}
 			});
 
-		if (searchSearchResponse.getCount() > 0) {
-			return true;
-		}
+		SearchHits searchHits = searchSearchResponse.getSearchHits();
 
-		return false;
+		List<SearchHit> searchHitsList = searchHits.getSearchHits();
+
+		Stream<SearchHit> stream = searchHitsList.stream();
+
+		return stream.map(
+			searchHit -> getDuplicateQueryStrings(searchHit, queryStrings)
+		).flatMap(
+			Collection::stream
+		).collect(
+			Collectors.toList()
+		);
 	}
 
 	protected BooleanQuery getCriteriaQuery(Criteria criteria) {
@@ -83,6 +95,19 @@ public class DuplicateQueryStringsDetectorImpl
 			getUnlessRankingIdQuery(criteria));
 
 		return booleanQuery;
+	}
+
+	protected Collection<String> getDuplicateQueryStrings(
+		SearchHit searchHit, Collection<String> queryStrings) {
+
+		Document document = searchHit.getDocument();
+
+		Collection<String> documentQueryStrings = document.getStrings(
+			RankingFields.QUERY_STRINGS);
+
+		documentQueryStrings.retainAll(queryStrings);
+
+		return documentQueryStrings;
 	}
 
 	protected Query getIndexQuery(Criteria criteria) {

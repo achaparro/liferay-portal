@@ -120,6 +120,24 @@ class FragmentsEditorToolbar extends Component {
 	}
 
 	/**
+	 * Handles publish form submit action.
+	 * @private
+	 * @review
+	 */
+	_handlePublish(event) {
+		if (
+			this.masterUsed &&
+			!confirm(
+				Liferay.Language.get(
+					'changes-made-on-this-master-are-going-to-be-propagated-to-all-page-templates-and-pages-using-it.are-you-sure-you-want-to-proceed'
+				)
+			)
+		) {
+			event.preventDefault();
+		}
+	}
+
+	/**
 	 * @private
 	 * @review
 	 */
@@ -226,6 +244,7 @@ const ConnectedFragmentsEditorToolbar = getConnectedComponent(
 		'hasUpdatePermissions',
 		'lastSaveDate',
 		'layoutData',
+		'masterUsed',
 		'portletNamespace',
 		'pageType',
 		'publishURL',

@@ -1,4 +1,4 @@
-.results-ranking-list-root {
+.result-ranking-list-root {
 	.load-more-container {
 		padding: 24px 0;
 
@@ -26,7 +26,7 @@
 		}
 	}
 
-	.results-ranking-tabs {
+	.result-ranking-tabs {
 		padding: 0 1.5rem;
 	}
 
@@ -49,13 +49,13 @@
 }
 
 .sheet {
-	.results-ranking-list-root {
+	.result-ranking-list-root {
 		margin-left: -1.5rem;
 		margin-right: -1.5rem;
 	}
 
 	@media (max-width: 767.98px) {
-		.results-ranking-list-root {
+		.result-ranking-list-root {
 			margin-left: -1rem;
 			margin-right: -1rem;
 		}

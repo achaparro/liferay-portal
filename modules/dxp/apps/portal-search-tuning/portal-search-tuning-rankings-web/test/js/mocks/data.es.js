@@ -17,6 +17,8 @@ export const FETCH_VISIBLE_DOCUMENTS_URL = 'https://getVisible';
 
 export const FORM_NAME = 'testForm';
 
+export const VALIDATE_FORM_URL = 'https://getValidate';
+
 export function getMockResultsData(
 	size = 10,
 	startId = 0,

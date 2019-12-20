@@ -14,9 +14,11 @@
 
 package com.liferay.layout.seo.web.internal.servlet.taglib.ui;
 
+import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.layout.seo.open.graph.OpenGraphConfiguration;
+import com.liferay.layout.seo.service.LayoutSEOSiteLocalService;
 import com.liferay.layout.seo.web.internal.display.context.OpenGraphSettingsDisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -30,10 +32,12 @@ import com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorConstants;
 import com.liferay.portal.kernel.servlet.taglib.ui.FormNavigatorEntry;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
 import java.io.IOException;
 
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
@@ -72,7 +76,7 @@ public class SiteOpenGraphFormNavigatorEntry
 
 	@Override
 	public String getLabel(Locale locale) {
-		return LanguageUtil.get(locale, "open-graph");
+		return LanguageUtil.get(_getResourceBundle(locale), "open-graph");
 	}
 
 	@Override
@@ -91,7 +95,8 @@ public class SiteOpenGraphFormNavigatorEntry
 		httpServletRequest.setAttribute(
 			OpenGraphSettingsDisplayContext.class.getName(),
 			new OpenGraphSettingsDisplayContext(
-				_dlurlHelper, httpServletRequest, _itemSelector,
+				_dlAppService, _dlurlHelper, httpServletRequest, _itemSelector,
+				_layoutSEOSiteLocalService,
 				_portal.getLiferayPortletRequest(portletRequest),
 				_portal.getLiferayPortletResponse(portletResponse),
 				_openGraphConfiguration));
@@ -132,6 +137,11 @@ public class SiteOpenGraphFormNavigatorEntry
 		return "/site/open_graph_settings.jsp";
 	}
 
+	private ResourceBundle _getResourceBundle(Locale locale) {
+		return ResourceBundleUtil.getBundle(
+			"content.Language", locale, getClass());
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		SiteOpenGraphFormNavigatorEntry.class);
 
@@ -139,10 +149,16 @@ public class SiteOpenGraphFormNavigatorEntry
 	private CompanyLocalService _companyLocalService;
 
 	@Reference
+	private DLAppService _dlAppService;
+
+	@Reference
 	private DLURLHelper _dlurlHelper;
 
 	@Reference
 	private ItemSelector _itemSelector;
+
+	@Reference
+	private LayoutSEOSiteLocalService _layoutSEOSiteLocalService;
 
 	@Reference
 	private OpenGraphConfiguration _openGraphConfiguration;

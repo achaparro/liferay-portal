@@ -42,6 +42,8 @@ import StringInput from '../inputs/StringInput.es';
 
 const acceptedDragTypes = [DragTypes.CRITERIA_ROW, DragTypes.PROPERTY];
 
+const DISPLAY_VALUE_NOT_FOUND_ERROR = 'displayValue not found';
+
 /**
  * Prevents rows from dropping onto itself and adding properties to not matching
  * contributors.
@@ -214,9 +216,24 @@ class CriteriaRow extends Component {
 			body: objectToFormData(data),
 			method: 'POST'
 		})
-			.then(response => response.text())
-			.then(displayValue => {
-				onChange({...criterion, displayValue});
+			.then(response => response.json())
+			.then(({fieldValueName: displayValue}) => {
+				if (displayValue === undefined) {
+					throw new Error(DISPLAY_VALUE_NOT_FOUND_ERROR);
+				}
+
+				onChange({...criterion, displayValue, unknownEntity: false});
+			})
+			.catch(error => {
+				if (error && error.message === DISPLAY_VALUE_NOT_FOUND_ERROR) {
+					onChange({
+						...criterion,
+						displayValue: value,
+						unknownEntity: true
+					});
+				} else {
+					onChange({...criterion, displayValue: value});
+				}
 			});
 	};
 
@@ -340,21 +357,41 @@ class CriteriaRow extends Component {
 		);
 	};
 
-	_renderErrorMessage() {
+	_renderErrorMessages({errorOnProperty, unknownEntityError}) {
 		const {editing} = this.props;
-		const message = editing
-			? Liferay.Language.get('criteria-error-message-edit')
-			: Liferay.Language.get('criteria-error-message-view');
+		const errors = [];
+		if (errorOnProperty) {
+			const message = editing
+				? Liferay.Language.get('criteria-error-message-edit')
+				: Liferay.Language.get('criteria-error-message-view');
 
-		return (
-			<ClayAlert
-				className="bg-transparent border-0 mt-1 p-1"
-				displayType="danger"
-				title={Liferay.Language.get('error')}
-			>
-				{message}
-			</ClayAlert>
-		);
+			errors.push({
+				message
+			});
+		}
+
+		if (unknownEntityError) {
+			const message = editing
+				? Liferay.Language.get('unknown-entity-message-edit')
+				: Liferay.Language.get('unknown-entity-message-view');
+
+			errors.push({
+				message
+			});
+		}
+
+		return errors.map((error, index) => {
+			return (
+				<ClayAlert
+					className="bg-transparent border-0 mt-1 p-1"
+					displayType="danger"
+					key={index}
+					title={Liferay.Language.get('error')}
+				>
+					{error.message}
+				</ClayAlert>
+			);
+		});
 	}
 
 	_renderEditContainer({
@@ -410,6 +447,7 @@ class CriteriaRow extends Component {
 				{error ? (
 					<ClayButton
 						className="btn-outline-danger btn-sm"
+						displayType=""
 						onClick={this._handleDelete}
 					>
 						{Liferay.Language.get('delete')}
@@ -452,6 +490,8 @@ class CriteriaRow extends Component {
 			supportedProperties
 		} = this.props;
 
+		const {unknownEntity} = criterion;
+
 		const selectedOperator = this._getSelectedItem(
 			supportedOperators,
 			criterion.operatorName
@@ -466,10 +506,11 @@ class CriteriaRow extends Component {
 		const operatorLabel = selectedOperator ? selectedOperator.label : '';
 		const propertyLabel = selectedProperty ? selectedProperty.label : '';
 
+		const error = errorOnProperty || unknownEntity;
 		const value = criterion ? criterion.value : '';
 
 		const classes = getCN('criterion-row-root', {
-			'criterion-row-root-error': errorOnProperty,
+			'criterion-row-root-error': error,
 			'dnd-drag': dragging,
 			'dnd-hover': hover && canDrop
 		});
@@ -481,7 +522,7 @@ class CriteriaRow extends Component {
 						<div className={classes}>
 							{editing ? (
 								this._renderEditContainer({
-									error: errorOnProperty,
+									error,
 									propertyLabel,
 									selectedOperator,
 									selectedProperty,
@@ -490,7 +531,7 @@ class CriteriaRow extends Component {
 							) : (
 								<span className="criterion-string">
 									{this._getReadableCriteriaString({
-										error: errorOnProperty,
+										error,
 										operatorLabel,
 										propertyLabel,
 										type: selectedProperty.type,
@@ -501,7 +542,11 @@ class CriteriaRow extends Component {
 						</div>
 					)
 				)}
-				{errorOnProperty && this._renderErrorMessage()}
+				{error &&
+					this._renderErrorMessages({
+						errorOnProperty,
+						unknownEntityError: unknownEntity
+					})}
 			</>
 		);
 	}

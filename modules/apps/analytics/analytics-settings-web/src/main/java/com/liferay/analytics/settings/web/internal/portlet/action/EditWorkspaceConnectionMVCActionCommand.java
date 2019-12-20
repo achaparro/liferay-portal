@@ -176,6 +176,13 @@ public class EditWorkspaceConnectionMVCActionCommand
 
 		StatusLine statusLine = httpResponse.getStatusLine();
 
+		if (statusLine.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+
+			// Data Source disconnected or deleted from Analytics Cloud
+
+			return;
+		}
+
 		if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
 			throw new PortalException("Failed to disconnected data source");
 		}

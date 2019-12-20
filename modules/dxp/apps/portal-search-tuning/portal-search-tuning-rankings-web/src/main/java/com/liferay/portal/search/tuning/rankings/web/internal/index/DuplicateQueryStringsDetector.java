@@ -15,6 +15,7 @@
 package com.liferay.portal.search.tuning.rankings.web.internal.index;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author André de Oliveira
@@ -23,7 +24,7 @@ public interface DuplicateQueryStringsDetector {
 
 	public Criteria.Builder builder();
 
-	public boolean detect(Criteria criteria);
+	public List<String> detect(Criteria criteria);
 
 	public interface Criteria {
 

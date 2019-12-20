@@ -123,9 +123,9 @@ describe('List', () => {
 
 		fireEvent.keyDown(getByTestId('102'), {code: 32, key: ' '});
 
-		expect(getByTestId('102')).toHaveClass('results-ranking-item-focus');
+		expect(getByTestId('102')).toHaveClass('result-ranking-item-focus');
 		expect(getByTestId('102')).not.toHaveClass(
-			'results-ranking-item-reorder'
+			'result-ranking-item-reorder'
 		);
 	});
 });

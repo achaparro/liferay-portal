@@ -29,12 +29,6 @@ public interface LayoutConverter {
 			return false;
 		}
 
-		if (LayoutTypeSettingsInspectorUtil.isCustomizableLayout(
-				layout.getTypeSettingsProperties())) {
-
-			return false;
-		}
-
 		return true;
 	}
 

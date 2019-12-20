@@ -869,12 +869,12 @@ public class DLFolderFinderImpl
 			}
 
 			qPos.add(folderId);
+			qPos.add(fileEntryTypeId);
 
 			if (mimeTypes != null) {
 				qPos.add(mimeTypes);
 			}
 
-			qPos.add(fileEntryTypeId);
 			qPos.add(groupId);
 			qPos.add(true);
 			qPos.add(queryDefinition.getStatus());

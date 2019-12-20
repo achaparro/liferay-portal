@@ -771,6 +771,12 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 		UnicodeProperties typeSettingsProperties = getTypeSettingsProperties();
 
+		Layout masterLayout = _getMasterLayout();
+
+		if (masterLayout != null) {
+			typeSettingsProperties = masterLayout.getTypeSettingsProperties();
+		}
+
 		String value = typeSettingsProperties.getProperty(
 			ThemeSettingImpl.namespaceProperty(device, key));
 
@@ -1361,6 +1367,21 @@ public class LayoutImpl extends LayoutBaseImpl {
 		return layoutTypePortlet;
 	}
 
+	private Layout _getMasterLayout() {
+		if (_masterLayout != null) {
+			return _masterLayout;
+		}
+
+		if (getMasterLayoutPlid() <= 0) {
+			return null;
+		}
+
+		_masterLayout = LayoutLocalServiceUtil.fetchLayout(
+			getMasterLayoutPlid());
+
+		return _masterLayout;
+	}
+
 	private List<PortletPreferences> _getPortletPreferences(long groupId) {
 		List<PortletPreferences> portletPreferences =
 			PortletPreferencesLocalServiceUtil.getPortletPreferences(
@@ -1488,6 +1509,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 
 	private LayoutSet _layoutSet;
 	private transient LayoutType _layoutType;
+	private Layout _masterLayout;
 	private UnicodeProperties _typeSettingsProperties;
 
 }

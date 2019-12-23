@@ -28,6 +28,7 @@ import com.liferay.portal.upgrade.internal.configuration.ReleaseManagerConfigura
 import com.liferay.portal.upgrade.internal.executor.SwappedLogExecutor;
 import com.liferay.portal.upgrade.internal.executor.UpgradeExecutor;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
+import com.liferay.portal.util.PropsValues;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -172,7 +173,7 @@ public class UpgradeStepRegistratorTracker {
 				UpgradeStepRegistratorThreadLocal.setEnabled(enabled);
 			}
 
-			if (_releaseManagerConfiguration.autoUpgrade()) {
+			if (PropsValues.UPGRADE_DATABASE_ON_STARTUP) {
 				try {
 					_upgradeExecutor.execute(
 						bundleSymbolicName, upgradeInfos,

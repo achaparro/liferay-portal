@@ -144,7 +144,7 @@ public class DBUpgrader {
 		}
 	}
 
-	public static void upgrade() throws Exception {
+	public static void upgrade(int requiredBuildNumber) throws Exception {
 
 		// Disable database caching before upgrade
 
@@ -156,7 +156,7 @@ public class DBUpgrader {
 
 		// Check required build number
 
-		checkRequiredBuildNumber(ReleaseInfo.RELEASE_6_2_0_BUILD_NUMBER);
+		checkRequiredBuildNumber(requiredBuildNumber);
 
 		try (Connection connection = DataAccess.getConnection()) {
 			if (PortalUpgradeProcess.isInLatestSchemaVersion(connection)) {

@@ -111,7 +111,7 @@ public class DBUpgrader {
 
 			verifyProperties.verify();
 
-			upgrade();
+			upgrade(ReleaseInfo.RELEASE_6_2_0_BUILD_NUMBER);
 
 			_checkClassNamesAndResourceActions();
 

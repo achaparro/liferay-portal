@@ -275,23 +275,28 @@ public class ReleaseManagerOSGiCommands {
 					"upgrade.from.schema.version")),
 			serviceTrackerMapListener);
 
-		if (PropsValues.UPGRADE_DATABASE_ON_STARTUP) {
-			Set<String> upgradedBundleSymbolicNames = new HashSet<>();
+		Set<String> upgradedBundleSymbolicNames = new HashSet<>();
 
-			Set<String> bundleSymbolicNames = _serviceTrackerMap.keySet();
+		Set<String> bundleSymbolicNames = _serviceTrackerMap.keySet();
 
-			while (upgradedBundleSymbolicNames.addAll(bundleSymbolicNames)) {
-				for (String bundleSymbolicName : bundleSymbolicNames) {
-					List<UpgradeInfo> upgradeSteps =
-						_serviceTrackerMap.getService(bundleSymbolicName);
+		while (upgradedBundleSymbolicNames.addAll(bundleSymbolicNames)) {
+			for (String bundleSymbolicName : bundleSymbolicNames) {
+				if (!PropsValues.UPGRADE_DATABASE_ON_STARTUP &&
+					(_releaseLocalService.fetchRelease(bundleSymbolicName) !=
+						null)) {
 
-					_upgradeExecutor.execute(
-						bundleSymbolicName, upgradeSteps,
-						OutputStreamContainerConstants.FACTORY_NAME_DUMMY);
+					continue;
 				}
 
-				bundleSymbolicNames = _serviceTrackerMap.keySet();
+				List<UpgradeInfo> upgradeSteps = _serviceTrackerMap.getService(
+					bundleSymbolicName);
+
+				_upgradeExecutor.execute(
+					bundleSymbolicName, upgradeSteps,
+					OutputStreamContainerConstants.FACTORY_NAME_DUMMY);
 			}
+
+			bundleSymbolicNames = _serviceTrackerMap.keySet();
 		}
 
 		_activated = true;

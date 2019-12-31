@@ -59,7 +59,7 @@ public class PortalUpgradeProcessRegistryImpl
 				"AnnouncementsEntry", "AnnouncementsFlag", "AssetCategory",
 				"AssetEntries_AssetCategories", "AssetEntries_AssetTags",
 				"AssetEntry", "AssetLink", "AssetTag", "AssetVocabulary",
-				"BrowserTracker", "Contact_", "DLFileEntry",
+				"BrowserTracker", "CompanyInfo", "Contact_", "DLFileEntry",
 				"DLFileEntryMetadata", "DLFileEntryType",
 				"DLFileEntryTypes_DLFolders", "DLFileShortcut", "DLFileVersion",
 				"DLFolder", "EmailAddress", "ExpandoColumn", "ExpandoRow",
@@ -82,8 +82,8 @@ public class PortalUpgradeProcessRegistryImpl
 				"UserGroupGroupRole", "UserGroupRole", "UserGroups_Teams",
 				"UserIdMapper", "UserNotificationEvent", "Users_Groups",
 				"Users_Orgs", "Users_Roles", "Users_Teams", "Users_UserGroups",
-				"UserTracker", "UserTrackerPath", "VirtualHost", "WebDAVProps",
-				"Website", "WorkflowDefinitionLink", "WorkflowInstanceLink"));
+				"UserTracker", "UserTrackerPath", "WebDAVProps", "Website",
+				"WorkflowDefinitionLink", "WorkflowInstanceLink"));
 	}
 
 }

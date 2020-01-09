@@ -202,7 +202,7 @@ public class StartupAction extends SimpleAction {
 		}
 		else {
 			DBUpgrader.checkReleaseState();
-
+			
 			if (PropsValues.DATABASE_INDEXES_UPDATE_ON_STARTUP) {
 				StartupHelperUtil.updateIndexes(true);
 			}

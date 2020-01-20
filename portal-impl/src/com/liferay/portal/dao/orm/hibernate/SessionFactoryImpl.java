@@ -26,10 +26,12 @@ import com.liferay.portal.util.PropsValues;
 
 import java.sql.Connection;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.jdbc.Work;
 
 /**
  * @author Brian Wing Shun Chan
@@ -76,6 +78,13 @@ public class SessionFactoryImpl implements SessionFactory {
 		else {
 			session = _sessionFactoryImplementor.openSession();
 		}
+
+		session.doWork(new Work() {
+			@Override
+			public void execute(Connection connection) throws SQLException {
+				connection.prepareStatement("USE rewrite").execute();
+			}
+		});
 
 		if (_log.isDebugEnabled()) {
 			org.hibernate.impl.SessionImpl sessionImpl =

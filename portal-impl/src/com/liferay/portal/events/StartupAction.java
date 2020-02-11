@@ -53,6 +53,7 @@ import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceRegistration;
 import com.liferay.registry.dependency.ServiceDependencyListener;
 import com.liferay.registry.dependency.ServiceDependencyManager;
+import com.liferay.sharding.kernel.util.ShardingUtil;
 import com.liferay.taglib.servlet.JspFactorySwapper;
 
 import java.io.InputStream;
@@ -129,6 +130,8 @@ public class StartupAction extends SimpleAction {
 
 			System.exit(1);
 		}
+
+		ShardingUtil.validate();
 
 		// Check required schema version
 

@@ -2847,6 +2847,8 @@ public interface PropsKeys {
 
 	public static final String SETUP_WIZARD_ENABLED = "setup.wizard.enabled";
 
+	public static final String SHARDING_ENABLED = "sharding.enabled";
+
 	public static final String SHAREPOINT_STORAGE_CLASS =
 		"sharepoint.storage.class";
 

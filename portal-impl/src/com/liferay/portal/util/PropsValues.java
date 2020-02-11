@@ -2556,6 +2556,9 @@ public class PropsValues {
 	public static boolean SETUP_WIZARD_ENABLED = GetterUtil.getBoolean(
 		PropsUtil.get(PropsKeys.SETUP_WIZARD_ENABLED));
 
+	public static final boolean SHARDING_ENABLED =
+		GetterUtil.getBoolean(PropsUtil.get(PropsKeys.SHARDING_ENABLED), false);
+
 	public static final String SITEMAP_DISPLAY_TEMPLATES_CONFIG = PropsUtil.get(
 		PropsKeys.SITEMAP_DISPLAY_TEMPLATES_CONFIG);
 

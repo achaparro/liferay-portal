@@ -95,6 +95,7 @@ import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceReference;
 import com.liferay.registry.ServiceTracker;
 import com.liferay.registry.ServiceTrackerCustomizer;
+import com.liferay.sharding.kernel.util.ShardingUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -235,6 +236,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		Date now = new Date();
 
+		User preAddedDefaultUser = null;
+
 		Company company = companyPersistence.fetchByWebId(webId);
 
 		if (company == null) {
@@ -254,31 +257,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			company.setActive(true);
 
 			company = companyPersistence.update(company);
-
-			// Account
-
-			String name = webId;
-
-			if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
-				name = PropsValues.COMPANY_DEFAULT_NAME;
-			}
-
-			String legalName = null;
-			String legalId = null;
-			String legalType = null;
-			String sicCode = null;
-			String tickerSymbol = null;
-			String industry = null;
-			String type = null;
-			String size = null;
-
-			updateAccount(
-				company, name, legalName, legalId, legalType, sicCode,
-				tickerSymbol, industry, type, size);
-
-			// Company info
-
-			companyInfoPersistence.update(company.getCompanyInfo());
 
 			// Virtual host
 
@@ -316,9 +294,22 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					throw new SystemException(portletException);
 				}
 			}
+
+			preAddedDefaultUser = preAddDefaultUser(company);
+
+			if (!webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
+				try {
+					ShardingUtil.addShard(companyId);
+				}
+				catch (Exception exception) {
+					throw new PortalException(exception);
+				}
+			}
 		}
 
 		preregisterCompany(company.getCompanyId());
+
+		Long currentThreadCompanyId = CompanyThreadLocal.getCompanyId();
 
 		Locale localeThreadLocalDefaultLocale =
 			LocaleThreadLocal.getDefaultLocale();
@@ -326,6 +317,33 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			LocaleThreadLocal.getSiteDefaultLocale();
 
 		try {
+			CompanyThreadLocal.setCompanyId(company.getCompanyId());
+
+			// Account
+
+			String name = webId;
+
+			if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
+				name = PropsValues.COMPANY_DEFAULT_NAME;
+			}
+
+			String legalName = null;
+			String legalId = null;
+			String legalType = null;
+			String sicCode = null;
+			String tickerSymbol = null;
+			String industry = null;
+			String type = null;
+			String size = null;
+
+			updateAccount(
+				company, name, legalName, legalId, legalType, sicCode,
+				tickerSymbol, industry, type, size);
+
+			// Company info
+
+			companyInfoPersistence.update(company.getCompanyInfo());
+
 			Locale companyDefaultLocale = LocaleUtil.fromLanguageId(
 				PropsValues.COMPANY_DEFAULT_LOCALE);
 
@@ -351,43 +369,11 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 				}
 			}
 			else {
-				long userId = counterLocalService.increment();
-
-				defaultUser = userPersistence.create(userId);
-
-				defaultUser.setCompanyId(companyId);
-				defaultUser.setDefaultUser(true);
-				defaultUser.setContactId(counterLocalService.increment());
-				defaultUser.setPassword("password");
-				defaultUser.setScreenName(
-					String.valueOf(defaultUser.getUserId()));
-				defaultUser.setEmailAddress("default@" + company.getMx());
-				defaultUser.setLanguageId(
-					LocaleUtil.toLanguageId(companyDefaultLocale));
-
-				if (Validator.isNotNull(
-						PropsValues.COMPANY_DEFAULT_TIME_ZONE)) {
-
-					defaultUser.setTimeZoneId(
-						PropsValues.COMPANY_DEFAULT_TIME_ZONE);
-				}
-				else {
-					TimeZone timeZone = TimeZoneUtil.getDefault();
-
-					defaultUser.setTimeZoneId(timeZone.getID());
+				if (preAddedDefaultUser == null) {
+					preAddedDefaultUser = preAddDefaultUser(company);
 				}
 
-				String greeting = LanguageUtil.format(
-					defaultUser.getLocale(), "welcome", null, false);
-
-				defaultUser.setGreeting(greeting + StringPool.EXCLAMATION);
-
-				defaultUser.setLoginDate(now);
-				defaultUser.setFailedLoginAttempts(0);
-				defaultUser.setAgreedToTermsOfUse(true);
-				defaultUser.setStatus(WorkflowConstants.STATUS_APPROVED);
-
-				defaultUser = userPersistence.update(defaultUser);
+				defaultUser = userPersistence.update(preAddedDefaultUser);
 
 				// Contact
 
@@ -472,6 +458,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			LocaleThreadLocal.setDefaultLocale(localeThreadLocalDefaultLocale);
 			LocaleThreadLocal.setSiteDefaultLocale(
 				localeThreadSiteDefaultLocale);
+
+			CompanyThreadLocal.setCompanyId(currentThreadCompanyId);
 		}
 
 		return company;
@@ -1482,6 +1470,44 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		TransactionCommitCallbackUtil.registerCallback(callable);
 
 		return company;
+	}
+
+	protected User preAddDefaultUser(Company company) {
+		User defaultUser = userPersistence.create(
+			counterLocalService.increment());
+
+		defaultUser.setCompanyId(company.getCompanyId());
+		defaultUser.setDefaultUser(true);
+		defaultUser.setContactId(counterLocalService.increment());
+		defaultUser.setPassword("password");
+		defaultUser.setScreenName(String.valueOf(defaultUser.getUserId()));
+		defaultUser.setEmailAddress("default@" + company.getMx());
+		defaultUser.setLanguageId(
+			LocaleUtil.toLanguageId(
+				LocaleUtil.fromLanguageId(PropsValues.COMPANY_DEFAULT_LOCALE)));
+
+		if (Validator.isNotNull(PropsValues.COMPANY_DEFAULT_TIME_ZONE)) {
+			defaultUser.setTimeZoneId(PropsValues.COMPANY_DEFAULT_TIME_ZONE);
+		}
+		else {
+			TimeZone timeZone = TimeZoneUtil.getDefault();
+
+			defaultUser.setTimeZoneId(timeZone.getID());
+		}
+
+		String greeting = LanguageUtil.format(
+			defaultUser.getLocale(), "welcome", null, false);
+
+		defaultUser.setGreeting(greeting + StringPool.EXCLAMATION);
+
+		defaultUser.setLoginDate(new Date());
+		defaultUser.setFailedLoginAttempts(0);
+		defaultUser.setAgreedToTermsOfUse(true);
+		defaultUser.setStatus(WorkflowConstants.STATUS_APPROVED);
+
+		userLocalService.preAddDefaultUser(defaultUser);
+
+		return defaultUser;
 	}
 
 	protected void preregisterCompany(long companyId) {

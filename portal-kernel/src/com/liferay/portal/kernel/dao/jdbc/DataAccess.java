@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.sharding.kernel.util.ShardingUtil;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -118,7 +119,7 @@ public class DataAccess {
 	public static Connection getConnection() throws SQLException {
 		DataSource dataSource = InfrastructureUtil.getDataSource();
 
-		return dataSource.getConnection();
+		return ShardingUtil.useShard(dataSource.getConnection());
 	}
 
 	public static Connection getConnection(String location)
@@ -131,7 +132,7 @@ public class DataAccess {
 
 		DataSource dataSource = (DataSource)JNDIUtil.lookup(context, location);
 
-		return dataSource.getConnection();
+		return ShardingUtil.useShard(dataSource.getConnection());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(DataAccess.class);

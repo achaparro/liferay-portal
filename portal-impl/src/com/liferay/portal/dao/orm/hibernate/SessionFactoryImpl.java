@@ -23,13 +23,16 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PreloadClassLoader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.sharding.kernel.util.ShardingUtil;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.jdbc.Work;
 
 /**
  * @author Brian Wing Shun Chan
@@ -76,6 +79,16 @@ public class SessionFactoryImpl implements SessionFactory {
 		else {
 			session = _sessionFactoryImplementor.openSession();
 		}
+
+		session.doWork(
+			new Work() {
+
+				@Override
+				public void execute(Connection connection) throws SQLException {
+					ShardingUtil.useShard(connection);
+				}
+
+			});
 
 		if (_log.isDebugEnabled()) {
 			org.hibernate.impl.SessionImpl sessionImpl =

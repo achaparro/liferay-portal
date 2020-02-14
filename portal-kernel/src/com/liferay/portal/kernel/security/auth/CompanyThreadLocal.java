@@ -77,6 +77,23 @@ public class CompanyThreadLocal {
 		CTCollectionThreadLocal.removeCTCollectionId();
 	}
 
+	public static void setCompanyIdInitialization(Long companyId) {
+		if (companyId.equals(_companyId.get())) {
+			return;
+		}
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("setCompanyId " + companyId);
+		}
+
+		if (companyId > 0) {
+			_companyId.set(companyId);
+		}
+		else {
+			_companyId.set(CompanyConstants.SYSTEM);
+		}
+	}
+
 	public static void setDeleteInProcess(boolean deleteInProcess) {
 		_deleteInProcess.set(deleteInProcess);
 	}

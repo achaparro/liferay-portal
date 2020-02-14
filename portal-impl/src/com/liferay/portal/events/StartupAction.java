@@ -14,6 +14,7 @@
 
 package com.liferay.portal.events;
 
+import com.liferay.db.partitioning.kernel.util.DBPartitioningUtil;
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.petra.executor.PortalExecutorManager;
 import com.liferay.portal.fabric.server.FabricServerUtil;
@@ -129,6 +130,8 @@ public class StartupAction extends SimpleAction {
 
 			System.exit(1);
 		}
+
+		DBPartitioningUtil.validate();
 
 		// Check required schema version
 

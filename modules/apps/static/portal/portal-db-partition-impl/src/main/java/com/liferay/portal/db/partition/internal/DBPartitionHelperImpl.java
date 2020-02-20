@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.util.InfrastructureUtil;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -53,25 +54,26 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 		String schemaName = "company" + companyId;
 
 		try {
-			try (Statement statement = connection.createStatement()) {
-				statement.executeUpdate(
-					StringBundler.concat(
-						"create schema if not exists ", schemaName,
-						" character set utf8"));
+			try (PreparedStatement preparedStatement =
+					connection.prepareStatement(
+						"create schema if not exists " + schemaName +
+							" character set utf8")) {
+
+				preparedStatement.executeUpdate();
 			}
 
 			DatabaseMetaData databaseMetaData = connection.getMetaData();
 
 			DBInspector dbInspector = new DBInspector(connection);
 
-			try (ResultSet tables = databaseMetaData.getTables(
+			try (ResultSet resultSet = databaseMetaData.getTables(
 					dbInspector.getCatalog(), dbInspector.getSchema(), null,
 					new String[] {"TABLE"});
 				Statement statement = connection.createStatement()) {
 
-				while (tables.next()) {
+				while (resultSet.next()) {
 					String tableName = dbInspector.normalizeName(
-						tables.getString("TABLE_NAME"));
+						resultSet.getString("TABLE_NAME"));
 
 					if (_isControlTable(connection, tableName)) {
 						statement.executeUpdate(

@@ -1,0 +1,5 @@
+dependencies {
+	testIntegrationCompile group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
+	testIntegrationCompile group: "commons-lang", name: "commons-lang", version: "2.6"
+	testIntegrationCompile project(":test:arquillian-extension-junit-bridge")
+}

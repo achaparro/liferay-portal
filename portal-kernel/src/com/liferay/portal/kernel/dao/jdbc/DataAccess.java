@@ -119,7 +119,11 @@ public class DataAccess {
 	public static Connection getConnection() throws SQLException {
 		DataSource dataSource = InfrastructureUtil.getDataSource();
 
-		return DBPartitionHelperUtil.usePartition(dataSource.getConnection());
+		Connection connection = dataSource.getConnection();
+
+		DBPartitionHelperUtil.usePartition(connection);
+
+		return connection;
 	}
 
 	public static Connection getConnection(String location)
@@ -132,7 +136,11 @@ public class DataAccess {
 
 		DataSource dataSource = (DataSource)JNDIUtil.lookup(context, location);
 
-		return DBPartitionHelperUtil.usePartition(dataSource.getConnection());
+		Connection connection = dataSource.getConnection();
+
+		DBPartitionHelperUtil.usePartition(connection);
+
+		return connection;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(DataAccess.class);

@@ -91,9 +91,9 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 	}
 
 	@Override
-	public Connection usePartition(Connection connection) throws SQLException {
+	public void usePartition(Connection connection) throws SQLException {
 		if (connection.isReadOnly()) {
-			return connection;
+			return;
 		}
 
 		long companyId = CompanyThreadLocal.getCompanyId();
@@ -114,12 +114,10 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 				statement.execute("USE company" + companyId);
 			}
 		}
-
-		return connection;
 	}
 
 	@Override
-	public void validate() throws Exception {
+	public void validate() {
 		DB db = DBManagerUtil.getDB();
 
 		if (db.getDBType() != DBType.MYSQL) {

@@ -29,13 +29,11 @@ public interface DBPartitionHelper {
 		return false;
 	}
 
-	public default Connection usePartition(Connection connection)
+	public default void usePartition(Connection connection)
 		throws SQLException {
-
-		return connection;
 	}
 
-	public default void validate() throws Exception {
+	public default void validate() {
 	}
 
 }

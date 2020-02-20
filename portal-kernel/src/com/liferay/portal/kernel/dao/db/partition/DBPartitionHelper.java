@@ -28,6 +28,9 @@ public interface DBPartitionHelper {
 		return false;
 	}
 
+	public default void setDefaultCompanyId(long companyId) {
+	}
+
 	public default void usePartition(Connection connection) {
 	}
 

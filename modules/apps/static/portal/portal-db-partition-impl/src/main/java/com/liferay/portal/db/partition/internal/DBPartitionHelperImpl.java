@@ -101,6 +101,11 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 	}
 
 	@Override
+	public void setDefaultCompanyId(long companyId) {
+		_defaultCompanyId = companyId;
+	}
+
+	@Override
 	public void usePartition(Connection connection) {
 		try {
 			if (connection.isReadOnly()) {
@@ -108,12 +113,6 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 			}
 
 			long companyId = CompanyThreadLocal.getCompanyId();
-
-			if ((_defaultCompanyId == 0) &&
-				(companyId != CompanyConstants.SYSTEM)) {
-
-				_defaultCompanyId = companyId;
-			}
 
 			try (Statement statement = connection.createStatement()) {
 				if ((companyId == CompanyConstants.SYSTEM) ||
@@ -159,6 +158,6 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 		return false;
 	}
 
-	private static long _defaultCompanyId;
+	private volatile long _defaultCompanyId;
 
 }

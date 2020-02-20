@@ -277,6 +277,10 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		Locale localeThreadSiteDefaultLocale =
 			LocaleThreadLocal.getSiteDefaultLocale();
 
+		if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
+			DBPartitionHelperUtil.setDefaultCompanyId(company.getCompanyId());
+		}
+
 		try {
 			CompanyThreadLocal.setCompanyIdInitialization(
 				company.getCompanyId());

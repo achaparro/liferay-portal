@@ -33,6 +33,10 @@ public class DBPartitionHelperUtil {
 		return _dbPartitionHelper.removePartition(companyId);
 	}
 
+	public static void setDefaultCompanyId(long companyId) {
+		_dbPartitionHelper.setDefaultCompanyId(companyId);
+	}
+
 	public static void usePartition(Connection connection) {
 		_dbPartitionHelper.usePartition(connection);
 	}

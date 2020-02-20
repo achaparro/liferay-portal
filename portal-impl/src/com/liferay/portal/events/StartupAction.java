@@ -21,6 +21,7 @@ import com.liferay.portal.jericho.CachedLoggerProvider;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
+import com.liferay.portal.kernel.dao.db.partition.DBPartitionHelperUtil;
 import com.liferay.portal.kernel.events.ActionException;
 import com.liferay.portal.kernel.events.SimpleAction;
 import com.liferay.portal.kernel.log.Log;
@@ -129,6 +130,8 @@ public class StartupAction extends SimpleAction {
 
 			System.exit(1);
 		}
+
+		DBPartitionHelperUtil.validate();
 
 		// Check required schema version
 

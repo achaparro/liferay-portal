@@ -34,13 +34,11 @@ public class DBPartitionHelperUtil {
 		return _dbPartitionHelper.removePartition(companyId);
 	}
 
-	public static Connection usePartition(Connection connection)
-		throws SQLException {
-
-		return _dbPartitionHelper.usePartition(connection);
+	public static void usePartition(Connection connection) throws SQLException {
+		_dbPartitionHelper.usePartition(connection);
 	}
 
-	public static void validate() throws Exception {
+	public static void validate() {
 		_dbPartitionHelper.validate();
 	}
 

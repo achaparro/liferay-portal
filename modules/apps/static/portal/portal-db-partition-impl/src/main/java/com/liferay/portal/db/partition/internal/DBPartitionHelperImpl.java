@@ -72,10 +72,9 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 				Statement statement = connection.createStatement()) {
 
 				while (resultSet.next()) {
-					String tableName = dbInspector.normalizeName(
-						resultSet.getString("TABLE_NAME"));
+					String tableName = resultSet.getString("TABLE_NAME");
 
-					if (_isControlTable(connection, tableName)) {
+					if (_isControlTable(dbInspector, tableName)) {
 						statement.executeUpdate(
 							StringBundler.concat(
 								"create view ", schemaName, StringPool.PERIOD,
@@ -140,7 +139,7 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 		}
 	}
 
-	private boolean _isControlTable(Connection connection, String tableName)
+	private boolean _isControlTable(DBInspector dbInspector, String tableName)
 		throws Exception {
 
 		if (tableName.equals("Portlet") || tableName.equals("Company") ||
@@ -148,8 +147,6 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 
 			return true;
 		}
-
-		DBInspector dbInspector = new DBInspector(connection);
 
 		if (!dbInspector.hasColumn(tableName, "companyId") &&
 			(!tableName.equals("CTMessage") ||

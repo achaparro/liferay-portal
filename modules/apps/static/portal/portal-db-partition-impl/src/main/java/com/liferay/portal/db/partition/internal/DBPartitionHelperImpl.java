@@ -21,10 +21,11 @@ import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.db.partition.DBPartitionHelper;
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
 import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.util.InfrastructureUtil;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -46,11 +47,12 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 			return;
 		}
 
+		Connection connection = CurrentConnectionUtil.getConnection(
+			InfrastructureUtil.getDataSource());
+
+		String schemaName = "company" + companyId;
+
 		try {
-			Connection connection = DataAccess.getConnection();
-
-			String schemaName = "company" + companyId;
-
 			try (Statement statement = connection.createStatement()) {
 				statement.executeUpdate(
 					StringBundler.concat(

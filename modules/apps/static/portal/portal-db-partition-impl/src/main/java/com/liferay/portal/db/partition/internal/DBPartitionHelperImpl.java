@@ -14,7 +14,6 @@
 
 package com.liferay.portal.db.partition.internal;
 
-import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DB;
@@ -33,9 +32,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Alberto Chaparro
@@ -87,8 +83,6 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 				}
 			}
 		}
-
-		_dlFileEntryTypeLocalService.getBasicDocumentDLFileEntryType();
 	}
 
 	@Override
@@ -155,11 +149,5 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 	}
 
 	private static long _defaultCompanyId;
-
-	@Reference(
-		cardinality = ReferenceCardinality.OPTIONAL,
-		policyOption = ReferencePolicyOption.GREEDY
-	)
-	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 
 }

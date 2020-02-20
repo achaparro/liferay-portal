@@ -15,22 +15,20 @@
 package com.liferay.portal.kernel.dao.db.partition;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * @author Alberto Chaparro
  */
 public interface DBPartitionHelper {
 
-	public default void addPartition(long companyId) throws Exception {
+	public default void addPartition(long companyId) {
 	}
 
 	public default boolean removePartition(long companyId) {
 		return false;
 	}
 
-	public default void usePartition(Connection connection)
-		throws SQLException {
+	public default void usePartition(Connection connection) {
 	}
 
 	public default void validate() {

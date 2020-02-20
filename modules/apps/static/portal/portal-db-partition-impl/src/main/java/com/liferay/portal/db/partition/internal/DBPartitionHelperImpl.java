@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.db.partition.DBPartitionHelper;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 
@@ -40,48 +41,53 @@ import org.osgi.service.component.annotations.Component;
 public class DBPartitionHelperImpl implements DBPartitionHelper {
 
 	@Override
-	public void addPartition(long companyId) throws Exception {
+	public void addPartition(long companyId) {
 		if (companyId == _defaultCompanyId) {
 			return;
 		}
 
-		Connection connection = DataAccess.getConnection();
+		try {
+			Connection connection = DataAccess.getConnection();
 
-		String schemaName = "company" + companyId;
+			String schemaName = "company" + companyId;
 
-		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate(
-				StringBundler.concat(
-					"create schema if not exists ", schemaName,
-					" character set utf8"));
-		}
+			try (Statement statement = connection.createStatement()) {
+				statement.executeUpdate(
+					StringBundler.concat(
+						"create schema if not exists ", schemaName,
+						" character set utf8"));
+			}
 
-		DatabaseMetaData databaseMetaData = connection.getMetaData();
+			DatabaseMetaData databaseMetaData = connection.getMetaData();
 
-		DBInspector dbInspector = new DBInspector(connection);
+			DBInspector dbInspector = new DBInspector(connection);
 
-		try (ResultSet tables = databaseMetaData.getTables(
-				dbInspector.getCatalog(), dbInspector.getSchema(), null,
-				new String[] {"TABLE"});
-			Statement statement = connection.createStatement()) {
+			try (ResultSet tables = databaseMetaData.getTables(
+					dbInspector.getCatalog(), dbInspector.getSchema(), null,
+					new String[] {"TABLE"});
+				Statement statement = connection.createStatement()) {
 
-			while (tables.next()) {
-				String tableName = dbInspector.normalizeName(
-					tables.getString("TABLE_NAME"));
+				while (tables.next()) {
+					String tableName = dbInspector.normalizeName(
+						tables.getString("TABLE_NAME"));
 
-				if (_isControlTable(connection, tableName)) {
-					statement.executeUpdate(
-						StringBundler.concat(
-							"create view ", schemaName, StringPool.PERIOD,
-							tableName, " as select * from ", tableName));
-				}
-				else {
-					statement.executeUpdate(
-						StringBundler.concat(
-							"create table ", schemaName, StringPool.PERIOD,
-							tableName, " like ", tableName));
+					if (_isControlTable(connection, tableName)) {
+						statement.executeUpdate(
+							StringBundler.concat(
+								"create view ", schemaName, StringPool.PERIOD,
+								tableName, " as select * from ", tableName));
+					}
+					else {
+						statement.executeUpdate(
+							StringBundler.concat(
+								"create table ", schemaName, StringPool.PERIOD,
+								tableName, " like ", tableName));
+					}
 				}
 			}
+		}
+		catch (Exception exception) {
+			throw new ORMException(exception);
 		}
 	}
 
@@ -91,28 +97,33 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 	}
 
 	@Override
-	public void usePartition(Connection connection) throws SQLException {
-		if (connection.isReadOnly()) {
-			return;
-		}
-
-		long companyId = CompanyThreadLocal.getCompanyId();
-
-		if ((_defaultCompanyId == 0) &&
-			(companyId != CompanyConstants.SYSTEM)) {
-
-			_defaultCompanyId = companyId;
-		}
-
-		try (Statement statement = connection.createStatement()) {
-			if ((companyId == CompanyConstants.SYSTEM) ||
-				(companyId == _defaultCompanyId)) {
-
-				statement.execute("USE companyDefault");
+	public void usePartition(Connection connection) {
+		try {
+			if (connection.isReadOnly()) {
+				return;
 			}
-			else {
-				statement.execute("USE company" + companyId);
+
+			long companyId = CompanyThreadLocal.getCompanyId();
+
+			if ((_defaultCompanyId == 0) &&
+				(companyId != CompanyConstants.SYSTEM)) {
+
+				_defaultCompanyId = companyId;
 			}
+
+			try (Statement statement = connection.createStatement()) {
+				if ((companyId == CompanyConstants.SYSTEM) ||
+					(companyId == _defaultCompanyId)) {
+
+					statement.execute("USE companyDefault");
+				}
+				else {
+					statement.execute("USE company" + companyId);
+				}
+			}
+		}
+		catch (SQLException sqlException) {
+			throw new ORMException(sqlException);
 		}
 	}
 

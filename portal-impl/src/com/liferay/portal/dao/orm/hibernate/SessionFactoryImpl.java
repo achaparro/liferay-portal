@@ -26,7 +26,6 @@ import com.liferay.portal.kernel.util.PreloadClassLoader;
 import com.liferay.portal.util.PropsValues;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -84,7 +83,7 @@ public class SessionFactoryImpl implements SessionFactory {
 			new Work() {
 
 				@Override
-				public void execute(Connection connection) throws SQLException {
+				public void execute(Connection connection) {
 					DBPartitionHelperUtil.usePartition(connection);
 				}
 

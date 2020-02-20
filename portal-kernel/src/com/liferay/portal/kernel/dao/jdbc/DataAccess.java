@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.dao.jdbc;
 
+import com.liferay.portal.kernel.dao.db.partition.DBPartitionHelperUtil;
 import com.liferay.portal.kernel.jndi.JNDIUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -118,7 +119,7 @@ public class DataAccess {
 	public static Connection getConnection() throws SQLException {
 		DataSource dataSource = InfrastructureUtil.getDataSource();
 
-		return dataSource.getConnection();
+		return DBPartitionHelperUtil.usePartition(dataSource.getConnection());
 	}
 
 	public static Connection getConnection(String location)
@@ -131,7 +132,7 @@ public class DataAccess {
 
 		DataSource dataSource = (DataSource)JNDIUtil.lookup(context, location);
 
-		return dataSource.getConnection();
+		return DBPartitionHelperUtil.usePartition(dataSource.getConnection());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(DataAccess.class);

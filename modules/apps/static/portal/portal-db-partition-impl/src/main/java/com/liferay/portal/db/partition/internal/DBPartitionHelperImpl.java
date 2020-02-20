@@ -78,13 +78,14 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 						statement.executeUpdate(
 							StringBundler.concat(
 								"create view ", schemaName, StringPool.PERIOD,
-								tableName, " as select * from ", tableName));
+								tableName, " as select * from companyDefault.",
+								tableName));
 					}
 					else {
 						statement.executeUpdate(
 							StringBundler.concat(
 								"create table ", schemaName, StringPool.PERIOD,
-								tableName, " like ", tableName));
+								tableName, " like companyDefault.", tableName));
 					}
 				}
 			}

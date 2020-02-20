@@ -19,14 +19,13 @@ import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * @author Alberto Chaparro
  */
 public class DBPartitionHelperUtil {
 
-	public static void addPartition(long companyId) throws Exception {
+	public static void addPartition(long companyId) {
 		_dbPartitionHelper.addPartition(companyId);
 	}
 
@@ -34,7 +33,7 @@ public class DBPartitionHelperUtil {
 		return _dbPartitionHelper.removePartition(companyId);
 	}
 
-	public static void usePartition(Connection connection) throws SQLException {
+	public static void usePartition(Connection connection) {
 		_dbPartitionHelper.usePartition(connection);
 	}
 

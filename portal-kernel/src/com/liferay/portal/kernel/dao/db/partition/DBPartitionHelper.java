@@ -17,12 +17,9 @@ package com.liferay.portal.kernel.dao.db.partition;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.osgi.annotation.versioning.ProviderType;
-
 /**
  * @author Alberto Chaparro
  */
-@ProviderType
 public interface DBPartitionHelper {
 
 	public default void addPartition(long companyId) throws Exception {

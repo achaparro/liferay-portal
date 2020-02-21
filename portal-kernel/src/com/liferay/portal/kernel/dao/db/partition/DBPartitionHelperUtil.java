@@ -14,8 +14,6 @@
 
 package com.liferay.portal.kernel.dao.db.partition;
 
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
 
 import java.sql.Connection;
@@ -41,25 +39,9 @@ public class DBPartitionHelperUtil {
 		_dbPartitionHelper.usePartition(connection);
 	}
 
-	public static void validate() {
-		_dbPartitionHelper.validate();
-	}
-
-	private static final boolean _DATABASE_PARTITION_ENABLED =
-		GetterUtil.getBoolean(PropsUtil.get("database.partition.enabled"));
-
-	private static volatile DBPartitionHelper _dbPartitionHelper;
-
-	static {
-		if (_DATABASE_PARTITION_ENABLED) {
-			_dbPartitionHelper = ServiceProxyFactory.newServiceTrackedInstance(
-				DBPartitionHelper.class, DBPartitionHelperUtil.class,
-				"_dbPartitionHelper", true);
-		}
-		else {
-			_dbPartitionHelper = new DBPartitionHelper() {
-			};
-		}
-	}
+	private static volatile DBPartitionHelper _dbPartitionHelper =
+		ServiceProxyFactory.newServiceTrackedInstance(
+			DBPartitionHelper.class, DBPartitionHelperUtil.class,
+			"_dbPartitionHelper", true);
 
 }

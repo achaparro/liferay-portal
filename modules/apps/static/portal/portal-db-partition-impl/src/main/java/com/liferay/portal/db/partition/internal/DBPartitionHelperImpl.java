@@ -25,7 +25,9 @@ import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
 import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -34,12 +36,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 /**
  * @author Alberto Chaparro
  */
-@Component(immediate = true, service = DBPartitionHelper.class)
+@Component(immediate = true, service = {})
 public class DBPartitionHelperImpl implements DBPartitionHelper {
 
 	@Override
@@ -130,13 +136,34 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 		}
 	}
 
-	@Override
-	public void validate() {
-		DB db = DBManagerUtil.getDB();
+	@Activate
+	protected void activate(BundleContext bundleContext) {
+		boolean databasePartitionEnabled = GetterUtil.getBoolean(
+			PropsUtil.get("database.partition.enabled"));
 
-		if (db.getDBType() != DBType.MYSQL) {
-			throw new RuntimeException("Database Partition requires MySQL");
+		if (databasePartitionEnabled) {
+			DB db = DBManagerUtil.getDB();
+
+			if (db.getDBType() == DBType.MYSQL) {
+				_serviceRegistration = bundleContext.registerService(
+					DBPartitionHelper.class, this, null);
+			}
+			else {
+				throw new Error("Database Partition requires MySQL");
+			}
 		}
+		else {
+			_serviceRegistration = bundleContext.registerService(
+				DBPartitionHelper.class,
+				new DBPartitionHelper() {
+				},
+				null);
+		}
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		_serviceRegistration.unregister();
 	}
 
 	private boolean _isControlTable(DBInspector dbInspector, String tableName)
@@ -159,5 +186,6 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 	}
 
 	private volatile long _defaultCompanyId;
+	private ServiceRegistration<?> _serviceRegistration;
 
 }

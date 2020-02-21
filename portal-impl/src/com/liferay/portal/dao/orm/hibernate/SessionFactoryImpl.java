@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.engine.SessionFactoryImplementor;
-import org.hibernate.jdbc.Work;
 
 /**
  * @author Brian Wing Shun Chan
@@ -79,15 +78,7 @@ public class SessionFactoryImpl implements SessionFactory {
 			session = _sessionFactoryImplementor.openSession();
 		}
 
-		session.doWork(
-			new Work() {
-
-				@Override
-				public void execute(Connection connection) {
-					DBPartitionHelperUtil.usePartition(connection);
-				}
-
-			});
+		session.doWork(DBPartitionHelperUtil::usePartition);
 
 		if (_log.isDebugEnabled()) {
 			org.hibernate.impl.SessionImpl sessionImpl =

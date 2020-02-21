@@ -136,8 +136,6 @@ public class StartupAction extends SimpleAction {
 			StartupHelperUtil.verifyRequiredSchemaVersion();
 		}
 
-		DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
-
 		Registry registry = RegistryUtil.getRegistry();
 
 		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
@@ -187,6 +185,8 @@ public class StartupAction extends SimpleAction {
 
 		if (StartupHelperUtil.isDBNew()) {
 			StartupHelperUtil.initResourceActions();
+
+			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
 		}
 
 		ResourceActionLocalServiceUtil.checkResourceActions();

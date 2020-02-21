@@ -18,6 +18,7 @@ import com.liferay.expando.kernel.model.ExpandoColumn;
 import com.liferay.expando.kernel.model.ExpandoTable;
 import com.liferay.petra.encryptor.Encryptor;
 import com.liferay.petra.encryptor.EncryptorException;
+import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.partition.DBPartitionHelperUtil;
@@ -273,8 +274,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		final long companyId = company.getCompanyId();
 
-		Long currentThreadCompanyId = CompanyThreadLocal.getCompanyId();
-
 		Locale localeThreadLocalDefaultLocale =
 			LocaleThreadLocal.getDefaultLocale();
 		Locale localeThreadSiteDefaultLocale =
@@ -284,9 +283,9 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			DBPartitionHelperUtil.setDefaultCompanyId(company.getCompanyId());
 		}
 
-		try {
-			CompanyThreadLocal.setCompanyIdInitialization(
-				company.getCompanyId());
+		try (SafeClosable safeClosable =
+				CompanyThreadLocal.setCompanyIdInitialization(
+					company.getCompanyId())) {
 
 			if (newCompany) {
 
@@ -409,8 +408,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			LocaleThreadLocal.setDefaultLocale(localeThreadLocalDefaultLocale);
 			LocaleThreadLocal.setSiteDefaultLocale(
 				localeThreadSiteDefaultLocale);
-
-			CompanyThreadLocal.setCompanyId(currentThreadCompanyId);
 		}
 
 		return company;

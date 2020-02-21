@@ -16,6 +16,7 @@ package com.liferay.portal.model.impl;
 
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.petra.encryptor.Encryptor;
+import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.AutoEscape;
@@ -105,10 +106,9 @@ public class CompanyImpl extends CompanyBaseImpl {
 	@Override
 	public CompanyInfo getCompanyInfo() {
 		if (_companyInfo == null) {
-			long currentCompanyId = CompanyThreadLocal.getCompanyId();
-
-			try {
-				CompanyThreadLocal.setCompanyIdInitialization(getCompanyId());
+			try (SafeClosable safeClosable =
+					CompanyThreadLocal.setCompanyIdInitialization(
+						getCompanyId())) {
 
 				CompanyInfo companyInfo =
 					CompanyInfoLocalServiceUtil.fetchCompany(getCompanyId());
@@ -121,9 +121,6 @@ public class CompanyImpl extends CompanyBaseImpl {
 				}
 
 				_companyInfo = companyInfo;
-			}
-			finally {
-				CompanyThreadLocal.setCompanyId(currentCompanyId);
 			}
 		}
 

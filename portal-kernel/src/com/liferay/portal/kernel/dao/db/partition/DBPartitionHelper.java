@@ -34,7 +34,4 @@ public interface DBPartitionHelper {
 	public default void usePartition(Connection connection) {
 	}
 
-	public default void validate() {
-	}
-
 }

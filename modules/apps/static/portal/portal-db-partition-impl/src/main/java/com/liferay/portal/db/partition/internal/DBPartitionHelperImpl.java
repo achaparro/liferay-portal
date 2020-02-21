@@ -156,6 +156,24 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 			_serviceRegistration = bundleContext.registerService(
 				DBPartitionHelper.class,
 				new DBPartitionHelper() {
+
+					@Override
+					public void addPartition(long companyId) {
+					}
+
+					@Override
+					public boolean removePartition(long companyId) {
+						return false;
+					}
+
+					@Override
+					public void setDefaultCompanyId(long companyId) {
+					}
+
+					@Override
+					public void usePartition(Connection connection) {
+					}
+
 				},
 				null);
 		}

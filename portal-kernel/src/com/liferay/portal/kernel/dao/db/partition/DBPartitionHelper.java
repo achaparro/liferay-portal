@@ -21,17 +21,12 @@ import java.sql.Connection;
  */
 public interface DBPartitionHelper {
 
-	public default void addPartition(long companyId) {
-	}
+	public void addPartition(long companyId);
 
-	public default boolean removePartition(long companyId) {
-		return false;
-	}
+	public boolean removePartition(long companyId);
 
-	public default void setDefaultCompanyId(long companyId) {
-	}
+	public void setDefaultCompanyId(long companyId);
 
-	public default void usePartition(Connection connection) {
-	}
+	public void usePartition(Connection connection);
 
 }

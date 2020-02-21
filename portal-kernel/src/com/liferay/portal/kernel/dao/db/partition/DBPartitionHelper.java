@@ -21,7 +21,7 @@ import java.sql.Connection;
  */
 public interface DBPartitionHelper {
 
-	public void addPartition(long companyId);
+	public boolean addPartition(long companyId);
 
 	public boolean removePartition(long companyId);
 

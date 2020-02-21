@@ -15,6 +15,7 @@
 package com.liferay.portal.db.partition.internal.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.lang.SafeClosable;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
@@ -26,13 +27,14 @@ import com.liferay.portal.kernel.service.CompanyInfoLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.AssumeTestRule;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.sql.Connection;
 import java.sql.Statement;
-
-import org.apache.commons.lang.reflect.FieldUtils;
+import java.util.Objects;
+import java.util.Properties;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -42,6 +44,12 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.component.runtime.ServiceComponentRuntime;
+import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
+import org.osgi.util.promise.Promise;
 
 /**
  * @author Alberto Chaparro
@@ -63,55 +71,76 @@ public class DBPartitionHelperTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
+		Properties properties = PropsUtil.getProperties();
+
+		properties.setProperty(
+			"database.partition.enabled", Boolean.TRUE.toString());
+
+		Bundle bundle = FrameworkUtil.getBundle(DBPartitionHelperTest.class);
+
+		BundleContext bundleContext = bundle.getBundleContext();
+
+		ComponentDescriptionDTO componentDescriptionDTO = null;
+
+		for (Bundle currentBundle : bundleContext.getBundles()) {
+			if (Objects.equals(
+					currentBundle.getSymbolicName(),
+					"com.liferay.portal.db.partition.impl")) {
+
+				componentDescriptionDTO =
+					_componentController.getComponentDescriptionDTO(
+						currentBundle,
+						"com.liferay.portal.db.partition.internal." +
+							"DBPartitionHelperImpl");
+			}
+		}
+
+		Promise<Void> promise = _componentController.disableComponent(componentDescriptionDTO);
+
+		Promise<Void> promise2 = _componentController.enableComponent(componentDescriptionDTO);
+
 		_db = DBManagerUtil.getDB();
 
 		_connection = DataAccess.getConnection();
 
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
-
-		try {
-			CompanyThreadLocal.setCompanyId(_portal.getDefaultCompanyId());
-
-			_dbPartitionHelper.usePartition(_connection);
-		}
-		finally {
-			CompanyThreadLocal.setCompanyId(currentCompanyId);
-
-			_dbPartitionHelper.usePartition(_connection);
-		}
+		_dbPartitionHelper.setDefaultCompanyId(_portal.getDefaultCompanyId());
 	}
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
+		Properties properties = PropsUtil.getProperties();
+
+		properties.remove("database.partition.enabled");
+
+		Bundle bundle = FrameworkUtil.getBundle(DBPartitionHelperTest.class);
+
+		BundleContext bundleContext = bundle.getBundleContext();
+
 		_db.runSQL("drop schema company" + _COMPANY_ID);
 
 		DataAccess.cleanUp(_connection);
 	}
 
 	@Test
-	public void testAddDefaultPartition() throws Exception {
-		Assume.assumeTrue(_db.getDBType() == DBType.MYSQL);
-
+	public void testAddDefaultPartition() {
 		_dbPartitionHelper.addPartition(_portal.getDefaultCompanyId());
 	}
 
 	@Test
 	public void testAddPartition() throws Exception {
-		Assume.assumeTrue(_db.getDBType() == DBType.MYSQL);
-
 		_dbPartitionHelper.addPartition(_COMPANY_ID);
 
-		Assert.assertTrue(exists("company" + _COMPANY_ID));
+		try (Statement statement = _connection.createStatement()) {
+			statement.execute(
+				"select 1 from company" + _COMPANY_ID + ".CompanyInfo");
+		}
 	}
 
 	@Test
-	public void testUseDefaultPartition() throws Exception {
-		Assume.assumeTrue(_db.getDBType() == DBType.MYSQL);
-
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
-
-		try {
-			CompanyThreadLocal.setCompanyId(_portal.getDefaultCompanyId());
+	public void testUseDefaultPartition() {
+		try (SafeClosable safeClosable =
+				CompanyThreadLocal.setCompanyIdInitialization(
+					_portal.getDefaultCompanyId())) {
 
 			_dbPartitionHelper.usePartition(_connection);
 
@@ -122,20 +151,14 @@ public class DBPartitionHelperTest {
 				_portal.getDefaultCompanyId(), companyInfo.getCompanyId());
 		}
 		finally {
-			CompanyThreadLocal.setCompanyId(currentCompanyId);
-
 			_dbPartitionHelper.usePartition(_connection);
 		}
 	}
 
 	@Test
-	public void testUsePartition() throws Exception {
-		Assume.assumeTrue(_db.getDBType() == DBType.MYSQL);
-
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
-
-		try {
-			CompanyThreadLocal.setCompanyIdInitialization(_COMPANY_ID);
+	public void testUsePartition() {
+		try (SafeClosable safeClosable =
+				CompanyThreadLocal.setCompanyIdInitialization(_COMPANY_ID)) {
 
 			_dbPartitionHelper.usePartition(_connection);
 
@@ -145,87 +168,14 @@ public class DBPartitionHelperTest {
 			Assert.assertEquals(null, companyInfo);
 		}
 		finally {
-			CompanyThreadLocal.setCompanyIdInitialization(currentCompanyId);
-
 			_dbPartitionHelper.usePartition(_connection);
 		}
 	}
 
-	@Test
-	public void testValidateDB2() throws Exception {
-		validate(DBType.DB2);
-	}
-
-	@Test
-	public void testValidateHypersonic() throws Exception {
-		validate(DBType.HYPERSONIC);
-	}
-
-	@Test
-	public void testValidateMariaDB() throws Exception {
-		validate(DBType.MARIADB);
-	}
-
-	@Test
-	public void testValidateMySQL() throws Exception {
-		validate(DBType.MYSQL);
-	}
-
-	@Test
-	public void testValidateOracle() throws Exception {
-		validate(DBType.ORACLE);
-	}
-
-	@Test
-	public void testValidatePostgresql() throws Exception {
-		validate(DBType.POSTGRESQL);
-	}
-
-	@Test
-	public void testValidateSQLServer() throws Exception {
-		validate(DBType.SQLSERVER);
-	}
-
-	@Test
-	public void testValidateSybase() throws Exception {
-		validate(DBType.SYBASE);
-	}
-
-	protected boolean exists(String schemaName) throws Exception {
-		try (Statement statement = _connection.createStatement()) {
-			try {
-				statement.execute(
-					"select 1 from " + schemaName + ".CompanyInfo");
-			}
-			catch (Exception exception) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	protected void validate(DBType dbType) throws Exception {
-		DBType previousDBType = _db.getDBType();
-
-		FieldUtils.writeField(_db, "_dbType", dbType, true);
-
-		try {
-			_dbPartitionHelper.validate();
-		}
-		catch (Exception exception) {
-			Assert.assertNotEquals(DBType.MYSQL, _db.getDBType());
-
-			return;
-		}
-		finally {
-			FieldUtils.writeField(_db, "_dbType", previousDBType, true);
-		}
-
-		Assert.assertEquals(DBType.MYSQL, _db.getDBType());
-	}
-
 	private static final long _COMPANY_ID = 1L;
+
+	@Inject
+	private static ServiceComponentRuntime _componentController;
 
 	@Inject
 	private static CompanyInfoLocalService _companyInfoLocalService;

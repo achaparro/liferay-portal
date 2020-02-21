@@ -23,8 +23,8 @@ import java.sql.Connection;
  */
 public class DBPartitionHelperUtil {
 
-	public static void addPartition(long companyId) {
-		_dbPartitionHelper.addPartition(companyId);
+	public static boolean addPartition(long companyId) {
+		return _dbPartitionHelper.addPartition(companyId);
 	}
 
 	public static boolean removePartition(long companyId) {

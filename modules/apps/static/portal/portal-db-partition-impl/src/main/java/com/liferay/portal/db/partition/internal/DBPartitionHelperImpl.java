@@ -49,9 +49,9 @@ import org.osgi.service.component.annotations.Deactivate;
 public class DBPartitionHelperImpl implements DBPartitionHelper {
 
 	@Override
-	public void addPartition(long companyId) {
+	public boolean addPartition(long companyId) {
 		if (companyId == _defaultCompanyId) {
-			return;
+			return false;
 		}
 
 		Connection connection = CurrentConnectionUtil.getConnection(
@@ -99,6 +99,8 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 		catch (Exception exception) {
 			throw new ORMException(exception);
 		}
+
+		return true;
 	}
 
 	@Override
@@ -158,7 +160,8 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 				new DBPartitionHelper() {
 
 					@Override
-					public void addPartition(long companyId) {
+					public boolean addPartition(long companyId) {
+						return false;
 					}
 
 					@Override

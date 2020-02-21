@@ -201,7 +201,6 @@ definition {
 		// Upgrade.searchForAssetsAfterUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade7110 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -218,7 +217,6 @@ definition {
 		// Upgrade.searchForAssetsAfterUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade7210 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -236,7 +234,6 @@ definition {
 		// Upgrade.searchForAssetsAfterUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade70106 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -253,7 +250,6 @@ definition {
 		// Upgrade.searchForAssetsAfterUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade71103 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -270,7 +266,6 @@ definition {
 		// Upgrade.searchForAssetsAfterUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade621021 {
 		property custom.properties = "upgrade.database.auto.run=true";

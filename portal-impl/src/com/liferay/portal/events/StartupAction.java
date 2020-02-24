@@ -197,6 +197,8 @@ public class StartupAction extends SimpleAction {
 			DBUpgrader.upgrade();
 		}
 
+		_log.info("+++++++++++ Upgrade executed ++++++++++");
+
 		// Verify
 
 		if (_log.isDebugEnabled()) {
@@ -204,6 +206,8 @@ public class StartupAction extends SimpleAction {
 		}
 
 		DBUpgrader.verify();
+
+		_log.info("+++++++++++ Verify executed ++++++++++");
 
 		// Liferay JspFactory
 

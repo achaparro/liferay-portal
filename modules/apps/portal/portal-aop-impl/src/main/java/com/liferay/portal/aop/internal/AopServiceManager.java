@@ -16,6 +16,9 @@ package com.liferay.portal.aop.internal;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.events.StartupAction;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.spring.transaction.TransactionHandler;
 
@@ -93,12 +96,16 @@ public class AopServiceManager {
 	private ServiceTracker<TransactionHandler, TransactionHandlerHolder>
 		_transactionHandlerServiceTracker;
 
+	Log _log = LogFactoryUtil.getLog(AopServiceManager.class);
+
 	private class AopServiceServiceTrackerCustomizer
 		implements ServiceTrackerCustomizer<AopService, AopServiceRegistrar> {
 
 		@Override
 		public AopServiceRegistrar addingService(
 			ServiceReference<AopService> serviceReference) {
+
+			_log.info("Adding service " + serviceReference.toString());
 
 			AopService aopService = _bundleContext.getService(serviceReference);
 

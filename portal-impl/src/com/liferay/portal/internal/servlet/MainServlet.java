@@ -420,7 +420,9 @@ public class MainServlet extends HttpServlet {
 			_log.error(exception, exception);
 		}
 
-		_log.info("+++++++++++ Companies initialized ++++++++++");
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ Companies initialized ++++++++++");
+		}
 
 		if (StartupHelperUtil.isDBNew() &&
 			PropsValues.SETUP_WIZARD_ADD_SAMPLE_DATA) {
@@ -451,11 +453,15 @@ public class MainServlet extends HttpServlet {
 
 		StartupHelperUtil.setStartupFinished(true);
 
-		_log.info("+++++++++++ Startup finished ++++++++++");
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ Startup finished ++++++++++");
+		}
 
 		_registerPortalInitialized();
 
-		_log.info("+++++++++++ Portal initialized ++++++++++");
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ Portal initialized ++++++++++");
+		}
 
 		ThreadLocalCacheManager.clearAll(Lifecycle.REQUEST);
 	}
@@ -1282,7 +1288,9 @@ public class MainServlet extends HttpServlet {
 			"service.version", ReleaseInfo.getVersion()
 		).build();
 
-		_log.info("+++++++++++ Registered Portal initialized ++++++++++");
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ Registered Portal initialized ++++++++++");
+		}
 
 		_portalInitializedModuleServiceLifecycleServiceRegistration =
 			registry.registerService(
@@ -1299,7 +1307,9 @@ public class MainServlet extends HttpServlet {
 			"service.version", ReleaseInfo.getVersion()
 		).build();
 
-		_log.info("+++++++++++ Registered Portlets initialized ++++++++++");
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ Registered Portlets initialized ++++++++++");
+		}
 
 		_portalPortletsInitializedModuleServiceLifecycleServiceRegistration =
 			registry.registerService(
@@ -1316,7 +1326,9 @@ public class MainServlet extends HttpServlet {
 			"service.vendor", ReleaseInfo.getVendor()
 		).build();
 
-		_log.info("+++++++++++ Registered ServletContext ++++++++++");
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ Registered ServletContext ++++++++++");
+		}
 
 		_servletContextServiceRegistration = registry.registerService(
 			ServletContext.class, getServletContext(), properties);
@@ -1336,7 +1348,9 @@ public class MainServlet extends HttpServlet {
 				},
 				properties);
 
-		_log.info("+++++++++++ Registered System Check ++++++++++");
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ Registered System Check ++++++++++");
+		}
 	}
 
 	private static final boolean _HTTP_HEADER_VERSION_VERBOSITY_DEFAULT =

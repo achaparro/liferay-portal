@@ -16,7 +16,6 @@ package com.liferay.portal.aop.internal;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
-import com.liferay.portal.events.StartupAction;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -83,6 +82,9 @@ public class AopServiceManager {
 		_aopDependencyResolvers.clear();
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		AopServiceManager.class);
+
 	private final Map<Object, AopServiceResolver> _aopDependencyResolvers =
 		new ConcurrentHashMap<>();
 	private ServiceTracker<AopService, AopServiceRegistrar>
@@ -96,8 +98,6 @@ public class AopServiceManager {
 	private ServiceTracker<TransactionHandler, TransactionHandlerHolder>
 		_transactionHandlerServiceTracker;
 
-	Log _log = LogFactoryUtil.getLog(AopServiceManager.class);
-
 	private class AopServiceServiceTrackerCustomizer
 		implements ServiceTrackerCustomizer<AopService, AopServiceRegistrar> {
 
@@ -105,7 +105,9 @@ public class AopServiceManager {
 		public AopServiceRegistrar addingService(
 			ServiceReference<AopService> serviceReference) {
 
-			_log.info("Adding service " + serviceReference.toString());
+			if (_log.isInfoEnabled()) {
+				_log.info("Adding service " + serviceReference.toString());
+			}
 
 			AopService aopService = _bundleContext.getService(serviceReference);
 

@@ -269,7 +269,7 @@
 	</category>
 
 	<category name="com.liferay.portal.internal.servlet.MainServlet">
-		<priority value="WARN" />
+		<priority value="INFO" />
 	</category>
 
 	<category name="com.liferay.portal.json.jabsorb.serializer.LiferayJSONDeserializationWhitelist">
@@ -773,6 +773,10 @@
 	</category>
 
 	<category name="com.liferay.portal.util.HttpImpl">
+		<priority value="INFO" />
+	</category>
+
+	<category name="com.liferay.portal.util.InitUtil">
 		<priority value="INFO" />
 	</category>
 

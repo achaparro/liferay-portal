@@ -184,6 +184,8 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
+		_log.info("+++++++++++ ContextInitialized called ++++++++++");
+
 		try {
 			Class.forName(SystemProperties.class.getName());
 		}
@@ -209,6 +211,8 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 		PortalClassPathUtil.initializeClassPaths(servletContext);
 
 		InitUtil.init();
+
+		_log.info("+++++++++++ InitUtil initialized ++++++++++");
 
 		// Log JVM arguments after Log4j is initialized
 

@@ -54,7 +54,6 @@ import com.liferay.portal.spring.bean.LiferayBeanFactory;
 import com.liferay.portal.spring.compat.CompatBeanDefinitionRegistryPostProcessor;
 import com.liferay.portal.spring.configurator.ConfigurableApplicationContextConfigurator;
 import com.liferay.portal.spring.context.ArrayApplicationContext;
-import com.liferay.portal.spring.context.PortalContextLoaderListener;
 import com.liferay.portal.xml.SAXReaderImpl;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -152,7 +151,9 @@ public class InitUtil {
 			exception.printStackTrace();
 		}
 
-		_log.info("+++++++++++ InitUtil Init started ++++++++++");
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ InitUtil Init started ++++++++++");
+		}
 
 		// Log sanitizer
 

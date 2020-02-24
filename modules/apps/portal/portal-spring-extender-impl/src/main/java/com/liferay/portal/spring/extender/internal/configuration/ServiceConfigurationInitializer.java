@@ -165,7 +165,9 @@ public class ServiceConfigurationInitializer {
 		properties.put(
 			"origin.bundle.symbolic.name", _bundle.getSymbolicName());
 
-		_log.info("Register: " + _bundle.getSymbolicName());
+		if (_log.isInfoEnabled()) {
+			_log.info("Register: " + _bundle.getSymbolicName());
+		}
 
 		_serviceRegistrations.add(
 			bundleContext.registerService(

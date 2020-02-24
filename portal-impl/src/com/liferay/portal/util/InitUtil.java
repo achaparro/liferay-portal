@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.configuration.ConfigurationFactoryUtil;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataSourceFactoryUtil;
+import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.log.SanitizerLogWrapper;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
@@ -53,6 +54,7 @@ import com.liferay.portal.spring.bean.LiferayBeanFactory;
 import com.liferay.portal.spring.compat.CompatBeanDefinitionRegistryPostProcessor;
 import com.liferay.portal.spring.configurator.ConfigurableApplicationContextConfigurator;
 import com.liferay.portal.spring.context.ArrayApplicationContext;
+import com.liferay.portal.spring.context.PortalContextLoaderListener;
 import com.liferay.portal.xml.SAXReaderImpl;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -150,6 +152,8 @@ public class InitUtil {
 			exception.printStackTrace();
 		}
 
+		_log.info("+++++++++++ InitUtil Init started ++++++++++");
+
 		// Log sanitizer
 
 		SanitizerLogWrapper.init();
@@ -166,6 +170,8 @@ public class InitUtil {
 		// DB manager
 
 		DBManagerUtil.setDBManager(new DBManagerImpl());
+
+		_log.info("+++++++++++ DataSource initialized ++++++++++");
 
 		// XML
 
@@ -350,6 +356,8 @@ public class InitUtil {
 	}
 
 	private static final boolean _PRINT_TIME = false;
+
+	private static final Log _log = LogFactoryUtil.getLog(InitUtil.class);
 
 	private static ApplicationContext _appApplicationContext;
 	private static boolean _initialized;

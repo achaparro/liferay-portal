@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.model.ReleaseConstants;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
+import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.version.Version;
 import com.liferay.portal.upgrade.internal.graph.ReleaseGraphManager;
@@ -174,6 +175,9 @@ public class UpgradeExecutor {
 		UpgradeExecutor.class);
 
 	private BundleContext _bundleContext;
+
+	@Reference
+	private InfrastructureUtil _infrastructureUtil;
 
 	@Reference
 	private ReleaseLocalService _releaseLocalService;

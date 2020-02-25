@@ -248,9 +248,21 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 		}
 
 		try {
+			if (_log.isInfoEnabled()) {
+				_log.info("+++++++++++ Init Framework ++++++++++");
+			}
+
 			ModuleFrameworkUtilAdapter.initFramework();
 
+			if (_log.isInfoEnabled()) {
+				_log.info("+++++++++++ Init Database ++++++++++");
+			}
+
 			DBInitUtil.init();
+
+			if (_log.isInfoEnabled()) {
+				_log.info("+++++++++++ Init Spring ++++++++++");
+			}
 
 			_arrayApplicationContext = new ArrayApplicationContext(
 				PropsValues.SPRING_INFRASTRUCTURE_CONFIGS);
@@ -258,6 +270,10 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 			servletContext.setAttribute(
 				PortalApplicationContext.PARENT_APPLICATION_CONTEXT,
 				_arrayApplicationContext);
+
+			if (_log.isInfoEnabled()) {
+				_log.info("+++++++++++ Spring Initialized ++++++++++");
+			}
 		}
 		catch (Exception exception) {
 			throw new RuntimeException(exception);
@@ -309,12 +325,28 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 		}
 
 		try {
+			if (_log.isInfoEnabled()) {
+				_log.info("+++++++++++ Module Framework ++++++++++");
+			}
+
 			ModuleFrameworkUtilAdapter.registerContext(
 				_arrayApplicationContext);
 
+			if (_log.isInfoEnabled()) {
+				_log.info("+++++++++++ Context registered ++++++++++");
+			}
+
 			ModuleFrameworkUtilAdapter.startFramework();
 
+			if (_log.isInfoEnabled()) {
+				_log.info("+++++++++++ Framework started ++++++++++");
+			}
+
 			ModuleFrameworkUtilAdapter.startRuntime();
+
+			if (_log.isInfoEnabled()) {
+				_log.info("+++++++++++ Runtime started ++++++++++");
+			}
 		}
 		catch (Exception exception) {
 			throw new RuntimeException(exception);

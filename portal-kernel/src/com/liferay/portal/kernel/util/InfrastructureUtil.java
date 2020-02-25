@@ -59,7 +59,15 @@ public class InfrastructureUtil {
 	}
 
 	public void setDataSource(DataSource dataSource) {
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ DataSource called ++++++++++");
+		}
+
 		_dataSource = dataSource;
+
+		if (_log.isInfoEnabled()) {
+			_log.info("+++++++++++ DataSource registered ++++++++++");
+		}
 	}
 
 	public void setDynamicDataSourceTargetSource(

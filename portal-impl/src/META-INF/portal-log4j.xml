@@ -388,6 +388,10 @@
 		<priority value="ERROR" />
 	</category>
 
+	<category name="com.liferay.portal.kernel.util.InfrastructureUtil">
+		<priority value="INFO" />
+	</category>
+
 	<category name="com.liferay.portal.kernel.util.JavaDetector">
 		<priority value="ERROR" />
 	</category>

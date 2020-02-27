@@ -21,7 +21,6 @@ import com.liferay.fragment.internal.upgrade.v2_0_0.util.FragmentEntryTable;
 import com.liferay.fragment.internal.upgrade.v2_1_0.UpgradeSchema;
 import com.liferay.fragment.internal.upgrade.v2_2_1.UpgradeFragmentEntry;
 import com.liferay.portal.kernel.service.LayoutLocalService;
-import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeMVCCVersion;
@@ -55,8 +54,7 @@ public class FragmentServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"1.0.2", "1.1.0",
-			new UpgradePortletPreferences(
-				_layoutLocalService, _portletPreferencesLocalService));
+			new UpgradePortletPreferences(_layoutLocalService));
 
 		registry.register(
 			"1.1.0", "2.0.0",
@@ -105,9 +103,6 @@ public class FragmentServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
-
-	@Reference
-	private PortletPreferencesLocalService _portletPreferencesLocalService;
 
 	@Reference
 	private ViewCountManager _viewCountManager;

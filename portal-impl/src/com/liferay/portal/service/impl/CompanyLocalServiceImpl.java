@@ -245,6 +245,11 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			company = companyPersistence.create(
 				counterLocalService.increment());
 
+			if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
+				DBPartitionHelperUtil.setDefaultCompanyId(
+					company.getCompanyId());
+			}
+
 			try {
 
 				// Schema when db partition enabled
@@ -278,10 +283,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			LocaleThreadLocal.getDefaultLocale();
 		Locale localeThreadSiteDefaultLocale =
 			LocaleThreadLocal.getSiteDefaultLocale();
-
-		if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
-			DBPartitionHelperUtil.setDefaultCompanyId(company.getCompanyId());
-		}
 
 		try (SafeClosable safeClosable =
 				CompanyThreadLocal.setCompanyIdInitialization(

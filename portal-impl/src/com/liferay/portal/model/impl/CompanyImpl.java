@@ -16,7 +16,6 @@ package com.liferay.portal.model.impl;
 
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.petra.encryptor.Encryptor;
-import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.AutoEscape;
@@ -33,7 +32,6 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.VirtualHost;
 import com.liferay.portal.kernel.model.cache.CacheField;
-import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.AccountLocalServiceUtil;
 import com.liferay.portal.kernel.service.CompanyInfoLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
@@ -106,22 +104,17 @@ public class CompanyImpl extends CompanyBaseImpl {
 	@Override
 	public CompanyInfo getCompanyInfo() {
 		if (_companyInfo == null) {
-			try (SafeClosable safeClosable =
-					CompanyThreadLocal.setCompanyIdInitialization(
-						getCompanyId())) {
+			CompanyInfo companyInfo = CompanyInfoLocalServiceUtil.fetchCompany(
+				getCompanyId());
 
-				CompanyInfo companyInfo =
-					CompanyInfoLocalServiceUtil.fetchCompany(getCompanyId());
+			if (companyInfo == null) {
+				companyInfo = CompanyInfoLocalServiceUtil.createCompanyInfo(
+					CounterLocalServiceUtil.increment());
 
-				if (companyInfo == null) {
-					companyInfo = CompanyInfoLocalServiceUtil.createCompanyInfo(
-						CounterLocalServiceUtil.increment());
-
-					companyInfo.setCompanyId(getCompanyId());
-				}
-
-				_companyInfo = companyInfo;
+				companyInfo.setCompanyId(getCompanyId());
 			}
+
+			_companyInfo = companyInfo;
 		}
 
 		return _companyInfo;
@@ -460,14 +453,11 @@ public class CompanyImpl extends CompanyBaseImpl {
 	}
 
 	private Account _account;
-
-	@CacheField(propagateToInterface = true)
 	private CompanyInfo _companyInfo;
 
 	@CacheField
 	private CompanySecurityBag _companySecurityBag;
 
-	@CacheField(propagateToInterface = true)
 	private Key _keyObj;
 
 	@CacheField(propagateToInterface = true)

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.dao.orm.hibernate;
 
+import com.liferay.portal.kernel.dao.db.partition.DBPartitionHelperUtil;
 import com.liferay.portal.kernel.dao.orm.Dialect;
 import com.liferay.portal.kernel.dao.orm.ORMException;
 import com.liferay.portal.kernel.dao.orm.Session;
@@ -76,6 +77,8 @@ public class SessionFactoryImpl implements SessionFactory {
 		else {
 			session = _sessionFactoryImplementor.openSession();
 		}
+
+		session.doWork(DBPartitionHelperUtil::usePartition);
 
 		if (_log.isDebugEnabled()) {
 			org.hibernate.impl.SessionImpl sessionImpl =

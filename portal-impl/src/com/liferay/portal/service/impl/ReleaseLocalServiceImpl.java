@@ -273,7 +273,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 
 		release.setSchemaVersion(schemaVersion);
 
-		releasePersistence.update(release);
+		release = releasePersistence.update(release);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

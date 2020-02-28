@@ -236,7 +236,7 @@ public class UpgradeExecutor {
 
 					release.setState(state);
 
-					_releaseLocalService.updateRelease(release);
+					release = _releaseLocalService.updateRelease(release);
 				}
 			}
 
@@ -301,7 +301,7 @@ public class UpgradeExecutor {
 			if (release != null) {
 				release.setState(state);
 
-				_releaseLocalService.updateRelease(release);
+				release = _releaseLocalService.updateRelease(release);
 			}
 		}
 

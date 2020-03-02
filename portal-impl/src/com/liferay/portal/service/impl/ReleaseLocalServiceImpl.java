@@ -128,7 +128,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 		}
 		else {
 			release = releasePersistence.fetchByServletContextName(
-				servletContextName);
+				servletContextName, false);
 		}
 
 		return release;

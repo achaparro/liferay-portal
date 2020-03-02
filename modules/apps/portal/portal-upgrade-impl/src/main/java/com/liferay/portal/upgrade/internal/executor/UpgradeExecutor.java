@@ -195,8 +195,10 @@ public class UpgradeExecutor {
 			int buildNumber = 0;
 			int state = ReleaseConstants.STATE_GOOD;
 
+			Release release = null;
+
 			try {
-				_updateReleaseState(_STATE_IN_PROGRESS);
+				release = _updateReleaseState(_STATE_IN_PROGRESS);
 
 				for (UpgradeInfo upgradeInfo : _upgradeInfos) {
 					UpgradeStep upgradeStep = upgradeInfo.getUpgradeStep();
@@ -217,8 +219,7 @@ public class UpgradeExecutor {
 						});
 
 					_releaseLocalService.updateRelease(
-						_bundleSymbolicName,
-						upgradeInfo.getToSchemaVersionString(),
+						release, upgradeInfo.getToSchemaVersionString(),
 						upgradeInfo.getFromSchemaVersionString());
 
 					buildNumber = upgradeInfo.getBuildNumber();
@@ -230,9 +231,6 @@ public class UpgradeExecutor {
 				ReflectionUtil.throwException(exception);
 			}
 			finally {
-				Release release = _releaseLocalService.fetchRelease(
-					_bundleSymbolicName);
-
 				if (release != null) {
 					if (buildNumber > 0) {
 						release.setBuildNumber(buildNumber);
@@ -298,15 +296,21 @@ public class UpgradeExecutor {
 			return true;
 		}
 
-		private void _updateReleaseState(int state) {
+		private Release _updateReleaseState(int state) {
 			Release release = _releaseLocalService.fetchRelease(
 				_bundleSymbolicName);
 
 			if (release != null) {
 				release.setState(state);
 
-				_releaseLocalService.updateRelease(release);
+				release = _releaseLocalService.updateRelease(release);
 			}
+			else {
+				release = _releaseLocalService.addRelease(
+					_bundleSymbolicName, "0.0.0");
+			}
+
+			return release;
 		}
 
 		private static final int _STATE_IN_PROGRESS = -1;

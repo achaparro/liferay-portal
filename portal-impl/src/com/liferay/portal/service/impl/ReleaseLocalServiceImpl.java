@@ -169,6 +169,33 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 	}
 
 	@Override
+	public Release updateRelease(
+		Release release, String schemaVersion, String previousSchemaVersion) {
+
+		String currentSchemaVersion = release.getSchemaVersion();
+
+		if (Validator.isNull(currentSchemaVersion)) {
+			currentSchemaVersion = "0.0.0";
+		}
+
+		if (!previousSchemaVersion.equals(currentSchemaVersion)) {
+			StringBundler sb = new StringBundler(5);
+
+			sb.append("Unable to update release because the previous schema ");
+			sb.append("version ");
+			sb.append(previousSchemaVersion);
+			sb.append(" does not match the expected schema version ");
+			sb.append(currentSchemaVersion);
+
+			throw new IllegalStateException(sb.toString());
+		}
+
+		release.setSchemaVersion(schemaVersion);
+
+		return releasePersistence.update(release);
+	}
+
+	@Override
 	public void updateRelease(
 			String servletContextName, List<UpgradeProcess> upgradeProcesses,
 			int buildNumber, int previousBuildNumber, boolean indexOnUpgrade)
@@ -235,6 +262,11 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 			previousBuildNumber, indexOnUpgrade);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #updateRelease(Release, String, String)}
+	 */
+	@Deprecated
 	@Override
 	public void updateRelease(
 		String servletContextName, String schemaVersion,
@@ -253,27 +285,7 @@ public class ReleaseLocalServiceImpl extends ReleaseLocalServiceBaseImpl {
 			}
 		}
 
-		String currentSchemaVersion = release.getSchemaVersion();
-
-		if (Validator.isNull(currentSchemaVersion)) {
-			currentSchemaVersion = "0.0.0";
-		}
-
-		if (!previousSchemaVersion.equals(currentSchemaVersion)) {
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("Unable to update release because the previous schema ");
-			sb.append("version ");
-			sb.append(previousSchemaVersion);
-			sb.append(" does not match the expected schema version ");
-			sb.append(currentSchemaVersion);
-
-			throw new IllegalStateException(sb.toString());
-		}
-
-		release.setSchemaVersion(schemaVersion);
-
-		releasePersistence.update(release);
+		updateRelease(release, schemaVersion, previousSchemaVersion);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

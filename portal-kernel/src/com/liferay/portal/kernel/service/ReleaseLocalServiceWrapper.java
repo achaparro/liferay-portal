@@ -342,6 +342,16 @@ public class ReleaseLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.model.Release updateRelease(
+		com.liferay.portal.kernel.model.Release release,
+		java.lang.String schemaVersion,
+		java.lang.String previousSchemaVersion) {
+
+		return _releaseLocalService.updateRelease(
+			release, schemaVersion, previousSchemaVersion);
+	}
+
+	@Override
 	public void updateRelease(
 			java.lang.String servletContextName,
 			java.util.List<com.liferay.portal.kernel.upgrade.UpgradeProcess>
@@ -366,6 +376,11 @@ public class ReleaseLocalServiceWrapper
 			servletContextName, upgradeProcesses, unfilteredPortalProperties);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateRelease(Release, String, String)}
+	 */
+	@Deprecated
 	@Override
 	public void updateRelease(
 		java.lang.String servletContextName, java.lang.String schemaVersion,

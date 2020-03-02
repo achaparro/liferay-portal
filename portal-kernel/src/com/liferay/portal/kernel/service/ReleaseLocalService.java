@@ -268,6 +268,9 @@ public interface ReleaseLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public Release updateRelease(Release release);
 
+	public Release updateRelease(
+		Release release, String schemaVersion, String previousSchemaVersion);
+
 	public void updateRelease(
 			String servletContextName, List<UpgradeProcess> upgradeProcesses,
 			int buildNumber, int previousBuildNumber, boolean indexOnUpgrade)
@@ -278,6 +281,11 @@ public interface ReleaseLocalService
 			Properties unfilteredPortalProperties)
 		throws Exception;
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateRelease(Release, String, String)}
+	 */
+	@Deprecated
 	public void updateRelease(
 		String servletContextName, String schemaVersion,
 		String previousSchemaVersion);

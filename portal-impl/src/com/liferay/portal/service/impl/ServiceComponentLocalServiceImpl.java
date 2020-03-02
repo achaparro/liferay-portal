@@ -257,13 +257,16 @@ public class ServiceComponentLocalServiceImpl
 			String servletContextName = upgradeStepHolder._servletContextName;
 
 			Release release = releaseLocalService.fetchRelease(
-				upgradeStepHolder._servletContextName);
+				servletContextName);
 
 			if ((release != null) &&
 				!Objects.equals(release.getSchemaVersion(), "0.0.0")) {
 
 				continue;
 			}
+
+			release = releaseLocalService.addRelease(
+				servletContextName, "0.0.0");
 
 			try {
 				UpgradeStep upgradeStep = upgradeStepHolder._upgradeStep;
@@ -283,10 +286,8 @@ public class ServiceComponentLocalServiceImpl
 
 					});
 
-				releaseLocalService.updateRelease(
-					servletContextName, "0.0.1", "0.0.0");
-
-				release = releaseLocalService.fetchRelease(servletContextName);
+				release = releaseLocalService.updateRelease(
+					release, "0.0.1", "0.0.0");
 
 				int buildNumber = upgradeStepHolder._buildNumber;
 

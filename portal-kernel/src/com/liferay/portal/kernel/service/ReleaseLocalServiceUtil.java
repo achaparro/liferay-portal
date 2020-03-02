@@ -327,6 +327,14 @@ public class ReleaseLocalServiceUtil {
 		return getService().updateRelease(release);
 	}
 
+	public static com.liferay.portal.kernel.model.Release updateRelease(
+		com.liferay.portal.kernel.model.Release release, String schemaVersion,
+		String previousSchemaVersion) {
+
+		return getService().updateRelease(
+			release, schemaVersion, previousSchemaVersion);
+	}
+
 	public static void updateRelease(
 			String servletContextName,
 			java.util.List<com.liferay.portal.kernel.upgrade.UpgradeProcess>
@@ -350,6 +358,11 @@ public class ReleaseLocalServiceUtil {
 			servletContextName, upgradeProcesses, unfilteredPortalProperties);
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateRelease(Release, String, String)}
+	 */
+	@Deprecated
 	public static void updateRelease(
 		String servletContextName, String schemaVersion,
 		String previousSchemaVersion) {

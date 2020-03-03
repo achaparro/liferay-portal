@@ -218,7 +218,7 @@ public class UpgradeExecutor {
 
 						});
 
-					_releaseLocalService.updateRelease(
+					release = _releaseLocalService.updateRelease(
 						release, upgradeInfo.getToSchemaVersionString(),
 						upgradeInfo.getFromSchemaVersionString());
 

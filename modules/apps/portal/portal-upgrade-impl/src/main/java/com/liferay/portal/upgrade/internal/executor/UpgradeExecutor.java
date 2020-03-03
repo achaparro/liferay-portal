@@ -218,9 +218,19 @@ public class UpgradeExecutor {
 
 						});
 
-					_releaseLocalService.updateRelease(
+					String fromSchemaVersion =
+						upgradeInfo.getFromSchemaVersionString();
+
+					if ((release == null) &&
+						fromSchemaVersion.equals("0.0.0")) {
+
+						release = _releaseLocalService.addRelease(
+							_bundleSymbolicName, "0.0.0");
+					}
+
+					release = _releaseLocalService.updateRelease(
 						release, upgradeInfo.getToSchemaVersionString(),
-						upgradeInfo.getFromSchemaVersionString());
+						fromSchemaVersion);
 
 					buildNumber = upgradeInfo.getBuildNumber();
 				}
@@ -304,10 +314,6 @@ public class UpgradeExecutor {
 				release.setState(state);
 
 				release = _releaseLocalService.updateRelease(release);
-			}
-			else {
-				release = _releaseLocalService.addRelease(
-					_bundleSymbolicName, "0.0.0");
 			}
 
 			return release;

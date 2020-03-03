@@ -24,7 +24,6 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeMVCCVersion;
-import com.liferay.portal.kernel.view.count.ViewCountManager;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.portal.upgrade.step.util.UpgradeStepFactory;
 
@@ -103,8 +102,5 @@ public class FragmentServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;
-
-	@Reference
-	private ViewCountManager _viewCountManager;
 
 }

@@ -112,27 +112,15 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 
 	@Override
 	public void usePartition(Connection connection) {
-		try {
-			if (connection.isReadOnly()) {
-				return;
-			}
+		_usePartition(connection, CompanyThreadLocal.getCompanyId());
+	}
 
-			long companyId = CompanyThreadLocal.getCompanyId();
+	@Override
+	public void usePartition(long companyId) {
+		Connection connection = CurrentConnectionUtil.getConnection(
+			InfrastructureUtil.getDataSource());
 
-			try (Statement statement = connection.createStatement()) {
-				if ((companyId == CompanyConstants.SYSTEM) ||
-					(companyId == _defaultCompanyId)) {
-
-					statement.execute("USE " + _defaultSchemaName);
-				}
-				else {
-					statement.execute("USE " + _getSchemaName(companyId));
-				}
-			}
-		}
-		catch (SQLException sqlException) {
-			throw new ORMException(sqlException);
-		}
+		_usePartition(connection, companyId);
 	}
 
 	private String _getSchemaName(long companyId) {
@@ -150,6 +138,28 @@ public class DBPartitionHelperImpl implements DBPartitionHelper {
 		}
 
 		return false;
+	}
+
+	private void _usePartition(Connection connection, long companyId) {
+		try {
+			if (connection.isReadOnly()) {
+				return;
+			}
+
+			try (Statement statement = connection.createStatement()) {
+				if ((companyId == CompanyConstants.SYSTEM) ||
+					(companyId == _defaultCompanyId)) {
+
+					statement.execute("USE " + _defaultSchemaName);
+				}
+				else {
+					statement.execute("USE " + _getSchemaName(companyId));
+				}
+			}
+		}
+		catch (SQLException sqlException) {
+			throw new ORMException(sqlException);
+		}
 	}
 
 	private static final String _DATABASE_PARTITION_INSTANCE_ID = PropsUtil.get(

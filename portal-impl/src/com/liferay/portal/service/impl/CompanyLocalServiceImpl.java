@@ -257,6 +257,9 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 						company.getCompanyId())) {
 
 					DBPartitionHelperUtil.usePartition(company.getCompanyId());
+
+					dlFileEntryTypeLocalService.
+						createBasicDocumentDLFileEntryType();
 				};
 			}
 			catch (Exception exception) {

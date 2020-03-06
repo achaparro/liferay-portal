@@ -29,4 +29,6 @@ public interface DBPartitionHelper {
 
 	public void usePartition(Connection connection);
 
+	public void usePartition(long companyId);
+
 }

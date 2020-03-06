@@ -47,6 +47,10 @@ public class DBPartitionHelperUtil {
 		_dbPartitionHelper.usePartition(connection);
 	}
 
+	public static void usePartition(long companyId) {
+		_dbPartitionHelper.usePartition(companyId);
+	}
+
 	public static DataSource wrapDataSource(DataSource dataSource)
 		throws SQLException {
 
@@ -87,6 +91,10 @@ public class DBPartitionHelperUtil {
 
 				@Override
 				public void usePartition(Connection connection) {
+				}
+
+				@Override
+				public void usePartition(long companyId) {
 				}
 
 			};

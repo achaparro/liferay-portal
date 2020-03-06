@@ -253,7 +253,11 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 				// Schema when db partition enabled
 
-				DBPartitionHelperUtil.addPartition(company.getCompanyId());
+				if (DBPartitionHelperUtil.addPartition(
+						company.getCompanyId())) {
+
+					DBPartitionHelperUtil.usePartition(company.getCompanyId());
+				};
 			}
 			catch (Exception exception) {
 				throw new PortalException(exception);

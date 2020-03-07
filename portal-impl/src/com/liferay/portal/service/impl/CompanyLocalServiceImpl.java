@@ -260,7 +260,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 					dlFileEntryTypeLocalService.
 						createBasicDocumentDLFileEntryType();
-				};
+				}
 			}
 			catch (Exception exception) {
 				throw new PortalException(exception);
@@ -279,6 +279,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 
 		final long companyId = company.getCompanyId();
+
+		DBPartitionHelperUtil.usePartition(companyId);
 
 		Locale localeThreadLocalDefaultLocale =
 			LocaleThreadLocal.getDefaultLocale();

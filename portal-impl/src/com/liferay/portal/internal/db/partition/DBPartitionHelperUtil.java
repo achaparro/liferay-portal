@@ -36,6 +36,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.sql.DataSource;
 
 /**
@@ -151,8 +155,7 @@ public class DBPartitionHelperUtil {
 			DBInspector dbInspector, String tableName)
 		throws Exception {
 
-		if (tableName.equals("Portlet") || tableName.equals("Company") ||
-			tableName.equals("VirtualHost") ||
+		if (_controlTableNames.contains(tableName) ||
 			!dbInspector.hasColumn(tableName, "companyId")) {
 
 			return true;
@@ -189,6 +192,8 @@ public class DBPartitionHelperUtil {
 	private static final String _DATABASE_PARTITION_INSTANCE_ID = PropsUtil.get(
 		"database.partition.instance.id");
 
+	private static final Set<String> _controlTableNames = new HashSet<>(
+		Arrays.asList("Company", "Portlet", "VirtualHost"));
 	private static volatile long _defaultCompanyId;
 	private static String _defaultSchemaName;
 

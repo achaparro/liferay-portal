@@ -768,7 +768,15 @@ public class MainServlet extends HttpServlet {
 			String[] webIds = PortalInstances.getWebIds();
 
 			for (String webId : webIds) {
-				PortalInstances.initCompany(servletContext, webId);
+				if (StartupHelperUtil.isDBNew()) {
+					CompanyLocalServiceUtil.addCompany(
+						webId, "localhost", webId, false, 0, false);
+
+					PortalInstances.initCompany(servletContext, webId, false);
+				}
+				else {
+					PortalInstances.initCompany(servletContext, webId);
+				}
 			}
 		}
 		finally {

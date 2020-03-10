@@ -258,6 +258,12 @@ public class PortalInstances {
 	public static long initCompany(
 		ServletContext servletContext, String webId) {
 
+		return initCompany(servletContext, webId, true);
+	}
+
+	public static long initCompany(
+		ServletContext servletContext, String webId, boolean checkCompany) {
+
 		// Begin initializing company
 
 		if (_log.isDebugEnabled()) {
@@ -267,7 +273,7 @@ public class PortalInstances {
 		long companyId = 0;
 
 		try {
-			Company company = CompanyLocalServiceUtil.checkCompany(webId);
+			Company company = CompanyLocalServiceUtil.getCompanyByWebId(webId);
 
 			companyId = company.getCompanyId();
 		}
@@ -281,6 +287,15 @@ public class PortalInstances {
 
 		try {
 			CompanyThreadLocal.setCompanyId(companyId);
+
+			try {
+				if (checkCompany) {
+					CompanyLocalServiceUtil.checkCompany(webId);
+				}
+			}
+			catch (Exception exception) {
+				_log.error(exception, exception);
+			}
 
 			String principalName = null;
 

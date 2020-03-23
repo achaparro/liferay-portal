@@ -145,11 +145,26 @@ public abstract class UpgradeProcess
 			return false;
 		}
 
+		public default String getColumnName(String column) {
+			String columnName = StringUtil.extractFirst(
+				column, StringPool.SPACE);
+
+			if (columnName != null) {
+				return columnName;
+			}
+
+			return column;
+		}
+
 		public String getSQL(String tableName);
 
 		public boolean shouldAddIndex(Collection<String> columnNames);
 
 		public boolean shouldDropIndex(Collection<String> columnNames);
+
+		public default boolean skipAlter(String tableName) throws Exception {
+			return false;
+		}
 
 	}
 
@@ -158,16 +173,7 @@ public abstract class UpgradeProcess
 		public AlterColumnName(String oldColumnName, String newColumn) {
 			_oldColumnName = oldColumnName;
 			_newColumn = newColumn;
-
-			String newColumnName = StringUtil.extractFirst(
-				newColumn, StringPool.SPACE);
-
-			if (newColumnName != null) {
-				_newColumnName = newColumnName;
-			}
-			else {
-				_newColumnName = _newColumn;
-			}
+			_newColumnName = getColumnName(newColumn);
 		}
 
 		@Override
@@ -192,6 +198,11 @@ public abstract class UpgradeProcess
 		@Override
 		public boolean shouldDropIndex(Collection<String> columnNames) {
 			return Alterable.containsIgnoreCase(columnNames, _oldColumnName);
+		}
+
+		@Override
+		public boolean skipAlter(String tableName) throws Exception {
+			return hasColumn(tableName, _newColumnName);
 		}
 
 		private final String _newColumn;
@@ -229,6 +240,12 @@ public abstract class UpgradeProcess
 		@Override
 		public boolean shouldDropIndex(Collection<String> columnNames) {
 			return Alterable.containsIgnoreCase(columnNames, _columnName);
+		}
+
+		@Override
+		public boolean skipAlter(String tableName) throws Exception {
+			return hasColumnType(
+				tableName, getColumnName(_columnName), _newType);
 		}
 
 		private final String _columnName;
@@ -277,6 +294,11 @@ public abstract class UpgradeProcess
 			return false;
 		}
 
+		@Override
+		public boolean skipAlter(String tableName) throws Exception {
+			return hasColumn(tableName, getColumnName(_columnName));
+		}
+
 		private final String _columnName;
 		private final String _columnType;
 
@@ -308,6 +330,11 @@ public abstract class UpgradeProcess
 		@Override
 		public boolean shouldDropIndex(Collection<String> columnNames) {
 			return Alterable.containsIgnoreCase(columnNames, _columnName);
+		}
+
+		@Override
+		public boolean skipAlter(String tableName) throws Exception {
+			return !hasColumn(tableName, getColumnName(_columnName));
 		}
 
 		private final String _columnName;
@@ -366,6 +393,10 @@ public abstract class UpgradeProcess
 				}
 
 				for (Alterable alterable : alterables) {
+					if (alterable.skipAlter(tableName)) {
+						continue;
+					}
+
 					for (Map.Entry<String, Set<String>> entry :
 							columnNamesMap.entrySet()) {
 

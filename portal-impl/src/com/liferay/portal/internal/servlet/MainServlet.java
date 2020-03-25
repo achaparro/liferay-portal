@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.patcher.PatcherUtil;
 import com.liferay.portal.kernel.plugin.PluginPackage;
 import com.liferay.portal.kernel.portlet.PortletConfigFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletInstanceFactoryUtil;
+import com.liferay.portal.kernel.search.IndexStatusManagerThreadLocal;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
@@ -450,6 +451,10 @@ public class MainServlet extends HttpServlet {
 		StartupHelperUtil.setStartupFinished(true);
 
 		_registerPortalInitialized();
+
+		if (PropsValues.UPGRADE_DATABASE_AUTO_RUN) {
+			IndexStatusManagerThreadLocal.setIndexReadOnly(false);
+		}
 
 		ThreadLocalCacheManager.clearAll(Lifecycle.REQUEST);
 	}

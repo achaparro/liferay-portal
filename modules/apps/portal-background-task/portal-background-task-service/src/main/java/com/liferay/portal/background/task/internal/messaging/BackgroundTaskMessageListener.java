@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBus;
+import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.servlet.ServletContextClassLoaderPool;
 import com.liferay.portal.kernel.util.AggregateClassLoader;
@@ -49,6 +50,8 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Michael C. Han
@@ -342,5 +345,8 @@ public class BackgroundTaskMessageListener extends BaseMessageListener {
 		_backgroundTaskThreadLocalManager;
 	private final LockManager _lockManager;
 	private final MessageBus _messageBus;
+
+	@Reference(target = ModuleServiceLifecycle.PORTLETS_INITIALIZED)
+	private ModuleServiceLifecycle _moduleServiceLifecycle;
 
 }

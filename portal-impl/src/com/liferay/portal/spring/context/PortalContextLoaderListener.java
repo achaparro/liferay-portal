@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
+import com.liferay.portal.kernel.search.IndexStatusManagerThreadLocal;
 import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
 import com.liferay.portal.kernel.servlet.PortletSessionListenerManager;
 import com.liferay.portal.kernel.servlet.SerializableSessionAttributeListener;
@@ -342,6 +343,8 @@ public class PortalContextLoaderListener extends ContextLoaderListener {
 			// Upgrade
 
 			if (PropsValues.UPGRADE_DATABASE_AUTO_RUN) {
+				IndexStatusManagerThreadLocal.setIndexReadOnly(true);
+
 				DBUpgrader.upgrade();
 			}
 		}

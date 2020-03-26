@@ -29,7 +29,7 @@ definition {
 	@description = "This is a use case for LPS-61212."
 	@priority = "5"
 	test EditDDLRecordViaMyWorkflowTasks {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		Navigator.openURL();
 

@@ -27,16 +27,9 @@ public class UpgradeRatingsStats extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		if (!hasColumn("RatingsStats", "createDate")) {
-			alter(
-				RatingsStatsTable.class, new AlterTableAddColumn("createDate"));
-		}
+		alter(RatingsStatsTable.class, new AlterTableAddColumn("createDate"));
 
-		if (!hasColumn("RatingsStats", "modifiedDate")) {
-			alter(
-				RatingsStatsTable.class,
-				new AlterTableAddColumn("modifiedDate"));
-		}
+		alter(RatingsStatsTable.class, new AlterTableAddColumn("modifiedDate"));
 
 		try (PreparedStatement ps = connection.prepareStatement(
 				_getUpdateSQL("createDate", "min"))) {

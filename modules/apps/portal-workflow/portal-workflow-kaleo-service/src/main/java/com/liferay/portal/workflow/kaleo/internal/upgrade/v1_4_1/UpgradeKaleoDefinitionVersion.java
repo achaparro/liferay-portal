@@ -92,11 +92,9 @@ public class UpgradeKaleoDefinitionVersion extends UpgradeProcess {
 	}
 
 	protected void removeStartKaleoNodeId() throws Exception {
-		if (hasColumn("KaleoDefinition", "startKaleoNodeId")) {
-			alter(
-				KaleoDefinitionTable.class,
-				new AlterTableDropColumn("startKaleoNodeId"));
-		}
+		alter(
+			KaleoDefinitionTable.class,
+			new AlterTableDropColumn("startKaleoNodeId"));
 	}
 
 	protected void upgradeKaleoDefinitionVersion() throws Exception {

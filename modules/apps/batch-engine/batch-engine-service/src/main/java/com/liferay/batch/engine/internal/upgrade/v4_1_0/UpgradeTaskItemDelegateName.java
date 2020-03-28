@@ -25,17 +25,13 @@ public class UpgradeTaskItemDelegateName extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		if (!hasColumn("BatchEngineExportTask", "taskItemDelegateName")) {
-			alter(
-				BatchEngineExportTaskTable.class,
-				new AlterTableAddColumn("taskItemDelegateName"));
-		}
+		alter(
+			BatchEngineExportTaskTable.class,
+			new AlterTableAddColumn("taskItemDelegateName"));
 
-		if (!hasColumn("BatchEngineImportTask", "taskItemDelegateName")) {
-			alter(
-				BatchEngineImportTaskTable.class,
-				new AlterTableAddColumn("taskItemDelegateName"));
-		}
+		alter(
+			BatchEngineImportTaskTable.class,
+			new AlterTableAddColumn("taskItemDelegateName"));
 	}
 
 }

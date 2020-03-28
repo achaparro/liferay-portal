@@ -63,115 +63,77 @@ public class UpgradeSchema extends UpgradeProcess {
 
 	protected void addKaleoDefinitionId() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			if (!hasColumn("KaleoAction", "kaleoDefinitionId")) {
-				alter(
-					KaleoActionTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoActionTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoCondition", "kaleoDefinitionId")) {
-				alter(
-					KaleoConditionTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoConditionTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoDefinitionVersion", "kaleoDefinitionId")) {
-				alter(
-					KaleoDefinitionVersionTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoDefinitionVersionTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoInstance", "kaleoDefinitionId")) {
-				alter(
-					KaleoInstanceTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoInstanceTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoInstanceToken", "kaleoDefinitionId")) {
-				alter(
-					KaleoInstanceTokenTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoInstanceTokenTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoLog", "kaleoDefinitionId")) {
-				alter(
-					KaleoLogTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoLogTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoNode", "kaleoDefinitionId")) {
-				alter(
-					KaleoNodeTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoNodeTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoNotification", "kaleoDefinitionId")) {
-				alter(
-					KaleoNotificationTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoNotificationTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoNotificationRecipient", "kaleoDefinitionId")) {
-				alter(
-					KaleoNotificationRecipientTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoNotificationRecipientTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoTask", "kaleoDefinitionId")) {
-				alter(
-					KaleoTaskTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoTaskTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoTaskAssignment", "kaleoDefinitionId")) {
-				alter(
-					KaleoTaskAssignmentTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoTaskAssignmentTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn(
-					"KaleoTaskAssignmentInstance", "kaleoDefinitionId")) {
+			alter(
+				KaleoTaskAssignmentInstanceTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-				alter(
-					KaleoTaskAssignmentInstanceTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoTaskFormTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoTaskForm", "kaleoDefinitionId")) {
-				alter(
-					KaleoTaskFormTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoTaskFormInstanceTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoTaskFormInstance", "kaleoDefinitionId")) {
-				alter(
-					KaleoTaskFormInstanceTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoTaskInstanceTokenTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoTaskInstanceToken", "kaleoDefinitionId")) {
-				alter(
-					KaleoTaskInstanceTokenTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoTimerTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoTimer", "kaleoDefinitionId")) {
-				alter(
-					KaleoTimerTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoTimerInstanceTokenTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 
-			if (!hasColumn("KaleoTimerInstanceToken", "kaleoDefinitionId")) {
-				alter(
-					KaleoTimerInstanceTokenTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
-
-			if (!hasColumn("KaleoTransition", "kaleoDefinitionId")) {
-				alter(
-					KaleoTransitionTable.class,
-					new AlterTableAddColumn("kaleoDefinitionId"));
-			}
+			alter(
+				KaleoTransitionTable.class,
+				new AlterTableAddColumn("kaleoDefinitionId"));
 		}
 	}
 

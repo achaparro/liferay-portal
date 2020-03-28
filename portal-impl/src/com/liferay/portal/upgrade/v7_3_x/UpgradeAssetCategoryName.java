@@ -24,11 +24,9 @@ public class UpgradeAssetCategoryName extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		if (hasColumnType("AssetCategory", "name", "VARCHAR(75) null")) {
-			alter(
-				AssetCategoryTable.class,
-				new AlterColumnType("name", "VARCHAR(255) null"));
-		}
+		alter(
+			AssetCategoryTable.class,
+			new AlterColumnType("name", "VARCHAR(255) null"));
 	}
 
 }

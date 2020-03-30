@@ -144,7 +144,7 @@ definition {
 		property custom.properties = "upgrade.database.auto.run=true";
 		property data.archive.type = "data-archive-portal";
 		property database.types = "mariadb,mysql,postgresql";
-		property portal.upgrades = "false";
+		property portal.upgrades = "true";
 		property portal.version = "7.3.0";
 		property skip.upgrade-legacy-database = "true";
 		property test.assert.warning.exceptions = "true";
@@ -152,7 +152,6 @@ definition {
 		Upgrade.viewUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade7110 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -165,7 +164,6 @@ definition {
 		Upgrade.viewUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade7210 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -179,7 +177,6 @@ definition {
 		Upgrade.viewUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade70106 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -192,7 +189,6 @@ definition {
 		Upgrade.viewUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade71103 {
 		property custom.properties = "upgrade.database.auto.run=true";
@@ -205,7 +201,6 @@ definition {
 		Upgrade.viewUpgrade();
 	}
 
-	@ignore = "true"
 	@priority = "5"
 	test ViewPortalSmokeArchiveAutoUpgrade621021 {
 		property custom.properties = "upgrade.database.auto.run=true";

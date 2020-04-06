@@ -29,7 +29,7 @@ import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.revert.schema.version.model.SchemaEntry;
+import com.liferay.revert.schema.version.model.RSVEntity;
 
 import java.io.Serializable;
 
@@ -38,13 +38,13 @@ import java.util.List;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- * Provides the local service interface for SchemaEntry. Methods of this
+ * Provides the local service interface for RSVEntity. Methods of this
  * service will not have security checks based on the propagated JAAS
  * credentials because this service can only be accessed from within the same
  * VM.
  *
  * @author Brian Wing Shun Chan
- * @see SchemaEntryLocalServiceUtil
+ * @see RSVEntityLocalServiceUtil
  * @generated
  */
 @ProviderType
@@ -52,23 +52,23 @@ import org.osgi.annotation.versioning.ProviderType;
 	isolation = Isolation.PORTAL,
 	rollbackFor = {PortalException.class, SystemException.class}
 )
-public interface SchemaEntryLocalService
+public interface RSVEntityLocalService
 	extends BaseLocalService, PersistedModelLocalService {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this interface directly. Always use {@link SchemaEntryLocalServiceUtil} to access the schema entry local service. Add custom service methods to <code>com.liferay.revert.schema.version.service.impl.SchemaEntryLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
+	 * Never modify or reference this interface directly. Always use {@link RSVEntityLocalServiceUtil} to access the rsv entity local service. Add custom service methods to <code>com.liferay.revert.schema.version.service.impl.RSVEntityLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
 
 	/**
-	 * Adds the schema entry to the database. Also notifies the appropriate model listeners.
+	 * Adds the rsv entity to the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param schemaEntry the schema entry
-	 * @return the schema entry that was added
+	 * @param rsvEntity the rsv entity
+	 * @return the rsv entity that was added
 	 */
 	@Indexable(type = IndexableType.REINDEX)
-	public SchemaEntry addSchemaEntry(SchemaEntry schemaEntry);
+	public RSVEntity addRSVEntity(RSVEntity rsvEntity);
 
 	/**
 	 * @throws PortalException
@@ -77,13 +77,13 @@ public interface SchemaEntryLocalService
 		throws PortalException;
 
 	/**
-	 * Creates a new schema entry with the primary key. Does not add the schema entry to the database.
+	 * Creates a new rsv entity with the primary key. Does not add the rsv entity to the database.
 	 *
-	 * @param entryId the primary key for the new schema entry
-	 * @return the new schema entry
+	 * @param rsvEntryId the primary key for the new rsv entity
+	 * @return the new rsv entity
 	 */
 	@Transactional(enabled = false)
-	public SchemaEntry createSchemaEntry(long entryId);
+	public RSVEntity createRSVEntity(long rsvEntryId);
 
 	/**
 	 * @throws PortalException
@@ -93,23 +93,23 @@ public interface SchemaEntryLocalService
 		throws PortalException;
 
 	/**
-	 * Deletes the schema entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Deletes the rsv entity with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param entryId the primary key of the schema entry
-	 * @return the schema entry that was removed
-	 * @throws PortalException if a schema entry with the primary key could not be found
+	 * @param rsvEntryId the primary key of the rsv entity
+	 * @return the rsv entity that was removed
+	 * @throws PortalException if a rsv entity with the primary key could not be found
 	 */
 	@Indexable(type = IndexableType.DELETE)
-	public SchemaEntry deleteSchemaEntry(long entryId) throws PortalException;
+	public RSVEntity deleteRSVEntity(long rsvEntryId) throws PortalException;
 
 	/**
-	 * Deletes the schema entry from the database. Also notifies the appropriate model listeners.
+	 * Deletes the rsv entity from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param schemaEntry the schema entry
-	 * @return the schema entry that was removed
+	 * @param rsvEntity the rsv entity
+	 * @return the rsv entity that was removed
 	 */
 	@Indexable(type = IndexableType.DELETE)
-	public SchemaEntry deleteSchemaEntry(SchemaEntry schemaEntry);
+	public RSVEntity deleteRSVEntity(RSVEntity rsvEntity);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public DynamicQuery dynamicQuery();
@@ -127,7 +127,7 @@ public interface SchemaEntryLocalService
 	 * Performs a dynamic query on the database and returns a range of the matching rows.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.revert.schema.version.model.impl.SchemaEntryModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.revert.schema.version.model.impl.RSVEntityModelImpl</code>.
 	 * </p>
 	 *
 	 * @param dynamicQuery the dynamic query
@@ -143,7 +143,7 @@ public interface SchemaEntryLocalService
 	 * Performs a dynamic query on the database and returns an ordered range of the matching rows.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.revert.schema.version.model.impl.SchemaEntryModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.revert.schema.version.model.impl.RSVEntityModelImpl</code>.
 	 * </p>
 	 *
 	 * @param dynamicQuery the dynamic query
@@ -178,7 +178,7 @@ public interface SchemaEntryLocalService
 		DynamicQuery dynamicQuery, Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public SchemaEntry fetchSchemaEntry(long entryId);
+	public RSVEntity fetchRSVEntity(long rsvEntryId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
@@ -202,44 +202,44 @@ public interface SchemaEntryLocalService
 		throws PortalException;
 
 	/**
-	 * Returns a range of all the schema entries.
+	 * Returns a range of all the rsv entities.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.revert.schema.version.model.impl.SchemaEntryModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.revert.schema.version.model.impl.RSVEntityModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of schema entries
-	 * @param end the upper bound of the range of schema entries (not inclusive)
-	 * @return the range of schema entries
+	 * @param start the lower bound of the range of rsv entities
+	 * @param end the upper bound of the range of rsv entities (not inclusive)
+	 * @return the range of rsv entities
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<SchemaEntry> getSchemaEntries(int start, int end);
+	public List<RSVEntity> getRSVEntities(int start, int end);
 
 	/**
-	 * Returns the number of schema entries.
+	 * Returns the number of rsv entities.
 	 *
-	 * @return the number of schema entries
+	 * @return the number of rsv entities
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getSchemaEntriesCount();
+	public int getRSVEntitiesCount();
 
 	/**
-	 * Returns the schema entry with the primary key.
+	 * Returns the rsv entity with the primary key.
 	 *
-	 * @param entryId the primary key of the schema entry
-	 * @return the schema entry
-	 * @throws PortalException if a schema entry with the primary key could not be found
+	 * @param rsvEntryId the primary key of the rsv entity
+	 * @return the rsv entity
+	 * @throws PortalException if a rsv entity with the primary key could not be found
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public SchemaEntry getSchemaEntry(long entryId) throws PortalException;
+	public RSVEntity getRSVEntity(long rsvEntryId) throws PortalException;
 
 	/**
-	 * Updates the schema entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 * Updates the rsv entity in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
-	 * @param schemaEntry the schema entry
-	 * @return the schema entry that was updated
+	 * @param rsvEntity the rsv entity
+	 * @return the rsv entity that was updated
 	 */
 	@Indexable(type = IndexableType.REINDEX)
-	public SchemaEntry updateSchemaEntry(SchemaEntry schemaEntry);
+	public RSVEntity updateRSVEntity(RSVEntity rsvEntity);
 
 }

@@ -15,22 +15,22 @@
 package com.liferay.revert.schema.version.model.impl;
 
 /**
- * The extended model implementation for the SchemaEntry service. Represents a row in the &quot;SchemaEntry&quot; database table, with each column mapped to a property of this class.
+ * The extended model implementation for the RSVEntity service. Represents a row in the &quot;RSVEntity&quot; database table, with each column mapped to a property of this class.
  *
  * <p>
- * Helper methods and all application logic should be put in this class. Whenever methods are added, rerun ServiceBuilder to copy their definitions into the <code>com.liferay.revert.schema.version.model.SchemaEntry</code> interface.
+ * Helper methods and all application logic should be put in this class. Whenever methods are added, rerun ServiceBuilder to copy their definitions into the <code>com.liferay.revert.schema.version.model.RSVEntity</code> interface.
  * </p>
  *
  * @author Brian Wing Shun Chan
  */
-public class SchemaEntryImpl extends SchemaEntryBaseImpl {
+public class RSVEntityImpl extends RSVEntityBaseImpl {
 
 	/**
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never reference this class directly. All methods that expect a schema entry model instance should use the {@link com.liferay.revert.schema.version.model.SchemaEntry} interface instead.
+	 * Never reference this class directly. All methods that expect a rsv entity model instance should use the {@link com.liferay.revert.schema.version.model.RSVEntity} interface instead.
 	 */
-	public SchemaEntryImpl() {
+	public RSVEntityImpl() {
 	}
 
 }

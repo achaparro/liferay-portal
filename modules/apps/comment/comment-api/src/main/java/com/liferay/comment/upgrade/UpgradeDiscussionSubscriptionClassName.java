@@ -25,6 +25,8 @@ import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.subscription.model.Subscription;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
+import java.util.Date;
+
 /**
  * @author Roberto Díaz
  */
@@ -69,6 +71,20 @@ public class UpgradeDiscussionSubscriptionClassName extends UpgradeProcess {
 		}
 	}
 
+	private void _addNewSubscription(
+			long userId, long groupId, String newSubscriptionClassName,
+			long classPK, Date originalCreateDate, Date originalModifiedDate)
+		throws PortalException {
+
+		Subscription subscription = _subscriptionLocalService.addSubscription(
+			userId, groupId, newSubscriptionClassName, classPK);
+
+		subscription.setCreateDate(originalCreateDate);
+		subscription.setModifiedDate(originalModifiedDate);
+
+		_subscriptionLocalService.updateSubscription(subscription);
+	}
+
 	private void _addSubscriptions() throws PortalException {
 		String newSubscriptionClassName =
 			MBDiscussion.class.getName() + StringPool.UNDERLINE +
@@ -84,10 +100,10 @@ public class UpgradeDiscussionSubscriptionClassName extends UpgradeProcess {
 					_classNameLocalService.getClassNameId(
 						_oldSubscriptionClassName))));
 		actionableDynamicQuery.setPerformActionMethod(
-			(Subscription subscription) ->
-				_subscriptionLocalService.addSubscription(
-					subscription.getUserId(), subscription.getGroupId(),
-					newSubscriptionClassName, subscription.getClassPK()));
+			(Subscription subscription) -> _addNewSubscription(
+				subscription.getUserId(), subscription.getGroupId(),
+				newSubscriptionClassName, subscription.getClassPK(),
+				subscription.getCreateDate(), subscription.getModifiedDate()));
 		actionableDynamicQuery.performActions();
 	}
 

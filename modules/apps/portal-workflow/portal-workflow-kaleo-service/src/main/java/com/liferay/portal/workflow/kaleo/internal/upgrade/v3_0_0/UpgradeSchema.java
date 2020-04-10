@@ -51,8 +51,8 @@ import java.util.List;
 public class UpgradeSchema extends UpgradeProcess {
 
 	protected void addBatch(
-		PreparedStatement ps, long kaleoDefinitionId,
-		long kaleoDefinitionVersionId)
+			PreparedStatement ps, long kaleoDefinitionId,
+			long kaleoDefinitionVersionId)
 		throws SQLException {
 
 		ps.setLong(1, kaleoDefinitionId);
@@ -157,8 +157,8 @@ public class UpgradeSchema extends UpgradeProcess {
 		List<PreparedStatement> preparedStatements = new ArrayList<>(18);
 
 		try (LoggingTimer loggingTimer = new LoggingTimer();
-			 PreparedStatement ps = connection.prepareStatement(sb1.toString());
-			 ResultSet rs = ps.executeQuery()) {
+			PreparedStatement ps = connection.prepareStatement(sb1.toString());
+			ResultSet rs = ps.executeQuery()) {
 
 			for (String tableName : _TABLE_NAMES) {
 				StringBundler sb2 = new StringBundler(4);

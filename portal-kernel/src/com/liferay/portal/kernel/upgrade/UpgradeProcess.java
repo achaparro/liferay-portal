@@ -162,10 +162,7 @@ public abstract class UpgradeProcess
 
 		public boolean shouldDropIndex(Collection<String> columnNames);
 
-		public default boolean skipAlter(String tableName) throws Exception {
-			return false;
-		}
-
+		public boolean skipAlter(String tableName) throws Exception;
 	}
 
 	public class AlterColumnName implements Alterable {

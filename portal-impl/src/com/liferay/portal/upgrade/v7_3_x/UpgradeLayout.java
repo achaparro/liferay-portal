@@ -32,9 +32,7 @@ public class UpgradeLayout extends UpgradeProcess {
 			LayoutTable.class,
 			new AlterTableAddColumn("masterLayoutPlid", "LONG"));
 
-		alter(
-			LayoutTable.class,
-			new AlterTableAddColumn("status", "INTEGER"));
+		alter(LayoutTable.class, new AlterTableAddColumn("status", "INTEGER"));
 
 		alter(
 			LayoutTable.class,
@@ -42,8 +40,7 @@ public class UpgradeLayout extends UpgradeProcess {
 
 		alter(
 			LayoutTable.class,
-			new AlterTableAddColumn(
-				"statusByUserName", "VARCHAR(75) null"));
+			new AlterTableAddColumn("statusByUserName", "VARCHAR(75) null"));
 
 		alter(
 			LayoutTable.class,

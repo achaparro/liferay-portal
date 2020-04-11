@@ -15,8 +15,7 @@
 package com.liferay.server.admin.web.internal.messaging;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.messaging.BaseGlobalMessageListener;
-import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerGlobal;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.model.CompanyConstants;
@@ -49,7 +48,7 @@ import org.osgi.service.component.annotations.Reference;
 	service = PluginRepositoriesMessageListener.class
 )
 public class PluginRepositoriesMessageListener
-	extends BaseGlobalMessageListener {
+	extends BaseMessageListenerGlobal {
 
 	@Activate
 	@Modified

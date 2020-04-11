@@ -19,6 +19,7 @@ import com.liferay.petra.mail.MailEngine;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.messaging.BaseGlobalMessageListener;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
@@ -61,7 +62,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * @author Brian Wing Shun Chan
  */
 @Component(immediate = true, service = POPNotificationsMessageListener.class)
-public class POPNotificationsMessageListener extends BaseMessageListener {
+public class POPNotificationsMessageListener extends BaseGlobalMessageListener {
 
 	@Activate
 	@Modified

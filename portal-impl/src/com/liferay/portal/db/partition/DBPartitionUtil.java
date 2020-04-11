@@ -125,9 +125,11 @@ public class DBPartitionUtil {
 				continue;
 			}
 
-			message.put("companyId", company.getCompanyId());
+			Message newMessage = message.clone();
 
-			MessageBusUtil.sendMessage(destinationName, message);
+			newMessage.put("companyId", company.getCompanyId());
+
+			MessageBusUtil.sendMessage(destinationName, newMessage);
 		}
 	}
 

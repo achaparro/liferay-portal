@@ -23,8 +23,12 @@ import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.messaging.MessageBusUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -107,6 +111,24 @@ public class DBPartitionUtil {
 
 	public static boolean removeDBPartition(long companyId) {
 		return _DATABASE_PARTITION_ENABLED;
+	}
+
+	public static void sendMessage(String destinationName, Message message) {
+		if (!_DATABASE_PARTITION_ENABLED) {
+			MessageBusUtil.sendMessage(destinationName, message);
+
+			return;
+		}
+
+		for (Company company : CompanyLocalServiceUtil.getCompanies(false)) {
+			if (!company.isActive()) {
+				continue;
+			}
+
+			message.put("companyId", company.getCompanyId());
+
+			MessageBusUtil.sendMessage(destinationName, message);
+		}
 	}
 
 	public static void setDefaultCompanyId(long companyId) {

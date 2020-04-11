@@ -14,14 +14,15 @@
 
 package com.liferay.saml.runtime.internal.messaging;
 
-import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerCompanyScope;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListenerException;
 
 /**
  * @author Tomas Polesovsky
  */
-public abstract class SamlMessageListener extends BaseMessageListener {
+public abstract class SamlMessageListener
+	extends BaseMessageListenerCompanyScope {
 
 	@Override
 	public void receive(Message message) throws MessageListenerException {
@@ -38,6 +39,11 @@ public abstract class SamlMessageListener extends BaseMessageListener {
 		finally {
 			currentThread.setContextClassLoader(classLoader);
 		}
+	}
+
+	@Override
+	protected void doReceive(Message message, long companyId) throws Exception {
+		doReceive(message);
 	}
 
 }

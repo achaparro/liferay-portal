@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
@@ -83,48 +82,39 @@ public class SamlMetadataMessageListener extends SamlMessageListener {
 		_schedulerEngineHelper.unregister(this);
 	}
 
-	@Override
-	protected void doReceive(Message message) throws Exception {
-		List<Company> companies = _companyLocalService.getCompanies(false);
+	protected void doReceive(Message message, long companyId) throws Exception {
+		Long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
-		for (Company company : companies) {
-			if (!company.isActive()) {
-				continue;
+		CompanyThreadLocal.setCompanyId(companyId);
+
+		try {
+			if (!_samlProviderConfigurationHelper.isEnabled()) {
+				return;
 			}
-
-			Long companyId = CompanyThreadLocal.getCompanyId();
-
-			CompanyThreadLocal.setCompanyId(company.getCompanyId());
 
 			try {
-				if (!_samlProviderConfigurationHelper.isEnabled()) {
-					continue;
+				if (_samlProviderConfigurationHelper.isRoleIdp()) {
+					updateSpMetadata(companyId);
 				}
-
-				try {
-					if (_samlProviderConfigurationHelper.isRoleIdp()) {
-						updateSpMetadata(company.getCompanyId());
-					}
-					else if (_samlProviderConfigurationHelper.isRoleSp()) {
-						updateIdpMetadata(company.getCompanyId());
-					}
-				}
-				catch (Exception exception) {
-					String msg = StringBundler.concat(
-						"Unable to refresh metadata for company ",
-						company.getCompanyId(), ": ", exception.getMessage());
-
-					if (_log.isDebugEnabled()) {
-						_log.debug(msg, exception);
-					}
-					else if (_log.isWarnEnabled()) {
-						_log.warn(msg);
-					}
+				else if (_samlProviderConfigurationHelper.isRoleSp()) {
+					updateIdpMetadata(companyId);
 				}
 			}
-			finally {
-				CompanyThreadLocal.setCompanyId(companyId);
+			catch (Exception exception) {
+				String msg = StringBundler.concat(
+					"Unable to refresh metadata for company ", companyId, ": ",
+					exception.getMessage());
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(msg, exception);
+				}
+				else if (_log.isWarnEnabled()) {
+					_log.warn(msg);
+				}
 			}
+		}
+		finally {
+			CompanyThreadLocal.setCompanyId(currentCompanyId);
 		}
 	}
 

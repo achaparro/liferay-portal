@@ -14,6 +14,7 @@
 
 package com.liferay.portal.scheduler.quartz.internal.job;
 
+import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.cluster.ClusterExecutor;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -124,7 +125,7 @@ public class MessageSenderJob implements Job {
 		message.put(SchedulerEngine.JOB_STATE, jobState);
 		message.put(SchedulerEngine.STORAGE_TYPE, storageType);
 
-		_messageBus.sendMessage(destinationName, message);
+		DBPartitionUtil.sendMessage(destinationName, message);
 	}
 
 	protected void notifyClusterMember(JobKey jobKey, StorageType storageType)

@@ -19,6 +19,7 @@ import com.liferay.analytics.settings.configuration.AnalyticsConfiguration;
 import com.liferay.analytics.settings.configuration.AnalyticsConfigurationTracker;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.messaging.BaseGlobalMessageListener;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
@@ -45,7 +46,7 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true, service = CheckAnalyticsConnectionsMessageListener.class
 )
 public class CheckAnalyticsConnectionsMessageListener
-	extends BaseMessageListener {
+	extends BaseGlobalMessageListener {
 
 	@Activate
 	@Modified

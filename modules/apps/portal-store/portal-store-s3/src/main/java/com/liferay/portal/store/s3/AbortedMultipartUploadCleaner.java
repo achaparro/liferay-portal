@@ -18,8 +18,7 @@ import com.amazonaws.services.s3.transfer.TransferManager;
 
 import com.liferay.document.library.kernel.store.Store;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.messaging.BaseGlobalMessageListener;
-import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerGlobal;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
@@ -83,7 +82,7 @@ public class AbortedMultipartUploadCleaner {
 	private TriggerFactory _triggerFactory;
 
 	private static class AbortedMultipartUploadMessageListener
-		extends BaseGlobalMessageListener {
+		extends BaseMessageListenerGlobal {
 
 		@Override
 		protected void doReceive(Message message) throws Exception {

@@ -20,7 +20,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 /**
  * @author Alberto Chaparro
  */
-public abstract class BaseGlobalMessageListener implements MessageListener {
+public abstract class BaseMessageListenerGlobal extends BaseMessageListener {
 
 	@Override
 	public void receive(Message message) throws MessageListenerException {
@@ -33,7 +33,7 @@ public abstract class BaseGlobalMessageListener implements MessageListener {
 		}
 
 		try {
-			doReceive(message);
+			super.receive(message);
 		}
 		catch (MessageListenerException messageListenerException) {
 			throw messageListenerException;
@@ -42,7 +42,5 @@ public abstract class BaseGlobalMessageListener implements MessageListener {
 			throw new MessageListenerException(exception);
 		}
 	}
-
-	protected abstract void doReceive(Message message) throws Exception;
 
 }

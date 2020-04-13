@@ -27,10 +27,23 @@ import com.liferay.portal.kernel.dao.jdbc.CurrentConnection;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.Destination;
+import com.liferay.portal.kernel.messaging.DestinationConfiguration;
+import com.liferay.portal.kernel.messaging.DestinationFactoryUtil;
+import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.messaging.MessageListener;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.AssumeTestRule;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.test.rule.Inject;
@@ -39,6 +52,11 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import java.util.Dictionary;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.sql.DataSource;
 
@@ -51,6 +69,11 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * @author Alberto Chaparro
@@ -72,6 +95,10 @@ public class DBPartitionUtilTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
+		Bundle bundle = FrameworkUtil.getBundle(DBPartitionUtilTest.class);
+
+		_bundleContext = bundle.getBundleContext();
+
 		_connection = DataAccess.getConnection();
 		_currentDatabasePartitionEnabledValue =
 			ReflectionTestUtil.getAndSetFieldValue(
@@ -102,6 +129,8 @@ public class DBPartitionUtilTest {
 	public static void tearDownClass() throws Exception {
 		_db.runSQL("drop schema " + _getSchemaName());
 
+		_db.runSQL("delete from Company where companyId = " + _COMPANY_ID);
+
 		DataAccess.cleanUp(_connection);
 
 		ReflectionTestUtil.setFieldValue(
@@ -114,6 +143,15 @@ public class DBPartitionUtilTest {
 			_currentDatabasePartitionInstanceIdValue);
 		ReflectionTestUtil.setFieldValue(
 			InfrastructureUtil.class, "_dataSource", _currentDataSource);
+
+		if (_serviceRegistration != null) {
+			Destination destination = _bundleContext.getService(
+				_serviceRegistration.getReference());
+
+			_serviceRegistration.unregister();
+
+			destination.destroy();
+		}
 	}
 
 	@After
@@ -200,14 +238,87 @@ public class DBPartitionUtilTest {
 			DBPartitionUtil.addDBPartition(_portal.getDefaultCompanyId()));
 	}
 
+	@Test
+	public void testSendMessage() throws Exception {
+		_addCompany();
+
+		TestMessageListener testMessageListener = new TestMessageListener();
+
+		_registerDestination(testMessageListener);
+
+		DBPartitionUtil.sendMessage(_DESTINATION_NAME, new Message());
+
+		Long[] currentCompanyIds = _getCurrentCompanyIds();
+
+		Assert.assertArrayEquals(
+			currentCompanyIds, testMessageListener.getMessageCompanyIds());
+
+		Assert.assertArrayEquals(
+			currentCompanyIds, testMessageListener.getThreadLocalCompanyIds());
+	}
+
+	private static void _addCompany() throws Exception {
+		_defaultUser = UserTestUtil.addUser();
+
+		_defaultUser.setCompanyId(_COMPANY_ID);
+		_defaultUser.setDefaultUser(true);
+
+		_userLocalService.updateUser(_defaultUser);
+
+		Company company = _companyLocalService.createCompany(_COMPANY_ID);
+
+		_companyLocalService.updateCompany(company);
+	}
+
+	private static Long[] _getCurrentCompanyIds() {
+		List<Company> companies = _companyLocalService.getCompanies(false);
+
+		Set<Long> companyIds = new TreeSet<>();
+
+		for (Company company : companies) {
+			if (company.isActive()) {
+				companyIds.add(company.getCompanyId());
+			}
+		}
+
+		return companyIds.toArray(new Long[0]);
+	}
+
 	private static String _getSchemaName() {
 		return _DB_PARTITION_INSTANCE_ID + StringPool.UNDERLINE + _COMPANY_ID;
+	}
+
+	private void _registerDestination(MessageListener messageListener) {
+		DestinationConfiguration destinationConfiguration =
+			new DestinationConfiguration(
+				DestinationConfiguration.DESTINATION_TYPE_SYNCHRONOUS,
+				_DESTINATION_NAME);
+
+		Destination destination = DestinationFactoryUtil.createDestination(
+			destinationConfiguration);
+
+		destination.register(messageListener);
+
+		Dictionary<String, Object> properties = new HashMapDictionary<>();
+
+		properties.put("destination.name", destination.getName());
+
+		_serviceRegistration = _bundleContext.registerService(
+			Destination.class, destination, properties);
 	}
 
 	private static final long _COMPANY_ID = 1L;
 
 	private static final String _DB_PARTITION_INSTANCE_ID =
 		"dbPartitionUtilTest";
+
+	private static final String _DESTINATION_NAME =
+		"liferay/testMessageListener";
+
+	private static BundleContext _bundleContext;
+
+	@Inject
+	private static CompanyLocalService _companyLocalService;
 
 	private static Connection _connection;
 	private static boolean _currentDatabasePartitionEnabledValue;
@@ -216,7 +327,36 @@ public class DBPartitionUtilTest {
 	private static DB _db;
 	private static String _defaultSchemaName;
 
+	@DeleteAfterTestRun
+	private static User _defaultUser;
+
 	@Inject
 	private static Portal _portal;
+
+	private static ServiceRegistration<Destination> _serviceRegistration;
+
+	@Inject
+	private static UserLocalService _userLocalService;
+
+	private class TestMessageListener extends BaseMessageListener {
+
+		public Long[] getMessageCompanyIds() {
+			return _messageCompanyIds.toArray(new Long[0]);
+		}
+
+		public Long[] getThreadLocalCompanyIds() {
+			return _threadLocalCompanyIds.toArray(new Long[0]);
+		}
+
+		@Override
+		protected void doReceive(Message message) {
+			_messageCompanyIds.add((Long)message.get("companyId"));
+			_threadLocalCompanyIds.add(CompanyThreadLocal.getCompanyId());
+		}
+
+		private final Set<Long> _messageCompanyIds = new TreeSet<>();
+		private final Set<Long> _threadLocalCompanyIds = new TreeSet<>();
+
+	}
 
 }

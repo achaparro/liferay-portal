@@ -23,10 +23,13 @@ import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.scheduler.SchedulerEngine;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -128,6 +131,14 @@ public class DBPartitionUtil {
 			Message newMessage = message.clone();
 
 			newMessage.put("companyId", company.getCompanyId());
+
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					StringBundler.concat(
+						"Executing ",
+						newMessage.get(SchedulerEngine.GROUP_NAME),
+						" for company ", company.getCompanyId()));
+			}
 
 			MessageBusUtil.sendMessage(destinationName, newMessage);
 		}
@@ -231,6 +242,9 @@ public class DBPartitionUtil {
 
 	private static final String _DATABASE_PARTITION_INSTANCE_ID = PropsUtil.get(
 		"database.partition.instance.id");
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DBPartitionUtil.class);
 
 	private static final Set<String> _controlTableNames = new HashSet<>(
 		Arrays.asList("Company", "Portlet", "VirtualHost"));

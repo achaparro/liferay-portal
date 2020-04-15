@@ -47,6 +47,8 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
+import java.io.Closeable;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -231,23 +233,7 @@ public class DBPartitionUtilTest {
 
 	@Test
 	public void testAddDBPartition() throws Exception {
-		CurrentConnection defaultCurrentConnection =
-			CurrentConnectionUtil.getCurrentConnection();
-
-		try {
-			CurrentConnection currentConnection = new CurrentConnection() {
-
-				@Override
-				public Connection getConnection(DataSource dataSource) {
-					return _connection;
-				}
-
-			};
-
-			ReflectionTestUtil.setFieldValue(
-				CurrentConnectionUtil.class, "_currentConnection",
-				currentConnection);
-
+		try (Closeable closeable = _swapCurrentConnection()) {
 			DBPartitionUtil.addDBPartition(_COMPANY_ID);
 
 			try (Statement statement = _connection.createStatement()) {
@@ -255,11 +241,6 @@ public class DBPartitionUtilTest {
 					"select 1 from " + _getSchemaName(_COMPANY_ID) +
 						".CompanyInfo");
 			}
-		}
-		finally {
-			ReflectionTestUtil.setFieldValue(
-				CurrentConnectionUtil.class, "_currentConnection",
-				defaultCurrentConnection);
 		}
 	}
 
@@ -325,6 +306,28 @@ public class DBPartitionUtilTest {
 
 		_serviceRegistration = _bundleContext.registerService(
 			Destination.class, destination, properties);
+	}
+
+	private Closeable _swapCurrentConnection() {
+		CurrentConnection defaultCurrentConnection =
+			CurrentConnectionUtil.getCurrentConnection();
+
+		CurrentConnection currentConnection = new CurrentConnection() {
+
+			@Override
+			public Connection getConnection(DataSource dataSource) {
+				return _connection;
+			}
+
+		};
+
+		ReflectionTestUtil.setFieldValue(
+			CurrentConnectionUtil.class, "_currentConnection",
+			currentConnection);
+
+		return () -> ReflectionTestUtil.setFieldValue(
+			CurrentConnectionUtil.class, "_currentConnection",
+			defaultCurrentConnection);
 	}
 
 	private static final long _COMPANY_ID = 1L;

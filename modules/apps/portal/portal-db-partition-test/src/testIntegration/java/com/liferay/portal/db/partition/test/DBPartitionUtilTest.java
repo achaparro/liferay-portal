@@ -20,6 +20,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.init.DBInitUtil;
 import com.liferay.portal.db.partition.DBPartitionUtil;
+import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
@@ -27,10 +28,20 @@ import com.liferay.portal.kernel.dao.jdbc.CurrentConnection;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.Destination;
+import com.liferay.portal.kernel.messaging.DestinationConfiguration;
+import com.liferay.portal.kernel.messaging.DestinationFactoryUtil;
+import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.messaging.MessageListener;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.AssumeTestRule;
+import com.liferay.portal.kernel.test.util.CompanyTestUtil;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.test.rule.Inject;
@@ -39,6 +50,12 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import java.util.Dictionary;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.CountDownLatch;
 
 import javax.sql.DataSource;
 
@@ -51,6 +68,13 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
+
+import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 
 /**
  * @author Alberto Chaparro
@@ -72,6 +96,10 @@ public class DBPartitionUtilTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
+		Bundle bundle = FrameworkUtil.getBundle(DBPartitionUtilTest.class);
+
+		_bundleContext = bundle.getBundleContext();
+
 		_connection = DataAccess.getConnection();
 		_currentDatabasePartitionEnabledValue =
 			ReflectionTestUtil.getAndSetFieldValue(
@@ -90,17 +118,27 @@ public class DBPartitionUtilTest {
 		DataSource dbPartitionDataSource = DBPartitionUtil.wrapDataSource(
 			_currentDataSource);
 
+		_lazyConnectionDataSourceProxy =
+			(LazyConnectionDataSourceProxy)PortalBeanLocatorUtil.locate(
+				"liferayDataSource");
+
+		_lazyConnectionDataSourceProxy.setTargetDataSource(
+			dbPartitionDataSource);
+
 		ReflectionTestUtil.setFieldValue(
 			DBInitUtil.class, "_dataSource", dbPartitionDataSource);
 		ReflectionTestUtil.setFieldValue(
-			InfrastructureUtil.class, "_dataSource", dbPartitionDataSource);
+			InfrastructureUtil.class, "_dataSource",
+			_lazyConnectionDataSourceProxy);
 
-		_db.runSQL("create schema " + _getSchemaName() + " character set utf8");
+		_db.runSQL(
+			"create schema " + _getSchemaName(_COMPANY_ID) +
+				" character set utf8");
 	}
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
-		_db.runSQL("drop schema " + _getSchemaName());
+		_db.runSQL("drop schema " + _getSchemaName(_COMPANY_ID));
 
 		DataAccess.cleanUp(_connection);
 
@@ -112,14 +150,44 @@ public class DBPartitionUtilTest {
 		ReflectionTestUtil.setFieldValue(
 			DBPartitionUtil.class, "_DATABASE_PARTITION_INSTANCE_ID",
 			_currentDatabasePartitionInstanceIdValue);
+
+		_lazyConnectionDataSourceProxy.setTargetDataSource(_currentDataSource);
+
 		ReflectionTestUtil.setFieldValue(
-			InfrastructureUtil.class, "_dataSource", _currentDataSource);
+			InfrastructureUtil.class, "_dataSource",
+			_lazyConnectionDataSourceProxy);
+
+		if (_serviceRegistration != null) {
+			Destination destination = _bundleContext.getService(
+				_serviceRegistration.getReference());
+
+			_serviceRegistration.unregister();
+
+			destination.destroy();
+		}
 	}
 
 	@After
-	public void tearDown() throws SQLException {
+	public void tearDown() throws Exception {
 		try (Statement statement = _connection.createStatement()) {
 			statement.execute("use " + _defaultSchemaName);
+		}
+
+		if (_company != null) {
+			_db.runSQL(
+				"delete from Company where companyId = " +
+					_company.getCompanyId());
+
+			_db.runSQL(
+				"delete from Portlet where companyId = " +
+					_company.getCompanyId());
+
+			_db.runSQL(
+				"delete from VirtualHost where companyId = " +
+					_company.getCompanyId());
+
+			_db.runSQL(
+				"drop schema " + _getSchemaName(_company.getCompanyId()));
 		}
 	}
 
@@ -132,7 +200,7 @@ public class DBPartitionUtilTest {
 
 			statement.executeUpdate(
 				StringBundler.concat(
-					"create table ", _getSchemaName(), ".TestTable ",
+					"create table ", _getSchemaName(_COMPANY_ID), ".TestTable ",
 					"(testColumn int)"));
 
 			statement.execute("select 1 from TestTable");
@@ -184,7 +252,8 @@ public class DBPartitionUtilTest {
 
 			try (Statement statement = _connection.createStatement()) {
 				statement.execute(
-					"select 1 from " + _getSchemaName() + ".CompanyInfo");
+					"select 1 from " + _getSchemaName(_COMPANY_ID) +
+						".CompanyInfo");
 			}
 		}
 		finally {
@@ -200,8 +269,62 @@ public class DBPartitionUtilTest {
 			DBPartitionUtil.addDBPartition(_portal.getDefaultCompanyId()));
 	}
 
-	private static String _getSchemaName() {
-		return _DB_PARTITION_INSTANCE_ID + StringPool.UNDERLINE + _COMPANY_ID;
+	@Test
+	public void testSendMessage() throws Exception {
+		_company = CompanyTestUtil.addCompany();
+
+		TestMessageListener testMessageListener = new TestMessageListener();
+
+		_registerDestination(testMessageListener);
+
+		DBPartitionUtil.sendMessage(_DESTINATION_NAME, new Message());
+
+		testMessageListener.block();
+
+		Long[] currentCompanyIds = _getCurrentCompanyIds();
+
+		Assert.assertArrayEquals(
+			currentCompanyIds, testMessageListener.getMessageCompanyIds());
+
+		Assert.assertArrayEquals(
+			currentCompanyIds, testMessageListener.getThreadLocalCompanyIds());
+	}
+
+	private static Long[] _getCurrentCompanyIds() {
+		List<Company> companies = _companyLocalService.getCompanies(false);
+
+		Set<Long> companyIds = new TreeSet<>();
+
+		for (Company company : companies) {
+			if (company.isActive()) {
+				companyIds.add(company.getCompanyId());
+			}
+		}
+
+		return companyIds.toArray(new Long[0]);
+	}
+
+	private static String _getSchemaName(long companyId) {
+		return _DB_PARTITION_INSTANCE_ID + StringPool.UNDERLINE + companyId;
+	}
+
+	private void _registerDestination(MessageListener messageListener) {
+		DestinationConfiguration destinationConfiguration =
+			new DestinationConfiguration(
+				DestinationConfiguration.DESTINATION_TYPE_PARALLEL,
+				_DESTINATION_NAME);
+
+		Destination destination = DestinationFactoryUtil.createDestination(
+			destinationConfiguration);
+
+		destination.register(messageListener);
+
+		Dictionary<String, Object> properties = new HashMapDictionary<>();
+
+		properties.put("destination.name", destination.getName());
+
+		_serviceRegistration = _bundleContext.registerService(
+			Destination.class, destination, properties);
 	}
 
 	private static final long _COMPANY_ID = 1L;
@@ -209,14 +332,55 @@ public class DBPartitionUtilTest {
 	private static final String _DB_PARTITION_INSTANCE_ID =
 		"dbPartitionUtilTest";
 
+	private static final String _DESTINATION_NAME =
+		"liferay/testMessageListener";
+
+	private static BundleContext _bundleContext;
+	private static Company _company;
+
+	@Inject
+	private static CompanyLocalService _companyLocalService;
+
 	private static Connection _connection;
 	private static boolean _currentDatabasePartitionEnabledValue;
 	private static String _currentDatabasePartitionInstanceIdValue;
 	private static DataSource _currentDataSource;
 	private static DB _db;
 	private static String _defaultSchemaName;
+	private static LazyConnectionDataSourceProxy _lazyConnectionDataSourceProxy;
 
 	@Inject
 	private static Portal _portal;
+
+	private static ServiceRegistration<Destination> _serviceRegistration;
+
+	private class TestMessageListener extends BaseMessageListener {
+
+		public void block() throws Exception {
+			_countDownLatch.await();
+		}
+
+		public Long[] getMessageCompanyIds() {
+			return _messageCompanyIds.toArray(new Long[0]);
+		}
+
+		public Long[] getThreadLocalCompanyIds() {
+			return _threadLocalCompanyIds.toArray(new Long[0]);
+		}
+
+		@Override
+		protected void doReceive(Message message) {
+			_messageCompanyIds.add((Long)message.get("companyId"));
+			_threadLocalCompanyIds.add(CompanyThreadLocal.getCompanyId());
+
+			_countDownLatch.countDown();
+		}
+
+		private final CountDownLatch _countDownLatch = new CountDownLatch(
+			_getCurrentCompanyIds().length);
+		private final Set<Long> _messageCompanyIds = new TreeSet<>();
+		private final Set<Long> _threadLocalCompanyIds = new TreeSet<>();
+
+	}
 
 }

@@ -17,6 +17,7 @@ package com.liferay.portal.scheduler.internal;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.audit.AuditMessage;
 import com.liferay.portal.kernel.audit.AuditRouter;
 import com.liferay.portal.kernel.cal.DayAndPosition;
@@ -589,6 +590,8 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 
 			return;
 		}
+
+		messageListener = DBPartitionUtil.wrapMessageListener(messageListener);
 
 		SchedulerEventMessageListenerWrapper
 			schedulerEventMessageListenerWrapper =

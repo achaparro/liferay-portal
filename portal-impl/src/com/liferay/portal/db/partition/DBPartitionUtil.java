@@ -23,6 +23,9 @@ import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerCompanyScope;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerGlobal;
+import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -163,6 +166,19 @@ public class DBPartitionUtil {
 			}
 
 		};
+	}
+
+	public static MessageListener wrapMessageListener(
+		MessageListener messageListener) {
+
+		if (!_DATABASE_PARTITION_ENABLED ||
+			(messageListener instanceof BaseMessageListenerGlobal) ||
+			(messageListener instanceof BaseMessageListenerCompanyScope)) {
+
+			return messageListener;
+		}
+
+		return new DBPartitionMessageListenerWrapper(messageListener);
 	}
 
 	private static String _getSchemaName(long companyId) {

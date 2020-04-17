@@ -567,8 +567,6 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 		MessageListener messageListener, SchedulerEntry schedulerEntry,
 		String destinationName) {
 
-		messageListener = DBPartitionUtil.wrapMessageListener(messageListener);
-
 		Dictionary<String, Object> properties = new HashMapDictionary<>();
 
 		properties.put("destination.name", destinationName);
@@ -592,6 +590,8 @@ public class SchedulerEngineHelperImpl implements SchedulerEngineHelper {
 
 			return;
 		}
+
+		messageListener = DBPartitionUtil.wrapMessageListener(messageListener);
 
 		SchedulerEventMessageListenerWrapper
 			schedulerEventMessageListenerWrapper =

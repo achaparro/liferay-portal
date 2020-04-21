@@ -144,6 +144,11 @@ public abstract class BaseDB implements DB {
 	}
 
 	@Override
+	public String getCurrentDatabaseTypeName(String template) {
+		return _trimmedTemplates.get(template);
+	}
+
+	@Override
 	public DBType getDBType() {
 		return _dbType;
 	}
@@ -627,6 +632,7 @@ public abstract class BaseDB implements DB {
 
 		for (int i = 0; i < TEMPLATE.length; i++) {
 			_templates.put(TEMPLATE[i], actual[i]);
+			_trimmedTemplates.put(TEMPLATE[i].trim(), actual[i].trim());
 		}
 
 		String[] templateTypes = ArrayUtil.clone(TEMPLATE, 5, 15);
@@ -918,5 +924,6 @@ public abstract class BaseDB implements DB {
 	private final Map<String, Integer> _sqlTypes = new HashMap<>();
 	private boolean _supportsStringCaseSensitiveQuery = true;
 	private final Map<String, String> _templates = new HashMap<>();
+	private final Map<String, String> _trimmedTemplates = new HashMap<>();
 
 }

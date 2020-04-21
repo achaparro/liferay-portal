@@ -71,6 +71,8 @@ public interface DB {
 	@Deprecated
 	public void buildSQLFile(String sqlDir, String fileName) throws IOException;
 
+	public String getCurrentDatabaseTypeName(String template);
+
 	public DBType getDBType();
 
 	public List<Index> getIndexes(Connection con) throws SQLException;

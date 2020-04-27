@@ -46,6 +46,8 @@ public class WikiServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Override
 	public void register(Registry registry) {
+		//This is a comment
+
 		registry.register("0.0.1", "0.0.2", new UpgradeSchema());
 
 		registry.register("0.0.2", "0.0.3", new UpgradeKernelPackage());

@@ -18,9 +18,9 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerByCompanies;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.saml.persistence.model.SamlIdpSpConnection;
@@ -55,7 +54,8 @@ import org.osgi.service.component.annotations.Reference;
 	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
 	service = SamlMetadataMessageListener.class
 )
-public class SamlMetadataMessageListener extends SamlMessageListener {
+public class SamlMetadataMessageListener
+	extends BaseMessageListenerByCompanies {
 
 	@Activate
 	protected void activate(Map<String, Object> properties) {
@@ -83,48 +83,42 @@ public class SamlMetadataMessageListener extends SamlMessageListener {
 		_schedulerEngineHelper.unregister(this);
 	}
 
-	@Override
-	protected void doReceive(Message message) throws Exception {
-		List<Company> companies = _companyLocalService.getCompanies(false);
+	protected void doReceive(Message message, long companyId) throws Exception {
+		Thread currentThread = Thread.currentThread();
 
-		for (Company company : companies) {
-			if (!company.isActive()) {
-				continue;
+		ClassLoader classLoader = currentThread.getContextClassLoader();
+
+		try {
+			currentThread.setContextClassLoader(
+				SamlMetadataMessageListener.class.getClassLoader());
+
+			if (!_samlProviderConfigurationHelper.isEnabled()) {
+				return;
 			}
-
-			Long companyId = CompanyThreadLocal.getCompanyId();
-
-			CompanyThreadLocal.setCompanyId(company.getCompanyId());
 
 			try {
-				if (!_samlProviderConfigurationHelper.isEnabled()) {
-					continue;
+				if (_samlProviderConfigurationHelper.isRoleIdp()) {
+					updateSpMetadata(companyId);
 				}
-
-				try {
-					if (_samlProviderConfigurationHelper.isRoleIdp()) {
-						updateSpMetadata(company.getCompanyId());
-					}
-					else if (_samlProviderConfigurationHelper.isRoleSp()) {
-						updateIdpMetadata(company.getCompanyId());
-					}
-				}
-				catch (Exception exception) {
-					String msg = StringBundler.concat(
-						"Unable to refresh metadata for company ",
-						company.getCompanyId(), ": ", exception.getMessage());
-
-					if (_log.isDebugEnabled()) {
-						_log.debug(msg, exception);
-					}
-					else if (_log.isWarnEnabled()) {
-						_log.warn(msg);
-					}
+				else if (_samlProviderConfigurationHelper.isRoleSp()) {
+					updateIdpMetadata(companyId);
 				}
 			}
-			finally {
-				CompanyThreadLocal.setCompanyId(companyId);
+			catch (Exception exception) {
+				String msg = StringBundler.concat(
+					"Unable to refresh metadata for company ", companyId, ": ",
+					exception.getMessage());
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(msg, exception);
+				}
+				else if (_log.isWarnEnabled()) {
+					_log.warn(msg);
+				}
 			}
+		}
+		finally {
+			currentThread.setContextClassLoader(classLoader);
 		}
 	}
 

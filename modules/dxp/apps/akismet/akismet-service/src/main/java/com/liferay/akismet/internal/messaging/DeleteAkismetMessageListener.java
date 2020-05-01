@@ -19,6 +19,7 @@ import com.liferay.akismet.service.AkismetEntryLocalService;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerByCompanies;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
@@ -47,7 +48,8 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true, property = "cron.expression=0 0 0 * * ?",
 	service = DeleteAkismetMessageListener.class
 )
-public class DeleteAkismetMessageListener extends BaseMessageListener {
+public class DeleteAkismetMessageListener extends
+	BaseMessageListenerByCompanies {
 
 	@Activate
 	@Modified
@@ -104,12 +106,8 @@ public class DeleteAkismetMessageListener extends BaseMessageListener {
 	}
 
 	@Override
-	protected void doReceive(Message message) throws Exception {
-		long[] companyIds = _portal.getCompanyIds();
-
-		for (long companyId : companyIds) {
-			deleteAkismetData(companyId);
-		}
+	protected void doReceive(Message message, long companyId) throws Exception {
+		deleteAkismetData(companyId);
 	}
 
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")

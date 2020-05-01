@@ -14,15 +14,13 @@
 
 package com.liferay.portal.workflow.metrics.internal.messaging;
 
-import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerByCompanies;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
@@ -67,7 +65,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 	}
 )
 public class WorkflowMetricsSLADefinitionTransformerMessageListener
-	extends BaseMessageListener {
+	extends BaseMessageListenerByCompanies {
 
 	@Activate
 	@Modified
@@ -92,61 +90,50 @@ public class WorkflowMetricsSLADefinitionTransformerMessageListener
 	}
 
 	@Override
-	protected void doReceive(Message message) throws Exception {
+	protected void doReceive(Message message, long companyId) throws Exception {
 		if (_searchEngineAdapter == null) {
 			return;
 		}
 
-		ActionableDynamicQuery actionableDynamicQuery =
-			_companyLocalService.getActionableDynamicQuery();
+		if (!_hasIndex(companyId)) {
+			return;
+		}
 
-		actionableDynamicQuery.setPerformActionMethod(
-			(Company company) -> {
-				if (!_hasIndex(company.getCompanyId())) {
-					return;
+		SearchSearchRequest searchSearchRequest = new SearchSearchRequest();
+
+		searchSearchRequest.setIndexNames(
+			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId));
+
+		BooleanQuery booleanQuery = _queries.booleanQuery();
+
+		searchSearchRequest.setQuery(
+			booleanQuery.addFilterQueryClauses(_createBooleanQuery(companyId)));
+
+		searchSearchRequest.setSize(10000);
+
+		Stream.of(
+			_searchEngineAdapter.execute(searchSearchRequest)
+		).map(
+			SearchSearchResponse::getSearchHits
+		).map(
+			SearchHits::getSearchHits
+		).flatMap(
+			List::stream
+		).map(
+			SearchHit::getDocument
+		).forEach(
+			document -> {
+				try {
+					_workflowMetricsSLADefinitionTransformer.transform(
+						document.getLong("companyId"),
+						document.getString("version"),
+						document.getLong("processId"));
 				}
-
-				SearchSearchRequest searchSearchRequest =
-					new SearchSearchRequest();
-
-				searchSearchRequest.setIndexNames(
-					_processWorkflowMetricsIndexNameBuilder.getIndexName(
-						company.getCompanyId()));
-
-				BooleanQuery booleanQuery = _queries.booleanQuery();
-
-				searchSearchRequest.setQuery(
-					booleanQuery.addFilterQueryClauses(
-						_createBooleanQuery(company.getCompanyId())));
-
-				searchSearchRequest.setSize(10000);
-
-				Stream.of(
-					_searchEngineAdapter.execute(searchSearchRequest)
-				).map(
-					SearchSearchResponse::getSearchHits
-				).map(
-					SearchHits::getSearchHits
-				).flatMap(
-					List::stream
-				).map(
-					SearchHit::getDocument
-				).forEach(
-					document -> {
-						try {
-							_workflowMetricsSLADefinitionTransformer.transform(
-								document.getLong("companyId"),
-								document.getString("version"),
-								document.getLong("processId"));
-						}
-						catch (PortalException portalException) {
-							_log.error(portalException, portalException);
-						}
-					}
-				);
-			});
-
-		actionableDynamicQuery.performActions();
+				catch (PortalException portalException) {
+					_log.error(portalException, portalException);
+				}
+			}
+		);
 	}
 
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")

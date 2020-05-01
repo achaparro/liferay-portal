@@ -19,10 +19,9 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.configuration.persistence.listener.ConfigurationModelListener;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerByCompanies;
 import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.Message;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
 import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
@@ -38,7 +37,6 @@ import com.liferay.portal.security.ldap.internal.constants.LDAPDestinationNames;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Dictionary;
-import java.util.List;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -59,7 +57,8 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 	}
 )
 public class UserImportMessageListener
-	extends BaseMessageListener implements ConfigurationModelListener {
+	extends BaseMessageListenerByCompanies
+	implements ConfigurationModelListener {
 
 	@Override
 	public void onAfterSave(String pid, Dictionary<String, Object> properties) {
@@ -88,54 +87,48 @@ public class UserImportMessageListener
 	}
 
 	@Override
-	protected void doReceive(Message message) throws Exception {
+	protected void doReceive(Message message, long companyId) throws Exception {
 		long time =
 			System.currentTimeMillis() - _ldapUserImporter.getLastImportTime();
 
 		time = Math.round(time / 60000.0);
 
-		List<Company> companies = _companyLocalService.getCompanies(false);
+		LDAPImportConfiguration ldapImportConfiguration =
+			_ldapImportConfigurationProvider.getConfiguration(companyId);
 
-		for (Company company : companies) {
-			long companyId = company.getCompanyId();
-
-			LDAPImportConfiguration ldapImportConfiguration =
-				_ldapImportConfigurationProvider.getConfiguration(companyId);
-
-			if (!ldapImportConfiguration.importEnabled()) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(
-						"Skipping LDAP user import for company " + companyId +
-							" because LDAP import is disabled");
-				}
-
-				continue;
+		if (!ldapImportConfiguration.importEnabled()) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Skipping LDAP user import for company " + companyId +
+						" because LDAP import is disabled");
 			}
 
-			if (ldapImportConfiguration.importInterval() <= 0) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(
-						"Skipping LDAP user import for company " + companyId +
-							" because LDAP import interval is less than 1");
-				}
-
-				continue;
-			}
-
-			if (time < ldapImportConfiguration.importInterval()) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(
-						StringBundler.concat(
-							"Skipping LDAP user import for company ", companyId,
-							" because LDAP import interval has not been ",
-							"reached"));
-				}
-
-				continue;
-			}
-
-			_ldapUserImporter.importUsers(companyId);
+			return;
 		}
+
+		if (ldapImportConfiguration.importInterval() <= 0) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"Skipping LDAP user import for company " + companyId +
+						" because LDAP import interval is less than 1");
+			}
+
+			return;
+		}
+
+		if (time < ldapImportConfiguration.importInterval()) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					StringBundler.concat(
+						"Skipping LDAP user import for company ", companyId,
+						" because LDAP import interval has not been ",
+						"reached"));
+			}
+
+			return;
+		}
+
+		_ldapUserImporter.importUsers(companyId);
 	}
 
 	@Reference(unbind = "-")

@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerByCompanies;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
@@ -55,7 +55,8 @@ import org.osgi.service.component.annotations.Reference;
 	property = "destination.name=" + AnalyticsMessagesDestinationNames.ANALYTICS_MESSAGES_PROCESSOR,
 	service = MessageListener.class
 )
-public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
+public class SendAnalyticsMessagesMessageListener
+	extends BaseMessageListenerByCompanies {
 
 	@Activate
 	@Modified
@@ -80,7 +81,7 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 	}
 
 	@Override
-	protected void doReceive(Message message) throws Exception {
+	protected void doReceive(Message message, long companyId) throws Exception {
 		if (!_analyticsConfigurationTracker.isActive()) {
 			return;
 		}
@@ -95,19 +96,12 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 			return;
 		}
 
-		long companyId = message.getLong("companyId");
+		_process(companyId);
+	}
 
-		if (companyId != 0) {
-			_process(companyId);
-
-			return;
-		}
-
-		for (long curCompanyId :
-				_analyticsMessageLocalService.getCompanyIds()) {
-
-			_process(curCompanyId);
-		}
+	@Override
+	protected List<Long> getCompanyIds() {
+		return _analyticsMessageLocalService.getCompanyIds();
 	}
 
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")

@@ -25,7 +25,7 @@ import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.BaseMessageListener;
+import com.liferay.portal.kernel.messaging.BaseMessageListenerByCompanies;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
@@ -57,7 +57,7 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true, property = "cron.expression=0 0 0 * * ?",
 	service = DeleteMBMessagesListener.class
 )
-public class DeleteMBMessagesListener extends BaseMessageListener {
+public class DeleteMBMessagesListener extends BaseMessageListenerByCompanies {
 
 	@Activate
 	@Modified
@@ -139,12 +139,8 @@ public class DeleteMBMessagesListener extends BaseMessageListener {
 	}
 
 	@Override
-	protected void doReceive(Message message) throws Exception {
-		long[] companyIds = _portal.getCompanyIds();
-
-		for (long companyId : companyIds) {
-			deleteSpam(companyId);
-		}
+	protected void doReceive(Message message, long companyId) throws Exception {
+		deleteSpam(companyId);
 	}
 
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")

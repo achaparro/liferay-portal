@@ -505,8 +505,8 @@ public class SourceFormatter {
 			}
 
 			if (recentChangesFileName.endsWith("ServiceImpl.java")) {
-				dependentFileNames = _addServiceXMLFileName(
-					dependentFileNames, recentChangesFileName);
+				dependentFileNames = _addDependentFileName(
+					dependentFileNames, recentChangesFileName, "service.xml");
 			}
 			else if (!tagJavaFilesAdded &&
 					 recentChangesFileName.endsWith(".tld")) {
@@ -525,21 +525,23 @@ public class SourceFormatter {
 			dependentFileNames, null);
 	}
 
-	private Set<String> _addServiceXMLFileName(
-		Set<String> dependentFileNames, String serviceImplFileName) {
+	private Set<String> _addDependentFileName(
+		Set<String> dependentFileNames, String fileName,
+		String dependentFileName) {
 
-		String dirName = serviceImplFileName.substring(
-			0, serviceImplFileName.lastIndexOf(CharPool.SLASH));
+		String dirName = fileName.substring(
+			0, fileName.lastIndexOf(CharPool.SLASH));
 
 		while (true) {
-			String serviceFileName = dirName + "/service.xml";
+			String dependentFilePathName = dirName + "/" + dependentFileName;
 
 			File file = new File(
-				_sourceFormatterArgs.getBaseDirName() + serviceFileName);
+				_sourceFormatterArgs.getBaseDirName() + dependentFilePathName);
 
 			if (file.exists()) {
 				dependentFileNames.add(
-					_sourceFormatterArgs.getBaseDirName() + serviceFileName);
+					_sourceFormatterArgs.getBaseDirName() +
+						dependentFilePathName);
 
 				return dependentFileNames;
 			}

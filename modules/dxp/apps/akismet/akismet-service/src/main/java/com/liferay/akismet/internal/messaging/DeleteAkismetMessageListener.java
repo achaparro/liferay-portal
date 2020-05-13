@@ -112,6 +112,11 @@ public class DeleteAkismetMessageListener extends BaseMessageListener {
 		}
 	}
 
+	@Override
+	protected void doReceive(Message message, long companyId) throws Exception {
+		deleteAkismetData(companyId);
+	}
+
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
 	protected void setModuleServiceLifecycle(
 		ModuleServiceLifecycle moduleServiceLifecycle) {

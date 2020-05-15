@@ -24,6 +24,9 @@ import com.liferay.dynamic.data.lists.internal.upgrade.v2_0_0.util.DDLRecordSetT
 import com.liferay.dynamic.data.lists.internal.upgrade.v2_0_0.util.DDLRecordSetVersionTable;
 import com.liferay.dynamic.data.lists.internal.upgrade.v2_0_0.util.DDLRecordTable;
 import com.liferay.dynamic.data.lists.internal.upgrade.v2_0_0.util.DDLRecordVersionTable;
+import com.liferay.dynamic.data.lists.internal.upgrade.v2_2_1.UpgradeEmptyValidation;
+import com.liferay.dynamic.data.mapping.io.DDMFormDeserializer;
+import com.liferay.dynamic.data.mapping.io.DDMFormSerializer;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.upgrade.BaseUpgradeSQLServerDatetime;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
@@ -83,6 +86,11 @@ public class DDLServiceUpgrade implements UpgradeStepRegistrator {
 			"2.1.0", "2.2.0",
 			new com.liferay.dynamic.data.lists.internal.upgrade.v2_2_0.
 				UpgradeSchema());
+
+		registry.register(
+			"2.2.0", "2.2.1",
+			new UpgradeEmptyValidation(
+				_jsonDDMFormDeserializer, _jsonDDMFormSerializer));
 	}
 
 	@Reference
@@ -90,5 +98,11 @@ public class DDLServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;
+
+	@Reference(target = "(ddm.form.deserializer.type=json)")
+	private DDMFormDeserializer _jsonDDMFormDeserializer;
+
+	@Reference(target = "(ddm.form.serializer.type=json)")
+	private DDMFormSerializer _jsonDDMFormSerializer;
 
 }

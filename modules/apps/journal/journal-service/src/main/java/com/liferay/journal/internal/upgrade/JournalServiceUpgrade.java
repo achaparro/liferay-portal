@@ -254,7 +254,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 				UpgradeJournalArticleLocalization());
 
 		registry.register(
-			"3.2.2", "3.2.3",
+			"3.2.2", "4.0.0",
 			new UpgradeDiscussionSubscriptionClassName(
 				_classNameLocalService, _subscriptionLocalService,
 				JournalArticle.class.getName(),

@@ -14,13 +14,26 @@
 
 package com.liferay.portal.messaging.internal;
 
+import com.liferay.petra.executor.PortalExecutorManager;
 import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.DestinationConfiguration;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
+import com.liferay.portal.kernel.service.UserLocalService;
 
 /**
  * @author Michael C. Han
  */
 public class SynchronousDestinationPrototype implements DestinationPrototype {
+
+	public SynchronousDestinationPrototype(
+		PortalExecutorManager portalExecutorManager,
+		PermissionCheckerFactory permissionCheckerFactory,
+		UserLocalService userLocalService) {
+
+		_portalExecutorManager = portalExecutorManager;
+		_permissionCheckerFactory = permissionCheckerFactory;
+		_userLocalService = userLocalService;
+	}
 
 	@Override
 	public Destination createDestination(
@@ -33,10 +46,26 @@ public class SynchronousDestinationPrototype implements DestinationPrototype {
 			destinationConfiguration.getDestinationType());
 		synchronousDestination.setName(
 			destinationConfiguration.getDestinationName());
+		synchronousDestination.setMaximumQueueSize(
+			destinationConfiguration.getMaximumQueueSize());
+		synchronousDestination.setPermissionCheckerFactory(
+			_permissionCheckerFactory);
+		synchronousDestination.setPortalExecutorManager(_portalExecutorManager);
+		synchronousDestination.setRejectedExecutionHandler(
+			destinationConfiguration.getRejectedExecutionHandler());
+		synchronousDestination.setUserLocalService(_userLocalService);
+		synchronousDestination.setWorkersCoreSize(
+			destinationConfiguration.getWorkersCoreSize());
+		synchronousDestination.setWorkersMaxSize(
+			destinationConfiguration.getWorkersMaxSize());
 
 		synchronousDestination.afterPropertiesSet();
 
 		return synchronousDestination;
 	}
+
+	private final PermissionCheckerFactory _permissionCheckerFactory;
+	private final PortalExecutorManager _portalExecutorManager;
+	private final UserLocalService _userLocalService;
 
 }

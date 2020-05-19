@@ -79,7 +79,9 @@ public class DefaultDestinationFactory implements DestinationFactory {
 				_userLocalService));
 		_destinationPrototypes.put(
 			DestinationConfiguration.DESTINATION_TYPE_SYNCHRONOUS,
-			new SynchronousDestinationPrototype());
+			new SynchronousDestinationPrototype(
+				_portalExecutorManager, _permissionCheckerFactory,
+				_userLocalService));
 	}
 
 	@Reference(

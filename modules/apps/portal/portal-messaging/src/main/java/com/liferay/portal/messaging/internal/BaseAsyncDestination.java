@@ -32,6 +32,8 @@ import com.liferay.portal.kernel.util.NamedThreadFactory;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -212,6 +214,10 @@ public abstract class BaseAsyncDestination extends BaseDestination {
 
 	protected void execute(Runnable runnable) {
 		_noticeableThreadPoolExecutor.execute(runnable);
+	}
+
+	protected <T> Future<T> submit(Callable<T> callable) {
+		return _noticeableThreadPoolExecutor.submit(callable);
 	}
 
 	protected PermissionCheckerFactory permissionCheckerFactory;

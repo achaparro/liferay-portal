@@ -14,50 +14,58 @@
 
 package com.liferay.portal.messaging.internal;
 
+import com.liferay.petra.lang.CentralizedThreadLocal;
+import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.BaseDestination;
-import com.liferay.portal.kernel.messaging.DestinationStatistics;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
-import com.liferay.portal.kernel.messaging.MessageListenerException;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * @author Shuyang Zhou
  */
-public class SynchronousDestination extends BaseDestination {
+public class SynchronousDestination extends BaseAsyncDestination {
 
 	@Override
-	public DestinationStatistics getDestinationStatistics() {
-		DestinationStatistics destinationStatistics =
-			new DestinationStatistics();
+	protected void dispatch(
+		Set<MessageListener> messageListeners, final Message message) {
 
-		destinationStatistics.setSentMessageCount(_sentMessageCounter.get());
+		Thread currentThread = Thread.currentThread();
 
-		return destinationStatistics;
-	}
+		Future<?> future = submit(
+			() -> {
+				try {
+					MessageBusThreadLocalUtil.populateThreadLocalsFromMessage(
+						message, permissionCheckerFactory, userLocalService);
 
-	@Override
-	public void send(Message message) {
-		for (MessageListener messageListener : messageListeners) {
-			try {
-				messageListener.receive(message);
-			}
-			catch (MessageListenerException messageListenerException) {
-				_log.error(
-					"Unable to process message " + message,
-					messageListenerException);
-			}
+					for (MessageListener messageListener : messageListeners) {
+						messageListener.receive(message);
+					}
+				}
+				finally {
+					if (Thread.currentThread() != currentThread) {
+						ThreadLocalCacheManager.clearAll(Lifecycle.REQUEST);
+
+						CentralizedThreadLocal.clearShortLivedThreadLocals();
+					}
+				}
+
+				return null;
+			});
+
+		try {
+			future.get();
 		}
-
-		_sentMessageCounter.incrementAndGet();
+		catch (Exception exception) {
+			_log.error("Unable to process message " + message, exception);
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		SynchronousDestination.class);
-
-	private final AtomicLong _sentMessageCounter = new AtomicLong();
 
 }

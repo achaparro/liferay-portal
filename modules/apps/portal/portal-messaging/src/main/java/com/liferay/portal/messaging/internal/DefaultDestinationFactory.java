@@ -23,12 +23,11 @@ import com.liferay.portal.kernel.service.UserLocalService;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -43,49 +42,62 @@ public class DefaultDestinationFactory implements DestinationFactory {
 
 		String type = destinationConfiguration.getDestinationType();
 
-		DestinationPrototype destinationPrototype = _destinationPrototypes.get(
-			type);
-
-		if (destinationPrototype == null) {
+		if (!_destinationTypes.contains(type)) {
 			throw new IllegalArgumentException(
 				"No destination prototype configured for " + type);
 		}
 
-		return destinationPrototype.createDestination(destinationConfiguration);
+		BaseDestination baseDestination = null;
+
+		if (type.equals(DestinationConfiguration.DESTINATION_TYPE_PARALLEL)) {
+			baseDestination = new ParallelDestination();
+		}
+		else if (type.equals(
+					DestinationConfiguration.DESTINATION_TYPE_SERIAL)) {
+
+			baseDestination = new SerialDestination();
+		}
+		else {
+			baseDestination = new SynchronousDestination();
+		}
+
+		baseDestination.setDestinationType(type);
+		baseDestination.setName(destinationConfiguration.getDestinationName());
+		baseDestination.setMaximumQueueSize(
+			destinationConfiguration.getMaximumQueueSize());
+		baseDestination.setPermissionCheckerFactory(_permissionCheckerFactory);
+		baseDestination.setPortalExecutorManager(_portalExecutorManager);
+		baseDestination.setRejectedExecutionHandler(
+			destinationConfiguration.getRejectedExecutionHandler());
+		baseDestination.setUserLocalService(_userLocalService);
+
+		if (!type.equals(DestinationConfiguration.DESTINATION_TYPE_SERIAL)) {
+			baseDestination.setWorkersCoreSize(
+				destinationConfiguration.getWorkersCoreSize());
+			baseDestination.setWorkersMaxSize(
+				destinationConfiguration.getWorkersMaxSize());
+		}
+
+		baseDestination.afterPropertiesSet();
+
+		return baseDestination;
 	}
 
 	@Override
 	public Collection<String> getDestinationTypes() {
-		return Collections.unmodifiableCollection(
-			_destinationPrototypes.keySet());
+		return Collections.unmodifiableCollection(_destinationTypes);
 	}
 
 	@Activate
 	protected void activate() {
-		_destinationPrototypes.put(
-			DestinationConfiguration.DESTINATION_TYPE_PARALLEL,
-			new ParallelDestinationPrototype(
-				_portalExecutorManager, _permissionCheckerFactory,
-				_userLocalService));
-		_destinationPrototypes.put(
-			DestinationConfiguration.DESTINATION_TYPE_SERIAL,
-			new SerialDestinationPrototype(
-				_portalExecutorManager, _permissionCheckerFactory,
-				_userLocalService));
-		_destinationPrototypes.put(
-			DestinationConfiguration.DESTINATION_TYPE_SYNCHRONOUS,
-			new SynchronousDestinationPrototype(
-				_portalExecutorManager, _permissionCheckerFactory,
-				_userLocalService));
+		_destinationTypes.add(
+			DestinationConfiguration.DESTINATION_TYPE_PARALLEL);
+		_destinationTypes.add(DestinationConfiguration.DESTINATION_TYPE_SERIAL);
+		_destinationTypes.add(
+			DestinationConfiguration.DESTINATION_TYPE_SYNCHRONOUS);
 	}
 
-	@Deactivate
-	protected void deactivate() {
-		_destinationPrototypes.clear();
-	}
-
-	private final ConcurrentMap<String, DestinationPrototype>
-		_destinationPrototypes = new ConcurrentHashMap<>();
+	private final Set<String> _destinationTypes = new HashSet<>();
 
 	@Reference
 	private PermissionCheckerFactory _permissionCheckerFactory;

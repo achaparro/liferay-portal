@@ -61,9 +61,7 @@ public class DeleteMBMessagesListener extends BaseMessageListener {
 
 	@Activate
 	@Modified
-	protected void activate(Map<String, Object> properties)
-		throws SchedulerException {
-
+	protected void activate(Map<String, Object> properties) {
 		String cronExpression = GetterUtil.getString(
 			properties.get("cron.expression"), _DEFAULT_CRON_EXPRESSION);
 
@@ -108,7 +106,7 @@ public class DeleteMBMessagesListener extends BaseMessageListener {
 		_initialized = false;
 	}
 
-	protected void deleteSpam(long companyId) throws PortalException {
+	protected void deleteSpam() throws PortalException {
 		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
 			MBMessage.class, PortalClassLoaderUtil.getClassLoader());
 
@@ -140,16 +138,7 @@ public class DeleteMBMessagesListener extends BaseMessageListener {
 
 	@Override
 	protected void doReceive(Message message) throws Exception {
-		long[] companyIds = _portal.getCompanyIds();
-
-		for (long companyId : companyIds) {
-			deleteSpam(companyId);
-		}
-	}
-
-	@Override
-	protected void doReceive(Message message, long companyId) throws Exception {
-		deleteSpam(companyId);
+		deleteSpam();
 	}
 
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")

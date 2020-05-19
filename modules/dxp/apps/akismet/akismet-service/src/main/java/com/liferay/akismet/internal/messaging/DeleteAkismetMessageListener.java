@@ -51,9 +51,7 @@ public class DeleteAkismetMessageListener extends BaseMessageListener {
 
 	@Activate
 	@Modified
-	protected void activate(Map<String, Object> properties)
-		throws SchedulerException {
-
+	protected void activate(Map<String, Object> properties) {
 		String cronExpression = GetterUtil.getString(
 			properties.get("cron.expression"), _DEFAULT_CRON_EXPRESSION);
 
@@ -98,23 +96,14 @@ public class DeleteAkismetMessageListener extends BaseMessageListener {
 		_initialized = false;
 	}
 
-	protected void deleteAkismetData(long companyId) {
+	protected void deleteAkismetData() {
 		_akismetEntryLocalService.deleteAkismetEntry(
-			AkismetServiceConfigurationUtil.getReportableTime(companyId));
+			AkismetServiceConfigurationUtil.getReportableTime());
 	}
 
 	@Override
-	protected void doReceive(Message message) throws Exception {
-		long[] companyIds = _portal.getCompanyIds();
-
-		for (long companyId : companyIds) {
-			deleteAkismetData(companyId);
-		}
-	}
-
-	@Override
-	protected void doReceive(Message message, long companyId) throws Exception {
-		deleteAkismetData(companyId);
+	protected void doReceive(Message message) {
+		deleteAkismetData();
 	}
 
 	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")

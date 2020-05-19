@@ -57,6 +57,19 @@ public class AkismetServiceConfigurationUtil {
 		return apiKey;
 	}
 
+	public static Date getReportableTime() {
+		int reportableTime =
+			_akismetServiceConfiguration.akismetReportableTime();
+
+		return new Date(
+			System.currentTimeMillis() - (reportableTime * Time.DAY));
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getReportableTime() }
+	 */
+	@Deprecated
 	public static Date getReportableTime(long companyId) {
 		int reportableTime =
 			_akismetServiceConfiguration.akismetReportableTime();

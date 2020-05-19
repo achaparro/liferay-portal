@@ -34,7 +34,7 @@ import java.util.Set;
  *
  * @author Michael C. Han
  */
-public class SerialDestination extends BaseAsyncDestination {
+public class SerialDestination extends BaseDestination {
 
 	public SerialDestination() {
 		setWorkersCoreSize(_WORKERS_CORE_SIZE);

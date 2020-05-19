@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
 /**
  * @author Shuyang Zhou
  */
-public class SynchronousDestination extends BaseAsyncDestination {
+public class SynchronousDestination extends BaseDestination {
 
 	@Override
 	protected void dispatch(

@@ -21,7 +21,6 @@ import com.liferay.petra.executor.PortalExecutorManager;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.BaseDestination;
 import com.liferay.portal.kernel.messaging.DestinationStatistics;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
@@ -43,7 +42,8 @@ import java.util.concurrent.TimeUnit;
  * @author Michael C. Han
  * @author Shuyang Zhou
  */
-public abstract class BaseAsyncDestination extends BaseDestination {
+public abstract class BaseDestination
+	extends com.liferay.portal.kernel.messaging.BaseDestination {
 
 	@Override
 	public void close(boolean force) {
@@ -251,7 +251,7 @@ public abstract class BaseAsyncDestination extends BaseDestination {
 	private static final int _WORKERS_MAX_SIZE = 5;
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		BaseAsyncDestination.class);
+		BaseDestination.class);
 
 	private int _maximumQueueSize = Integer.MAX_VALUE;
 	private NoticeableThreadPoolExecutor _noticeableThreadPoolExecutor;

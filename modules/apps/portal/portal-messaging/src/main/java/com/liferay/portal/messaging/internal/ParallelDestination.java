@@ -34,7 +34,7 @@ import java.util.Set;
  *
  * @author Michael C. Han
  */
-public class ParallelDestination extends BaseAsyncDestination {
+public class ParallelDestination extends BaseDestination {
 
 	@Override
 	protected void dispatch(

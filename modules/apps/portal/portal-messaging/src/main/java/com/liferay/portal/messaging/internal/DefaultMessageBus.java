@@ -520,13 +520,13 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 		}
 
 		if (destination instanceof BaseDestination) {
-			BaseDestination baseAsyncDestination = (BaseDestination)destination;
+			BaseDestination baseDestination = (BaseDestination)destination;
 
-			baseAsyncDestination.setMaximumQueueSize(
+			baseDestination.setMaximumQueueSize(
 				destinationWorkerConfiguration.maxQueueSize());
-			baseAsyncDestination.setWorkersCoreSize(
+			baseDestination.setWorkersCoreSize(
 				destinationWorkerConfiguration.workerCoreSize());
-			baseAsyncDestination.setWorkersMaxSize(
+			baseDestination.setWorkersMaxSize(
 				destinationWorkerConfiguration.workerMaxSize());
 		}
 	}

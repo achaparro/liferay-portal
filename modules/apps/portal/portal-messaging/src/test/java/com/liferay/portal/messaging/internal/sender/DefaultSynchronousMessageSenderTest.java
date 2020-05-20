@@ -14,6 +14,7 @@
 
 package com.liferay.portal.messaging.internal.sender;
 
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.petra.executor.PortalExecutorManager;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -28,6 +29,8 @@ import com.liferay.portal.messaging.internal.DefaultMessageBus;
 import com.liferay.portal.messaging.internal.SerialDestination;
 import com.liferay.portal.messaging.internal.SynchronousDestination;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.After;
@@ -46,14 +49,37 @@ public class DefaultSynchronousMessageSenderTest {
 	public void setUp() {
 		_messageBus = new DefaultMessageBus();
 
+		ReflectionTestUtil.setFieldValue(
+			_messageBus, "_serviceTrackerList",
+			new ServiceTrackerList() {
+
+				@Override
+				public void close() {
+				}
+
+				@Override
+				public Iterator iterator() {
+					return Collections.emptyIterator();
+				}
+
+				@Override
+				public int size() {
+					return 0;
+				}
+
+			});
+
 		_destinations = ReflectionTestUtil.getFieldValue(
 			_messageBus, "_destinations");
 
 		SynchronousDestination synchronousDestination =
 			new SynchronousDestination();
 
+		_portalExecutorManager = Mockito.mock(PortalExecutorManager.class);
+
 		synchronousDestination.setName(
 			DestinationNames.MESSAGE_BUS_DEFAULT_RESPONSE);
+		synchronousDestination.setPortalExecutorManager(_portalExecutorManager);
 
 		_destinations.put(
 			synchronousDestination.getName(), synchronousDestination);
@@ -71,8 +97,6 @@ public class DefaultSynchronousMessageSenderTest {
 			_defaultSynchronousMessageSender, "_messageBus", _messageBus);
 		ReflectionTestUtil.setFieldValue(
 			_defaultSynchronousMessageSender, "_timeout", 10000);
-
-		_portalExecutorManager = Mockito.mock(PortalExecutorManager.class);
 
 		synchronousDestination.open();
 	}
@@ -102,6 +126,7 @@ public class DefaultSynchronousMessageSenderTest {
 			new SynchronousDestination();
 
 		synchronousDestination.setName("testSynchronousDestination");
+		synchronousDestination.setPortalExecutorManager(_portalExecutorManager);
 
 		synchronousDestination.afterPropertiesSet();
 

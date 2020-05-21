@@ -24,7 +24,6 @@ import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.messaging.MessageListenerException;
 import com.liferay.portal.kernel.messaging.sender.SynchronousMessageSender;
 import com.liferay.portal.kernel.nio.intraband.messaging.IntrabandBridgeDestination;
-import com.liferay.portal.messaging.internal.SynchronousDestination;
 
 import java.util.Set;
 
@@ -53,9 +52,7 @@ public class DirectSynchronousMessageSender
 			return null;
 		}
 
-		if (destination instanceof IntrabandBridgeDestination ||
-			destination instanceof SynchronousDestination) {
-
+		if (destination instanceof IntrabandBridgeDestination) {
 			destination.send(message);
 		}
 		else {

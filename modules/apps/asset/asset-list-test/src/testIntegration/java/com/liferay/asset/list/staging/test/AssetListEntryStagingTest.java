@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUti
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.test.rule.Inject;
@@ -49,6 +50,7 @@ import org.junit.runner.RunWith;
  * @author Kyle Miho
  */
 @RunWith(Arquillian.class)
+@Sync(cleanTransaction = true)
 public class AssetListEntryStagingTest {
 
 	@ClassRule

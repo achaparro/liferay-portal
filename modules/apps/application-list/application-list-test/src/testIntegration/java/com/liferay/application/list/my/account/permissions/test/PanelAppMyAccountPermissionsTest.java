@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -63,6 +64,7 @@ import org.osgi.framework.ServiceRegistration;
  * @author Drew Brokke
  */
 @RunWith(Arquillian.class)
+@Sync(cleanTransaction = true)
 public class PanelAppMyAccountPermissionsTest {
 
 	@ClassRule

@@ -59,6 +59,7 @@ import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerB
 import com.liferay.portal.kernel.test.randomizerbumpers.UniqueStringRandomizerBumper;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -116,6 +117,7 @@ import org.junit.runner.RunWith;
  * @author Gergely Mathe
  */
 @RunWith(Arquillian.class)
+@Sync(cleanTransaction = true)
 public class DefaultExportImportContentProcessorTest {
 
 	@ClassRule

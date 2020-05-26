@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.test.rule;
 import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dependency.manager.DependencyManagerSyncUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -426,6 +427,8 @@ public class SynchronousDestinationTestRule
 						}
 
 					});
+
+				EntityCacheUtil.clearCache();
 			}
 			catch (Throwable t) {
 				throw new RuntimeException(t);

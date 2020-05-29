@@ -148,6 +148,10 @@
 		<priority value="FATAL" />
 	</category>
 
+	<category name="com.liferay.portal.db.partition.DBPartitionUtil">
+		<priority value="INFO" />
+	</category>
+
 	<category name="com.liferay.portal.deploy">
 		<priority value="INFO" />
 	</category>

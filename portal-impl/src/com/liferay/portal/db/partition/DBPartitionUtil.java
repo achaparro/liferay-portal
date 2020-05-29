@@ -23,6 +23,8 @@ import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -51,8 +53,12 @@ public class DBPartitionUtil {
 
 	public static boolean addDBPartition(long companyId)
 		throws PortalException {
+		_log.info("AddDBPartition: " + _DATABASE_PARTITION_ENABLED);
+
 
 		if (!_DATABASE_PARTITION_ENABLED || (companyId == _defaultCompanyId)) {
+			_log.info("AddDBPartition: return false");
+
 			return false;
 		}
 
@@ -62,6 +68,8 @@ public class DBPartitionUtil {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				"create schema if not exists " + _getSchemaName(companyId) +
 					" character set utf8")) {
+
+			_log.info("AddDBPartition: schema created " + _getSchemaName(companyId));
 
 			preparedStatement.executeUpdate();
 
@@ -78,6 +86,8 @@ public class DBPartitionUtil {
 					String tableName = resultSet.getString("TABLE_NAME");
 
 					if (_isControlTable(dbInspector, tableName)) {
+						_log.info("AddDBPartition: created view " + tableName);
+
 						statement.executeUpdate(
 							StringBundler.concat(
 								"create view ", _getSchemaName(companyId),
@@ -86,6 +96,8 @@ public class DBPartitionUtil {
 								tableName));
 					}
 					else {
+						_log.info("AddDBPartition: created table " + tableName);
+
 						statement.executeUpdate(
 							StringBundler.concat(
 								"create table ", _getSchemaName(companyId),
@@ -106,6 +118,8 @@ public class DBPartitionUtil {
 	}
 
 	public static boolean removeDBPartition(long companyId) {
+		_log.info("removeDBPartition: " + _DATABASE_PARTITION_ENABLED);
+
 		return _DATABASE_PARTITION_ENABLED;
 	}
 
@@ -118,7 +132,11 @@ public class DBPartitionUtil {
 	public static DataSource wrapDataSource(DataSource dataSource)
 		throws SQLException {
 
+		_log.info("wrapDataSource");
+
 		if (!_DATABASE_PARTITION_ENABLED) {
+			_log.info("wrapDataSource disable");
+
 			return dataSource;
 		}
 
@@ -175,6 +193,7 @@ public class DBPartitionUtil {
 		throws Exception {
 
 		if (_controlTableNames.contains(tableName) ||
+			tableName.startsWith("QUARTZ_") ||
 			!dbInspector.hasColumn(tableName, "companyId")) {
 
 			return true;
@@ -212,5 +231,8 @@ public class DBPartitionUtil {
 		Arrays.asList("Company", "Portlet", "VirtualHost"));
 	private static volatile long _defaultCompanyId;
 	private static String _defaultSchemaName;
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DBPartitionUtil.class);
 
 }

@@ -18,6 +18,8 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.db.partition.test.util.BaseDBPartitionTestCase;
 import com.liferay.portal.db.partition.test.util.DBPartitionTestUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.DestinationConfiguration;
@@ -57,6 +59,8 @@ public class DBPartitionMessageBusInterceptorTest
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
+		_log.info("setUpClass");
+
 		DBPartitionTestUtil.enableDBPartition();
 
 		_company = CompanyTestUtil.addCompany();
@@ -67,6 +71,8 @@ public class DBPartitionMessageBusInterceptorTest
 
 		for (Company company : companies) {
 			if (company.isActive()) {
+				_log.info("setUpClass company " + company.getCompanyId());
+
 				companyIds.add(company.getCompanyId());
 			}
 		}
@@ -97,17 +103,27 @@ public class DBPartitionMessageBusInterceptorTest
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
+		_log.info("tearDownClass");
+
 		Destination destination = _destinations.remove(_DESTINATION_NAME);
 
 		destination.destroy();
 
+		_log.info("tearDownClass end destination");
+
 		ReflectionTestUtil.setFieldValue(
 			DBPartitionUtil.class, "_DATABASE_PARTITION_ENABLED", false);
 
+		_log.info("tearDownClass _DATABASE_PARTITION_ENABLED false");
+
 		_companyLocalService.deleteCompany(_company);
+
+		_log.info("tearDownClass delete company");
 
 		ReflectionTestUtil.setFieldValue(
 			DBPartitionUtil.class, "_DATABASE_PARTITION_ENABLED", true);
+
+		_log.info("tearDownClass _DATABASE_PARTITION_ENABLED true");
 
 		DBPartitionTestUtil.disableDBPartition();
 
@@ -115,9 +131,13 @@ public class DBPartitionMessageBusInterceptorTest
 			_dbPartitionMessageBusInterceptor, "_databasePartitionEnabled",
 			_currentDatabasePartitionEnabled);
 
+		_log.info("tearDownClass disable");
+
 		getDB().runSQL(
 			"drop schema " +
 				DBPartitionTestUtil.getSchemaName(_company.getCompanyId()));
+
+		_log.info("tearDownClass schema removed");
 	}
 
 	@Before
@@ -132,11 +152,15 @@ public class DBPartitionMessageBusInterceptorTest
 
 		_currentCompanyId = CompanyThreadLocal.getCompanyId();
 
+		_log.info("setUp current companyId " + _currentCompanyId);
+
 		CompanyThreadLocal.setCompanyId(CompanyConstants.SYSTEM);
 	}
 
 	@After
 	public void tearDown() {
+		_log.info("teardown");
+
 		ReflectionTestUtil.setFieldValue(
 			_dbPartitionMessageBusInterceptor,
 			"_excludedMessageBusDestinationNames",
@@ -147,6 +171,8 @@ public class DBPartitionMessageBusInterceptorTest
 			_currentExcludedSchedulerJobNames);
 
 		CompanyThreadLocal.setCompanyId(_currentCompanyId);
+
+		_log.info("teardown end");
 	}
 
 	@Test
@@ -307,5 +333,8 @@ public class DBPartitionMessageBusInterceptorTest
 		private final Set<Long> _threadLocalCompanyIds = new TreeSet<>();
 
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DBPartitionMessageBusInterceptorTest.class);
 
 }

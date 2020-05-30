@@ -1250,6 +1250,8 @@ public class CTPreferencesPersistenceImpl
 					finderCache.removeResult(_finderPathFetchByC_U, finderArgs);
 				}
 
+				_log.error("Error during query: " + sql);
+
 				throw processException(exception);
 			}
 			finally {

@@ -213,9 +213,13 @@ public class DBPartitionUtil {
 			if ((companyId == CompanyConstants.SYSTEM) ||
 				(companyId == _defaultCompanyId)) {
 
+				_log.info("use " + _defaultSchemaName);
+
 				statement.execute("use " + _defaultSchemaName);
 			}
 			else {
+				_log.info("use " + _getSchemaName(companyId));
+
 				statement.execute("use " + _getSchemaName(companyId));
 			}
 		}

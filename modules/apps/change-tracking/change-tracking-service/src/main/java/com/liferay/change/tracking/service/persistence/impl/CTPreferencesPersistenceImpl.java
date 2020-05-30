@@ -1218,10 +1218,12 @@ public class CTPreferencesPersistenceImpl
 
 			Session session = null;
 
+			Query query = null;
+
 			try {
 				session = openSession();
 
-				Query query = session.createQuery(sql);
+				query = session.createQuery(sql);
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
@@ -1250,7 +1252,13 @@ public class CTPreferencesPersistenceImpl
 					finderCache.removeResult(_finderPathFetchByC_U, finderArgs);
 				}
 
-				_log.error("Error during query: " + sql);
+				_log.error(session.toString());
+
+				if (query != null) {
+					_log.error(query.toString());
+				}
+
+				_log.error("Error during query: " + sql + " with companyId " + companyId + " and userId " + userId);
 
 				throw processException(exception);
 			}

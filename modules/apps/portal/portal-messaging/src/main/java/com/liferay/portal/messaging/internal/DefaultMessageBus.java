@@ -14,6 +14,8 @@
 
 package com.liferay.portal.messaging.internal;
 
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
+import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -26,6 +28,7 @@ import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusEventListener;
 import com.liferay.portal.kernel.messaging.MessageBusInterceptor;
 import com.liferay.portal.kernel.messaging.MessageListener;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -213,12 +216,14 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 	public void sendMessage(String destinationName, Message message) {
 		MessageBusThreadLocalUtil.populateMessageFromThreadLocals(message);
 
-		MessageBusInterceptor messageBusInterceptor = _messageBusInterceptor;
+		for (MessageBusInterceptor messageBusInterceptor :
+				_serviceTrackerList) {
 
-		if ((messageBusInterceptor != null) &&
-			messageBusInterceptor.intercept(this, destinationName, message)) {
+			if (messageBusInterceptor.intercept(
+					this, destinationName, message)) {
 
-			return;
+				return;
+			}
 		}
 
 		Destination destination = _destinations.get(destinationName);
@@ -233,6 +238,31 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 		}
 
 		message.setDestinationName(destinationName);
+
+		Long companyId = (Long)message.get("companyId");
+
+		if (companyId == null) {
+			Long[] companyIds = (Long[])message.get("companyIds");
+
+			if (companyIds != null) {
+				long orignalCompanyId = CompanyThreadLocal.getCompanyId();
+
+				try {
+					for (Long id : companyIds) {
+						CompanyThreadLocal.setCompanyId(id);
+
+						message.put("companyId", id);
+
+						destination.send(message);
+					}
+				}
+				finally {
+					CompanyThreadLocal.setCompanyId(orignalCompanyId);
+				}
+
+				return;
+			}
+		}
 
 		destination.send(message);
 	}
@@ -365,11 +395,16 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 			});
 
 		_messageListenerServiceTracker.open();
+
+		_serviceTrackerList = ServiceTrackerListFactory.open(
+			bundleContext, MessageBusInterceptor.class);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		_messageListenerServiceTracker.close();
+
+		_serviceTrackerList.close();
 
 		shutdown(true);
 
@@ -579,18 +614,12 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 		new ConcurrentHashMap<>();
 	private final Set<MessageBusEventListener> _messageBusEventListeners =
 		Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-	@Reference(
-		cardinality = ReferenceCardinality.OPTIONAL,
-		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY
-	)
-	private volatile MessageBusInterceptor _messageBusInterceptor;
-
 	private ServiceTracker
 		<MessageListener, ObjectValuePair<String, MessageListener>>
 			_messageListenerServiceTracker;
 	private final Map<String, List<MessageListener>> _queuedMessageListeners =
 		new HashMap<>();
+	private ServiceTrackerList<MessageBusInterceptor, MessageBusInterceptor>
+		_serviceTrackerList;
 
 }

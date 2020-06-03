@@ -43,12 +43,17 @@ import java.io.Serializable;
 
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.hibernate.jdbc.Work;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -1249,6 +1254,30 @@ public class CTPreferencesPersistenceImpl
 				if (useFinderCache) {
 					finderCache.removeResult(_finderPathFetchByC_U, finderArgs);
 				}
+
+				_log.error("CompanyThreadLocal: " + CompanyThreadLocal.getCompanyId());
+
+				_log.error("Error during query: " + sql + " with companyId " + companyId + " and userId " + userId);
+
+				org.hibernate.Session hibernateSession = (org.hibernate.Session)session.getWrappedSession();
+
+				hibernateSession.doWork(new Work() {
+					@Override
+					public void execute(Connection connection) throws
+						SQLException {
+
+						_log.error("Session Schema: " + connection.getSchema());
+						_log.error("Session Catalog: " + connection.getCatalog());
+
+						try (Statement st = connection.createStatement();
+							 ResultSet rs = st.executeQuery("select database()")) {
+
+							if (rs.next()) {
+								_log.error("Select database: " + rs.getString(1));
+							}
+						}
+					}
+				});
 
 				throw processException(exception);
 			}

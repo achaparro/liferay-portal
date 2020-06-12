@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.key.CacheKeyGenerator;
 import com.liferay.portal.kernel.cache.key.CacheKeyGeneratorUtil;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
 
@@ -142,7 +143,7 @@ public class FinderPath {
 	}
 
 	public String getCacheName() {
-		return _cacheName;
+		return _cacheName + CompanyThreadLocal.getCompanyId();
 	}
 
 	public long getColumnBitmask() {

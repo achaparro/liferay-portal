@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.model.Portlet;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -54,34 +55,44 @@ public class UserPersonalSitePermissions {
 	public void initPermissions(List<Company> companies, Portlet portlet) {
 		String rootPortletId = portlet.getRootPortletId();
 
-		for (Company company : companies) {
-			long companyId = company.getCompanyId();
+		Long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
-			Role powerUserRole = getPowerUserRole(companyId);
+		try {
+			for (Company company : companies) {
+				long companyId = company.getCompanyId();
 
-			if (powerUserRole == null) {
-				continue;
+				CompanyThreadLocal.setCompanyId(companyId);
+
+				Role powerUserRole = getPowerUserRole(companyId);
+
+				if (powerUserRole == null) {
+					continue;
+				}
+
+				Group userPersonalSiteGroup = getUserPersonalSiteGroup(
+					companyId);
+
+				if (userPersonalSiteGroup == null) {
+					continue;
+				}
+
+				try {
+					initPermissions(
+						companyId, powerUserRole.getRoleId(), rootPortletId,
+						userPersonalSiteGroup.getGroupId());
+				}
+				catch (PortalException portalException) {
+					_log.error(
+						StringBundler.concat(
+							"Unable to initialize user personal site ",
+							"permissions for portlet ", portlet.getPortletId(),
+							" in company ", companyId),
+						portalException);
+				}
 			}
-
-			Group userPersonalSiteGroup = getUserPersonalSiteGroup(companyId);
-
-			if (userPersonalSiteGroup == null) {
-				continue;
-			}
-
-			try {
-				initPermissions(
-					companyId, powerUserRole.getRoleId(), rootPortletId,
-					userPersonalSiteGroup.getGroupId());
-			}
-			catch (PortalException portalException) {
-				_log.error(
-					StringBundler.concat(
-						"Unable to initialize user personal site permissions ",
-						"for portlet ", portlet.getPortletId(), " in company ",
-						companyId),
-					portalException);
-			}
+		}
+		finally {
+			CompanyThreadLocal.setCompanyId(currentCompanyId);
 		}
 	}
 

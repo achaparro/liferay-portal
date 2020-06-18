@@ -16,6 +16,7 @@ package com.liferay.site.teams.web.internal.exportimport.data.handler;
 
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -70,6 +71,10 @@ public class TeamStagedModelDataHandler
 	public void doExportStagedModel(
 			PortletDataContext portletDataContext, Team team)
 		throws Exception {
+
+		if (ExportImportThreadLocal.isStagingInProcess()) {
+			return;
+		}
 
 		Element teamElement = portletDataContext.getExportDataElement(team);
 

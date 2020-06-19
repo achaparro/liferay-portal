@@ -445,7 +445,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 		}
 
 		long[] roleIds = PermissionCacheUtil.getUserGroupRoleIds(
-			userId, groupId);
+			userId, GetterUtil.getLong(GroupThreadLocal.getGroupId(), groupId));
 
 		if (roleIds != null) {
 			return roleIds;
@@ -568,12 +568,17 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 			Arrays.sort(roleIds);
 
-			PermissionCacheUtil.putUserGroupRoleIds(userId, groupId, roleIds);
+			PermissionCacheUtil.putUserGroupRoleIds(
+				userId,
+				GetterUtil.getLong(GroupThreadLocal.getGroupId(), groupId),
+				roleIds);
 
 			return roleIds;
 		}
 		catch (Exception exception) {
-			PermissionCacheUtil.removeUserGroupRoleIds(userId, groupId);
+			PermissionCacheUtil.removeUserGroupRoleIds(
+				userId,
+				GetterUtil.getLong(GroupThreadLocal.getGroupId(), groupId));
 
 			throw exception;
 		}

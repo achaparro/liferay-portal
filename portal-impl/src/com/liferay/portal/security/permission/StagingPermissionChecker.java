@@ -105,6 +105,10 @@ public class StagingPermissionChecker implements PermissionChecker {
 	public boolean hasPermission(
 		Group group, String name, long primKey, String actionId) {
 
+		if (_isStagingFolder(name, actionId)) {
+			return true;
+		}
+
 		Group liveGroup = StagingUtil.getLiveGroup(group);
 
 		if ((liveGroup != group) && (primKey == group.getGroupId())) {
@@ -118,10 +122,6 @@ public class StagingPermissionChecker implements PermissionChecker {
 		}
 
 		try {
-			if (_isStagingFolder(name, actionId)) {
-				return true;
-			}
-
 			return _permissionChecker.hasPermission(
 				liveGroup, name, primKey, actionId);
 		}

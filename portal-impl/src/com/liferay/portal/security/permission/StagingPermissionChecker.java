@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.UserBag;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.util.GroupThreadLocal;
 
 import java.util.Map;
 import java.util.Objects;
@@ -110,12 +111,23 @@ public class StagingPermissionChecker implements PermissionChecker {
 			primKey = liveGroup.getGroupId();
 		}
 
-		if (_isStagingFolder(name, actionId)) {
-			return true;
+		long previousGroupId = GroupThreadLocal.getGroupId();
+
+		if (group != null) {
+			GroupThreadLocal.setGroupId(group.getGroupId());
 		}
 
-		return _permissionChecker.hasPermission(
-			liveGroup, name, primKey, actionId);
+		try {
+			if (_isStagingFolder(name, actionId)) {
+				return true;
+			}
+
+			return _permissionChecker.hasPermission(
+				liveGroup, name, primKey, actionId);
+		}
+		finally {
+			GroupThreadLocal.setGroupId(previousGroupId);
+		}
 	}
 
 	@Override

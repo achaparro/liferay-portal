@@ -72,6 +72,10 @@ public class TeamStagedModelDataHandler
 			PortletDataContext portletDataContext, Team team)
 		throws Exception {
 
+		if (ExportImportThreadLocal.isStagingInProcess()) {
+			return;
+		}
+
 		Element teamElement = portletDataContext.getExportDataElement(team);
 
 		List<User> teamUsers = _userLocalService.getTeamUsers(team.getTeamId());

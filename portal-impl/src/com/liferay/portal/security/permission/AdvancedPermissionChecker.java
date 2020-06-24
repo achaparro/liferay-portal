@@ -14,6 +14,7 @@
 
 package com.liferay.portal.security.permission;
 
+import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
@@ -56,7 +57,6 @@ import com.liferay.portal.kernel.service.permission.LayoutSetPrototypePermission
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.GroupThreadLocal;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -445,7 +445,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 		}
 
 		long[] roleIds = PermissionCacheUtil.getUserGroupRoleIds(
-			userId, GetterUtil.getLong(GroupThreadLocal.getGroupId(), groupId));
+			userId, groupId);
 
 		if (roleIds != null) {
 			return roleIds;
@@ -456,8 +456,10 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 			long parentGroupId = 0;
 
+			long liveGroupId = StagingUtil.getLiveGroupId(groupId);
+
 			if (groupId > 0) {
-				group = GroupLocalServiceUtil.getGroup(groupId);
+				group = GroupLocalServiceUtil.getGroup(liveGroupId);
 
 				if (group.isLayout()) {
 					parentGroupId = group.getParentGroupId();
@@ -474,7 +476,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 			List<UserGroupRole> userGroupRoles =
 				UserGroupRoleLocalServiceUtil.getUserGroupRoles(
-					userId, groupId);
+					userId, liveGroupId);
 
 			for (UserGroupRole userGroupRole : userGroupRoles) {
 				roleIdsSet.add(userGroupRole.getRoleId());
@@ -495,7 +497,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 			if (userUserGroupsIds.length > 0) {
 				List<UserGroupGroupRole> userGroupGroupRoles =
 					UserGroupGroupRoleLocalServiceUtil.
-						getUserGroupGroupRolesByUser(userId, groupId);
+						getUserGroupGroupRolesByUser(userId, liveGroupId);
 
 				for (UserGroupGroupRole userGroupGroupRole :
 						userGroupGroupRoles) {
@@ -550,11 +552,7 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 					 userBag.hasUserOrgGroup(group)) ||
 					(group.isSite() && userBag.hasUserGroup(group))) {
 
-					addTeamRoles(
-						userId,
-						GetterUtil.getLong(
-							GroupThreadLocal.getGroupId(), groupId),
-						roleIdsSet);
+					addTeamRoles(userId, groupId, roleIdsSet);
 				}
 			}
 
@@ -568,17 +566,12 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 			Arrays.sort(roleIds);
 
-			PermissionCacheUtil.putUserGroupRoleIds(
-				userId,
-				GetterUtil.getLong(GroupThreadLocal.getGroupId(), groupId),
-				roleIds);
+			PermissionCacheUtil.putUserGroupRoleIds(userId, groupId, roleIds);
 
 			return roleIds;
 		}
 		catch (Exception exception) {
-			PermissionCacheUtil.removeUserGroupRoleIds(
-				userId,
-				GetterUtil.getLong(GroupThreadLocal.getGroupId(), groupId));
+			PermissionCacheUtil.removeUserGroupRoleIds(userId, groupId);
 
 			throw exception;
 		}

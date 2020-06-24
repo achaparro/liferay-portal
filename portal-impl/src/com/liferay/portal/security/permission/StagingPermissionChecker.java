@@ -148,8 +148,17 @@ public class StagingPermissionChecker implements PermissionChecker {
 			return true;
 		}
 
-		return _permissionChecker.hasPermission(
-			liveGroup, name, primKey, actionId);
+		if (group != null) {
+			StagingPermissionChecker.setGroupId(group.getGroupId());
+		}
+
+		try {
+			return _permissionChecker.hasPermission(
+				liveGroup, name, primKey, actionId);
+		}
+		finally {
+			StagingPermissionChecker.removeGroupId();
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

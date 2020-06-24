@@ -393,8 +393,10 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 		}
 	}
 
-	protected void addTeamRoles(long userId, Group group, Set<Long> roleIds)
-		throws Exception {
+	protected void addTeamRoles(long userId, Group group, Set<Long> roleIds) {
+		if (group.hasStagingGroup()) {
+			group = group.getStagingGroup();
+		}
 
 		int count = TeamLocalServiceUtil.getGroupTeamsCount(group.getGroupId());
 

@@ -92,11 +92,25 @@ public class ArchivedModulesUpgradeTest {
 	}
 
 	@Test
+	public void testDeprecatedModulesUpgradeDictionary() throws Exception {
+		_testDeprecatedModulesUpgrade(
+			"removeDictionaryModuleData", "com.liferay.dictionary.web",
+			null, "com_liferay_dictionary_web_portlet_DictionaryPortlet");
+	}
+
+	@Test
 	public void testDeprecatedModulesUpgradeMailReader() throws Exception {
 		_testDeprecatedModulesUpgrade(
 			"removeMailReaderModuleData", "com.liferay.mail.reader.service",
 			"dependencies/mail-reader-tables.sql",
 			"com_liferay_mail_reader_web_portlet_MailPortlet");
+	}
+
+	@Test
+	public void testDeprecatedModulesUpgradePortalDirectory() throws Exception {
+		_testDeprecatedModulesUpgrade(
+			"removePortalDirectoryModuleData", "com.liferay.directory.web",
+			null, "com_liferay_directory_web_portlet_DirectoryPortlet");
 	}
 
 	@Test

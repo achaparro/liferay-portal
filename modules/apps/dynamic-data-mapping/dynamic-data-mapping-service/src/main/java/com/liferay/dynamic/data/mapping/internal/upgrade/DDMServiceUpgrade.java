@@ -230,6 +230,8 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register("2.0.7", "2.0.8", new DummyUpgradeStep());
 
+		registry.register("2.0.8", "2.0.9", new DummyUpgradeStep());
+
 		registry.register(
 			"2.0.8", "3.0.0",
 			new BaseUpgradeSQLServerDatetime(
@@ -286,6 +288,11 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"3.2.3", "3.2.4", new UpgradeDDMContent(_jsonFactory));
+
+		registry.register(
+			"3.2.4", "3.2.5",
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v3_2_5.
+				UpgradeSchema());
 
 		registry.register(
 			"3.2.4", "3.3.0",

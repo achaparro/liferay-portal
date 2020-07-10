@@ -12,6 +12,8 @@ definition {
 
 		var JSON = JSONCurlUtil.get("${curl}");
 
+		echo("${JSON}");
+
 		return "${JSON}";
 	}
 
@@ -43,7 +45,9 @@ definition {
 			-H Content-Type: application/json
 		''';
 
-		JSONCurlUtil.post("${curl}");
+		var JSON = JSONCurlUtil.post("${curl}");
+
+		echo("${JSON}");
 	}
 
 	@summary = "Clean up all Portal Instances that are not the default using Headless"
@@ -59,6 +63,8 @@ definition {
 		for (var portalInstanceId : list "${portalInstanceIds}") {
 			if ("${portalInstanceId}" != "liferay.com") {
 				HeadlessPortalInstanceAPI.deletePortalInstance(portalInstanceId = "${portalInstanceId}");
+
+				echo("Deleting: ${portalInstanceId}");
 			}
 		}
 	}

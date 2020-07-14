@@ -18,9 +18,11 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.search.IndexStatusManagerThreadLocal;
 import com.liferay.portal.search.configuration.IndexStatusManagerConfiguration;
 import com.liferay.portal.search.index.IndexStatusManager;
+import com.liferay.portal.util.PropsValues;
 
 import java.util.Collections;
 import java.util.Map;
@@ -30,6 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Michael C. Han
@@ -49,7 +54,9 @@ public class IndexStatusManagerImpl implements IndexStatusManager {
 			return false;
 		}
 
-		if (IndexStatusManagerThreadLocal.isIndexReadOnly() || _indexReadOnly) {
+		if (IndexStatusManagerThreadLocal.isIndexReadOnly() || _indexReadOnly ||
+			isUpgradeInProgress()) {
+
 			return true;
 		}
 
@@ -139,6 +146,16 @@ public class IndexStatusManagerImpl implements IndexStatusManager {
 			indexStatusManagerInternalConfiguration.suppressIndexReadOnly();
 	}
 
+	protected boolean isUpgradeInProgress() {
+		if ((_moduleServiceLifecycle == null) &&
+			PropsValues.UPGRADE_DATABASE_AUTO_RUN) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		IndexStatusManagerImpl.class);
 
@@ -146,6 +163,14 @@ public class IndexStatusManagerImpl implements IndexStatusManager {
 	private Throwable _indexReadOnlyCallStackThrowable;
 	private final Set<String> _indexReadOnlyModels = Collections.newSetFromMap(
 		new ConcurrentHashMap<>());
+
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policyOption = ReferencePolicyOption.GREEDY,
+		target = ModuleServiceLifecycle.PORTLETS_INITIALIZED
+	)
+	private ModuleServiceLifecycle _moduleServiceLifecycle;
+
 	private boolean _readWriteRequired;
 	private Throwable _requireIndexReadWriteCallStackThrowable;
 	private boolean _suppressIndexReadOnly;

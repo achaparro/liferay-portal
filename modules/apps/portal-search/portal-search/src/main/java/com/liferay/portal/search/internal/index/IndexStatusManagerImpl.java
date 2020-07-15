@@ -19,6 +19,7 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.IndexStatusManagerThreadLocal;
+import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.search.configuration.IndexStatusManagerConfiguration;
 import com.liferay.portal.search.index.IndexStatusManager;
 
@@ -49,7 +50,9 @@ public class IndexStatusManagerImpl implements IndexStatusManager {
 			return false;
 		}
 
-		if (IndexStatusManagerThreadLocal.isIndexReadOnly() || _indexReadOnly) {
+		if (IndexStatusManagerThreadLocal.isIndexReadOnly() || _indexReadOnly ||
+			UpgradeProcessUtil.isUpgradeInProgress()) {
+
 			return true;
 		}
 

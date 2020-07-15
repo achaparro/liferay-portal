@@ -109,10 +109,18 @@ public class UpgradeProcessUtil {
 		return _createIGImageDocumentType;
 	}
 
+	public static boolean isUpgradeInProgress() {
+		return _upgradeInProgress;
+	}
+
 	public static void setCreateIGImageDocumentType(
 		boolean createIGImageDocumentType) {
 
 		_createIGImageDocumentType = createIGImageDocumentType;
+	}
+
+	public static void setUpgradeInProgress(boolean upgradeInProgress) {
+		_upgradeInProgress = upgradeInProgress;
 	}
 
 	public static boolean upgradeProcess(
@@ -198,5 +206,6 @@ public class UpgradeProcessUtil {
 
 	private static boolean _createIGImageDocumentType;
 	private static final Map<Long, String> _languageIds = new HashMap<>();
+	private static boolean _upgradeInProgress;
 
 }

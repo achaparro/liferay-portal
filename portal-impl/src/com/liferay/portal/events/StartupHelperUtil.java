@@ -74,12 +74,20 @@ public class StartupHelperUtil {
 		return _dbNew;
 	}
 
+	public static boolean isPortalUpgrading() {
+		return _portalUpgrading;
+	}
+
 	public static boolean isStartupFinished() {
 		return _startupFinished;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #isPortalUpgrading()}
+	 */
+	@Deprecated
 	public static boolean isUpgraded() {
-		return _upgraded;
+		return !_portalUpgrading;
 	}
 
 	public static boolean isUpgrading() {
@@ -115,6 +123,10 @@ public class StartupHelperUtil {
 
 	public static void setDropIndexes(boolean dropIndexes) {
 		_dropIndexes = dropIndexes;
+	}
+
+	public static void setPortalUpgrading(boolean portalUpgrading) {
+		_portalUpgrading = portalUpgrading;
 	}
 
 	public static void setStartupFinished(boolean startupFinished) {
@@ -172,8 +184,7 @@ public class StartupHelperUtil {
 					PortalClassLoaderUtil.getClassLoader(),
 					_UPGRADE_PROCESS_CLASS_NAMES);
 
-			_upgraded = UpgradeProcessUtil.upgradeProcess(
-				buildNumber, upgradeProcesses);
+			_UpgradeProcessUtil.upgradeProcess(buildNumber, upgradeProcesses);
 		}
 		finally {
 			_upgrading = false;
@@ -246,8 +257,8 @@ public class StartupHelperUtil {
 
 	private static boolean _dbNew;
 	private static boolean _dropIndexes;
+	private static boolean _portalUpgrading;
 	private static boolean _startupFinished;
-	private static boolean _upgraded;
 	private static boolean _upgrading;
 
 }

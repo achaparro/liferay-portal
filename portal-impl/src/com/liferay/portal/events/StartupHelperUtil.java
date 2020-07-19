@@ -133,6 +133,10 @@ public class StartupHelperUtil {
 		_startupFinished = startupFinished;
 	}
 
+	public static void setUpgrading(boolean upgrading) {
+		_upgrading = upgrading;
+	}
+
 	public static void updateIndexes() {
 		updateIndexes(_dropIndexes);
 	}
@@ -176,19 +180,12 @@ public class StartupHelperUtil {
 	}
 
 	public static void upgradeProcess(int buildNumber) throws UpgradeException {
-		_upgrading = true;
+		List<UpgradeProcess> upgradeProcesses =
+			UpgradeProcessUtil.initUpgradeProcesses(
+				PortalClassLoaderUtil.getClassLoader(),
+				_UPGRADE_PROCESS_CLASS_NAMES);
 
-		try {
-			List<UpgradeProcess> upgradeProcesses =
-				UpgradeProcessUtil.initUpgradeProcesses(
-					PortalClassLoaderUtil.getClassLoader(),
-					_UPGRADE_PROCESS_CLASS_NAMES);
-
-			_UpgradeProcessUtil.upgradeProcess(buildNumber, upgradeProcesses);
-		}
-		finally {
-			_upgrading = false;
-		}
+		UpgradeProcessUtil.upgradeProcess(buildNumber, upgradeProcesses);
 	}
 
 	/**

@@ -221,6 +221,17 @@ public class DBUpgrader {
 			_updateCompanyKey();
 		}
 
+		// Clear the caches only if the upgrade process was run
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Clear cache if upgrade process was run");
+		}
+
+		if (StartupHelperUtil.isUpgraded()) {
+			PortalCacheHelperUtil.clearPortalCaches(
+				PortalCacheManagerNames.MULTI_VM);
+		}
+
 		// Enable database caching after upgrade
 
 		CacheRegistryUtil.setActive(true);
@@ -242,17 +253,6 @@ public class DBUpgrader {
 		InitUtil.registerContext();
 
 		_registerModuleServiceLifecycle("portal.initialized");
-
-		// Clear the caches only if the upgrade process was run
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Clear cache if upgrade process was run");
-		}
-
-		if (StartupHelperUtil.isUpgraded()) {
-			PortalCacheHelperUtil.clearPortalCaches(
-				PortalCacheManagerNames.MULTI_VM);
-		}
 	}
 
 	public static void verify() throws VerifyException {

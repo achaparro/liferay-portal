@@ -127,20 +127,6 @@ public class DBUpgrader {
 
 			upgrade();
 
-			_checkClassNamesAndResourceActions();
-
-			verify();
-
-			DependencyManagerSyncUtil.sync();
-
-			DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
-
-			_registerModuleServiceLifecycle("database.initialized");
-
-			InitUtil.registerContext();
-
-			_registerModuleServiceLifecycle("portal.initialized");
-
 			_registerModuleServiceLifecycle("portlets.initialized");
 
 			System.out.println(
@@ -235,6 +221,28 @@ public class DBUpgrader {
 			_updateCompanyKey();
 		}
 
+		// Enable database caching after upgrade
+
+		CacheRegistryUtil.setActive(true);
+
+		// Register release service
+
+		_registerReleaseService();
+
+		_checkClassNamesAndResourceActions();
+
+		verify();
+
+		DependencyManagerSyncUtil.sync();
+
+		DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
+
+		_registerModuleServiceLifecycle("database.initialized");
+
+		InitUtil.registerContext();
+
+		_registerModuleServiceLifecycle("portal.initialized");
+
 		// Clear the caches only if the upgrade process was run
 
 		if (_log.isDebugEnabled()) {
@@ -245,14 +253,6 @@ public class DBUpgrader {
 			PortalCacheHelperUtil.clearPortalCaches(
 				PortalCacheManagerNames.MULTI_VM);
 		}
-
-		// Enable database caching after upgrade
-
-		CacheRegistryUtil.setActive(true);
-
-		// Register release service
-
-		_registerReleaseService();
 	}
 
 	public static void verify() throws VerifyException {

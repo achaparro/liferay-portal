@@ -58,6 +58,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.InactiveRequestHandler;
 import com.liferay.portal.kernel.servlet.PortalSessionThreadLocal;
 import com.liferay.portal.kernel.template.TemplateManager;
+import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -1301,6 +1302,8 @@ public class MainServlet extends HttpServlet {
 				new ModuleServiceLifecycle() {
 				},
 				properties);
+
+		UpgradeProcessUtil.setUpgradeInProgress(false);
 
 		properties = HashMapBuilder.<String, Object>put(
 			"bean.id", ServletContext.class.getName()

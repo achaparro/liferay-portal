@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
 import com.liferay.portal.kernel.service.ReleaseLocalServiceUtil;
 import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
+import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.Time;
@@ -159,12 +160,7 @@ public class DBUpgrader {
 	}
 
 	public static void upgrade() throws Exception {
-
-		// Disable database caching before upgrade
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("Disable cache registry");
-		}
+		UpgradeProcessUtil.setUpgradeInProgress(true);
 
 		// Check required build number
 
@@ -174,6 +170,12 @@ public class DBUpgrader {
 			if (PortalUpgradeProcess.isInLatestSchemaVersion(connection)) {
 				return;
 			}
+		}
+
+		// Disable database caching before upgrade
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Disable cache registry");
 		}
 
 		CacheRegistryUtil.setActive(false);

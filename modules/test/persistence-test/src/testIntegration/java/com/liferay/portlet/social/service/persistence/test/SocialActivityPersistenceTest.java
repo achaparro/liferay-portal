@@ -240,13 +240,6 @@ public class SocialActivityPersistenceTest {
 	}
 
 	@Test
-	public void testCountByClassNameId() throws Exception {
-		_persistence.countByClassNameId(RandomTestUtil.nextLong());
-
-		_persistence.countByClassNameId(0L);
-	}
-
-	@Test
 	public void testCountByReceiverUserId() throws Exception {
 		_persistence.countByReceiverUserId(RandomTestUtil.nextLong());
 

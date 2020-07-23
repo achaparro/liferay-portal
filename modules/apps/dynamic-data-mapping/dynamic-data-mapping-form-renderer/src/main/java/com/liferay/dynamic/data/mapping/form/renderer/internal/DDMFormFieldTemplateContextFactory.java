@@ -883,7 +883,12 @@ public class DDMFormFieldTemplateContextFactory {
 		DDMFormField ddmFormField,
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
-		if (Validator.isNotNull(ddmFormField.getProperty("ddmStructureId"))) {
+		Map<String, Object> properties =
+			ddmFormFieldRenderingContext.getProperties();
+
+		if (Validator.isNotNull(ddmFormField.getProperty("ddmStructureId")) &&
+			!properties.containsKey("nestedFields")) {
+
 			long ddmStructureLayoutId = GetterUtil.getLong(
 				ddmFormField.getProperty("ddmStructureLayoutId"));
 

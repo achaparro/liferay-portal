@@ -1390,6 +1390,9 @@ public class DataDefinitionResourceImpl
 			DDMForm ddmForm)
 		throws Exception {
 
+		DDMStructure ddmStructure = _ddmStructureLocalService.getDDMStructure(
+			dataDefinitionId);
+
 		DDMFormSerializerSerializeRequest.Builder builder =
 			DDMFormSerializerSerializeRequest.Builder.newBuilder(ddmForm);
 
@@ -1400,7 +1403,9 @@ public class DataDefinitionResourceImpl
 			_dataDefinitionContentTypeTracker, _ddmFormFieldTypeServicesTracker,
 			_ddmStructureLocalService.updateStructure(
 				PrincipalThreadLocal.getUserId(), dataDefinitionId,
-				DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
+				GetterUtil.getLong(
+					ddmStructure.getParentStructureId(),
+					DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID),
 				LocalizedValueUtil.toLocaleStringMap(dataDefinition.getName()),
 				LocalizedValueUtil.toLocaleStringMap(
 					dataDefinition.getDescription()),

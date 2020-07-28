@@ -54,10 +54,6 @@ public class VerifyProcessUtil {
 	private static boolean _verifyProcess() throws VerifyException {
 		boolean ranVerifyProcess = false;
 
-		boolean tempIndexReadOnly = IndexWriterHelperUtil.isIndexReadOnly();
-
-		IndexWriterHelperUtil.setIndexReadOnly(true);
-
 		NotificationThreadLocal.setEnabled(false);
 		StagingAdvicesThreadLocal.setEnabled(false);
 		VerifyThreadLocal.setVerifyInProgress(true);
@@ -77,7 +73,6 @@ public class VerifyProcessUtil {
 			}
 		}
 		finally {
-			IndexWriterHelperUtil.setIndexReadOnly(tempIndexReadOnly);
 			NotificationThreadLocal.setEnabled(true);
 			StagingAdvicesThreadLocal.setEnabled(true);
 			VerifyThreadLocal.setVerifyInProgress(false);

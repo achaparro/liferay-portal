@@ -68,7 +68,9 @@ import org.springframework.context.ApplicationContext;
 public class DBUpgrader {
 
 	public static void checkReleaseState() throws Exception {
-		if (_getReleaseColumn("state_") == ReleaseConstants.STATE_GOOD) {
+		int state = (int)_getReleaseColumn("state_");
+
+		if (state == ReleaseConstants.STATE_GOOD) {
 			return;
 		}
 
@@ -87,7 +89,7 @@ public class DBUpgrader {
 	public static void checkRequiredBuildNumber(int requiredBuildNumber)
 		throws Exception {
 
-		int buildNumber = _getReleaseColumn("buildNumber");
+		int buildNumber = (int)_getReleaseColumn("buildNumber");
 
 		if (buildNumber > ReleaseInfo.getParentBuildNumber()) {
 			StringBundler sb = new StringBundler(6);
@@ -209,7 +211,9 @@ public class DBUpgrader {
 		return buildNumber;
 	}
 
-	private static int _getReleaseColumn(String columnName) throws Exception {
+	private static Object _getReleaseColumn(String columnName)
+		throws Exception {
+
 		try (Connection con = DataAccess.getConnection();
 			PreparedStatement ps = con.prepareStatement(
 				"select " + columnName +
@@ -219,7 +223,7 @@ public class DBUpgrader {
 
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					return rs.getInt(columnName);
+					return rs.getObject(columnName);
 				}
 			}
 

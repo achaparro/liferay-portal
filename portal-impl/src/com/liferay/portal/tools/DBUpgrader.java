@@ -350,10 +350,7 @@ public class DBUpgrader {
 
 		// Upgrade
 
-		Release release = ReleaseLocalServiceUtil.getRelease(
-			ReleaseConstants.DEFAULT_ID);
-
-		int buildNumber = release.getBuildNumber();
+		int buildNumber = _getReleaseBuildNumber();
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Update build " + buildNumber);

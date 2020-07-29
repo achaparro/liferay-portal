@@ -25,7 +25,6 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.dependency.manager.DependencyManagerSyncUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Release;
@@ -86,12 +85,9 @@ public class DBUpgrader {
 	}
 
 	public static void checkRequiredBuildNumber(int requiredBuildNumber)
-		throws PortalException {
+		throws Exception {
 
-		Release release = ReleaseLocalServiceUtil.getRelease(
-			ReleaseConstants.DEFAULT_ID);
-
-		int buildNumber = release.getBuildNumber();
+		int buildNumber = _getReleaseBuildNumber();
 
 		if (buildNumber > ReleaseInfo.getParentBuildNumber()) {
 			StringBundler sb = new StringBundler(6);
@@ -213,16 +209,16 @@ public class DBUpgrader {
 		return buildNumber;
 	}
 
-	private static int _getReleaseState() throws Exception {
+	private static ResultSet _getRelease() throws Exception {
 		try (Connection con = DataAccess.getConnection();
 			PreparedStatement ps = con.prepareStatement(
-				"select state_ from Release_ where releaseId = ?")) {
+				"select * from Release_ where releaseId = ?")) {
 
 			ps.setLong(1, ReleaseConstants.DEFAULT_ID);
 
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					return rs.getInt("state_");
+					return rs;
 				}
 			}
 
@@ -230,6 +226,14 @@ public class DBUpgrader {
 				"No Release exists with the primary key " +
 					ReleaseConstants.DEFAULT_ID);
 		}
+	}
+
+	private static int _getReleaseBuildNumber() throws Exception {
+		return _getRelease().getInt("buildNumber");
+	}
+
+	private static int _getReleaseState() throws Exception {
+		return _getRelease().getInt("state_");
 	}
 
 	private static void _registerModuleServiceLifecycle(

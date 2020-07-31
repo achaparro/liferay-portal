@@ -22,6 +22,7 @@ import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.db.partition.DBPartitionUtil;
+import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.Property;
@@ -104,6 +105,10 @@ import java.io.InputStream;
 
 import java.net.IDN;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1295,7 +1300,28 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		VirtualHost companyVirtualHost =
 			virtualHostLocalService.fetchVirtualHost(companyId, 0);
 
+		_log.debug("Current virtual host id/companyId/VirtualHostName: " +
+				   companyVirtualHost.getVirtualHostId() + " " +
+				   companyVirtualHost.getCompanyId() + " " +
+				   companyVirtualHost.getHostname());
+
 		virtualHostLocalService.deleteVirtualHost(companyVirtualHost);
+
+		try {
+			VirtualHost virtualHost = virtualHostPersistence.findByHostname(
+				company.getVirtualHostname());
+
+			_log.error("KO: Virtual host name exist after removal " +
+					   virtualHost.getHostname() + " " +
+					   virtualHost.getCompanyId() + " " +
+					   virtualHost.getVirtualHostId());
+		}
+		catch (NoSuchVirtualHostException noSuchVirtualHostException) {
+			_log.debug("OK: Not virtual host name exist after deletion "
+					   + companyId + " " + company.getVirtualHostname());
+		}
+
+
 
 		// System event
 
@@ -1507,6 +1533,28 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 				VirtualHost virtualHost = virtualHostPersistence.findByHostname(
 					virtualHostname);
 
+				_log.debug("KO: validate virtual host id/companyId/VirtualHostName: " +
+						   virtualHost.getVirtualHostId() + " " +
+						   virtualHost.getCompanyId() + " " +
+						   virtualHost.getHostname());
+
+				try (Connection con = DataAccess.getConnection()) {
+					try (PreparedStatement ps = con.prepareStatement(
+						"select count(*) from VirtualHost where hostname = ?")) {
+
+						ps.setString(1, virtualHostname);
+
+						try (ResultSet rs = ps.executeQuery()) {
+							if (rs.next()) {
+								_log.debug("The record exists in the database");
+							}
+						}
+					}
+				}
+				catch (SQLException e) {
+					_log.error(e);
+				}
+
 				Company virtualHostnameCompany =
 					companyPersistence.findByPrimaryKey(
 						virtualHost.getCompanyId());
@@ -1521,8 +1569,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 				// LPS-52675
 
 				if (_log.isDebugEnabled()) {
-					_log.debug(
-						noSuchVirtualHostException, noSuchVirtualHostException);
+					_log.debug("OK: virtual host does not exist on validation");
 				}
 			}
 		}

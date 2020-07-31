@@ -512,6 +512,10 @@
 		<priority value="ERROR" />
 	</category>
 
+	<category name="com.liferay.portal.service.impl.CompanyLocalServiceImpl">
+		<priority value="DEBUG" />
+	</category>
+
 	<category name="com.liferay.portal.service.impl.LayoutLocalServiceImpl">
 		<priority value="ERROR" />
 	</category>

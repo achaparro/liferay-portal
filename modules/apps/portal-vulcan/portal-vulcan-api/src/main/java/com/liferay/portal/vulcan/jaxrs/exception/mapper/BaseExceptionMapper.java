@@ -14,6 +14,9 @@
 
 package com.liferay.portal.vulcan.jaxrs.exception.mapper;
 
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+
 import java.util.List;
 
 import javax.ws.rs.core.Context;
@@ -33,6 +36,8 @@ public abstract class BaseExceptionMapper<T extends Throwable>
 
 	@Override
 	public Response toResponse(T exception) {
+		_log.error(exception);
+
 		Problem problem = getProblem(exception);
 
 		return Response.status(
@@ -62,5 +67,8 @@ public abstract class BaseExceptionMapper<T extends Throwable>
 
 	@Context
 	protected HttpHeaders httpHeaders;
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		BaseExceptionMapper.class);
 
 }

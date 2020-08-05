@@ -60,7 +60,7 @@ public interface ReleaseLocalService
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.portal.service.impl.ReleaseLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the release local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ReleaseLocalServiceUtil} if injection and service tracking are not available.
+	 * Never modify or reference this interface directly. Always use {@link ReleaseLocalServiceUtil} to access the release local service. Add custom service methods to <code>com.liferay.portal.service.impl.ReleaseLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
 
 	/**
@@ -288,6 +288,16 @@ public interface ReleaseLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public Release updateRelease(Release release);
 
+	public void updateRelease(
+			String servletContextName, List<UpgradeProcess> upgradeProcesses,
+			int buildNumber, int previousBuildNumber)
+		throws PortalException;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 #updateRelease(String, List, int, int)}
+	 */
+	@Deprecated
 	public void updateRelease(
 			String servletContextName, List<UpgradeProcess> upgradeProcesses,
 			int buildNumber, int previousBuildNumber, boolean indexOnUpgrade)

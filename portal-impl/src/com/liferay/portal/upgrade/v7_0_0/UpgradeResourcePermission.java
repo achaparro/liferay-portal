@@ -16,9 +16,13 @@ package com.liferay.portal.upgrade.v7_0_0;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
+import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.model.PortletConstants;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 
 import java.sql.PreparedStatement;
@@ -90,6 +94,20 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 		}
 	}
 
+	private String _createInClause(List<String> primKeys) {
+		StringBundler sb = new StringBundler(primKeys.size() + 1);
+
+		sb.append("in (?");
+
+		for (int i = 1; i < primKeys.size(); i++) {
+			sb.append(", ?");
+		}
+
+		sb.append(")");
+
+		return sb.toString();
+	}
+
 	private void _updatePrimKeyIds(
 			String sql, String name, List<String> primKeys)
 		throws Exception {
@@ -126,30 +144,54 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 			return;
 		}
 
-		StringBundler sb = new StringBundler(primKeys.size() + 1);
+		DB db = DBManagerUtil.getDB();
 
-		sb.append("in (?");
+		if ((db.getDBType() == DBType.ORACLE) && (primKeys.size() > 1000)) {
+			_updatePrimKeyIdsInBatches(name, primKeys);
+		}
+		else {
+			String inClause = _createInClause(primKeys);
 
-		for (int i = 1; i < primKeys.size(); i++) {
-			sb.append(", ?");
+			_updatePrimKeyIds(
+				StringBundler.concat(
+					"update ResourcePermission set primKeyId = 0 where name = ",
+					"? and (primKey like '%_LAYOUT_%' or primKey ", inClause,
+					")"),
+				name, primKeys);
 		}
 
-		sb.append(")");
-
-		String inClause = sb.toString();
-
-		_updatePrimKeyIds(
-			StringBundler.concat(
-				"update ResourcePermission set primKeyId = 0 where name = ? ",
-				"and (primKey like '%_LAYOUT_%' or primKey ", inClause, ")"),
-			name, primKeys);
-
-		_updatePrimKeyIds(
+		runSQL(
 			StringBundler.concat(
 				"update ResourcePermission set primKeyId = CAST_LONG(primKey",
-				") where name = ? and (primKey not like '%_LAYOUT_%' and ",
-				"primKey not ", inClause, ")"),
-			name, primKeys);
+				") where name = '", name,
+				"' and (primKey not like '%_LAYOUT_%' and primKeyId != 0)"));
+	}
+
+	private void _updatePrimKeyIdsInBatches(String name, List<String> primKeys)
+		throws Exception {
+
+		int iteration = primKeys.size() / 1000;
+
+		for (int i = 0; i <= iteration; i++) {
+			int start = i * 1000;
+
+			int end = start + 1000;
+
+			if (end > primKeys.size()) {
+				end = primKeys.size();
+			}
+
+			List<String> sublist = ListUtil.subList(primKeys, start, end);
+
+			String inClause = _createInClause(sublist);
+
+			_updatePrimKeyIds(
+				StringBundler.concat(
+					"update ResourcePermission set primKeyId = 0 where name = ",
+					"? and (primKey like '%_LAYOUT_%' or primKey ", inClause,
+					")"),
+				name, sublist);
+		}
 	}
 
 }

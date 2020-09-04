@@ -121,12 +121,12 @@ public class DBInspector {
 				return false;
 			}
 
-			Integer expectedColumnDataType = _getColumnDataType(columnType);
+			Integer expectedColumnSQLType = _getColumnSQLType(columnType);
 
-			int actualColumnDataType = rs.getInt("DATA_TYPE");
+			int actualColumnSQLType = rs.getInt("DATA_TYPE");
 
-			if ((expectedColumnDataType == null) ||
-				(expectedColumnDataType != actualColumnDataType)) {
+			if ((expectedColumnSQLType == null) ||
+				(expectedColumnSQLType != actualColumnSQLType)) {
 
 				return false;
 			}
@@ -234,18 +234,6 @@ public class DBInspector {
 		return name;
 	}
 
-	private Integer _getColumnDataType(String columnType) {
-		Matcher matcher = _columnTypePattern.matcher(columnType);
-
-		if (!matcher.lookingAt()) {
-			return null;
-		}
-
-		DB db = DBManagerUtil.getDB();
-
-		return db.getSQLType(matcher.group(1));
-	}
-
 	private int _getColumnSize(String columnType) throws UpgradeException {
 		Matcher matcher = _columnSizePattern.matcher(columnType);
 
@@ -269,6 +257,18 @@ public class DBInspector {
 		}
 
 		return -1;
+	}
+
+	private Integer _getColumnSQLType(String columnType) {
+		Matcher matcher = _columnTypePattern.matcher(columnType);
+
+		if (!matcher.lookingAt()) {
+			return null;
+		}
+
+		DB db = DBManagerUtil.getDB();
+
+		return db.getSQLType(matcher.group(1));
 	}
 
 	private boolean _hasTable(String tableName) throws Exception {

@@ -153,6 +153,13 @@ public class DBInspectorTest {
 	}
 
 	@Test
+	public void testHasColumnTypeUsesChecksTypePrecision() throws Exception {
+		Assert.assertFalse(
+			_dbInspector.hasColumnType(
+				_TABLE_NAME, "typeVarchar", "STRING null"));
+	}
+
+	@Test
 	public void testHasColumnTypeVarchar() throws Exception {
 		Assert.assertTrue(
 			_dbInspector.hasColumnType(

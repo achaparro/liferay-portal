@@ -113,28 +113,6 @@ public class DBInspector {
 				return false;
 			}
 
-			int expectedColumnSize = _getColumnSize(columnType);
-
-			if (expectedColumnSize == -1) {
-				String expectedColumnTypeName =
-					_getCurrentDatabaseColumnDataType(columnType);
-
-				if (expectedColumnTypeName == null) {
-					return false;
-				}
-
-				expectedColumnSize = _getDataTypePrecision(
-					expectedColumnTypeName);
-			}
-
-			int actualColumnSize = rs.getInt("COLUMN_SIZE");
-
-			if ((expectedColumnSize > 0) &&
-				(expectedColumnSize != actualColumnSize)) {
-
-				return false;
-			}
-
 			Integer expectedColumnSQLType = _getColumnSQLType(columnType);
 
 			int actualColumnSQLType = rs.getInt("DATA_TYPE");
@@ -153,6 +131,28 @@ public class DBInspector {
 				 (actualColumnNullable != DatabaseMetaData.columnNullable)) ||
 				(!expectedColumnNullable &&
 				 (actualColumnNullable != DatabaseMetaData.columnNoNulls))) {
+
+				return false;
+			}
+
+			int expectedColumnSize = _getColumnSize(columnType);
+
+			if (expectedColumnSize == -1) {
+				String expectedColumnTypeName =
+					_getCurrentDatabaseColumnDataType(columnType);
+
+				if (expectedColumnTypeName == null) {
+					return false;
+				}
+
+				expectedColumnSize = _getDataTypePrecision(
+					expectedColumnTypeName);
+			}
+
+			int actualColumnSize = rs.getInt("COLUMN_SIZE");
+
+			if ((expectedColumnSize > 0) &&
+				(expectedColumnSize != actualColumnSize)) {
 
 				return false;
 			}

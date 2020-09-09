@@ -157,6 +157,15 @@ public class DBInspector {
 				return false;
 			}
 
+			if (expectedColumnSize <= 0) {
+				int actualColumnTypePrecision = _getDataTypePrecision(
+					rs.getString("TYPE_NAME"));
+
+				if (actualColumnTypePrecision > 0) {
+					return false;
+				}
+			}
+
 			return true;
 		}
 	}

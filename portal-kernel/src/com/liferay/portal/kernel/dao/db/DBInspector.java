@@ -30,6 +30,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,9 +115,21 @@ public class DBInspector {
 
 			int expectedColumnSize = _getColumnSize(columnType);
 
+			if (expectedColumnSize == -1) {
+				String expectedColumnTypeName =
+					_getCurrentDatabaseColumnDataType(columnType);
+
+				if (expectedColumnTypeName == null) {
+					return false;
+				}
+
+				expectedColumnSize = _getDataTypePrecision(
+					expectedColumnTypeName);
+			}
+
 			int actualColumnSize = rs.getInt("COLUMN_SIZE");
 
-			if ((expectedColumnSize != -1) &&
+			if ((expectedColumnSize > 0) &&
 				(expectedColumnSize != actualColumnSize)) {
 
 				return false;
@@ -234,6 +248,16 @@ public class DBInspector {
 		return name;
 	}
 
+	private String _getColumnDataType(String columnStatement) {
+		Matcher matcher = _columnTypePattern.matcher(columnStatement);
+
+		if (!matcher.lookingAt()) {
+			return null;
+		}
+
+		return matcher.group(1);
+	}
+
 	private int _getColumnSize(String columnType) throws UpgradeException {
 		Matcher matcher = _columnSizePattern.matcher(columnType);
 
@@ -271,6 +295,46 @@ public class DBInspector {
 		return db.getSQLType(matcher.group(1));
 	}
 
+	private String _getCurrentDatabaseColumnDataType(String columnStatement) {
+		String columDataType = _getColumnDataType(columnStatement);
+
+		DB db = DBManagerUtil.getDB();
+
+		String currentDatabaseColumnDataType = db.getCurrentDatabaseTypeName(
+			columDataType);
+
+		return _getColumnDataType(currentDatabaseColumnDataType);
+	}
+
+	private int _getDataTypePrecision(String typeName) throws Exception {
+		Map<String, Integer> typesPrecision = _typesPrecision;
+
+		if (typesPrecision == null) {
+			DatabaseMetaData databaseMetaData = _connection.getMetaData();
+
+			typesPrecision = new HashMap<>();
+
+			try (ResultSet rs = databaseMetaData.getTypeInfo()) {
+				while (rs.next()) {
+					typesPrecision.put(
+						StringUtil.toUpperCase(rs.getString("TYPE_NAME")),
+						rs.getInt("PRECISION"));
+				}
+			}
+
+			_typesPrecision = typesPrecision;
+		}
+
+		Integer precision = typesPrecision.get(
+			StringUtil.toUpperCase(typeName));
+
+		if (precision == null) {
+			return 0;
+		}
+
+		return precision;
+	}
+
 	private boolean _hasTable(String tableName) throws Exception {
 		DatabaseMetaData metadata = _connection.getMetaData();
 
@@ -303,6 +367,7 @@ public class DBInspector {
 		"^\\w+(?:\\((\\d+)\\))?.*", Pattern.CASE_INSENSITIVE);
 	private static final Pattern _columnTypePattern = Pattern.compile(
 		"(^\\w+)", Pattern.CASE_INSENSITIVE);
+	private static volatile Map<String, Integer> _typesPrecision;
 
 	private final Connection _connection;
 

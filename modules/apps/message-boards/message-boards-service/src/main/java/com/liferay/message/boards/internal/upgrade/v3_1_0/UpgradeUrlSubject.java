@@ -34,11 +34,9 @@ public class UpgradeUrlSubject extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		if (!hasColumn("MBMessage", "urlSubject")) {
-			alter(
-				MBMessageTable.class,
-				new AlterTableAddColumn("urlSubject", "VARCHAR(255) null"));
-		}
+		alter(
+			MBMessageTable.class,
+			new AlterTableAddColumn("urlSubject", "VARCHAR(255) null"));
 
 		_populateUrlSubject();
 	}

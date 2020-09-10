@@ -24,11 +24,9 @@ public class UpgradeFragmentEntry extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		if (!hasColumn("FragmentEntry", "cacheable")) {
-			alter(
-				FragmentEntryTable.class,
-				new AlterTableAddColumn("cacheable", "BOOLEAN"));
-		}
+		alter(
+			FragmentEntryTable.class,
+			new AlterTableAddColumn("cacheable", "BOOLEAN"));
 	}
 
 }

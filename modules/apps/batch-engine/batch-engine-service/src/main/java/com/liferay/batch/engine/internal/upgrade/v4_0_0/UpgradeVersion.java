@@ -25,17 +25,13 @@ public class UpgradeVersion extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		if (hasColumn("BatchEngineExportTask", "version")) {
-			alter(
-				BatchEngineExportTaskTable.class,
-				new AlterTableDropColumn("version"));
-		}
+		alter(
+			BatchEngineExportTaskTable.class,
+			new AlterTableDropColumn("version"));
 
-		if (hasColumn("BatchEngineImportTask", "version")) {
-			alter(
-				BatchEngineImportTaskTable.class,
-				new AlterTableDropColumn("version"));
-		}
+		alter(
+			BatchEngineImportTaskTable.class,
+			new AlterTableDropColumn("version"));
 	}
 
 }

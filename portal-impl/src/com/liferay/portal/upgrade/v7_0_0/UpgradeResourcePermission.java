@@ -88,22 +88,11 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 						}
 					}
 
-					String[][] stringPrimKeysArray;
-
-					DB db = DBManagerUtil.getDB();
-
-					if ((db.getDBType() == DBType.ORACLE) &&
-						(stringPrimKeys.size() > 1000)) {
-
-						stringPrimKeysArray = (String[][])ArrayUtil.split(
-							stringPrimKeys.toArray(), 1000);
-					}
-					else {
-						stringPrimKeysArray = (String[][])ArrayUtil.split(
-							stringPrimKeys.toArray(), stringPrimKeys.size());
-					}
-
-					_updatePrimKeyIdsByName(name, stringPrimKeysArray);
+					_updatePrimKeyIdsByName(
+						name,
+						(String[][])ArrayUtil.split(
+							stringPrimKeys.toArray(),
+							_getPrimKeysSplitSize(stringPrimKeys.size())));
 				}
 			}
 		}
@@ -121,6 +110,16 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 		sb.append(")");
 
 		return sb.toString();
+	}
+
+	private int _getPrimKeysSplitSize(int primKeysCount) {
+		DB db = DBManagerUtil.getDB();
+
+		if (db.getDBType() == DBType.ORACLE) {
+			return 1000;
+		}
+
+		return primKeysCount;
 	}
 
 	private void _updatePrimKeyIds(String sql, String name, String[] primKeys)
@@ -141,10 +140,10 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 		}
 	}
 
-	private void _updatePrimKeyIdsByName(String name, String[][] primKeyBatches)
+	private void _updatePrimKeyIdsByName(String name, String[][] primKeys)
 		throws Exception {
 
-		if (ArrayUtil.isEmpty(primKeyBatches)) {
+		if (ArrayUtil.isEmpty(primKeys)) {
 			_updatePrimKeyIds(
 				"update ResourcePermission set primKeyId = CAST_LONG(" +
 					"primKey) where name = ? and primKey not like '%_LAYOUT_%'",
@@ -158,7 +157,7 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 			return;
 		}
 
-		for (String[] primKeyBatch : primKeyBatches) {
+		for (String[] primKeyBatch : primKeys) {
 			String inClause = _createInClause(primKeyBatch);
 
 			_updatePrimKeyIds(

@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.util;
 
 import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.Company;
@@ -2010,6 +2011,31 @@ public class PortalUtil {
 
 	public static String resetPortletParameters(String url, String portletId) {
 		return getPortal().resetPortletParameters(url, portletId);
+	}
+
+	public static void runCompanies(
+		UnsafeConsumer<Company, Exception> unsafeConsumer) {
+
+		getPortal().runCompanies(unsafeConsumer);
+	}
+
+	public static void runCompanies(
+		UnsafeConsumer<Company, Exception> unsafeConsumer,
+		List<Company> companies) {
+
+		getPortal().runCompanies(unsafeConsumer, companies);
+	}
+
+	public static void runCompanyIds(
+		UnsafeConsumer<Long, Exception> unsafeConsumer) {
+
+		getPortal().runCompanyIds(unsafeConsumer);
+	}
+
+	public static void runCompanyIds(
+		UnsafeConsumer<Long, Exception> unsafeConsumer, long[] companyIds) {
+
+		getPortal().runCompanyIds(unsafeConsumer, companyIds);
 	}
 
 	public static void sendError(

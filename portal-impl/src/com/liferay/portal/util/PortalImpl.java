@@ -23,6 +23,8 @@ import com.liferay.expando.kernel.model.ExpandoColumnConstants;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.petra.encryptor.Encryptor;
+import com.liferay.petra.function.UnsafeConsumer;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -6547,6 +6549,61 @@ public class PortalImpl implements Portal {
 		}
 
 		return url;
+	}
+
+	@Override
+	public void runCompanies(
+		UnsafeConsumer<Company, Exception> unsafeConsumer) {
+
+		runCompanies(unsafeConsumer, CompanyLocalServiceUtil.getCompanies());
+	}
+
+	@Override
+	public void runCompanies(
+		UnsafeConsumer<Company, Exception> unsafeConsumer,
+		List<Company> companies) {
+
+		long currentCompanyId = CompanyThreadLocal.getCompanyId();
+
+		try {
+			for (Company company : companies) {
+				CompanyThreadLocal.setCompanyId(company.getCompanyId());
+
+				unsafeConsumer.accept(company);
+			}
+		}
+		catch (Exception exception) {
+			ReflectionUtil.throwException(exception);
+		}
+		finally {
+			CompanyThreadLocal.setCompanyId(currentCompanyId);
+		}
+	}
+
+	@Override
+	public void runCompanyIds(UnsafeConsumer<Long, Exception> unsafeConsumer) {
+		runCompanyIds(unsafeConsumer, getCompanyIds());
+	}
+
+	@Override
+	public void runCompanyIds(
+		UnsafeConsumer<Long, Exception> unsafeConsumer, long[] companyIds) {
+
+		long currentCompanyId = CompanyThreadLocal.getCompanyId();
+
+		try {
+			for (long companyId : companyIds) {
+				CompanyThreadLocal.setCompanyId(companyId);
+
+				unsafeConsumer.accept(companyId);
+			}
+		}
+		catch (Exception exception) {
+			ReflectionUtil.throwException(exception);
+		}
+		finally {
+			CompanyThreadLocal.setCompanyId(currentCompanyId);
+		}
 	}
 
 	@Override

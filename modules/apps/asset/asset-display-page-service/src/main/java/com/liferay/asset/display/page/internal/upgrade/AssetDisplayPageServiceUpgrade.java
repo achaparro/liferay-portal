@@ -54,11 +54,9 @@ public class AssetDisplayPageServiceUpgrade implements UpgradeStepRegistrator {
 				_layoutPageTemplateEntryService));
 
 		registry.register(
-			"2.1.0", "2.1.1",
+			"2.1.0", "2.1.2",
 			new UpgradeAssetDisplayPrivateLayout(
 				_layoutLocalService, _resourceLocalService));
-
-		registry.register("2.1.1", "2.1.2", new DummyUpgradeStep());
 
 		registry.register(
 			"2.1.2", "2.2.0",
@@ -75,12 +73,14 @@ public class AssetDisplayPageServiceUpgrade implements UpgradeStepRegistrator {
 			"2.2.0", "2.2.1",
 			new UpgradeAssetDisplayLayoutFriendlyURLPrivateLayout());
 
+		registry.register("2.2.1", "2.2.2", new DummyUpgradeStep());
+
 		registry.register(
-			"2.2.1", "2.2.2",
+			"2.2.2", "2.2.3",
 			new UpgradeAssetDisplayLayoutFriendlyURLPrivateLayout());
 
 		registry.register(
-			"2.2.2", "2.3.0", new UpgradeCTModel("AssetDisplayPageEntry"));
+			"2.2.3", "2.3.0", new UpgradeCTModel("AssetDisplayPageEntry"));
 
 		registry.register("2.3.0", "2.3.1", new UpgradeAssetDisplayPageEntry());
 	}

@@ -2127,6 +2127,12 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		userPersistence.remove(user);
 
+		if (_log.isDebugEnabled()) {
+			_log.debug("USER DELETED: \n" + "userId= " +
+					   user.getUserId() + "\ncompanyId= " +
+					   user.getCompanyId());
+		}
+
 		// Workflow
 
 		workflowInstanceLinkLocalService.deleteWorkflowInstanceLinks(

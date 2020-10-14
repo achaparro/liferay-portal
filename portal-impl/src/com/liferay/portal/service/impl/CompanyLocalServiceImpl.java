@@ -1815,6 +1815,12 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		contactPersistence.update(defaultContact);
 
+		if (_log.isDebugEnabled()) {
+			_log.debug("DEFAULT USER CREATED: \n" + "userId= " +
+				defaultUser.getUserId() + "\ncompanyId= " +
+				defaultUser.getCompanyId());
+		}
+
 		return defaultUser;
 	}
 

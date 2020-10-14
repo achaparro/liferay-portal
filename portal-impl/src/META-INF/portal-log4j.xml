@@ -560,6 +560,10 @@
 		<priority value="ERROR" />
 	</category>
 
+	<category name="com.liferay.portal.service.impl.UserLocalServiceImpl">
+		<priority value="DEBUG" />
+	</category>
+
 	<category name="com.liferay.portal.service.persistence.PermissionPool">
 		<priority value="ERROR" />
 	</category>

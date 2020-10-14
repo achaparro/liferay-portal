@@ -27,8 +27,10 @@ import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineConfigurator;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.search.queue.QueuingSearchEngine;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.search.configuration.SearchEngineHelperConfiguration;
 
 import java.util.Collection;
@@ -46,6 +48,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
@@ -242,9 +245,9 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 
 		_searchEngines.put(searchEngineId, searchEngine);
 
-		for (Long companyId : _companyIds.keySet()) {
-			searchEngine.initialize(companyId);
-		}
+		_portal.runCompanyIds(
+			companyId -> searchEngine.initialize(companyId),
+			ArrayUtil.toLongArray(_companyIds.keySet()));
 
 		synchronized (_queuingSearchEngines) {
 			QueuingSearchEngine queuingSearchEngine = _queuingSearchEngines.get(
@@ -338,6 +341,10 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 	private final Map<Long, Long> _companyIds = new ConcurrentHashMap<>();
 	private String _defaultSearchEngineId;
 	private final Set<String> _excludedEntryClassNames = new HashSet<>();
+
+	@Reference
+	private Portal _portal;
+
 	private int _queueCapacity = 200;
 	private final Map<String, QueuingSearchEngine> _queuingSearchEngines =
 		new HashMap<>();

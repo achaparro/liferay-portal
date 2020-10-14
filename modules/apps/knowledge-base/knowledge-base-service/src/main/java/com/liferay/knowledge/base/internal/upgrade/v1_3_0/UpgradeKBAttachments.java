@@ -45,10 +45,10 @@ public class UpgradeKBAttachments extends UpgradeProcess {
 	}
 
 	protected void deleteEmptyDirectories() throws Exception {
-		for (long companyId : PortalUtil.getCompanyIds()) {
-			_store.deleteDirectory(
-				companyId, CompanyConstants.SYSTEM, "knowledgebase/kbarticles");
-		}
+		PortalUtil.runCompanies(
+			company -> _store.deleteDirectory(
+				company.getCompanyId(), CompanyConstants.SYSTEM,
+				"knowledgebase/kbarticles"));
 	}
 
 	@Override

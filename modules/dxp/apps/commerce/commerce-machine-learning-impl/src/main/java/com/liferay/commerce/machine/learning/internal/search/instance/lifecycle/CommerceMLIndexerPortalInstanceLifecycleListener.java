@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.util.Portal;
 
 import java.util.Collections;
 import java.util.List;
@@ -121,9 +122,8 @@ public class CommerceMLIndexerPortalInstanceLifecycleListener
 	}
 
 	protected void verifyCompanies(CommerceMLIndexer commerceMLIndexer) {
-		for (Company company : _companyLocalService.getCompanies()) {
-			commerceMLIndexer.createIndex(company.getCompanyId());
-		}
+		_portal.runCompanies(
+			company -> commerceMLIndexer.createIndex(company.getCompanyId()));
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -132,6 +132,10 @@ public class CommerceMLIndexerPortalInstanceLifecycleListener
 	private final List<CommerceMLIndexer> _commerceMLIndexers =
 		new CopyOnWriteArrayList<>();
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private Portal _portal;
+
 	private final Set<CommerceMLIndexer> _queuedCommerceMLIndexers =
 		Collections.newSetFromMap(new ConcurrentHashMap<>());
 

@@ -88,13 +88,14 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 	}
 
 	public static void deleteFiles() {
-		long[] companyIds = PortalUtil.getCompanyIds();
+		PortalUtil.runCompanyIds(
+			companyId -> {
+				DLStoreUtil.deleteDirectory(
+					companyId, REPOSITORY_ID, PREVIEW_PATH);
 
-		for (long companyId : companyIds) {
-			DLStoreUtil.deleteDirectory(companyId, REPOSITORY_ID, PREVIEW_PATH);
-			DLStoreUtil.deleteDirectory(
-				companyId, REPOSITORY_ID, THUMBNAIL_PATH);
-		}
+				DLStoreUtil.deleteDirectory(
+					companyId, REPOSITORY_ID, THUMBNAIL_PATH);
+			});
 	}
 
 	@Override

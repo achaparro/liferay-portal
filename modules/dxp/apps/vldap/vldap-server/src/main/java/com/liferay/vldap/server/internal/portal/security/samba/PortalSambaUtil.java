@@ -76,33 +76,32 @@ public class PortalSambaUtil {
 	}
 
 	private static void _checkAttribute(String attributeName) {
-		long[] companyIds = PortalUtil.getCompanyIds();
+		PortalUtil.runCompanyIds(
+			companyId -> {
+				ExpandoBridge expandoBridge =
+					ExpandoBridgeFactoryUtil.getExpandoBridge(
+						companyId, User.class.getName());
 
-		for (long companyId : companyIds) {
-			ExpandoBridge expandoBridge =
-				ExpandoBridgeFactoryUtil.getExpandoBridge(
-					companyId, User.class.getName());
-
-			if (!expandoBridge.hasAttribute(attributeName)) {
-				try {
-					expandoBridge.addAttribute(attributeName, false);
-				}
-				catch (PortalException portalException) {
-					if (_log.isWarnEnabled()) {
-						_log.warn(portalException, portalException);
+				if (!expandoBridge.hasAttribute(attributeName)) {
+					try {
+						expandoBridge.addAttribute(attributeName, false);
+					}
+					catch (PortalException portalException) {
+						if (_log.isWarnEnabled()) {
+							_log.warn(portalException, portalException);
+						}
 					}
 				}
-			}
 
-			UnicodeProperties unicodeProperties =
-				expandoBridge.getAttributeProperties(attributeName);
+				UnicodeProperties unicodeProperties =
+					expandoBridge.getAttributeProperties(attributeName);
 
-			unicodeProperties.put(
-				ExpandoColumnConstants.PROPERTY_HIDDEN, StringPool.TRUE);
+				unicodeProperties.put(
+					ExpandoColumnConstants.PROPERTY_HIDDEN, StringPool.TRUE);
 
-			expandoBridge.setAttributeProperties(
-				attributeName, unicodeProperties, false);
-		}
+				expandoBridge.setAttributeProperties(
+					attributeName, unicodeProperties, false);
+			});
 	}
 
 	private static String _encryptSambaLMPassword(String password)

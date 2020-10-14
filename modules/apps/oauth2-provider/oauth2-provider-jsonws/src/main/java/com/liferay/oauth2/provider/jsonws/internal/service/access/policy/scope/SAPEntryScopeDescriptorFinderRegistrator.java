@@ -22,8 +22,10 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.security.service.access.policy.model.SAPEntry;
 import com.liferay.portal.security.service.access.policy.service.SAPEntryLocalService;
@@ -127,9 +129,9 @@ public class SAPEntryScopeDescriptorFinderRegistrator {
 		_sapEntryOAuth2Prefix =
 			oAuth2JSONWSConfiguration.sapEntryOAuth2Prefix();
 
-		for (long companyId : _scopeFinderServiceRegistrations.keySet()) {
-			register(companyId);
-		}
+		_portal.runCompanyIds(
+			companyId -> register(companyId),
+			ArrayUtil.toLongArray(_scopeFinderServiceRegistrations.keySet()));
 	}
 
 	@Reference(
@@ -260,6 +262,10 @@ public class SAPEntryScopeDescriptorFinderRegistrator {
 
 	private final Set<String> _jaxRsApplicationNames =
 		Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+	@Reference
+	private Portal _portal;
+
 	private final Map<Long, List<SAPEntryScope>> _registeredSAPEntryScopes =
 		new ConcurrentHashMap<>();
 	private boolean _removeSAPEntryOAuth2Prefix = true;

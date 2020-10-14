@@ -52,7 +52,7 @@
 			Map<String, Object> data = new HashMap<String, Object>();
 
 			if (assetEntry.getEntryId() != assetBrowserDisplayContext.getRefererAssetEntryId()) {
-				data.put("assetclassname", assetEntry.getClassName());
+			 data.put("assetclassname", asse tEntry.getClassName());
 				data.put("assetclassnameid", assetEntry.getClassNameId());
 				data.put("assetclasspk", assetEntry.getClassPK());
 				data.put("assettitle", assetRenderer.getTitle(locale));

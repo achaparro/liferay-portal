@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DataGuard;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
@@ -51,17 +52,19 @@ public class KaleoActivatorTest {
 
 		Assert.assertFalse(companies.toString(), companies.isEmpty());
 
-		for (Company company : companies) {
-			ServiceContext serviceContext = new ServiceContext();
+		_portal.runCompanies(
+			company -> {
+				ServiceContext serviceContext = new ServiceContext();
 
-			serviceContext.setCompanyId(company.getCompanyId());
+				serviceContext.setCompanyId(company.getCompanyId());
 
-			KaleoDefinition kaleoDefinition =
-				_kaleoDefinitionLocalService.getKaleoDefinition(
-					"Single Approver", serviceContext);
+				KaleoDefinition kaleoDefinition =
+					_kaleoDefinitionLocalService.getKaleoDefinition(
+						"Single Approver", serviceContext);
 
-			Assert.assertNotNull(kaleoDefinition);
-		}
+				Assert.assertNotNull(kaleoDefinition);
+			},
+			companies);
 	}
 
 	@Inject
@@ -69,5 +72,8 @@ public class KaleoActivatorTest {
 
 	@Inject
 	private KaleoDefinitionLocalService _kaleoDefinitionLocalService;
+
+	@Inject
+	private Portal _portal;
 
 }

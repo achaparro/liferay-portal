@@ -18,6 +18,8 @@ import com.liferay.portal.kernel.search.IndexAdminHelper;
 import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.Portal;
 
 import java.util.Collection;
 
@@ -59,9 +61,9 @@ public class IndexAdminHelperImpl implements IndexAdminHelper {
 			_searchEngineHelper.getSearchEngines();
 
 		for (SearchEngine searchEngine : searchEngines) {
-			for (long companyId : _searchEngineHelper.getCompanyIds()) {
-				searchEngine.backup(companyId, backupName);
-			}
+			_portal.runCompanyIds(
+				companyId -> searchEngine.backup(companyId, backupName),
+				ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
 		}
 	}
 
@@ -85,9 +87,9 @@ public class IndexAdminHelperImpl implements IndexAdminHelper {
 			_searchEngineHelper.getSearchEngines();
 
 		for (SearchEngine searchEngine : searchEngines) {
-			for (long companyId : _searchEngineHelper.getCompanyIds()) {
-				searchEngine.removeBackup(companyId, backupName);
-			}
+			_portal.runCompanyIds(
+				companyId -> searchEngine.removeBackup(companyId, backupName),
+				ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
 		}
 	}
 
@@ -109,11 +111,14 @@ public class IndexAdminHelperImpl implements IndexAdminHelper {
 			_searchEngineHelper.getSearchEngines();
 
 		for (SearchEngine searchEngine : searchEngines) {
-			for (long companyId : _searchEngineHelper.getCompanyIds()) {
-				searchEngine.restore(companyId, backupName);
-			}
+			_portal.runCompanyIds(
+				companyId -> searchEngine.restore(companyId, backupName),
+				ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
 		}
 	}
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private SearchEngineHelper _searchEngineHelper;

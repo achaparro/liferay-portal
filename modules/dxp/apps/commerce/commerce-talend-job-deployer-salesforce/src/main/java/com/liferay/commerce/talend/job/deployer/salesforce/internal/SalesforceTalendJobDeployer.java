@@ -64,48 +64,51 @@ public class SalesforceTalendJobDeployer {
 					try {
 						ZipEntry zipEntry = enumeration.nextElement();
 
-						long[] companyIds = _portal.getCompanyIds();
+						_portal.runCompanies(
+							company -> {
+								String fileName = zipEntry.getName();
 
-						for (long companyId : companyIds) {
-							String fileName = zipEntry.getName();
+								if (!fileName.endsWith(".zip")) {
+									return;
+								}
 
-							if (!fileName.endsWith(".zip")) {
-								continue;
-							}
+								long userId =
+									_userLocalService.getDefaultUserId(
+										company.getCompanyId());
 
-							long userId = _userLocalService.getDefaultUserId(
-								companyId);
+								CommerceDataIntegrationProcess
+									commerceDataIntegrationProcess =
+										_commerceDataIntegrationProcessLocalService.
+											fetchCommerceDataIntegrationProcess(
+												company.getCompanyId(),
+												fileName);
 
-							CommerceDataIntegrationProcess
-								commerceDataIntegrationProcess =
-									_commerceDataIntegrationProcessLocalService.
-										fetchCommerceDataIntegrationProcess(
-											companyId, fileName);
+								if (commerceDataIntegrationProcess == null) {
+									UnicodeProperties
+										typeSettingsUnicodeProperties =
+											_getDefaultTypeSettingsUnicodeProperties(
+												zipFile.getInputStream(
+													zipEntry));
 
-							if (commerceDataIntegrationProcess == null) {
-								UnicodeProperties
-									typeSettingsUnicodeProperties =
-										_getDefaultTypeSettingsUnicodeProperties(
-											zipFile.getInputStream(zipEntry));
+									commerceDataIntegrationProcess =
+										_commerceDataIntegrationProcessLocalService.
+											addCommerceDataIntegrationProcess(
+												userId, fileName, _TALEND,
+												typeSettingsUnicodeProperties,
+												false);
+								}
 
-								commerceDataIntegrationProcess =
-									_commerceDataIntegrationProcessLocalService.
-										addCommerceDataIntegrationProcess(
-											userId, fileName, _TALEND,
-											typeSettingsUnicodeProperties,
-											false);
-							}
+								String contentType =
+									MimeTypesUtil.getContentType(
+										zipEntry.getName());
 
-							String contentType = MimeTypesUtil.getContentType(
-								zipEntry.getName());
-
-							_talendProcessTypeHelper.addFileEntry(
-								companyId, userId,
-								commerceDataIntegrationProcess.
-									getCommerceDataIntegrationProcessId(),
-								fileName, zipEntry.getSize(), contentType,
-								zipFile.getInputStream(zipEntry));
-						}
+								_talendProcessTypeHelper.addFileEntry(
+									company.getCompanyId(), userId,
+									commerceDataIntegrationProcess.
+										getCommerceDataIntegrationProcessId(),
+									fileName, zipEntry.getSize(), contentType,
+									zipFile.getInputStream(zipEntry));
+							});
 					}
 					catch (Exception exception) {
 						ZipEntry zipEntry = enumeration.nextElement();

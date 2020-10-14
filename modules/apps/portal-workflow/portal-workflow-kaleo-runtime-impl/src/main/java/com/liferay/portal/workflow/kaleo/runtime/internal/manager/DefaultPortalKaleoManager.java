@@ -16,16 +16,12 @@ package com.liferay.portal.workflow.kaleo.runtime.internal.manager;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
-import com.liferay.portal.kernel.dao.orm.Property;
-import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
@@ -41,6 +37,7 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinitionManager;
@@ -77,11 +74,8 @@ public class DefaultPortalKaleoManager
 	public void deployDefaultDefinitionLink(String assetClassName)
 		throws Exception {
 
-		ActionableDynamicQuery actionableDynamicQuery =
-			companyLocalService.getActionableDynamicQuery();
-
-		actionableDynamicQuery.setPerformActionMethod(
-			(Company company) -> {
+		_portal.runCompanies(
+			company -> {
 				try {
 					long companyId = company.getCompanyId();
 
@@ -109,32 +103,20 @@ public class DefaultPortalKaleoManager
 					throw new SystemException(exception);
 				}
 			});
-
-		actionableDynamicQuery.performActions();
 	}
 
 	@Override
 	public void deployDefaultDefinitionLinks() throws Exception {
-		ActionableDynamicQuery actionableDynamicQuery =
-			companyLocalService.getActionableDynamicQuery();
-
-		actionableDynamicQuery.setAddCriteriaMethod(
-			dynamicQuery -> {
-				Property systemProperty = PropertyFactoryUtil.forName("system");
-
-				dynamicQuery.add(systemProperty.eq(Boolean.FALSE));
-			});
-		actionableDynamicQuery.setPerformActionMethod(
-			(Company company) -> {
+		_portal.runCompanies(
+			company -> {
 				try {
 					deployDefaultDefinitionLinks(company.getCompanyId());
 				}
 				catch (Exception exception) {
 					throw new SystemException(exception);
 				}
-			});
-
-		actionableDynamicQuery.performActions();
+			},
+			companyLocalService.getCompanies(false));
 	}
 
 	@Override
@@ -159,11 +141,8 @@ public class DefaultPortalKaleoManager
 
 	@Override
 	public void deployDefaultDefinitions() throws Exception {
-		ActionableDynamicQuery actionableDynamicQuery =
-			companyLocalService.getActionableDynamicQuery();
-
-		actionableDynamicQuery.setPerformActionMethod(
-			(Company company) -> {
+		_portal.runCompanies(
+			company -> {
 				try {
 					deployDefaultDefinitions(company.getCompanyId());
 				}
@@ -171,8 +150,6 @@ public class DefaultPortalKaleoManager
 					throw new SystemException(exception);
 				}
 			});
-
-		actionableDynamicQuery.performActions();
 	}
 
 	@Override
@@ -222,11 +199,8 @@ public class DefaultPortalKaleoManager
 
 	@Override
 	public void deployDefaultRoles() throws Exception {
-		ActionableDynamicQuery actionableDynamicQuery =
-			companyLocalService.getActionableDynamicQuery();
-
-		actionableDynamicQuery.setPerformActionMethod(
-			(Company company) -> {
+		_portal.runCompanies(
+			company -> {
 				try {
 					deployDefaultRoles(company.getCompanyId());
 				}
@@ -234,8 +208,6 @@ public class DefaultPortalKaleoManager
 					throw new SystemException(exception);
 				}
 			});
-
-		actionableDynamicQuery.performActions();
 	}
 
 	@Override
@@ -378,6 +350,9 @@ public class DefaultPortalKaleoManager
 
 	@Reference
 	private Language _language;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference(target = "(proxy.bean=false)")
 	private WorkflowDefinitionManager _workflowDefinitionManager;

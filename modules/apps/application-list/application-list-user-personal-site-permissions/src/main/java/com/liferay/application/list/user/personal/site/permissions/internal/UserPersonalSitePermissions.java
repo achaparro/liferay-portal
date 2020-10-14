@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.List;
@@ -54,35 +55,38 @@ public class UserPersonalSitePermissions {
 	public void initPermissions(List<Company> companies, Portlet portlet) {
 		String rootPortletId = portlet.getRootPortletId();
 
-		for (Company company : companies) {
-			long companyId = company.getCompanyId();
+		_portal.runCompanies(
+			company -> {
+				long companyId = company.getCompanyId();
 
-			Role powerUserRole = getPowerUserRole(companyId);
+				Role powerUserRole = getPowerUserRole(companyId);
 
-			if (powerUserRole == null) {
-				continue;
-			}
+				if (powerUserRole == null) {
+					return;
+				}
 
-			Group userPersonalSiteGroup = getUserPersonalSiteGroup(companyId);
+				Group userPersonalSiteGroup = getUserPersonalSiteGroup(
+					companyId);
 
-			if (userPersonalSiteGroup == null) {
-				continue;
-			}
+				if (userPersonalSiteGroup == null) {
+					return;
+				}
 
-			try {
-				initPermissions(
-					companyId, powerUserRole.getRoleId(), rootPortletId,
-					userPersonalSiteGroup.getGroupId());
-			}
-			catch (PortalException portalException) {
-				_log.error(
-					StringBundler.concat(
-						"Unable to initialize user personal site permissions ",
-						"for portlet ", portlet.getPortletId(), " in company ",
-						companyId),
-					portalException);
-			}
-		}
+				try {
+					initPermissions(
+						companyId, powerUserRole.getRoleId(), rootPortletId,
+						userPersonalSiteGroup.getGroupId());
+				}
+				catch (PortalException portalException) {
+					_log.error(
+						StringBundler.concat(
+							"Unable to initialize user personal site ",
+							"permissions for portlet ", portlet.getPortletId(),
+							" in company ", companyId),
+						portalException);
+				}
+			},
+			companies);
 	}
 
 	public void initPermissions(long companyId, List<Portlet> portlets) {
@@ -213,6 +217,9 @@ public class UserPersonalSitePermissions {
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private Portal _portal;
 
 	@Reference
 	private PortletLocalService _portletLocalService;

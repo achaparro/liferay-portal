@@ -18,11 +18,11 @@ import com.liferay.oauth2.provider.scope.liferay.LiferayOAuth2Scope;
 import com.liferay.oauth2.provider.scope.liferay.ScopeLocator;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -53,9 +53,8 @@ public class UpgradeOAuth2ApplicationScopeAliases extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		for (Company company : _companyLocalService.getCompanies()) {
-			upgradeCompany(company.getCompanyId());
-		}
+		PortalUtil.runCompanies(
+			company -> upgradeCompany(company.getCompanyId()));
 	}
 
 	protected void upgradeCompany(long companyId) throws Exception {

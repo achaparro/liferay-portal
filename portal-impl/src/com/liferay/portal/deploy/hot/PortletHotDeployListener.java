@@ -43,11 +43,11 @@ import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.util.WebAppPool;
 import com.liferay.portlet.PortletContextBag;
 import com.liferay.portlet.PortletContextBagPool;
@@ -245,21 +245,21 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		PortletCategory newPortletCategory =
 			PortletLocalServiceUtil.getWARDisplay(servletContextName, xml);
 
-		long[] companyIds = PortalInstances.getCompanyIds();
+		PortalUtil.runCompanyIds(
+			companyId -> {
+				PortletCategory portletCategory =
+					(PortletCategory)WebAppPool.get(
+						companyId, WebKeys.PORTLET_CATEGORY);
 
-		for (long companyId : companyIds) {
-			PortletCategory portletCategory = (PortletCategory)WebAppPool.get(
-				companyId, WebKeys.PORTLET_CATEGORY);
-
-			if (portletCategory != null) {
-				portletCategory.merge(newPortletCategory);
-			}
-			else {
-				_log.error(
-					"Unable to register portlet for company " + companyId +
-						" because it does not exist");
-			}
-		}
+				if (portletCategory != null) {
+					portletCategory.merge(newPortletCategory);
+				}
+				else {
+					_log.error(
+						"Unable to register portlet for company " + companyId +
+							" because it does not exist");
+				}
+			});
 
 		processPortletProperties(servletContextName, classLoader);
 
@@ -268,12 +268,13 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 			checkResourceBundles(classLoader, portlet);
 
-			for (long companyId : companyIds) {
-				Portlet curPortlet = PortletLocalServiceUtil.getPortletById(
-					companyId, portlet.getPortletId());
+			PortalUtil.runCompanyIds(
+				companyId -> {
+					Portlet curPortlet = PortletLocalServiceUtil.getPortletById(
+						companyId, portlet.getPortletId());
 
-				PortletLocalServiceUtil.checkPortlet(curPortlet);
-			}
+					PortletLocalServiceUtil.checkPortlet(curPortlet);
+				});
 		}
 
 		for (Portlet portlet : portlets) {
@@ -338,15 +339,14 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		ServletContextPool.remove(servletContextName);
 
 		if (!portletIds.isEmpty()) {
-			long[] companyIds = PortalInstances.getCompanyIds();
+			PortalUtil.runCompanyIds(
+				companyId -> {
+					PortletCategory portletCategory =
+						(PortletCategory)WebAppPool.get(
+							companyId, WebKeys.PORTLET_CATEGORY);
 
-			for (long companyId : companyIds) {
-				PortletCategory portletCategory =
-					(PortletCategory)WebAppPool.get(
-						companyId, WebKeys.PORTLET_CATEGORY);
-
-				portletCategory.separate(portletIds);
-			}
+					portletCategory.separate(portletIds);
+				});
 		}
 
 		PortletContextBagPool.remove(servletContextName);

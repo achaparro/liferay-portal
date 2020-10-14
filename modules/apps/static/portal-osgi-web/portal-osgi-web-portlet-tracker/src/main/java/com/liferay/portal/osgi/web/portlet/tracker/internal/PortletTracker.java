@@ -229,19 +229,19 @@ public class PortletTracker
 
 		_portletInstanceFactory.destroy(portletModel);
 
-		List<Company> companies = _companyLocalService.getCompanies();
+		_portal.runCompanies(
+			company -> {
+				PortletCategory portletCategory =
+					(PortletCategory)WebAppPool.get(
+						company.getCompanyId(), WebKeys.PORTLET_CATEGORY);
 
-		for (Company company : companies) {
-			PortletCategory portletCategory = (PortletCategory)WebAppPool.get(
-				company.getCompanyId(), WebKeys.PORTLET_CATEGORY);
-
-			if (portletCategory == null) {
-				_log.error("Unable to get portlet category for " + company);
-			}
-			else {
-				portletCategory.separate(portletModel.getRootPortletId());
-			}
-		}
+				if (portletCategory == null) {
+					_log.error("Unable to get portlet category for " + company);
+				}
+				else {
+					portletCategory.separate(portletModel.getRootPortletId());
+				}
+			});
 
 		serviceRegistrations.removeServiceReference(serviceReference);
 	}
@@ -1274,15 +1274,18 @@ public class PortletTracker
 
 		String[] categoryNamesArray = ArrayUtil.toStringArray(categoryNames);
 
-		for (Company company : companies) {
-			com.liferay.portal.kernel.model.Portlet companyPortletModel =
-				(com.liferay.portal.kernel.model.Portlet)portletModel.clone();
+		_portal.runCompanies(
+			company -> {
+				com.liferay.portal.kernel.model.Portlet companyPortletModel =
+					(com.liferay.portal.kernel.model.Portlet)
+						portletModel.clone();
 
-			companyPortletModel.setCompanyId(company.getCompanyId());
+				companyPortletModel.setCompanyId(company.getCompanyId());
 
-			_portletLocalService.deployRemotePortlet(
-				companyPortletModel, categoryNamesArray, false);
-		}
+				_portletLocalService.deployRemotePortlet(
+					companyPortletModel, categoryNamesArray, false);
+			},
+			companies);
 	}
 
 	protected Object get(

@@ -24,11 +24,10 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.HotDeployMessageListener;
 import com.liferay.portal.kernel.messaging.Message;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.List;
@@ -44,59 +43,53 @@ public class OpenSocialHotDeployMessageListener
 	}
 
 	protected void checkExpando() throws Exception {
-		List<Company> companies = CompanyLocalServiceUtil.getCompanies();
+		PortalUtil.runCompanies(
+			company -> {
+				try {
+					ExpandoTableLocalServiceUtil.getTable(
+						company.getCompanyId(), Layout.class.getName(),
+						ShindigUtil.getTableOpenSocial());
+				}
+				catch (NoSuchTableException noSuchTableException) {
 
-		for (Company company : companies) {
-			try {
-				ExpandoTableLocalServiceUtil.getTable(
-					company.getCompanyId(), Layout.class.getName(),
-					ShindigUtil.getTableOpenSocial());
-			}
-			catch (NoSuchTableException noSuchTableException) {
+					// LPS-52675
 
-				// LPS-52675
+					if (_log.isDebugEnabled()) {
+						_log.debug(noSuchTableException, noSuchTableException);
+					}
 
-				if (_log.isDebugEnabled()) {
-					_log.debug(noSuchTableException, noSuchTableException);
+					ExpandoTableLocalServiceUtil.addTable(
+						company.getCompanyId(), Layout.class.getName(),
+						ShindigUtil.getTableOpenSocial());
 				}
 
-				ExpandoTableLocalServiceUtil.addTable(
-					company.getCompanyId(), Layout.class.getName(),
-					ShindigUtil.getTableOpenSocial());
-			}
-
-			try {
-				ExpandoTableLocalServiceUtil.getTable(
-					company.getCompanyId(), User.class.getName(),
-					ShindigUtil.getTableOpenSocial());
-			}
-			catch (NoSuchTableException noSuchTableException) {
-
-				// LPS-52675
-
-				if (_log.isDebugEnabled()) {
-					_log.debug(noSuchTableException, noSuchTableException);
+				try {
+					ExpandoTableLocalServiceUtil.getTable(
+						company.getCompanyId(), User.class.getName(),
+						ShindigUtil.getTableOpenSocial());
 				}
+				catch (NoSuchTableException noSuchTableException) {
 
-				ExpandoTableLocalServiceUtil.addTable(
-					company.getCompanyId(), User.class.getName(),
-					ShindigUtil.getTableOpenSocial());
-			}
-		}
+					// LPS-52675
+
+					if (_log.isDebugEnabled()) {
+						_log.debug(noSuchTableException, noSuchTableException);
+					}
+
+					ExpandoTableLocalServiceUtil.addTable(
+						company.getCompanyId(), User.class.getName(),
+						ShindigUtil.getTableOpenSocial());
+				}
+			});
 	}
 
 	@Override
 	protected void onDeploy(Message message) throws Exception {
 		verifyGadgets();
 
-		List<Company> companies = CompanyLocalServiceUtil.getCompanies();
-
-		for (Company company : companies) {
-			PortletLocalServiceUtil.addPortletCategory(
-				company.getCompanyId(), _GADGETS_CATEGORY);
-		}
-
-		GadgetLocalServiceUtil.initGadgets();
+		PortalUtil.runCompanies(
+			company -> PortletLocalServiceUtil.addPortletCategory(
+				company.getCompanyId(), _GADGETS_CATEGORY));
 
 		checkExpando();
 	}

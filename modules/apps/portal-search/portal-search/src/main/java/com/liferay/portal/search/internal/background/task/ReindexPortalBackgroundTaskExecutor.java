@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.background.task.ReindexBackgroundTaskConstants;
 import com.liferay.portal.kernel.search.background.task.ReindexStatusMessageSenderUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.search.internal.SearchEngineInitializer;
 
 import org.osgi.framework.BundleContext;
@@ -48,27 +49,29 @@ public class ReindexPortalBackgroundTaskExecutor
 	protected void reindex(String className, long[] companyIds)
 		throws Exception {
 
-		for (long companyId : companyIds) {
-			ReindexStatusMessageSenderUtil.sendStatusMessage(
-				ReindexBackgroundTaskConstants.PORTAL_START, companyId,
-				companyIds);
-
-			try {
-				SearchEngineInitializer searchEngineInitializer =
-					new SearchEngineInitializer(
-						_bundleContext, companyId, _portalExecutorManager);
-
-				searchEngineInitializer.reindex();
-			}
-			catch (Exception exception) {
-				_log.error(exception, exception);
-			}
-			finally {
+		PortalUtil.runCompanyIds(
+			companyId -> {
 				ReindexStatusMessageSenderUtil.sendStatusMessage(
-					ReindexBackgroundTaskConstants.PORTAL_END, companyId,
+					ReindexBackgroundTaskConstants.PORTAL_START, companyId,
 					companyIds);
-			}
-		}
+
+				try {
+					SearchEngineInitializer searchEngineInitializer =
+						new SearchEngineInitializer(
+							_bundleContext, companyId, _portalExecutorManager);
+
+					searchEngineInitializer.reindex();
+				}
+				catch (Exception exception) {
+					_log.error(exception, exception);
+				}
+				finally {
+					ReindexStatusMessageSenderUtil.sendStatusMessage(
+						ReindexBackgroundTaskConstants.PORTAL_END, companyId,
+						companyIds);
+				}
+			},
+			companyIds);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

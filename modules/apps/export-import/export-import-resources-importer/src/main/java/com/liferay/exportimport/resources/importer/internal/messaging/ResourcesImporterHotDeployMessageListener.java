@@ -41,10 +41,10 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Dictionary;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 
@@ -146,17 +146,14 @@ public class ResourcesImporterHotDeployMessageListener
 			return;
 		}
 
-		List<Company> companies = _companyLocalService.getCompanies();
-
 		try {
 			ExportImportThreadLocal.setLayoutImportInProcess(true);
 			ExportImportThreadLocal.setPortletImportInProcess(true);
 
-			for (Company company : companies) {
-				_importResources(
+			_portal.runCompanies(
+				company -> _importResources(
 					company, servletContext, pluginPackageProperties,
-					message.getResponseId());
-			}
+					message.getResponseId()));
 		}
 		finally {
 			ExportImportThreadLocal.setLayoutImportInProcess(false);
@@ -300,6 +297,9 @@ public class ResourcesImporterHotDeployMessageListener
 
 	@Reference
 	private MessageBus _messageBus;
+
+	@Reference
+	private Portal _portal;
 
 	private ServiceRegistration<Destination> _serviceRegistration;
 	private ServiceTrackerMap<String, ServletContext> _serviceTrackerMap;

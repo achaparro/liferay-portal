@@ -21,11 +21,11 @@ import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.test.util.SearchTestRule;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.util.PortalInstances;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,17 +50,18 @@ public class BackupAndRestoreIndexesTest {
 	public void testBackupAndRestore() throws Exception {
 		Map<Long, String> backupNames = new HashMap<>();
 
-		for (long companyId : PortalInstances.getCompanyIds()) {
-			String backupName = StringUtil.lowerCase(
-				BackupAndRestoreIndexesTest.class.getName());
+		_portal.runCompanyIds(
+			companyId -> {
+				String backupName = StringUtil.lowerCase(
+					BackupAndRestoreIndexesTest.class.getName());
 
-			backupName = backupName + "-" + System.currentTimeMillis();
+				backupName = backupName + "-" + System.currentTimeMillis();
 
-			_indexAdminHelper.backup(
-				companyId, SearchEngineHelper.SYSTEM_ENGINE_ID, backupName);
+				_indexAdminHelper.backup(
+					companyId, SearchEngineHelper.SYSTEM_ENGINE_ID, backupName);
 
-			backupNames.put(companyId, backupName);
-		}
+				backupNames.put(companyId, backupName);
+			});
 
 		_group = GroupTestUtil.addGroup();
 
@@ -81,5 +82,8 @@ public class BackupAndRestoreIndexesTest {
 
 	@Inject
 	private IndexAdminHelper _indexAdminHelper;
+
+	@Inject
+	private Portal _portal;
 
 }

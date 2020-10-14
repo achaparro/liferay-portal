@@ -662,11 +662,7 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private void _destroyCompanies() throws Exception {
-		long[] companyIds = PortalInstances.getCompanyIds();
-
-		for (long companyId : companyIds) {
-			_destroyCompany(companyId);
-		}
+		PortalUtil.runCompanyIds(companyId -> _destroyCompany(companyId));
 	}
 
 	private void _destroyCompany(long companyId) {

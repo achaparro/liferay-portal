@@ -60,11 +60,8 @@ public class UpgradeAssetDisplayPageEntry extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		List<Company> companies = _companyLocalService.getCompanies();
-
-		for (Company company : companies) {
-			updateAssetDisplayPageEntry(company);
-		}
+		PortalUtil.runCompanies(
+			company -> updateAssetDisplayPageEntry(company));
 	}
 
 	protected void updateAssetDisplayPageEntry(Company company)

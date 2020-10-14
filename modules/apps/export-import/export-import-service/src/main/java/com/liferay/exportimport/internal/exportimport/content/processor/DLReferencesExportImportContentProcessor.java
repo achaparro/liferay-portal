@@ -33,7 +33,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
@@ -658,16 +657,17 @@ public class DLReferencesExportImportContentProcessor
 
 					hostNames.add(portalURL);
 
-					List<Company> companies =
-						_companyLocalService.getCompanies();
+					_portal.runCompanies(
+						company -> {
+							String virtualHostname =
+								company.getVirtualHostname();
 
-					for (Company company : companies) {
-						String virtualHostname = company.getVirtualHostname();
-
-						hostNames.add(Http.HTTP_WITH_SLASH + virtualHostname);
-						hostNames.add(Http.HTTPS_WITH_SLASH + virtualHostname);
-						hostNames.add(virtualHostname);
-					}
+							hostNames.add(
+								Http.HTTP_WITH_SLASH + virtualHostname);
+							hostNames.add(
+								Http.HTTPS_WITH_SLASH + virtualHostname);
+							hostNames.add(virtualHostname);
+						});
 
 					for (String hostName : hostNames) {
 						int curBeginPos = beginPos - hostName.length();

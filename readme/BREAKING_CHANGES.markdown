@@ -855,21 +855,29 @@ This change was made to unify references to the icon sprite map.
 
 ---------------------------------------
 
-### Replaced portal property view.count.enabled
+### Replaced portal properties: buffered.increment.enabled and view.count.enabled
 - **Date:** 2020-Oct-01
-- **JIRA Ticket:** [LPS-121145](https://issues.liferay.com/browse/LPS-121145)
+- **JIRA Ticket:** [LPS-120626](https://issues.liferay.com/browse/LPS-120626) and [LPS-121145](https://issues.liferay.com/browse/LPS-121145)
 
 #### What changed?
 
-The portal property `view.count.enabled` has been replaced by the `enabled` property in the View Count OSGI Configuration.
+The portal property: `buffered.increment.enabled` has been replaced by the `enabled` property in the View Count OSGI Configuration.
+
+The usage of the portal property: `buffered.increment.enabled` to override settings for a specific asset, such as `buffered.increment.enabled[AssetEntry]`, has been replaced by the `Disabled Class Name` property in the View Count OSGI Configuration.
+
+The portal property: `view.count.enabled` has been replaced by the `enabled` property in the View Count OSGI Configuration.
 
 #### Who is affected?
 
-This affects anyone who has set the `view.count.enabled` property to `false`.
+This affects anyone who has set the portal property: `buffered.increment.enabled` to `false`.
+
+This affects anyone who has used the portal property: `buffered.increment.enabled` to override settings for a specific asset, such as `buffered.increment.enabled[AssetEntry]`, and has set the value to `false`.
+
+This affects anyone who has set the portal property: `view.count.enabled` to `false`.
 
 #### How should I update my code?
 
-The `enabled` property for the View Count OSGI Configuration can be found in *System Settings* &rarr; *Infrastructure* &rarr; *View Count*.
+The `enabled` property and `Disabled Class Name` property for the View Count OSGI Configuration can be found in *System Settings* &rarr; *Infrastructure* &rarr; *View Count*.
 
 #### Why was this change made?
 

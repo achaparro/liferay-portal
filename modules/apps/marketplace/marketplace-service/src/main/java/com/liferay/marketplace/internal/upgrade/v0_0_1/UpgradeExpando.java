@@ -49,9 +49,8 @@ public class UpgradeExpando extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		for (long companyId : PortalUtil.getCompanyIds()) {
-			updateMPExpandoColumns(companyId);
-		}
+		PortalUtil.runCompanies(
+			company -> updateMPExpandoColumns(company.getCompanyId()));
 	}
 
 	protected void updateMPExpandoColumns(long companyId) throws Exception {

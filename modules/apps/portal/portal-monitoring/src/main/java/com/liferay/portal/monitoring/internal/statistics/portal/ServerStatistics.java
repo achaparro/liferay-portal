@@ -18,6 +18,8 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.monitoring.DataSampleProcessor;
 import com.liferay.portal.kernel.monitoring.MonitoringException;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.Portal;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -117,9 +119,9 @@ public class ServerStatistics
 	}
 
 	public void reset() {
-		for (long companyId : _companyStatisticsByCompanyId.keySet()) {
-			reset(companyId);
-		}
+		_portal.runCompanyIds(
+			companyId -> reset(companyId),
+			ArrayUtil.toLongArray(_companyStatisticsByCompanyId.keySet()));
 	}
 
 	public void reset(long companyId) {
@@ -176,5 +178,8 @@ public class ServerStatistics
 		new TreeMap<>();
 	private final Map<String, CompanyStatistics> _companyStatisticsByWebId =
 		new TreeMap<>();
+
+	@Reference
+	private Portal _portal;
 
 }

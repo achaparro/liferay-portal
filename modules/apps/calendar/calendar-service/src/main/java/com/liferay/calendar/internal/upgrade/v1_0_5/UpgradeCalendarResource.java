@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -167,19 +168,20 @@ public class UpgradeCalendarResource extends UpgradeProcess {
 		throws PortalException, SQLException {
 
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			for (Company company : _companyLocalService.getCompanies()) {
-				long classNameId = _classNameLocalService.getClassNameId(
-					Group.class);
-				long defaultUserId = _userLocalService.getDefaultUserId(
-					company.getCompanyId());
-				long companyAdminUserId = getCompanyAdminUserId(company);
+			PortalUtil.runCompanies(
+				company -> {
+					long classNameId = _classNameLocalService.getClassNameId(
+						Group.class);
+					long defaultUserId = _userLocalService.getDefaultUserId(
+						company.getCompanyId());
+					long companyAdminUserId = getCompanyAdminUserId(company);
 
-				updateCalendarUserIds(
-					classNameId, defaultUserId, companyAdminUserId);
+					updateCalendarUserIds(
+						classNameId, defaultUserId, companyAdminUserId);
 
-				upgradeCalendarResourceUserId(
-					classNameId, defaultUserId, companyAdminUserId);
-			}
+					upgradeCalendarResourceUserId(
+						classNameId, defaultUserId, companyAdminUserId);
+				});
 		}
 	}
 

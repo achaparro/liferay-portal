@@ -24,9 +24,9 @@ import com.liferay.portal.kernel.model.WorkflowedModel;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.SearchException;
-import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.search.batch.BatchIndexingActionable;
@@ -176,14 +176,8 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 			return;
 		}
 
-		long companyThreadLocalCompanyId = CompanyThreadLocal.getCompanyId();
-
-		try {
-			for (String id : ids) {
-				long companyId = GetterUtil.getLong(id);
-
-				CompanyThreadLocal.setCompanyId(companyId);
-
+		PortalUtil.runCompanyIds(
+			companyId -> {
 				BatchIndexingActionable batchIndexingActionable =
 					getBatchIndexingActionable();
 
@@ -210,11 +204,8 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 						_log.warn(sb.toString(), exception);
 					}
 				}
-			}
-		}
-		finally {
-			CompanyThreadLocal.setCompanyId(companyThreadLocalCompanyId);
-		}
+			},
+			GetterUtil.getLongValues(ids));
 	}
 
 	@Override

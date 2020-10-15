@@ -2140,6 +2140,9 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		_log.debug("Caller: " + Thread.currentThread().getStackTrace().toString());
 
+		PortalException portalException = new PortalException();
+		portalException.printStackTrace();
+
 		return user;
 	}
 

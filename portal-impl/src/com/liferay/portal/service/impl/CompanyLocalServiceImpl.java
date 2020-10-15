@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.AccountNameException;
 import com.liferay.portal.kernel.exception.CompanyMxException;
 import com.liferay.portal.kernel.exception.CompanyVirtualHostException;
@@ -1261,6 +1262,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		// User
 
+		_log.debug("Cleaning up users from company via actionable dynamic query.");
+
 		ActionableDynamicQuery userActionableDynamicQuery =
 			userLocalService.getActionableDynamicQuery();
 
@@ -1268,6 +1271,12 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		userActionableDynamicQuery.setPerformActionMethod(
 			(User user) -> {
 				if (!user.isDefaultUser()) {
+					_log.debug("Current users left= " + userLocalService.getUsers(
+						QueryUtil.ALL_POS, QueryUtil.ALL_POS).toString());
+
+					_log.debug("Trying to delete user: " + user.getUserId() +
+							   "from company with companyId=" + user.getCompanyId());
+
 					userLocalService.deleteUser(user.getUserId());
 				}
 			});

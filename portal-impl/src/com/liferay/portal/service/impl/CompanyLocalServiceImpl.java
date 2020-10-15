@@ -1283,6 +1283,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		userActionableDynamicQuery.performActions();
 
+		_log.debug("Finished Cleaning up users from company via actionable dynamic query.");
+
 		userLocalService.deleteUser(userLocalService.getDefaultUser(companyId));
 
 		// Role
@@ -1307,6 +1309,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		deleteSystemEventActionableDynamicQuery.performActions();
 
 		_deletePortalInstance(company);
+
+		_log.debug("Finished cleaning up company.");
 
 		return company;
 	}

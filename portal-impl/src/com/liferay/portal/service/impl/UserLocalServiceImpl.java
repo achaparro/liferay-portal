@@ -2138,6 +2138,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		workflowInstanceLinkLocalService.deleteWorkflowInstanceLinks(
 			user.getCompanyId(), 0, User.class.getName(), user.getUserId());
 
+		_log.debug("Caller: " + Thread.currentThread().getStackTrace().toString());
+
 		return user;
 	}
 

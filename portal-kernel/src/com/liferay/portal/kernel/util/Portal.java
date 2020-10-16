@@ -1209,16 +1209,21 @@ public interface Portal {
 
 	public String resetPortletParameters(String url, String portletId);
 
-	public void runCompanies(UnsafeConsumer<Company, Exception> unsafeConsumer);
+	public <E extends Exception> void runCompanies(
+			UnsafeConsumer<Company, E> unsafeConsumer)
+		throws E;
 
-	public void runCompanies(
-		UnsafeConsumer<Company, Exception> unsafeConsumer,
-		List<Company> companies);
+	public <E extends Exception> void runCompanies(
+			UnsafeConsumer<Company, E> unsafeConsumer, List<Company> companies)
+		throws E;
 
-	public void runCompanyIds(UnsafeConsumer<Long, Exception> unsafeConsumer);
+	public <E extends Exception> void runCompanyIds(
+			UnsafeConsumer<Long, E> unsafeConsumer)
+		throws E;
 
-	public void runCompanyIds(
-		UnsafeConsumer<Long, Exception> unsafeConsumer, long[] companyIds);
+	public <E extends Exception> void runCompanyIds(
+			UnsafeConsumer<Long, E> unsafeConsumer, long[] companyIds)
+		throws E;
 
 	public void sendError(
 			Exception exception, ActionRequest actionRequest,

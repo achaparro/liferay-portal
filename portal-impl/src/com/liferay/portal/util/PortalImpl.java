@@ -24,7 +24,6 @@ import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.petra.encryptor.Encryptor;
 import com.liferay.petra.function.UnsafeConsumer;
-import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -6552,16 +6551,17 @@ public class PortalImpl implements Portal {
 	}
 
 	@Override
-	public void runCompanies(
-		UnsafeConsumer<Company, Exception> unsafeConsumer) {
+	public <E extends Exception> void runCompanies(
+			UnsafeConsumer<Company, E> unsafeConsumer)
+		throws E {
 
 		runCompanies(unsafeConsumer, CompanyLocalServiceUtil.getCompanies());
 	}
 
 	@Override
-	public void runCompanies(
-		UnsafeConsumer<Company, Exception> unsafeConsumer,
-		List<Company> companies) {
+	public <E extends Exception> void runCompanies(
+			UnsafeConsumer<Company, E> unsafeConsumer, List<Company> companies)
+		throws E {
 
 		long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
@@ -6572,22 +6572,23 @@ public class PortalImpl implements Portal {
 				unsafeConsumer.accept(company);
 			}
 		}
-		catch (Exception exception) {
-			ReflectionUtil.throwException(exception);
-		}
 		finally {
 			CompanyThreadLocal.setCompanyId(currentCompanyId);
 		}
 	}
 
 	@Override
-	public void runCompanyIds(UnsafeConsumer<Long, Exception> unsafeConsumer) {
+	public <E extends Exception> void runCompanyIds(
+			UnsafeConsumer<Long, E> unsafeConsumer)
+		throws E {
+
 		runCompanyIds(unsafeConsumer, getCompanyIds());
 	}
 
 	@Override
-	public void runCompanyIds(
-		UnsafeConsumer<Long, Exception> unsafeConsumer, long[] companyIds) {
+	public <E extends Exception> void runCompanyIds(
+			UnsafeConsumer<Long, E> unsafeConsumer, long[] companyIds)
+		throws E {
 
 		long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
@@ -6597,9 +6598,6 @@ public class PortalImpl implements Portal {
 
 				unsafeConsumer.accept(companyId);
 			}
-		}
-		catch (Exception exception) {
-			ReflectionUtil.throwException(exception);
 		}
 		finally {
 			CompanyThreadLocal.setCompanyId(currentCompanyId);

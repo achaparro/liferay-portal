@@ -23,7 +23,9 @@ import com.liferay.expando.kernel.model.ExpandoColumnConstants;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.petra.encryptor.Encryptor;
+import com.liferay.petra.function.UnsafeBiConsumer;
 import com.liferay.petra.function.UnsafeConsumer;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -270,6 +272,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -6585,10 +6588,20 @@ public class PortalImpl implements Portal {
 		runCompanyIds(unsafeConsumer, getCompanyIds());
 	}
 
-	@Override
+	@SuppressWarnings("all")
 	public <E extends Exception> void runCompanyIds(
-			UnsafeConsumer<Long, E> unsafeConsumer, long[] companyIds)
-		throws E {
+		UnsafeConsumer<Long, E> unsafeConsumer,
+		long[] companyIds) throws E {
+
+		runCompanyIds(
+			unsafeConsumer, (__, e) -> ReflectionUtil.throwException(e),
+			companyIds);
+	}
+
+
+	public <E extends Exception> void runCompanyIds(
+		UnsafeConsumer<Long, E> unsafeConsumer,
+		BiConsumer<Long, E> biConsumer, long[] companyIds) {
 
 		long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
@@ -6596,7 +6609,12 @@ public class PortalImpl implements Portal {
 			for (long companyId : companyIds) {
 				CompanyThreadLocal.setCompanyId(companyId);
 
-				unsafeConsumer.accept(companyId);
+				try {
+					unsafeConsumer.accept(companyId);
+				}
+				catch (Exception e) {
+					biConsumer.accept(companyId, (E)e);
+				}
 			}
 		}
 		finally {

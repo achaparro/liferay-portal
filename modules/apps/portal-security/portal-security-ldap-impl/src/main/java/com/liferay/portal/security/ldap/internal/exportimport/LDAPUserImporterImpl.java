@@ -53,6 +53,7 @@ import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
@@ -390,11 +391,9 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 
 	@Override
 	public void importUsers() throws Exception {
-		List<Company> companies = _companyLocalService.getCompanies(false);
-
-		for (Company company : companies) {
-			importUsers(company.getCompanyId());
-		}
+		CompaniesUtil.run(
+			company -> importUsers(company.getCompanyId()),
+			_companyLocalService.getCompanies(false));
 	}
 
 	@Override

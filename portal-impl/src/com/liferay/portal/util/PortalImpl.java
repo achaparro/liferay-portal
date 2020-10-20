@@ -23,9 +23,6 @@ import com.liferay.expando.kernel.model.ExpandoColumnConstants;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.layout.admin.kernel.model.LayoutTypePortletConstants;
 import com.liferay.petra.encryptor.Encryptor;
-import com.liferay.petra.function.UnsafeBiConsumer;
-import com.liferay.petra.function.UnsafeConsumer;
-import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -272,7 +269,6 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -6551,75 +6547,6 @@ public class PortalImpl implements Portal {
 		}
 
 		return url;
-	}
-
-	@Override
-	public <E extends Exception> void runCompanies(
-			UnsafeConsumer<Company, E> unsafeConsumer)
-		throws E {
-
-		runCompanies(unsafeConsumer, CompanyLocalServiceUtil.getCompanies());
-	}
-
-	@Override
-	public <E extends Exception> void runCompanies(
-			UnsafeConsumer<Company, E> unsafeConsumer, List<Company> companies)
-		throws E {
-
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
-
-		try {
-			for (Company company : companies) {
-				CompanyThreadLocal.setCompanyId(company.getCompanyId());
-
-				unsafeConsumer.accept(company);
-			}
-		}
-		finally {
-			CompanyThreadLocal.setCompanyId(currentCompanyId);
-		}
-	}
-
-	@Override
-	public <E extends Exception> void runCompanyIds(
-			UnsafeConsumer<Long, E> unsafeConsumer)
-		throws E {
-
-		runCompanyIds(unsafeConsumer, getCompanyIds());
-	}
-
-	@SuppressWarnings("all")
-	public <E extends Exception> void runCompanyIds(
-		UnsafeConsumer<Long, E> unsafeConsumer,
-		long[] companyIds) throws E {
-
-		runCompanyIds(
-			unsafeConsumer, (__, e) -> ReflectionUtil.throwException(e),
-			companyIds);
-	}
-
-
-	public <E extends Exception> void runCompanyIds(
-		UnsafeConsumer<Long, E> unsafeConsumer,
-		BiConsumer<Long, E> biConsumer, long[] companyIds) {
-
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
-
-		try {
-			for (long companyId : companyIds) {
-				CompanyThreadLocal.setCompanyId(companyId);
-
-				try {
-					unsafeConsumer.accept(companyId);
-				}
-				catch (Exception e) {
-					biConsumer.accept(companyId, (E)e);
-				}
-			}
-		}
-		finally {
-			CompanyThreadLocal.setCompanyId(currentCompanyId);
-		}
 	}
 
 	@Override

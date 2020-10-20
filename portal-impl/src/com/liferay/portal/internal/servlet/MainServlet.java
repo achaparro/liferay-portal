@@ -14,6 +14,7 @@
 
 package com.liferay.portal.internal.servlet;
 
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -58,6 +59,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.InactiveRequestHandler;
 import com.liferay.portal.kernel.servlet.PortalSessionThreadLocal;
 import com.liferay.portal.kernel.template.TemplateManager;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -664,11 +666,9 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private void _destroyCompanies() throws Exception {
-		long[] companyIds = PortalInstances.getCompanyIds();
-
-		for (long companyId : companyIds) {
-			_destroyCompany(companyId);
-		}
+		CompaniesUtil.runCompanyIds(
+			(UnsafeConsumer<Long, RuntimeException>)
+				companyId -> _destroyCompany(companyId));
 	}
 
 	private void _destroyCompany(long companyId) {

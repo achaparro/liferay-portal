@@ -28,6 +28,8 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.servlet.BaseFilter;
 import com.liferay.portal.kernel.servlet.HttpMethods;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionary;
@@ -337,11 +339,13 @@ public class PortalCORSServletFilter
 				URLPatternMapperFactory.create(corsSupports));
 		}
 
-		for (long companyId : _urlPatternMappers.keySet()) {
-			if (companyId != CompanyConstants.SYSTEM) {
-				_rebuild(companyId);
-			}
-		}
+		CompaniesUtil.runCompanyIds(
+			companyId -> {
+				if (companyId != CompanyConstants.SYSTEM) {
+					_rebuild(companyId);
+				}
+			},
+			ArrayUtil.toLongArray(_urlPatternMappers.keySet()));
 	}
 
 	private void _rebuild(long companyId) {

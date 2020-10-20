@@ -186,7 +186,7 @@ public class EditMVCActionCommand extends BaseMVCActionCommand {
 		throws Exception {
 
 		DictionaryReindexer dictionaryReindexer = new DictionaryReindexer(
-			_indexWriterHelper, _portalInstancesLocalService);
+			_indexWriterHelper);
 
 		dictionaryReindexer.reindexDictionaries();
 	}

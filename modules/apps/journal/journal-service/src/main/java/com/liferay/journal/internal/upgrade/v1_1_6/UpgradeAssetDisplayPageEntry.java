@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -60,11 +61,7 @@ public class UpgradeAssetDisplayPageEntry extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		List<Company> companies = _companyLocalService.getCompanies();
-
-		for (Company company : companies) {
-			updateAssetDisplayPageEntry(company);
-		}
+		CompaniesUtil.run(this::updateAssetDisplayPageEntry);
 	}
 
 	protected void updateAssetDisplayPageEntry(Company company)

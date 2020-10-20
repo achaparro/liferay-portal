@@ -27,8 +27,8 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
-import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.List;
 
@@ -49,9 +49,8 @@ public class UpgradeExpando extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		for (long companyId : PortalUtil.getCompanyIds()) {
-			updateMPExpandoColumns(companyId);
-		}
+		CompaniesUtil.run(
+			company -> updateMPExpandoColumns(company.getCompanyId()));
 	}
 
 	protected void updateMPExpandoColumns(long companyId) throws Exception {

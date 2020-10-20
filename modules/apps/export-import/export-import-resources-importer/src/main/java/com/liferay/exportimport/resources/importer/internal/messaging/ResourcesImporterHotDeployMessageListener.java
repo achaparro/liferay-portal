@@ -38,13 +38,13 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Dictionary;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 
@@ -146,17 +146,14 @@ public class ResourcesImporterHotDeployMessageListener
 			return;
 		}
 
-		List<Company> companies = _companyLocalService.getCompanies();
-
 		try {
 			ExportImportThreadLocal.setLayoutImportInProcess(true);
 			ExportImportThreadLocal.setPortletImportInProcess(true);
 
-			for (Company company : companies) {
-				_importResources(
+			CompaniesUtil.run(
+				company -> _importResources(
 					company, servletContext, pluginPackageProperties,
-					message.getResponseId());
-			}
+					message.getResponseId()));
 		}
 		finally {
 			ExportImportThreadLocal.setLayoutImportInProcess(false);

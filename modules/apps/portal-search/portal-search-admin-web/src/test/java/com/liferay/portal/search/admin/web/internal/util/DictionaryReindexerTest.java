@@ -18,6 +18,7 @@ import com.liferay.portal.instances.service.PortalInstancesLocalService;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,19 +47,19 @@ public class DictionaryReindexerTest {
 	@Test
 	public void testReindexAllCompaniesDictionaries() throws SearchException {
 		DictionaryReindexer dictionaryReindexer = new DictionaryReindexer(
-			_indexWriterHelper, _portalInstancesLocalService);
+			_indexWriterHelper);
 
 		dictionaryReindexer.reindexDictionaries();
 
-		for (long companyId : _COMPANY_IDS) {
-			assertIndexWriterHelperReindexDictionariesWithCompanyId(companyId);
-		}
+		CompaniesUtil.runCompanyIds(
+			this::assertIndexWriterHelperReindexDictionariesWithCompanyId,
+			_COMPANY_IDS);
 	}
 
 	@Test
 	public void testReindexSystemCompanyDictionaries() throws SearchException {
 		DictionaryReindexer dictionaryReindexer = new DictionaryReindexer(
-			_indexWriterHelper, _portalInstancesLocalService);
+			_indexWriterHelper);
 
 		dictionaryReindexer.reindexDictionaries();
 

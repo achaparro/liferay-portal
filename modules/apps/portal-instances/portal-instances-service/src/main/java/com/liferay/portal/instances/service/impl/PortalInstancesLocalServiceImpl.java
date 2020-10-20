@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.CompanyService;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.util.PortalInstances;
@@ -148,9 +149,9 @@ public class PortalInstancesLocalServiceImpl
 				PortalInstances.initCompany(portalContext, company.getWebId());
 			}
 
-			for (long companyId : removeableCompanyIds) {
-				PortalInstances.removeCompany(companyId);
-			}
+			CompaniesUtil.runCompanyIds(
+				companyId -> PortalInstances.removeCompany(companyId),
+				ArrayUtil.toLongArray(removeableCompanyIds));
 		}
 		catch (Exception exception) {
 			_log.error(exception, exception);

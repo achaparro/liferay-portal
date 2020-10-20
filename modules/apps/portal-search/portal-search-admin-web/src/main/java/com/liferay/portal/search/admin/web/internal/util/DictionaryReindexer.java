@@ -14,32 +14,39 @@
 
 package com.liferay.portal.search.admin.web.internal.util;
 
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.instances.service.PortalInstancesLocalService;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 
 /**
  * @author Adam Brandizzi
  */
 public class DictionaryReindexer {
 
+	public DictionaryReindexer(IndexWriterHelper indexWriterHelper) {
+		_indexWriterHelper = indexWriterHelper;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #DictionaryReindexer(IndexWriterHelper)}
+	 */
+	@Deprecated
 	public DictionaryReindexer(
 		IndexWriterHelper indexWriterHelper,
 		PortalInstancesLocalService portalInstancesLocalService) {
 
 		_indexWriterHelper = indexWriterHelper;
-		_portalInstancesLocalService = portalInstancesLocalService;
 	}
 
 	public void reindexDictionaries() throws SearchException {
 		reindexDictionaries(CompanyConstants.SYSTEM);
 
-		long[] companyIds = _portalInstancesLocalService.getCompanyIds();
-
-		for (long companyId : companyIds) {
-			reindexDictionaries(companyId);
-		}
+		CompaniesUtil.runCompanyIds(
+			(UnsafeConsumer<Long, SearchException>)
+				companyId -> reindexDictionaries(companyId));
 	}
 
 	protected void reindexDictionaries(long companyId) throws SearchException {
@@ -48,6 +55,5 @@ public class DictionaryReindexer {
 	}
 
 	private final IndexWriterHelper _indexWriterHelper;
-	private final PortalInstancesLocalService _portalInstancesLocalService;
 
 }

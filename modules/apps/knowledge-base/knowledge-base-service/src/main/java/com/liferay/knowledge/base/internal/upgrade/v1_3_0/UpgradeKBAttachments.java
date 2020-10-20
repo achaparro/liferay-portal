@@ -27,9 +27,9 @@ import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.sql.PreparedStatement;
@@ -45,10 +45,10 @@ public class UpgradeKBAttachments extends UpgradeProcess {
 	}
 
 	protected void deleteEmptyDirectories() throws Exception {
-		for (long companyId : PortalUtil.getCompanyIds()) {
-			_store.deleteDirectory(
-				companyId, CompanyConstants.SYSTEM, "knowledgebase/kbarticles");
-		}
+		CompaniesUtil.run(
+			company -> _store.deleteDirectory(
+				company.getCompanyId(), CompanyConstants.SYSTEM,
+				"knowledgebase/kbarticles"));
 	}
 
 	@Override

@@ -33,7 +33,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.StagedModel;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
@@ -44,6 +43,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -658,16 +658,17 @@ public class DLReferencesExportImportContentProcessor
 
 					hostNames.add(portalURL);
 
-					List<Company> companies =
-						_companyLocalService.getCompanies();
+					CompaniesUtil.run(
+						company -> {
+							String virtualHostname =
+								company.getVirtualHostname();
 
-					for (Company company : companies) {
-						String virtualHostname = company.getVirtualHostname();
-
-						hostNames.add(Http.HTTP_WITH_SLASH + virtualHostname);
-						hostNames.add(Http.HTTPS_WITH_SLASH + virtualHostname);
-						hostNames.add(virtualHostname);
-					}
+							hostNames.add(
+								Http.HTTP_WITH_SLASH + virtualHostname);
+							hostNames.add(
+								Http.HTTPS_WITH_SLASH + virtualHostname);
+							hostNames.add(virtualHostname);
+						});
 
 					for (String hostName : hostNames) {
 						int curBeginPos = beginPos - hostName.length();

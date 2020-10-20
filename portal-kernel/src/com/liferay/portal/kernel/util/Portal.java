@@ -15,7 +15,6 @@
 package com.liferay.portal.kernel.util;
 
 import com.liferay.expando.kernel.model.ExpandoBridge;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.Company;
@@ -1208,22 +1207,6 @@ public interface Portal {
 	public void resetCDNHosts();
 
 	public String resetPortletParameters(String url, String portletId);
-
-	public <E extends Exception> void runCompanies(
-			UnsafeConsumer<Company, E> unsafeConsumer)
-		throws E;
-
-	public <E extends Exception> void runCompanies(
-			UnsafeConsumer<Company, E> unsafeConsumer, List<Company> companies)
-		throws E;
-
-	public <E extends Exception> void runCompanyIds(
-			UnsafeConsumer<Long, E> unsafeConsumer)
-		throws E;
-
-	public <E extends Exception> void runCompanyIds(
-			UnsafeConsumer<Long, E> unsafeConsumer, long[] companyIds)
-		throws E;
 
 	public void sendError(
 			Exception exception, ActionRequest actionRequest,

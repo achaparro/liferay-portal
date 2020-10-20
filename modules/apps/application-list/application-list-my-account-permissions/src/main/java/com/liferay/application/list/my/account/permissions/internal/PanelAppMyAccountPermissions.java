@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.PortletLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PrefsProps;
 
@@ -60,9 +61,10 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 public class PanelAppMyAccountPermissions {
 
 	public void initPermissions(List<Company> companies, Portlet portlet) {
-		for (Company company : companies) {
-			initPermissions(company.getCompanyId(), Arrays.asList(portlet));
-		}
+		CompaniesUtil.run(
+			company -> initPermissions(
+				company.getCompanyId(), Arrays.asList(portlet)),
+			companies);
 	}
 
 	public void initPermissions(long companyId, List<Portlet> portlets) {

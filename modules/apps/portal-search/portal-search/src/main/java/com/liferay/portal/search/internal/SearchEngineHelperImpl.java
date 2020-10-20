@@ -27,7 +27,9 @@ import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineConfigurator;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.search.queue.QueuingSearchEngine;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ClassUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.search.configuration.SearchEngineHelperConfiguration;
 
@@ -242,9 +244,9 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 
 		_searchEngines.put(searchEngineId, searchEngine);
 
-		for (Long companyId : _companyIds.keySet()) {
-			searchEngine.initialize(companyId);
-		}
+		CompaniesUtil.runCompanyIds(
+			searchEngine::initialize,
+			ArrayUtil.toLongArray(_companyIds.keySet()));
 
 		synchronized (_queuingSearchEngines) {
 			QueuingSearchEngine queuingSearchEngine = _queuingSearchEngines.get(

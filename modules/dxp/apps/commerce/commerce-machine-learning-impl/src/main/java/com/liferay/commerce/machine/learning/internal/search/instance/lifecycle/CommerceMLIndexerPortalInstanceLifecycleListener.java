@@ -122,8 +122,7 @@ public class CommerceMLIndexerPortalInstanceLifecycleListener
 	}
 
 	protected void verifyCompanies(CommerceMLIndexer commerceMLIndexer) {
-		CompaniesUtil.run(
-			company -> commerceMLIndexer.createIndex(company.getCompanyId()));
+		CompaniesUtil.runCompanyIds(commerceMLIndexer::createIndex);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

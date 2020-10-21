@@ -165,10 +165,8 @@ public class AMThumbnailsOSGiCommands {
 
 			Stream<Company> companyStream = companies.stream();
 
-			return companyStream.map(
+			return companyStream.mapToLong(
 				Company::getCompanyId
-			).mapToLong(
-				companyId -> companyId
 			).toArray();
 		}
 
@@ -176,10 +174,8 @@ public class AMThumbnailsOSGiCommands {
 
 		return companyIdStream.filter(
 			Validator::isNumber
-		).map(
-			Long::parseLong
 		).mapToLong(
-			companyId -> companyId
+			Long::parseLong
 		).toArray();
 	}
 

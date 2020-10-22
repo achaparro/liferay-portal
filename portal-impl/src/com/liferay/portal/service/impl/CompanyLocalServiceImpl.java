@@ -2025,7 +2025,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 		catch (NoSuchVirtualHostException noSuchVirtualHostException) {
 			_log.debug("OK: Not virtual host name exist after deletion "
-					   + companyId + " " + company.getVirtualHostname());
+					   + company.getCompanyId() + " " + company.getVirtualHostname());
 		}
 
 

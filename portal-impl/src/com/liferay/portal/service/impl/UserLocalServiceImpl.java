@@ -2138,10 +2138,12 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		workflowInstanceLinkLocalService.deleteWorkflowInstanceLinks(
 			user.getCompanyId(), 0, User.class.getName(), user.getUserId());
 
-		_log.debug("### User Stacktrace ###");
+		_log.debug("### START User Stacktrace ###");
 
 		PortalException portalException = new PortalException();
 		portalException.printStackTrace();
+
+		_log.debug("### END User Stacktrace ###");
 
 		return user;
 	}

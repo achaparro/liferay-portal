@@ -477,7 +477,7 @@
 	</category>
 
 	<category name="com.liferay.portal.security.auth.PrincipalThreadLocal">
-		<priority value="ERROR" />
+		<priority value="DEBUG" />
 	</category>
 
 	<category name="com.liferay.portal.security.auth.ScreenNameGeneratorFactory">
@@ -550,6 +550,10 @@
 
 	<category name="com.liferay.portal.service.impl.ServiceComponentLocalServiceImpl">
 		<priority value="INFO" />
+	</category>
+
+	<category name="com.liferay.portal.service.impl.SystemEventLocalServiceImpl">
+		<priority value="DEBUG" />
 	</category>
 
 	<category name="com.liferay.portal.service.impl.ThemeLocalServiceImpl">

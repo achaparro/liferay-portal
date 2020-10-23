@@ -18,6 +18,8 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.SystemEvent;
@@ -50,6 +52,8 @@ public class SystemEventLocalServiceImpl
 
 		if (userId == 0) {
 			userId = PrincipalThreadLocal.getUserId();
+
+			_log.debug("PrincipalThreadLocal userId: " + userId);
 		}
 
 		long companyId = 0;
@@ -260,5 +264,8 @@ public class SystemEventLocalServiceImpl
 
 		return systemEventPersistence.update(systemEvent);
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SystemEventLocalServiceImpl.class);
 
 }

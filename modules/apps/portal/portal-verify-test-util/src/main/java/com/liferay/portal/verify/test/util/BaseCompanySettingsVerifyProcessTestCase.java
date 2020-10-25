@@ -66,8 +66,7 @@ public abstract class BaseCompanySettingsVerifyProcessTestCase
 
 		CompaniesUtil.run(
 			company -> companyLocalService.updatePreferences(
-				company.getCompanyId(), unicodeProperties),
-			companyLocalService.getCompanies(false));
+				company.getCompanyId(), unicodeProperties));
 	}
 
 	@After
@@ -83,8 +82,7 @@ public abstract class BaseCompanySettingsVerifyProcessTestCase
 				modifiableSettings.reset();
 
 				modifiableSettings.store();
-			},
-			companyLocalService.getCompanies(false));
+			});
 
 		super.tearDown();
 	}
@@ -103,8 +101,7 @@ public abstract class BaseCompanySettingsVerifyProcessTestCase
 				Assert.assertNotNull(settings);
 
 				doVerify(portletPreferences, settings);
-			},
-			companyLocalService.getCompanies(false));
+			});
 	}
 
 	protected abstract void doVerify(

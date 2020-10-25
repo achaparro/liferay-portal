@@ -16,6 +16,7 @@ package com.liferay.oauth2.provider.internal.upgrade.v2_0_0;
 
 import com.liferay.oauth2.provider.scope.liferay.LiferayOAuth2Scope;
 import com.liferay.oauth2.provider.scope.liferay.ScopeLocator;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.service.CompanyLocalService;
@@ -53,7 +54,8 @@ public class UpgradeOAuth2ApplicationScopeAliases extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		CompaniesUtil.run(company -> upgradeCompany(company.getCompanyId()));
+		CompaniesUtil.runCompanyIds(
+			(UnsafeConsumer<Long, Exception>)this::upgradeCompany);
 	}
 
 	protected void upgradeCompany(long companyId) throws Exception {

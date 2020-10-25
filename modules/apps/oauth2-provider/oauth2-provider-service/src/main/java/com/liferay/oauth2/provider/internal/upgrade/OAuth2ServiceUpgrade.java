@@ -20,7 +20,6 @@ import com.liferay.oauth2.provider.internal.upgrade.v2_0_0.util.OAuth2Applicatio
 import com.liferay.oauth2.provider.internal.upgrade.v2_0_0.util.OAuth2ApplicationTable;
 import com.liferay.oauth2.provider.internal.upgrade.v2_0_0.util.OAuth2ScopeGrantTable;
 import com.liferay.oauth2.provider.scope.liferay.ScopeLocator;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.portal.upgrade.step.util.UpgradeStepFactory;
 
@@ -53,8 +52,7 @@ public class OAuth2ServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"1.3.0", "2.0.0",
-			new UpgradeOAuth2ApplicationScopeAliases(
-				_companyLocalService, _scopeLocator),
+			new UpgradeOAuth2ApplicationScopeAliases(_scopeLocator),
 			UpgradeStepFactory.dropColumns(
 				OAuth2ApplicationScopeAliasesTable.class, "scopeAliases",
 				"scopeAliasesHash"));
@@ -70,9 +68,6 @@ public class OAuth2ServiceUpgrade implements UpgradeStepRegistrator {
 				"update OAuth2Application set clientCredentialUserId = " +
 					"userId, clientCredentialUserName = userName"));
 	}
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private ScopeLocator _scopeLocator;

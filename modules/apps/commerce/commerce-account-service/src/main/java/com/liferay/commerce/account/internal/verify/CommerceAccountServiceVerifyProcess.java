@@ -59,13 +59,12 @@ public class CommerceAccountServiceVerifyProcess extends VerifyProcess {
 
 	protected void verifyAccountRoles() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.run(
-				company -> {
+			CompaniesUtil.runCompanyIds(
+				companyId -> {
 					ServiceContext serviceContext = new ServiceContext();
 
-					serviceContext.setCompanyId(company.getCompanyId());
-					serviceContext.setUserId(
-						_getAdminUserId(company.getCompanyId()));
+					serviceContext.setCompanyId(companyId);
+					serviceContext.setUserId(_getAdminUserId(companyId));
 					serviceContext.setUuid(PortalUUIDUtil.generate());
 
 					_commerceAccountRoleHelper.checkCommerceAccountRoles(

@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -87,9 +86,7 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 			return;
 		}
 
-		CompaniesUtil.run(
-			company -> _process(company.getCompanyId()),
-			_companyLocalService.getCompanies(false));
+		CompaniesUtil.run(company -> _process(company.getCompanyId()));
 	}
 
 	@Override
@@ -190,9 +187,6 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 
 	@Reference
 	private AnalyticsMessageSenderClient _analyticsMessageSenderClient;
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private SchedulerEngineHelper _schedulerEngineHelper;

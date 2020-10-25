@@ -132,8 +132,7 @@ public abstract class BaseCompanySettingsVerifyProcess extends VerifyProcess {
 
 					companyLocalService.removePreferences(
 						company.getCompanyId(), keys.toArray(new String[0]));
-				},
-				companyLocalService.getCompanies(false));
+				});
 		}
 	}
 

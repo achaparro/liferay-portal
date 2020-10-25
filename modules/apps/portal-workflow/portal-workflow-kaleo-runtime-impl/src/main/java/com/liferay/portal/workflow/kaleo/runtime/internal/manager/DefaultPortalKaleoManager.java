@@ -107,8 +107,7 @@ public class DefaultPortalKaleoManager
 			company -> deployDefaultDefinitionLinks(company.getCompanyId()),
 			(companyId, exception) -> {
 				throw new SystemException(exception);
-			},
-			companyLocalService.getCompanies(false));
+			});
 	}
 
 	@Override

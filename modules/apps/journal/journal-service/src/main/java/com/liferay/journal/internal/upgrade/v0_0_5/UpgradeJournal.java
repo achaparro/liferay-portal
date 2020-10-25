@@ -22,6 +22,7 @@ import com.liferay.dynamic.data.mapping.service.DDMTemplateLinkLocalService;
 import com.liferay.dynamic.data.mapping.util.DefaultDDMStructureHelper;
 import com.liferay.journal.constants.JournalPortletKeys;
 import com.liferay.journal.model.JournalArticle;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.XMLUtil;
@@ -574,8 +575,8 @@ public class UpgradeJournal extends UpgradeProcess {
 
 	protected void updateJournalArticles() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.run(
-				company -> updateJournalArticles(company.getCompanyId()));
+			CompaniesUtil.runCompanyIds(
+				(UnsafeConsumer<Long, Exception>)this::updateJournalArticles);
 		}
 	}
 

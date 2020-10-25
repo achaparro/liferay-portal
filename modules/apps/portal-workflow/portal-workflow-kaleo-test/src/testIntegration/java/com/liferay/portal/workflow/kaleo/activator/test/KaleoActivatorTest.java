@@ -52,7 +52,7 @@ public class KaleoActivatorTest {
 
 		Assert.assertFalse(companies.toString(), companies.isEmpty());
 
-		CompaniesUtil.run(
+		CompaniesUtil.forEach(
 			company -> {
 				ServiceContext serviceContext = new ServiceContext();
 

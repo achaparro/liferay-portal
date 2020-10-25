@@ -61,7 +61,7 @@ public class UpgradeAssetDisplayPageEntry extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		CompaniesUtil.run(this::updateAssetDisplayPageEntry);
+		CompaniesUtil.forEach(this::updateAssetDisplayPageEntry);
 	}
 
 	protected void updateAssetDisplayPageEntry(Company company)

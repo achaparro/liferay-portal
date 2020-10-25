@@ -84,7 +84,7 @@ public class SamlMetadataMessageListener extends SamlMessageListener {
 
 	@Override
 	protected void doReceive(Message message) {
-		CompaniesUtil.run(
+		CompaniesUtil.forEach(
 			company -> {
 				if (!company.isActive()) {
 					return;

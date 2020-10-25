@@ -51,7 +51,7 @@ public class DictionaryReindexerTest {
 
 		dictionaryReindexer.reindexDictionaries();
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			this::assertIndexWriterHelperReindexDictionariesWithCompanyId,
 			_COMPANY_IDS);
 	}

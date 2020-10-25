@@ -49,7 +49,7 @@ public class ReindexPortalBackgroundTaskExecutor
 	protected void reindex(String className, long[] companyIds)
 		throws Exception {
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				ReindexStatusMessageSenderUtil.sendStatusMessage(
 					ReindexBackgroundTaskConstants.PORTAL_START, companyId,

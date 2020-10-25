@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.security.ldap.configuration.ConfigurationProvider;
 import com.liferay.portal.security.ldap.exportimport.LDAPUserImporter;
@@ -98,13 +97,6 @@ public class UserImportConfigurationModelListener
 	@Override
 	protected void doReceive(Message message, long companyId) throws Exception {
 		_importUsers(companyId, _getLastImportTime());
-	}
-
-	@Reference(unbind = "-")
-	protected void setCompanyLocalService(
-		CompanyLocalService companyLocalService) {
-
-		_companyLocalService = companyLocalService;
 	}
 
 	@Reference(
@@ -215,7 +207,6 @@ public class UserImportConfigurationModelListener
 	private static final Log _log = LogFactoryUtil.getLog(
 		UserImportConfigurationModelListener.class);
 
-	private CompanyLocalService _companyLocalService;
 	private ConfigurationProvider<LDAPImportConfiguration>
 		_ldapImportConfigurationProvider;
 

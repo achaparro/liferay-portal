@@ -50,7 +50,7 @@ public class BackupAndRestoreIndexesTest {
 	public void testBackupAndRestore() throws Exception {
 		Map<Long, String> backupNames = new HashMap<>();
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				String backupName = StringUtil.lowerCase(
 					BackupAndRestoreIndexesTest.class.getName());

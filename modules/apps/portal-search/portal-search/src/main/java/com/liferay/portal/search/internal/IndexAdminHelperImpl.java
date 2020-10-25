@@ -61,7 +61,7 @@ public class IndexAdminHelperImpl implements IndexAdminHelper {
 			_searchEngineHelper.getSearchEngines();
 
 		for (SearchEngine searchEngine : searchEngines) {
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> searchEngine.backup(companyId, backupName),
 				ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
 		}
@@ -87,7 +87,7 @@ public class IndexAdminHelperImpl implements IndexAdminHelper {
 			_searchEngineHelper.getSearchEngines();
 
 		for (SearchEngine searchEngine : searchEngines) {
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> searchEngine.removeBackup(companyId, backupName),
 				ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
 		}
@@ -111,7 +111,7 @@ public class IndexAdminHelperImpl implements IndexAdminHelper {
 			_searchEngineHelper.getSearchEngines();
 
 		for (SearchEngine searchEngine : searchEngines) {
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> searchEngine.restore(companyId, backupName),
 				ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
 		}

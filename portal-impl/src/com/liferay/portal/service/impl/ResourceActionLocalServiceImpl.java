@@ -262,13 +262,13 @@ public class ResourceActionLocalServiceImpl
 				dynamicQuery.add(nameProperty.eq(name));
 			};
 
-		CompaniesUtil.run(
-			company -> {
+		CompaniesUtil.runCompanyIds(
+			companyId -> {
 				ActionableDynamicQuery actionableDynamicQuery =
 					resourcePermissionLocalService.getActionableDynamicQuery();
 
 				actionableDynamicQuery.setAddCriteriaMethod(addCriteriaMethod);
-				actionableDynamicQuery.setCompanyId(company.getCompanyId());
+				actionableDynamicQuery.setCompanyId(companyId);
 				actionableDynamicQuery.setPerformActionMethod(
 					(ResourcePermission resourcePermission) -> {
 						long actionIds = resourcePermission.getActionIds();
@@ -287,7 +287,7 @@ public class ResourceActionLocalServiceImpl
 
 				actionableDynamicQuery.performActions();
 			},
-			(company, exception) -> {
+			(companyId, exception) -> {
 				throw new SystemException(exception);
 			});
 

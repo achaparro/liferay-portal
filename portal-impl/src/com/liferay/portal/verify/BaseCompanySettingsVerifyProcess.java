@@ -110,15 +110,13 @@ public abstract class BaseCompanySettingsVerifyProcess extends VerifyProcess {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			CompanyLocalService companyLocalService = getCompanyLocalService();
 
-			CompaniesUtil.run(
-				company -> {
+			CompaniesUtil.runCompanyIds(
+				companyId -> {
 					Dictionary<String, String> dictionary = getPropertyValues(
-						company.getCompanyId());
+						companyId);
 
 					if (!dictionary.isEmpty()) {
-						storeSettings(
-							company.getCompanyId(), getSettingsId(),
-							dictionary);
+						storeSettings(companyId, getSettingsId(), dictionary);
 					}
 
 					Set<String> keys = getLegacyPropertyKeys();
@@ -127,11 +125,11 @@ public abstract class BaseCompanySettingsVerifyProcess extends VerifyProcess {
 						_log.info(
 							StringBundler.concat(
 								"Removing preference keys ", keys,
-								" for company ", company.getCompanyId()));
+								" for company ", companyId));
 					}
 
 					companyLocalService.removePreferences(
-						company.getCompanyId(), keys.toArray(new String[0]));
+						companyId, keys.toArray(new String[0]));
 				});
 		}
 	}

@@ -73,8 +73,8 @@ public class UpgradeTokenConfiguration extends UpgradeProcess {
 	}
 
 	private void _upgradeConfiguration() throws Exception {
-		CompaniesUtil.run(
-			company -> {
+		CompaniesUtil.runCompanyIds(
+			companyId -> {
 				Dictionary<String, String> dictionary =
 					new HashMapDictionary<>();
 
@@ -82,7 +82,7 @@ public class UpgradeTokenConfiguration extends UpgradeProcess {
 						_RENAME_PROPERTY_KEYS_ARRAY) {
 
 					String propertyValue = PrefsPropsUtil.getString(
-						company.getCompanyId(), renamePropertykeys[0]);
+						companyId, renamePropertykeys[0]);
 
 					if (propertyValue != null) {
 						dictionary.put(renamePropertykeys[1], propertyValue);
@@ -91,12 +91,11 @@ public class UpgradeTokenConfiguration extends UpgradeProcess {
 
 				if (!dictionary.isEmpty()) {
 					_storeSettings(
-						company.getCompanyId(), TokenConstants.SERVICE_NAME,
-						dictionary);
+						companyId, TokenConstants.SERVICE_NAME, dictionary);
 				}
 
 				CompanyLocalServiceUtil.removePreferences(
-					company.getCompanyId(),
+					companyId,
 					ArrayUtil.append(
 						LegacyTokenPropsKeys.SHIBBOLETH_KEYS,
 						LegacyTokenPropsKeys.SITEMINDER_KEYS));

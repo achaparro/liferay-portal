@@ -103,8 +103,8 @@ public class DefaultPortalKaleoManager
 
 	@Override
 	public void deployDefaultDefinitionLinks() throws Exception {
-		CompaniesUtil.run(
-			company -> deployDefaultDefinitionLinks(company.getCompanyId()),
+		CompaniesUtil.runCompanyIds(
+			(UnsafeConsumer<Long, Exception>)this::deployDefaultDefinitionLinks,
 			(companyId, exception) -> {
 				throw new SystemException(exception);
 			});

@@ -15,6 +15,7 @@
 package com.liferay.portal.security.ldap.internal.verify.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -381,9 +382,10 @@ public class LDAPPropertiesVerifyProcessTest extends BaseVerifyProcessTestCase {
 
 			unicodeProperties.put("ldap.server.ids", "0,1");
 
-			CompaniesUtil.run(
-				company -> CompanyLocalServiceUtil.updatePreferences(
-					company.getCompanyId(), unicodeProperties));
+			CompaniesUtil.runCompanyIds(
+				(UnsafeConsumer<Long, PortalException>)
+					companyId -> CompanyLocalServiceUtil.updatePreferences(
+						companyId, unicodeProperties));
 		}
 		catch (Exception exception) {
 			throw new IllegalStateException(exception);

@@ -55,7 +55,7 @@ public class UserPersonalSitePermissions {
 	public void initPermissions(List<Company> companies, Portlet portlet) {
 		String rootPortletId = portlet.getRootPortletId();
 
-		CompaniesUtil.run(
+		CompaniesUtil.forEach(
 			company -> _initPermissions(company, rootPortletId),
 			(company, portalException) -> _log.error(
 				StringBundler.concat(

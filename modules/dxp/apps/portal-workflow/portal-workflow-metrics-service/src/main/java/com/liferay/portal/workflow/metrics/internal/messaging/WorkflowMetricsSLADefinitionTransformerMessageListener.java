@@ -96,7 +96,7 @@ public class WorkflowMetricsSLADefinitionTransformerMessageListener
 			return;
 		}
 
-		CompaniesUtil.runCompanyIds(this::_transform);
+		CompaniesUtil.forEachCompanyId(this::_transform);
 	}
 
 	@Override

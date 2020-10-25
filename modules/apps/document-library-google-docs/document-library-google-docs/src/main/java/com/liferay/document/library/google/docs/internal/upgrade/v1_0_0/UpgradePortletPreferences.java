@@ -39,7 +39,7 @@ public class UpgradePortletPreferences extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				DLGoogleDriveCompanyConfiguration
 					dlGoogleDriveCompanyConfiguration =

@@ -245,7 +245,7 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 			Long[] companyIds = (Long[])message.get("companyIds");
 
 			if (companyIds != null) {
-				CompaniesUtil.runCompanyIds(
+				CompaniesUtil.forEachCompanyId(
 					companyId -> {
 						message.put("companyId", companyId);
 

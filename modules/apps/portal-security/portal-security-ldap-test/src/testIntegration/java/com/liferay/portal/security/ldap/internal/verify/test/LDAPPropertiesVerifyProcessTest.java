@@ -131,8 +131,7 @@ public class LDAPPropertiesVerifyProcessTest extends BaseVerifyProcessTestCase {
 				deleteConfigurations(company, LDAPImportConfiguration.class);
 				deleteConfigurations(company, LDAPServerConfiguration.class);
 				deleteConfigurations(company, SystemLDAPConfiguration.class);
-			},
-			CompanyLocalServiceUtil.getCompanies(false));
+			});
 	}
 
 	@Test
@@ -384,8 +383,7 @@ public class LDAPPropertiesVerifyProcessTest extends BaseVerifyProcessTestCase {
 
 			CompaniesUtil.run(
 				company -> CompanyLocalServiceUtil.updatePreferences(
-					company.getCompanyId(), unicodeProperties),
-				CompanyLocalServiceUtil.getCompanies(false));
+					company.getCompanyId(), unicodeProperties));
 		}
 		catch (Exception exception) {
 			throw new IllegalStateException(exception);

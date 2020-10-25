@@ -391,9 +391,7 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 
 	@Override
 	public void importUsers() throws Exception {
-		CompaniesUtil.run(
-			company -> importUsers(company.getCompanyId()),
-			_companyLocalService.getCompanies(false));
+		CompaniesUtil.run(company -> importUsers(company.getCompanyId()));
 	}
 
 	@Override

@@ -188,18 +188,17 @@ public class UpgradeSamlProviderConfigurationPreferences
 	@Override
 	protected void doUpgrade() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.run(
-				company -> {
+			CompaniesUtil.runCompanyIds(
+				companyId -> {
 					Set<String> migratedPrefsPropsKeys =
-						migrateSAMLProviderConfigurationPreferences(
-							company.getCompanyId());
+						migrateSAMLProviderConfigurationPreferences(companyId);
 
 					if (migratedPrefsPropsKeys.isEmpty()) {
 						return;
 					}
 
 					_companyLocalService.removePreferences(
-						company.getCompanyId(),
+						companyId,
 						migratedPrefsPropsKeys.toArray(new String[0]));
 				});
 

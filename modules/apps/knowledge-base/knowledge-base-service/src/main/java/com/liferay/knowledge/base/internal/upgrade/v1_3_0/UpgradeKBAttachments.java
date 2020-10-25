@@ -16,7 +16,6 @@ package com.liferay.knowledge.base.internal.upgrade.v1_3_0;
 
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.store.Store;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -46,11 +45,10 @@ public class UpgradeKBAttachments extends UpgradeProcess {
 	}
 
 	protected void deleteEmptyDirectories() throws Exception {
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, RuntimeException>)
-				companyId -> _store.deleteDirectory(
-					companyId, CompanyConstants.SYSTEM,
-					"knowledgebase/kbarticles"));
+		CompaniesUtil.forEachCompanyId(
+			companyId -> _store.deleteDirectory(
+				companyId, CompanyConstants.SYSTEM,
+				"knowledgebase/kbarticles"));
 	}
 
 	@Override

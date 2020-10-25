@@ -193,7 +193,7 @@ public class CompanyIndexFactory
 	}
 
 	protected synchronized void createCompanyIndexes() {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				RestHighLevelClient restHighLevelClient =
 					_elasticsearchConnectionManager.getRestHighLevelClient();

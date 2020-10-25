@@ -21,7 +21,6 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
@@ -36,12 +35,8 @@ import java.sql.ResultSet;
  */
 public class UpgradeArticleAssets extends UpgradeProcess {
 
-	public UpgradeArticleAssets(
-		AssetEntryLocalService assetEntryLocalService,
-		CompanyLocalService companyLocalService) {
-
+	public UpgradeArticleAssets(AssetEntryLocalService assetEntryLocalService) {
 		_assetEntryLocalService = assetEntryLocalService;
-		_companyLocalService = companyLocalService;
 	}
 
 	@Override
@@ -98,6 +93,5 @@ public class UpgradeArticleAssets extends UpgradeProcess {
 		UpgradeArticleAssets.class);
 
 	private final AssetEntryLocalService _assetEntryLocalService;
-	private final CompanyLocalService _companyLocalService;
 
 }

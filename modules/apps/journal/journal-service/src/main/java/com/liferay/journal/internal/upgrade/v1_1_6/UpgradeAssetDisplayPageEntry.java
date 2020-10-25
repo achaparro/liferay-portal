@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
@@ -52,11 +51,9 @@ import java.util.concurrent.Future;
 public class UpgradeAssetDisplayPageEntry extends UpgradeProcess {
 
 	public UpgradeAssetDisplayPageEntry(
-		AssetDisplayPageEntryLocalService assetDisplayPageEntryLocalService,
-		CompanyLocalService companyLocalService) {
+		AssetDisplayPageEntryLocalService assetDisplayPageEntryLocalService) {
 
 		_assetDisplayPageEntryLocalService = assetDisplayPageEntryLocalService;
-		_companyLocalService = companyLocalService;
 	}
 
 	@Override
@@ -208,7 +205,6 @@ public class UpgradeAssetDisplayPageEntry extends UpgradeProcess {
 
 	private final AssetDisplayPageEntryLocalService
 		_assetDisplayPageEntryLocalService;
-	private final CompanyLocalService _companyLocalService;
 	private Map<Long, Long> _liveGroupIdsMap = new HashMap<>();
 	private Set<Long> _stagedGroupIds = new HashSet<>();
 	private Map<Long, Map<String, String>> _uuidsMaps = new HashMap<>();

@@ -91,8 +91,7 @@ public class SamlMetadataMessageListener extends SamlMessageListener {
 				}
 
 				_updateMetadata(company.getCompanyId());
-			},
-			_companyLocalService.getCompanies(false));
+			});
 	}
 
 	@Override

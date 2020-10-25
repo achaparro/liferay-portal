@@ -32,7 +32,6 @@ import com.liferay.calendar.internal.upgrade.v4_0_0.util.CalendarTable;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.comment.upgrade.UpgradeDiscussionSubscriptionClassName;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
@@ -77,8 +76,7 @@ public class CalendarServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"1.0.4", "1.0.5",
 			new UpgradeCalendarResource(
-				_classNameLocalService, _companyLocalService,
-				_userLocalService),
+				_classNameLocalService, _userLocalService),
 			new UpgradeCompanyId(), new UpgradeLastPublishDate());
 
 		registry.register(
@@ -140,9 +138,6 @@ public class CalendarServiceUpgrade implements UpgradeStepRegistrator {
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private ResourceActionLocalService _resourceActionLocalService;

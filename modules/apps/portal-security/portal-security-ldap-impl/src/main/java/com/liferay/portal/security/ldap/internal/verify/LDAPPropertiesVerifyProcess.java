@@ -270,7 +270,7 @@ public class LDAPPropertiesVerifyProcess extends VerifyProcess {
 
 	protected void verifyLDAPProperties() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> {
 					long[] ldapServerIds = StringUtil.split(
 						_prefsProps.getString(companyId, "ldap.server.ids"),

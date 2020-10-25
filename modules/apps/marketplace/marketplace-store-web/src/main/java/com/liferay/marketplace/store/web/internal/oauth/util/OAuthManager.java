@@ -24,7 +24,6 @@ import com.liferay.expando.kernel.service.ExpandoTableLocalService;
 import com.liferay.expando.kernel.service.ExpandoValueLocalService;
 import com.liferay.marketplace.store.web.internal.configuration.MarketplaceStoreWebConfigurationValues;
 import com.liferay.marketplace.store.web.internal.oauth.api.MarketplaceApi;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
@@ -135,9 +134,8 @@ public class OAuthManager {
 
 	@Activate
 	protected void activate() {
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, Exception>)companyId -> setupExpando(
-				companyId),
+		CompaniesUtil.forEachCompanyId(
+			this::setupExpando,
 			(companyId, exception) -> {
 				if (_log.isWarnEnabled()) {
 					_log.warn(

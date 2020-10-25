@@ -18,7 +18,6 @@ import com.liferay.commerce.data.integration.model.CommerceDataIntegrationProces
 import com.liferay.commerce.data.integration.service.CommerceDataIntegrationProcessLocalService;
 import com.liferay.commerce.data.integration.talend.TalendProcessTypeHelper;
 import com.liferay.commerce.talend.job.deployer.TalendJobFileProvider;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -64,9 +63,8 @@ public class SalesforceTalendJobDeployer {
 				while (enumeration.hasMoreElements()) {
 					ZipEntry zipEntry = enumeration.nextElement();
 
-					CompaniesUtil.runCompanyIds(
-						(UnsafeConsumer<Long, Exception>)companyId -> _addData(
-							companyId, zipFile, zipEntry),
+					CompaniesUtil.forEachCompanyId(
+						companyId -> _addData(companyId, zipFile, zipEntry),
 						(companyId, exception) -> {
 							ZipEntry zipEntryException =
 								enumeration.nextElement();

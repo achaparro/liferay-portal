@@ -61,7 +61,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 public class PanelAppMyAccountPermissions {
 
 	public void initPermissions(List<Company> companies, Portlet portlet) {
-		CompaniesUtil.run(
+		CompaniesUtil.forEach(
 			company -> initPermissions(
 				company.getCompanyId(), Arrays.asList(portlet)),
 			companies);

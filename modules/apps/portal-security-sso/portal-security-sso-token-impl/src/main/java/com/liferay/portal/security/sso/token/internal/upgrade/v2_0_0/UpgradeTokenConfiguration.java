@@ -73,7 +73,7 @@ public class UpgradeTokenConfiguration extends UpgradeProcess {
 	}
 
 	private void _upgradeConfiguration() throws Exception {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				Dictionary<String, String> dictionary =
 					new HashMapDictionary<>();

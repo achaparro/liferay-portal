@@ -78,7 +78,6 @@ import com.liferay.journal.util.comparator.ArticleVersionComparator;
 import com.liferay.layout.display.page.LayoutDisplayPageObjectProvider;
 import com.liferay.layout.display.page.LayoutDisplayPageProvider;
 import com.liferay.layout.display.page.LayoutDisplayPageProviderTracker;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.XMLUtil;
@@ -7181,10 +7180,9 @@ public class JournalArticleLocalServiceImpl
 					WorkflowConstants.STATUS_APPROVED));
 		}
 
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, PortalException>)
-				companyId -> checkArticlesByCompanyIdAndExpirationDate(
-					companyId, expirationDate, nextExpirationDate));
+		CompaniesUtil.forEachCompanyId(
+			companyId -> checkArticlesByCompanyIdAndExpirationDate(
+				companyId, expirationDate, nextExpirationDate));
 
 		if (_previousCheckDate == null) {
 			_previousCheckDate = new Date(

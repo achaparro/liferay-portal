@@ -119,7 +119,7 @@ public class ServerStatistics
 	}
 
 	public void reset() {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			this::reset,
 			ArrayUtil.toLongArray(_companyStatisticsByCompanyId.keySet()));
 	}

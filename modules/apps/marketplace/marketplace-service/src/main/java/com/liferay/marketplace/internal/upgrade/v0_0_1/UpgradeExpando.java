@@ -49,8 +49,7 @@ public class UpgradeExpando extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		CompaniesUtil.run(
-			company -> updateMPExpandoColumns(company.getCompanyId()));
+		CompaniesUtil.runCompanyIds(this::updateMPExpandoColumns);
 	}
 
 	protected void updateMPExpandoColumns(long companyId) throws Exception {

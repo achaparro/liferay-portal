@@ -120,11 +120,10 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"0.0.4", "0.0.5", new UpgradeCompanyId(),
 			new UpgradeJournal(
-				_companyLocalService, _ddmStorageLinkLocalService,
-				_ddmStructureLocalService, _ddmTemplateLinkLocalService,
-				_defaultDDMStructureHelper, _groupLocalService,
-				_resourceActionLocalService, _resourceActions,
-				_resourceLocalService, _userLocalService),
+				_ddmStorageLinkLocalService, _ddmStructureLocalService,
+				_ddmTemplateLinkLocalService, _defaultDDMStructureHelper,
+				_groupLocalService, _resourceActionLocalService,
+				_resourceActions, _resourceLocalService, _userLocalService),
 			new UpgradeJournalArticles(
 				_assetCategoryLocalService, _ddmStructureLocalService,
 				_groupLocalService, _layoutLocalService),
@@ -157,9 +156,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 			new UpgradeJournalArticleTreePath());
 
 		registry.register(
-			"0.0.8", "1.0.0",
-			new UpgradeArticleAssets(
-				_assetEntryLocalService, _companyLocalService),
+			"0.0.8", "1.0.0", new UpgradeArticleAssets(_assetEntryLocalService),
 			new UpgradeArticleExpirationDate(),
 			new UpgradeArticleSystemEvents(_systemEventLocalService));
 
@@ -197,7 +194,7 @@ public class JournalServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"1.1.5", "1.1.6",
 			new UpgradeAssetDisplayPageEntry(
-				_assetDisplayPageEntryLocalService, _companyLocalService));
+				_assetDisplayPageEntryLocalService));
 
 		registry.register(
 			"1.1.6", "1.1.7",

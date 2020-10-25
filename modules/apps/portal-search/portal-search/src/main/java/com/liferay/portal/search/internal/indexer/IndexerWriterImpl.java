@@ -176,7 +176,7 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 			return;
 		}
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				BatchIndexingActionable batchIndexingActionable =
 					getBatchIndexingActionable();

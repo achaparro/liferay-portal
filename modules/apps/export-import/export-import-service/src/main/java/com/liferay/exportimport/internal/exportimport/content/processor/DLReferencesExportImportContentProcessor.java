@@ -661,7 +661,7 @@ public class DLReferencesExportImportContentProcessor
 
 					hostNames.add(portalURL);
 
-					CompaniesUtil.run(
+					CompaniesUtil.forEach(
 						company -> {
 							String virtualHostname =
 								company.getVirtualHostname();

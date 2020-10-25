@@ -14,7 +14,6 @@
 
 package com.liferay.portal.search.admin.web.internal.util;
 
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.instances.service.PortalInstancesLocalService;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
@@ -44,9 +43,8 @@ public class DictionaryReindexer {
 	public void reindexDictionaries() throws SearchException {
 		reindexDictionaries(CompanyConstants.SYSTEM);
 
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, SearchException>)
-				companyId -> reindexDictionaries(companyId));
+		CompaniesUtil.forEachCompanyId(
+			companyId -> reindexDictionaries(companyId));
 	}
 
 	protected void reindexDictionaries(long companyId) throws SearchException {

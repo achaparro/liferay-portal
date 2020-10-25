@@ -89,7 +89,7 @@ public abstract class BaseWorkflowMetricsIndex implements WorkflowMetricsIndex {
 
 	@Activate
 	protected void activate() throws Exception {
-		CompaniesUtil.runCompanyIds(this::createIndex);
+		CompaniesUtil.forEachCompanyId(this::createIndex);
 	}
 
 	protected boolean hasIndex(String indexName) {

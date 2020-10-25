@@ -14,7 +14,6 @@
 
 package com.liferay.portal.security.ldap.internal.configuration.persistence.listener;
 
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.configuration.persistence.listener.ConfigurationModelListener;
@@ -92,9 +91,8 @@ public class UserImportConfigurationModelListener
 	protected void doReceive(Message message) throws Exception {
 		long time = _getLastImportTime();
 
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, Exception>)companyId -> _importUsers(
-				companyId, time));
+		CompaniesUtil.forEachCompanyId(
+			companyId -> _importUsers(companyId, time));
 	}
 
 	@Override

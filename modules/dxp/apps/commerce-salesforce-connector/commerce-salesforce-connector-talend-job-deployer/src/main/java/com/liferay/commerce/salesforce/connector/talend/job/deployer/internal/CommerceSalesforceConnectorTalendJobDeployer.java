@@ -18,7 +18,6 @@ import com.liferay.commerce.talend.job.deployer.TalendJobFileProvider;
 import com.liferay.dispatch.model.DispatchTrigger;
 import com.liferay.dispatch.repository.DispatchFileRepository;
 import com.liferay.dispatch.service.DispatchTriggerLocalService;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -59,9 +58,8 @@ public class CommerceSalesforceConnectorTalendJobDeployer {
 				jobFileURL.getFile(), StringPool.FORWARD_SLASH);
 
 			try {
-				CompaniesUtil.runCompanyIds(
-					(UnsafeConsumer<Long, Exception>)companyId -> _deployJob(
-						companyId, fileName, jobFileURL));
+				CompaniesUtil.forEachCompanyId(
+					companyId -> _deployJob(companyId, fileName, jobFileURL));
 			}
 			catch (Exception exception) {
 				_log.error("Unable to deploy job " + fileName, exception);

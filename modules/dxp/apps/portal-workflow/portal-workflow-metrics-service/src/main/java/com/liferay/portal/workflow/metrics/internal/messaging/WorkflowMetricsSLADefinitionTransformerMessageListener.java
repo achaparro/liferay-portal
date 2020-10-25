@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexRequest;
@@ -180,9 +179,6 @@ public class WorkflowMetricsSLADefinitionTransformerMessageListener
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		WorkflowMetricsSLADefinitionTransformerMessageListener.class);
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference(target = "(workflow.metrics.index.entity.name=process)")
 	private WorkflowMetricsIndexNameBuilder

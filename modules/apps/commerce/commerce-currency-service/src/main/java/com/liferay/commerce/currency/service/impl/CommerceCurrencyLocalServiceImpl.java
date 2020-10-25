@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.settings.CompanyServiceSettingsLocator;
 import com.liferay.portal.kernel.settings.SystemSettingsLocator;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -405,25 +406,26 @@ public class CommerceCurrencyLocalServiceImpl
 
 	@Override
 	public void updateExchangeRates() throws PortalException {
-		long[] companyIds = ArrayUtil.toLongArray(
-			commerceCurrencyFinder.getCompanyIds());
+		CompaniesUtil.runCompanyIds(
+			companyId -> {
+				CommerceCurrencyConfiguration commerceCurrencyConfiguration =
+					_configurationProvider.getConfiguration(
+						CommerceCurrencyConfiguration.class,
+						new CompanyServiceSettingsLocator(
+							companyId,
+							CommerceCurrencyExchangeRateConstants.
+								SERVICE_NAME));
 
-		for (long companyId : companyIds) {
-			CommerceCurrencyConfiguration commerceCurrencyConfiguration =
-				_configurationProvider.getConfiguration(
-					CommerceCurrencyConfiguration.class,
-					new CompanyServiceSettingsLocator(
-						companyId,
-						CommerceCurrencyExchangeRateConstants.SERVICE_NAME));
+				if (commerceCurrencyConfiguration.enableAutoUpdate()) {
+					String defaultExchangeRateProviderKey =
+						commerceCurrencyConfiguration.
+							defaultExchangeRateProviderKey();
 
-			if (commerceCurrencyConfiguration.enableAutoUpdate()) {
-				String defaultExchangeRateProviderKey =
-					commerceCurrencyConfiguration.
-						defaultExchangeRateProviderKey();
-
-				_updateExchangeRates(companyId, defaultExchangeRateProviderKey);
-			}
-		}
+					_updateExchangeRates(
+						companyId, defaultExchangeRateProviderKey);
+				}
+			},
+			ArrayUtil.toLongArray(commerceCurrencyFinder.getCompanyIds()));
 	}
 
 	protected void validate(

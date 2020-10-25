@@ -18,12 +18,13 @@ import com.liferay.commerce.data.integration.model.CommerceDataIntegrationProces
 import com.liferay.commerce.data.integration.service.CommerceDataIntegrationProcessLocalService;
 import com.liferay.commerce.data.integration.talend.TalendProcessTypeHelper;
 import com.liferay.commerce.talend.job.deployer.TalendJobFileProvider;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 
 import java.io.File;
@@ -61,64 +62,61 @@ public class SalesforceTalendJobDeployer {
 				Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
 
 				while (enumeration.hasMoreElements()) {
-					try {
-						ZipEntry zipEntry = enumeration.nextElement();
+					ZipEntry zipEntry = enumeration.nextElement();
 
-						long[] companyIds = _portal.getCompanyIds();
+					CompaniesUtil.runCompanyIds(
+						(UnsafeConsumer<Long, Exception>)companyId -> _addData(
+							companyId, zipFile, zipEntry),
+						(companyId, exception) -> {
+							ZipEntry zipEntryException =
+								enumeration.nextElement();
 
-						for (long companyId : companyIds) {
-							String fileName = zipEntry.getName();
-
-							if (!fileName.endsWith(".zip")) {
-								continue;
-							}
-
-							long userId = _userLocalService.getDefaultUserId(
-								companyId);
-
-							CommerceDataIntegrationProcess
-								commerceDataIntegrationProcess =
-									_commerceDataIntegrationProcessLocalService.
-										fetchCommerceDataIntegrationProcess(
-											companyId, fileName);
-
-							if (commerceDataIntegrationProcess == null) {
-								UnicodeProperties
-									typeSettingsUnicodeProperties =
-										_getDefaultTypeSettingsUnicodeProperties(
-											zipFile.getInputStream(zipEntry));
-
-								commerceDataIntegrationProcess =
-									_commerceDataIntegrationProcessLocalService.
-										addCommerceDataIntegrationProcess(
-											userId, fileName, _TALEND,
-											typeSettingsUnicodeProperties,
-											false);
-							}
-
-							String contentType = MimeTypesUtil.getContentType(
-								zipEntry.getName());
-
-							_talendProcessTypeHelper.addFileEntry(
-								companyId, userId,
-								commerceDataIntegrationProcess.
-									getCommerceDataIntegrationProcessId(),
-								fileName, zipEntry.getSize(), contentType,
-								zipFile.getInputStream(zipEntry));
-						}
-					}
-					catch (Exception exception) {
-						ZipEntry zipEntry = enumeration.nextElement();
-
-						_log.error(
-							"Failed to deploy job " + zipEntry.getName());
-					}
+							_log.error(
+								"Failed to deploy job " +
+									zipEntryException.getName());
+						});
 				}
 			}
 			catch (Exception exception) {
 				_log.error(exception, exception);
 			}
 		}
+	}
+
+	private void _addData(long companyId, ZipFile zipFile, ZipEntry zipEntry)
+		throws Exception {
+
+		String fileName = zipEntry.getName();
+
+		if (!fileName.endsWith(".zip")) {
+			return;
+		}
+
+		long userId = _userLocalService.getDefaultUserId(companyId);
+
+		CommerceDataIntegrationProcess commerceDataIntegrationProcess =
+			_commerceDataIntegrationProcessLocalService.
+				fetchCommerceDataIntegrationProcess(companyId, fileName);
+
+		if (commerceDataIntegrationProcess == null) {
+			UnicodeProperties typeSettingsUnicodeProperties =
+				_getDefaultTypeSettingsUnicodeProperties(
+					zipFile.getInputStream(zipEntry));
+
+			commerceDataIntegrationProcess =
+				_commerceDataIntegrationProcessLocalService.
+					addCommerceDataIntegrationProcess(
+						userId, fileName, _TALEND,
+						typeSettingsUnicodeProperties, false);
+		}
+
+		_talendProcessTypeHelper.addFileEntry(
+			companyId, userId,
+			commerceDataIntegrationProcess.
+				getCommerceDataIntegrationProcessId(),
+			fileName, zipEntry.getSize(),
+			MimeTypesUtil.getContentType(zipEntry.getName()),
+			zipFile.getInputStream(zipEntry));
 	}
 
 	private UnicodeProperties _getDefaultTypeSettingsUnicodeProperties(
@@ -153,9 +151,6 @@ public class SalesforceTalendJobDeployer {
 	@Reference
 	private CommerceDataIntegrationProcessLocalService
 		_commerceDataIntegrationProcessLocalService;
-
-	@Reference
-	private Portal _portal;
 
 	@Reference
 	private TalendJobFileProvider _talendJobFileProvider;

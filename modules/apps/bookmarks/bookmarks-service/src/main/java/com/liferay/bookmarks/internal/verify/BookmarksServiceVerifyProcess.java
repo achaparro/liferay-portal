@@ -16,14 +16,16 @@ package com.liferay.bookmarks.internal.verify;
 
 import com.liferay.bookmarks.model.BookmarksFolder;
 import com.liferay.bookmarks.service.BookmarksFolderLocalService;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.instances.service.PortalInstancesLocalService;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.verify.VerifyProcess;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -81,12 +83,9 @@ public class BookmarksServiceVerifyProcess extends VerifyProcess {
 
 	protected void verifyTree() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			long[] companyIds =
-				_portalInstancesLocalService.getCompanyIdsBySQL();
-
-			for (long companyId : companyIds) {
-				_bookmarksFolderLocalService.rebuildTree(companyId);
-			}
+			CompaniesUtil.runCompanyIds(
+				(UnsafeConsumer<Long, Exception>)
+					_bookmarksFolderLocalService::rebuildTree);
 		}
 	}
 
@@ -95,8 +94,5 @@ public class BookmarksServiceVerifyProcess extends VerifyProcess {
 
 	@Reference
 	private BookmarksFolderLocalService _bookmarksFolderLocalService;
-
-	@Reference
-	private PortalInstancesLocalService _portalInstancesLocalService;
 
 }

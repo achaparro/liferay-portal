@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.upgrade;
 
 import com.liferay.exportimport.kernel.staging.constants.StagingConstants;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
@@ -49,8 +50,9 @@ public class BaseUpgradeStagingGroupTypeSettings extends UpgradeProcess {
 	}
 
 	protected void updateStagedPortletNames() throws PortalException {
-		CompaniesUtil.run(
-			company -> updateStagedPortletNames(company.getCompanyId()));
+		CompaniesUtil.runCompanyIds(
+			(UnsafeConsumer<Long, PortalException>)
+				this::updateStagedPortletNames);
 	}
 
 	protected void updateStagedPortletNames(Long companyId)

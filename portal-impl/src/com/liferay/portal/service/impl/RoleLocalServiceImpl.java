@@ -16,7 +16,6 @@ package com.liferay.portal.service.impl;
 
 import com.liferay.admin.kernel.util.PortalMyAccountApplicationType;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -259,8 +258,7 @@ public class RoleLocalServiceImpl extends RoleLocalServiceBaseImpl {
 	 */
 	@Override
 	public void checkSystemRoles() throws PortalException {
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, PortalException>)this::checkSystemRoles);
+		CompaniesUtil.forEachCompanyId(this::checkSystemRoles);
 	}
 
 	/**

@@ -244,7 +244,7 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 
 		_searchEngines.put(searchEngineId, searchEngine);
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			searchEngine::initialize,
 			ArrayUtil.toLongArray(_companyIds.keySet()));
 

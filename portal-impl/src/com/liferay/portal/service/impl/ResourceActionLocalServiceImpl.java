@@ -262,7 +262,7 @@ public class ResourceActionLocalServiceImpl
 				dynamicQuery.add(nameProperty.eq(name));
 			};
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				ActionableDynamicQuery actionableDynamicQuery =
 					resourcePermissionLocalService.getActionableDynamicQuery();

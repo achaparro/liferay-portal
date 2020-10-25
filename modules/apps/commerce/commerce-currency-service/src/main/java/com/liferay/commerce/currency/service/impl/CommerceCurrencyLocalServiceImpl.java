@@ -408,7 +408,7 @@ public class CommerceCurrencyLocalServiceImpl
 
 	@Override
 	public void updateExchangeRates() throws PortalException {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				CommerceCurrencyConfiguration commerceCurrencyConfiguration =
 					_configurationProvider.getConfiguration(

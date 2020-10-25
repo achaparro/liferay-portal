@@ -218,7 +218,7 @@ public class UpgradeJournalArticleType extends UpgradeProcess {
 				LocaleThreadLocal.getDefaultLocale();
 
 			try {
-				CompaniesUtil.run(
+				CompaniesUtil.forEach(
 					company -> {
 						LocaleThreadLocal.setDefaultLocale(company.getLocale());
 

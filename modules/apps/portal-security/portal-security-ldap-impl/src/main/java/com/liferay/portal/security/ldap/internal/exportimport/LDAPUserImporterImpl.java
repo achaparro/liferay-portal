@@ -18,7 +18,6 @@ import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.model.ExpandoTableConstants;
 import com.liferay.expando.kernel.service.ExpandoValueLocalService;
 import com.liferay.expando.kernel.util.ExpandoConverterUtil;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
@@ -392,8 +391,7 @@ public class LDAPUserImporterImpl implements LDAPUserImporter, UserImporter {
 
 	@Override
 	public void importUsers() throws Exception {
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, Exception>)this::importUsers);
+		CompaniesUtil.forEachCompanyId(this::importUsers);
 	}
 
 	@Override

@@ -64,7 +64,7 @@ public class DLPreviewableProcessorDLStoreConvertProcess
 
 		MaintenanceUtil.appendStatus("Migrating files from " + path);
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				String[] fileNames = sourceStore.getFileNames(
 					companyId, DLPreviewableProcessor.REPOSITORY_ID, path);

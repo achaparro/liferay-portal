@@ -232,7 +232,7 @@ public class PortletTracker
 
 		_portletInstanceFactory.destroy(portletModel);
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				PortletCategory portletCategory =
 					(PortletCategory)WebAppPool.get(

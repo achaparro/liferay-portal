@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
@@ -47,11 +46,9 @@ public class UpgradeCalendarResource extends UpgradeProcess {
 
 	public UpgradeCalendarResource(
 		ClassNameLocalService classNameLocalService,
-		CompanyLocalService companyLocalService,
 		UserLocalService userLocalService) {
 
 		_classNameLocalService = classNameLocalService;
-		_companyLocalService = companyLocalService;
 		_userLocalService = userLocalService;
 	}
 
@@ -184,7 +181,6 @@ public class UpgradeCalendarResource extends UpgradeProcess {
 	}
 
 	private final ClassNameLocalService _classNameLocalService;
-	private final CompanyLocalService _companyLocalService;
 	private final UserLocalService _userLocalService;
 
 }

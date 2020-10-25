@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
@@ -77,7 +76,6 @@ import java.util.regex.Pattern;
 public class UpgradeJournal extends UpgradeProcess {
 
 	public UpgradeJournal(
-		CompanyLocalService companyLocalService,
 		DDMStorageLinkLocalService ddmStorageLinkLocalService,
 		DDMStructureLocalService ddmStructureLocalService,
 		DDMTemplateLinkLocalService ddmTemplateLinkLocalService,
@@ -88,7 +86,6 @@ public class UpgradeJournal extends UpgradeProcess {
 		ResourceLocalService resourceLocalService,
 		UserLocalService userLocalService) {
 
-		_companyLocalService = companyLocalService;
 		_ddmStorageLinkLocalService = ddmStorageLinkLocalService;
 		_ddmStructureLocalService = ddmStructureLocalService;
 		_ddmTemplateLinkLocalService = ddmTemplateLinkLocalService;
@@ -651,7 +648,6 @@ public class UpgradeJournal extends UpgradeProcess {
 		}
 	}
 
-	private final CompanyLocalService _companyLocalService;
 	private final DDMStorageLinkLocalService _ddmStorageLinkLocalService;
 	private final DDMStructureLocalService _ddmStructureLocalService;
 	private final DDMTemplateLinkLocalService _ddmTemplateLinkLocalService;

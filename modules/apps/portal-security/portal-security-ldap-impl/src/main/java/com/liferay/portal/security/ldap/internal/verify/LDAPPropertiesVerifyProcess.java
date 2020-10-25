@@ -337,8 +337,7 @@ public class LDAPPropertiesVerifyProcess extends VerifyProcess {
 
 					_companyLocalService.updatePreferences(
 						companyId, unicodeProperties);
-				},
-				_companyLocalService.getCompanies(false));
+				});
 		}
 	}
 

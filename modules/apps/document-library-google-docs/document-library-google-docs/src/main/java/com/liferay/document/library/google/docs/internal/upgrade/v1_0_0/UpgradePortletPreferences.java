@@ -39,16 +39,15 @@ public class UpgradePortletPreferences extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		CompaniesUtil.run(
-			company -> {
+		CompaniesUtil.runCompanyIds(
+			companyId -> {
 				DLGoogleDriveCompanyConfiguration
 					dlGoogleDriveCompanyConfiguration =
 						_configurationProvider.getCompanyConfiguration(
-							DLGoogleDriveCompanyConfiguration.class,
-							company.getCompanyId());
+							DLGoogleDriveCompanyConfiguration.class, companyId);
 
 				PortletPreferences portletPreferences =
-					_prefsProps.getPreferences(company.getCompanyId());
+					_prefsProps.getPreferences(companyId);
 
 				String apiKey = portletPreferences.getValue(
 					"googleAppsAPIKey", StringPool.BLANK);
@@ -63,8 +62,7 @@ public class UpgradePortletPreferences extends UpgradeProcess {
 						dlGoogleDriveCompanyConfiguration.clientSecret())) {
 
 					_configurationProvider.saveCompanyConfiguration(
-						DLGoogleDriveCompanyConfiguration.class,
-						company.getCompanyId(),
+						DLGoogleDriveCompanyConfiguration.class, companyId,
 						new HashMapDictionary<String, Object>() {
 							{
 								put("clientId", clientId);

@@ -33,23 +33,23 @@ import java.util.stream.Stream;
  */
 public class CompaniesUtil {
 
-	public static <E extends Exception> void run(
+	public static <E extends Exception> void forEach(
 			UnsafeConsumer<Company, E> unsafeConsumer)
 		throws E {
 
-		run(unsafeConsumer, CompanyLocalServiceUtil.getCompanies(false));
+		forEach(unsafeConsumer, CompanyLocalServiceUtil.getCompanies(false));
 	}
 
-	public static <E extends Exception> void run(
+	public static <E extends Exception> void forEach(
 		UnsafeConsumer<Company, E> unsafeConsumer,
 		BiConsumer<Company, E> biConsumer) {
 
-		run(
+		forEach(
 			unsafeConsumer, biConsumer,
 			CompanyLocalServiceUtil.getCompanies(false));
 	}
 
-	public static <E extends Exception> void run(
+	public static <E extends Exception> void forEach(
 		UnsafeConsumer<Company, E> unsafeConsumer,
 		BiConsumer<Company, E> biConsumer, List<Company> companies) {
 
@@ -73,30 +73,30 @@ public class CompaniesUtil {
 	}
 
 	@SuppressWarnings("all")
-	public static <E extends Exception> void run(
+	public static <E extends Exception> void forEach(
 			UnsafeConsumer<Company, E> unsafeConsumer, List<Company> companies)
 		throws E {
 
-		run(
+		forEach(
 			unsafeConsumer, (__, e) -> ReflectionUtil.throwException(e),
 			companies);
 	}
 
-	public static <E extends Exception> void runCompanyIds(
+	public static <E extends Exception> void forEachCompanyId(
 			UnsafeConsumer<Long, E> unsafeConsumer)
 		throws E {
 
-		runCompanyIds(unsafeConsumer, _getCompanyIds());
+		forEachCompanyId(unsafeConsumer, _getCompanyIds());
 	}
 
-	public static <E extends Exception> void runCompanyIds(
+	public static <E extends Exception> void forEachCompanyId(
 		UnsafeConsumer<Long, E> unsafeConsumer,
 		BiConsumer<Long, E> biConsumer) {
 
-		runCompanyIds(unsafeConsumer, biConsumer, _getCompanyIds());
+		forEachCompanyId(unsafeConsumer, biConsumer, _getCompanyIds());
 	}
 
-	public static <E extends Exception> void runCompanyIds(
+	public static <E extends Exception> void forEachCompanyId(
 		UnsafeConsumer<Long, E> unsafeConsumer, BiConsumer<Long, E> biConsumer,
 		long[] companyIds) {
 
@@ -120,37 +120,38 @@ public class CompaniesUtil {
 	}
 
 	@SuppressWarnings("all")
-	public static <E extends Exception> void runCompanyIds(
+	public static <E extends Exception> void forEachCompanyId(
 			UnsafeConsumer<Long, E> unsafeConsumer, long[] companyIds)
 		throws E {
 
-		runCompanyIds(
+		forEachCompanyId(
 			unsafeConsumer, (__, e) -> ReflectionUtil.throwException(e),
 			companyIds);
 	}
 
 	@SuppressWarnings("all")
-	public static <T, E extends Exception> Stream<T> runCompanyIds(
+	public static <T, E extends Exception> Stream<T> functionForEachCompanyId(
 			UnsafeFunction<Long, T, E> unsafeFunction)
 		throws E {
 
 		LongStream longStream = Arrays.stream(_getCompanyIds());
 
-		return runCompanyIds(
+		return functionForEachCompanyId(
 			unsafeFunction, (__, e) -> ReflectionUtil.throwException(e),
 			longStream.boxed());
 	}
 
-	public static <T, E extends Exception> Stream<T> runCompanyIds(
+	public static <T, E extends Exception> Stream<T> functionForEachCompanyId(
 		UnsafeFunction<Long, T, E> unsafeFunction,
 		BiConsumer<Long, E> biConsumer) {
 
 		LongStream longStream = Arrays.stream(_getCompanyIds());
 
-		return runCompanyIds(unsafeFunction, biConsumer, longStream.boxed());
+		return functionForEachCompanyId(
+			unsafeFunction, biConsumer, longStream.boxed());
 	}
 
-	public static <T, E extends Exception> Stream<T> runCompanyIds(
+	public static <T, E extends Exception> Stream<T> functionForEachCompanyId(
 		UnsafeFunction<Long, T, E> unsafeFunction,
 		BiConsumer<Long, E> biConsumer, Stream<Long> companyIdsStream) {
 

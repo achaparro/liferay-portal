@@ -139,7 +139,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void commit(String searchEngineId) throws SearchException {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> commit(searchEngineId, companyId),
 			ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
 	}

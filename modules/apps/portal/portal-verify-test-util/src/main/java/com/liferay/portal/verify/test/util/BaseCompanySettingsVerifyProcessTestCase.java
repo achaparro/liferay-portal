@@ -14,9 +14,7 @@
 
 package com.liferay.portal.verify.test.util;
 
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.settings.CompanyServiceSettingsLocator;
 import com.liferay.portal.kernel.settings.ModifiableSettings;
@@ -66,16 +64,15 @@ public abstract class BaseCompanySettingsVerifyProcessTestCase
 
 		populateLegacyProperties(unicodeProperties);
 
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, PortalException>)
-				companyId -> companyLocalService.updatePreferences(
-					companyId, unicodeProperties));
+		CompaniesUtil.forEachCompanyId(
+			companyId -> companyLocalService.updatePreferences(
+				companyId, unicodeProperties));
 	}
 
 	@After
 	@Override
 	public void tearDown() throws Exception {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				Settings settings = getSettings(companyId);
 
@@ -94,7 +91,7 @@ public abstract class BaseCompanySettingsVerifyProcessTestCase
 	protected void doVerify() throws VerifyException {
 		super.doVerify();
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				PortletPreferences portletPreferences =
 					prefsProps.getPreferences(companyId, true);

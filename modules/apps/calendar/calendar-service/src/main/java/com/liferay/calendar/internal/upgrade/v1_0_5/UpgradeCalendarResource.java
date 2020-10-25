@@ -166,7 +166,7 @@ public class UpgradeCalendarResource extends UpgradeProcess {
 
 	protected void upgradeCalendarResourceUserIds() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.run(
+			CompaniesUtil.forEach(
 				company -> {
 					long classNameId = _classNameLocalService.getClassNameId(
 						Group.class);

@@ -233,7 +233,7 @@ public class OpenIdConnectProviderRegistryImpl
 	private void _rebuild() {
 		_rebuild(CompanyConstants.SYSTEM);
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				if (companyId != CompanyConstants.SYSTEM) {
 					_rebuild(companyId);

@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -94,9 +93,6 @@ public class CommerceAccountServiceVerifyProcess extends VerifyProcess {
 
 	@Reference
 	private CommerceAccountRoleHelper _commerceAccountRoleHelper;
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private RoleLocalService _roleLocalService;

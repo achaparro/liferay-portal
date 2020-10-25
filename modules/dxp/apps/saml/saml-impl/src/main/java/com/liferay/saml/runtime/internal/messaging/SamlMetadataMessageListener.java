@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.saml.persistence.model.SamlIdpSpConnection;
@@ -195,9 +194,6 @@ public class SamlMetadataMessageListener extends SamlMessageListener {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		SamlMetadataMessageListener.class);
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private SamlIdpSpConnectionLocalService _samlIdpSpConnectionLocalService;

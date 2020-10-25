@@ -150,7 +150,7 @@ public class ResourcesImporterHotDeployMessageListener
 			ExportImportThreadLocal.setLayoutImportInProcess(true);
 			ExportImportThreadLocal.setPortletImportInProcess(true);
 
-			CompaniesUtil.run(
+			CompaniesUtil.forEach(
 				company -> _importResources(
 					company, servletContext, pluginPackageProperties,
 					message.getResponseId()));

@@ -7185,8 +7185,7 @@ public class JournalArticleLocalServiceImpl
 
 		CompaniesUtil.run(
 			company -> checkArticlesByCompanyIdAndExpirationDate(
-				company.getCompanyId(), expirationDate, nextExpirationDate),
-			companyLocalService.getCompanies(false));
+				company.getCompanyId(), expirationDate, nextExpirationDate));
 
 		if (_previousCheckDate == null) {
 			_previousCheckDate = new Date(

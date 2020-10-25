@@ -245,7 +245,7 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		PortletCategory newPortletCategory =
 			PortletLocalServiceUtil.getWARDisplay(servletContextName, xml);
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				PortletCategory portletCategory =
 					(PortletCategory)WebAppPool.get(
@@ -268,7 +268,7 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 
 			checkResourceBundles(classLoader, portlet);
 
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> {
 					Portlet curPortlet = PortletLocalServiceUtil.getPortletById(
 						companyId, portlet.getPortletId());
@@ -339,7 +339,7 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		ServletContextPool.remove(servletContextName);
 
 		if (!portletIds.isEmpty()) {
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> {
 					PortletCategory portletCategory =
 						(PortletCategory)WebAppPool.get(

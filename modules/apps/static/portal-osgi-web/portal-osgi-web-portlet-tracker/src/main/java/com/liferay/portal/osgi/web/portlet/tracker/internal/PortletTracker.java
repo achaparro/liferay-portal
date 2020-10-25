@@ -230,7 +230,7 @@ public class PortletTracker
 
 		_portletInstanceFactory.destroy(portletModel);
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				PortletCategory portletCategory =
 					(PortletCategory)WebAppPool.get(
@@ -1276,7 +1276,7 @@ public class PortletTracker
 
 		String[] categoryNamesArray = ArrayUtil.toStringArray(categoryNames);
 
-		CompaniesUtil.run(
+		CompaniesUtil.forEach(
 			company -> {
 				com.liferay.portal.kernel.model.Portlet companyPortletModel =
 					(com.liferay.portal.kernel.model.Portlet)

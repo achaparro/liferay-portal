@@ -122,7 +122,7 @@ public class ReindexSingleIndexerBackgroundTaskExecutor
 
 		boolean systemIndexer = isSystemIndexer(indexer);
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				if (((companyId == CompanyConstants.SYSTEM) &&
 					 !systemIndexer) ||

@@ -16,7 +16,6 @@ package com.liferay.portal.security.service.access.policy.internal.verify;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.security.service.access.policy.service.SAPEntryLocalService;
@@ -43,13 +42,6 @@ public class SAPServiceVerifyProcess extends VerifyProcess {
 	}
 
 	@Reference(unbind = "-")
-	protected void setCompanyLocalService(
-		CompanyLocalService companyLocalService) {
-
-		_companyLocalService = companyLocalService;
-	}
-
-	@Reference(unbind = "-")
 	protected void setSAPEntryLocalService(
 		SAPEntryLocalService sapEntryLocalService) {
 
@@ -70,7 +62,6 @@ public class SAPServiceVerifyProcess extends VerifyProcess {
 	private static final Log _log = LogFactoryUtil.getLog(
 		SAPServiceVerifyProcess.class);
 
-	private CompanyLocalService _companyLocalService;
 	private SAPEntryLocalService _sapEntryLocalService;
 
 }

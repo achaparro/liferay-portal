@@ -18,7 +18,6 @@ import com.liferay.oauth2.provider.scope.liferay.LiferayOAuth2Scope;
 import com.liferay.oauth2.provider.scope.liferay.ScopeLocator;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -44,10 +43,7 @@ import java.util.Set;
  */
 public class UpgradeOAuth2ApplicationScopeAliases extends UpgradeProcess {
 
-	public UpgradeOAuth2ApplicationScopeAliases(
-		CompanyLocalService companyLocalService, ScopeLocator scopeLocator) {
-
-		_companyLocalService = companyLocalService;
+	public UpgradeOAuth2ApplicationScopeAliases(ScopeLocator scopeLocator) {
 		_scopeLocator = scopeLocator;
 	}
 
@@ -202,7 +198,6 @@ public class UpgradeOAuth2ApplicationScopeAliases extends UpgradeProcess {
 		}
 	}
 
-	private final CompanyLocalService _companyLocalService;
 	private final ScopeLocator _scopeLocator;
 
 }

@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -166,13 +165,6 @@ public class ResourcesImporterHotDeployMessageListener
 		initialize(message);
 	}
 
-	@Reference(unbind = "-")
-	protected void setCompanyLocalService(
-		CompanyLocalService companyLocalService) {
-
-		_companyLocalService = companyLocalService;
-	}
-
 	@Reference(
 		target = "(destination.name=" + DestinationNames.HOT_DEPLOY + ")",
 		unbind = "-"
@@ -287,7 +279,6 @@ public class ResourcesImporterHotDeployMessageListener
 		ResourcesImporterHotDeployMessageListener.class);
 
 	private BundleContext _bundleContext;
-	private CompanyLocalService _companyLocalService;
 	private Destination _destination;
 
 	@Reference

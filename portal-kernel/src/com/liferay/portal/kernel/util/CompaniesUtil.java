@@ -83,14 +83,14 @@ public class CompaniesUtil {
 			UnsafeConsumer<Long, E> unsafeConsumer)
 		throws E {
 
-		runCompanyIds(unsafeConsumer, PortalUtil.getCompanyIds());
+		runCompanyIds(unsafeConsumer, _getCompanyIds());
 	}
 
 	public static <E extends Exception> void runCompanyIds(
 		UnsafeConsumer<Long, E> unsafeConsumer,
 		BiConsumer<Long, E> biConsumer) {
 
-		runCompanyIds(unsafeConsumer, biConsumer, PortalUtil.getCompanyIds());
+		runCompanyIds(unsafeConsumer, biConsumer, _getCompanyIds());
 	}
 
 	public static <E extends Exception> void runCompanyIds(
@@ -134,7 +134,7 @@ public class CompaniesUtil {
 		return runCompanyIds(
 			unsafeFunction, (__, e) -> ReflectionUtil.throwException(e),
 			Arrays.stream(
-				PortalUtil.getCompanyIds()
+				_getCompanyIds()
 			).boxed());
 	}
 
@@ -145,7 +145,7 @@ public class CompaniesUtil {
 		return runCompanyIds(
 			unsafeFunction, biConsumer,
 			Arrays.stream(
-				PortalUtil.getCompanyIds()
+				_getCompanyIds()
 			).boxed());
 	}
 
@@ -171,6 +171,16 @@ public class CompaniesUtil {
 					CompanyThreadLocal.setCompanyId(currentCompanyId);
 				}
 			});
+	}
+
+	private static long[] _getCompanyIds() {
+		List<Company> companies = CompanyLocalServiceUtil.getCompanies(false);
+
+		Stream<Company> stream = companies.stream();
+
+		return stream.mapToLong(
+			Company::getCompanyId
+		).toArray();
 	}
 
 }

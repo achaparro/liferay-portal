@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 /**
@@ -131,22 +132,20 @@ public class CompaniesUtil {
 			UnsafeFunction<Long, T, E> unsafeFunction)
 		throws E {
 
+		LongStream longStream = Arrays.stream(_getCompanyIds());
+
 		return runCompanyIds(
 			unsafeFunction, (__, e) -> ReflectionUtil.throwException(e),
-			Arrays.stream(
-				_getCompanyIds()
-			).boxed());
+			longStream.boxed());
 	}
 
 	public static <T, E extends Exception> Stream<T> runCompanyIds(
 		UnsafeFunction<Long, T, E> unsafeFunction,
 		BiConsumer<Long, E> biConsumer) {
 
-		return runCompanyIds(
-			unsafeFunction, biConsumer,
-			Arrays.stream(
-				_getCompanyIds()
-			).boxed());
+		LongStream longStream = Arrays.stream(_getCompanyIds());
+
+		return runCompanyIds(unsafeFunction, biConsumer, longStream.boxed());
 	}
 
 	public static <T, E extends Exception> Stream<T> runCompanyIds(

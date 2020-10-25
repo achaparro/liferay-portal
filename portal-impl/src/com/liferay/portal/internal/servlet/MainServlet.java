@@ -14,7 +14,6 @@
 
 package com.liferay.portal.internal.servlet;
 
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -666,9 +665,7 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private void _destroyCompanies() throws Exception {
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, RuntimeException>)
-				companyId -> _destroyCompany(companyId));
+		CompaniesUtil.forEachCompanyId(this::_destroyCompany);
 	}
 
 	private void _destroyCompany(long companyId) {

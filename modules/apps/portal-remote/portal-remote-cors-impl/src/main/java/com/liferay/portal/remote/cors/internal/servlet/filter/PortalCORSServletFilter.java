@@ -341,7 +341,7 @@ public class PortalCORSServletFilter
 				URLPatternMapperFactory.create(corsSupports));
 		}
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				if (companyId != CompanyConstants.SYSTEM) {
 					_rebuild(companyId);

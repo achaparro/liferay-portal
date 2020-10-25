@@ -14,7 +14,6 @@
 
 package com.liferay.portal.workflow.kaleo.runtime.internal.manager;
 
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -75,7 +74,7 @@ public class DefaultPortalKaleoManager
 	public void deployDefaultDefinitionLink(String assetClassName)
 		throws Exception {
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				User defaultUser = userLocalService.getDefaultUser(companyId);
 
@@ -103,8 +102,8 @@ public class DefaultPortalKaleoManager
 
 	@Override
 	public void deployDefaultDefinitionLinks() throws Exception {
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, Exception>)this::deployDefaultDefinitionLinks,
+		CompaniesUtil.forEachCompanyId(
+			this::deployDefaultDefinitionLinks,
 			(companyId, exception) -> {
 				throw new SystemException(exception);
 			});
@@ -132,8 +131,8 @@ public class DefaultPortalKaleoManager
 
 	@Override
 	public void deployDefaultDefinitions() throws Exception {
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, Exception>)this::deployDefaultDefinitions,
+		CompaniesUtil.forEachCompanyId(
+			this::deployDefaultDefinitions,
 			(companyId, exception) -> {
 				throw new SystemException(exception);
 			});
@@ -186,8 +185,8 @@ public class DefaultPortalKaleoManager
 
 	@Override
 	public void deployDefaultRoles() throws Exception {
-		CompaniesUtil.runCompanyIds(
-			(UnsafeConsumer<Long, Exception>)this::deployDefaultRoles,
+		CompaniesUtil.forEachCompanyId(
+			this::deployDefaultRoles,
 			(companyId, exception) -> {
 				throw new SystemException(exception);
 			});

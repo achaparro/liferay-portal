@@ -15,7 +15,6 @@
 package com.liferay.portal.security.ldap.internal.verify.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -125,7 +124,7 @@ public class LDAPPropertiesVerifyProcessTest extends BaseVerifyProcessTestCase {
 	public void tearDown() throws Exception {
 		super.tearDown();
 
-		CompaniesUtil.run(
+		CompaniesUtil.forEach(
 			company -> {
 				deleteConfigurations(company, LDAPAuthConfiguration.class);
 				deleteConfigurations(company, LDAPExportConfiguration.class);
@@ -382,10 +381,9 @@ public class LDAPPropertiesVerifyProcessTest extends BaseVerifyProcessTestCase {
 
 			unicodeProperties.put("ldap.server.ids", "0,1");
 
-			CompaniesUtil.runCompanyIds(
-				(UnsafeConsumer<Long, PortalException>)
-					companyId -> CompanyLocalServiceUtil.updatePreferences(
-						companyId, unicodeProperties));
+			CompaniesUtil.forEachCompanyId(
+				companyId -> CompanyLocalServiceUtil.updatePreferences(
+					companyId, unicodeProperties));
 		}
 		catch (Exception exception) {
 			throw new IllegalStateException(exception);
@@ -393,7 +391,7 @@ public class LDAPPropertiesVerifyProcessTest extends BaseVerifyProcessTestCase {
 	}
 
 	protected void verifyConfigurationsNoServers(List<Company> companies) {
-		CompaniesUtil.run(
+		CompaniesUtil.forEach(
 			company -> {
 				Dictionary<String, Object> ldapAuthProperties =
 					getConfigurationProperties(
@@ -435,7 +433,7 @@ public class LDAPPropertiesVerifyProcessTest extends BaseVerifyProcessTestCase {
 	}
 
 	protected void verifyConfigurationsWithServers(List<Company> companies) {
-		CompaniesUtil.run(
+		CompaniesUtil.forEach(
 			company -> {
 				PortletPreferences portletPreferences =
 					PrefsPropsUtil.getPreferences(company.getCompanyId(), true);

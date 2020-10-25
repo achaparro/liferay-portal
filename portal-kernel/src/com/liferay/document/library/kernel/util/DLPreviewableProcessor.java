@@ -88,7 +88,7 @@ public abstract class DLPreviewableProcessor implements DLProcessor {
 	}
 
 	public static void deleteFiles() {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				DLStoreUtil.deleteDirectory(
 					companyId, REPOSITORY_ID, PREVIEW_PATH);

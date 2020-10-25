@@ -250,7 +250,7 @@ public class IndividualSegmentsChecker {
 	}
 
 	private void _checkIndividualSegments() {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				if (AsahUtil.isAnalyticsEnabled(companyId)) {
 					_checkIndividualSegments(companyId);

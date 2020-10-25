@@ -37,14 +37,16 @@ public class CompaniesUtil {
 			UnsafeConsumer<Company, E> unsafeConsumer)
 		throws E {
 
-		run(unsafeConsumer, CompanyLocalServiceUtil.getCompanies());
+		run(unsafeConsumer, CompanyLocalServiceUtil.getCompanies(false));
 	}
 
 	public static <E extends Exception> void run(
 		UnsafeConsumer<Company, E> unsafeConsumer,
 		BiConsumer<Company, E> biConsumer) {
 
-		run(unsafeConsumer, biConsumer, CompanyLocalServiceUtil.getCompanies());
+		run(
+			unsafeConsumer, biConsumer,
+			CompanyLocalServiceUtil.getCompanies(false));
 	}
 
 	public static <E extends Exception> void run(

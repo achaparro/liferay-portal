@@ -20,6 +20,7 @@ import com.liferay.analytics.message.sender.constants.AnalyticsMessagesProcessor
 import com.liferay.analytics.message.storage.model.AnalyticsMessage;
 import com.liferay.analytics.message.storage.service.AnalyticsMessageLocalService;
 import com.liferay.analytics.settings.configuration.AnalyticsConfigurationTracker;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.io.StreamUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -86,7 +87,8 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 			return;
 		}
 
-		CompaniesUtil.run(company -> _process(company.getCompanyId()));
+		CompaniesUtil.runCompanyIds(
+			(UnsafeConsumer<Long, Exception>)this::_process);
 	}
 
 	@Override

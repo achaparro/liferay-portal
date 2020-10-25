@@ -18,6 +18,7 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.journal.constants.JournalArticleConstants;
 import com.liferay.journal.model.JournalArticle;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -51,9 +52,9 @@ public class UpgradeArticleAssets extends UpgradeProcess {
 
 	protected void updateDefaultDraftArticleAssets() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.run(
-				company -> updateDefaultDraftArticleAssets(
-					company.getCompanyId()));
+			CompaniesUtil.runCompanyIds(
+				(UnsafeConsumer<Long, Exception>)
+					this::updateDefaultDraftArticleAssets);
 		}
 	}
 

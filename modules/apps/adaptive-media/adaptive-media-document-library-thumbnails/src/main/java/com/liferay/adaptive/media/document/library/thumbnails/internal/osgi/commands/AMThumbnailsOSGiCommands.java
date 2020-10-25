@@ -72,7 +72,7 @@ public class AMThumbnailsOSGiCommands {
 		System.out.println("Company ID\t# of thumbnails pending migration");
 		System.out.println("-------------------------------------------------");
 
-		Stream<Integer> countsStream = CompaniesUtil.runCompanyIds(
+		Stream<Integer> countsStream = CompaniesUtil.functionForEachCompanyId(
 			this::_countPendingThumbnails,
 			AMThumbnailsOSGiCommands::_processException);
 
@@ -81,13 +81,14 @@ public class AMThumbnailsOSGiCommands {
 	}
 
 	public void cleanUp(String... companyIds) {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			this::_cleanUp, AMThumbnailsOSGiCommands::_processException,
 			_getCompanyIds(companyIds));
 	}
 
 	public void migrate(String... companyIds) throws PortalException {
-		CompaniesUtil.runCompanyIds(this::_migrate, _getCompanyIds(companyIds));
+		CompaniesUtil.forEachCompanyId(
+			this::_migrate, _getCompanyIds(companyIds));
 	}
 
 	private static void _processException(

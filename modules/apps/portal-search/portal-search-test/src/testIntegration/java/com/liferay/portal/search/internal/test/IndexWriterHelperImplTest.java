@@ -147,7 +147,7 @@ public class IndexWriterHelperImplTest {
 	protected void assertReindexedCounts(
 		Map<Long, Long> originalCounts, String className) {
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				CountSearchRequest countSearchRequest =
 					new CountSearchRequest();
@@ -188,7 +188,7 @@ public class IndexWriterHelperImplTest {
 		Map<Long, Long> originalCounts, String className,
 		boolean systemIndexer) {
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				CountSearchRequest countSearchRequest =
 					new CountSearchRequest();

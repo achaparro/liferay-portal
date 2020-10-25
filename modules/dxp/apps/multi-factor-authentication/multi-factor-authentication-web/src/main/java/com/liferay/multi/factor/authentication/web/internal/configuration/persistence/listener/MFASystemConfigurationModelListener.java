@@ -64,7 +64,7 @@ public class MFASystemConfigurationModelListener
 			return;
 		}
 
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				MFAEmailOTPConfiguration mfaEmailOTPConfiguration =
 					_configurationProvider.getCompanyConfiguration(

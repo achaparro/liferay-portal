@@ -76,7 +76,7 @@ public class PortalSambaUtil {
 	}
 
 	private static void _checkAttribute(String attributeName) {
-		CompaniesUtil.runCompanyIds(
+		CompaniesUtil.forEachCompanyId(
 			companyId -> {
 				ExpandoBridge expandoBridge =
 					ExpandoBridgeFactoryUtil.getExpandoBridge(

@@ -188,7 +188,7 @@ public class UpgradeSamlProviderConfigurationPreferences
 	@Override
 	protected void doUpgrade() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> {
 					Set<String> migratedPrefsPropsKeys =
 						migrateSAMLProviderConfigurationPreferences(companyId);

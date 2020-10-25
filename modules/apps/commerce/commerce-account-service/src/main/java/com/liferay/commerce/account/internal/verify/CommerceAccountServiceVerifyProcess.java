@@ -51,7 +51,7 @@ public class CommerceAccountServiceVerifyProcess extends VerifyProcess {
 
 	protected void verifyAccountGroup() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				_commerceAccountGroupLocalService::
 					checkGuestCommerceAccountGroup);
 		}
@@ -59,7 +59,7 @@ public class CommerceAccountServiceVerifyProcess extends VerifyProcess {
 
 	protected void verifyAccountRoles() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> {
 					ServiceContext serviceContext = new ServiceContext();
 

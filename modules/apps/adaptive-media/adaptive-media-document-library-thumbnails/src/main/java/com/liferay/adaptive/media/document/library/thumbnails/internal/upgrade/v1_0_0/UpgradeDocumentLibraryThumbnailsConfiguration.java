@@ -38,7 +38,7 @@ public class UpgradeDocumentLibraryThumbnailsConfiguration
 	@Override
 	protected void doUpgrade() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			CompaniesUtil.run(
+			CompaniesUtil.forEach(
 				_amCompanyThumbnailConfigurationInitializer::initializeCompany,
 				(company, exception) -> _log.error(exception, exception));
 		}

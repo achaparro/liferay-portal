@@ -110,7 +110,7 @@ public abstract class BaseCompanySettingsVerifyProcess extends VerifyProcess {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			CompanyLocalService companyLocalService = getCompanyLocalService();
 
-			CompaniesUtil.runCompanyIds(
+			CompaniesUtil.forEachCompanyId(
 				companyId -> {
 					Dictionary<String, String> dictionary = getPropertyValues(
 						companyId);

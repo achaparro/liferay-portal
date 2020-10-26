@@ -176,13 +176,26 @@ public class CompaniesUtil {
 	}
 
 	private static long[] _getCompanyIds() {
-		List<Company> companies = CompanyLocalServiceUtil.getCompanies(false);
+		long[] companyIds = new long[0];
 
-		Stream<Company> stream = companies.stream();
+		try {
+			companyIds = PortalUtil.getCompanyIds();
+		}
+		catch (NullPointerException nullPointerException) {
+		}
 
-		return stream.mapToLong(
-			Company::getCompanyId
-		).toArray();
+		if (companyIds.length == 0) {
+			List<Company> companies = CompanyLocalServiceUtil.getCompanies(
+				false);
+
+			Stream<Company> stream = companies.stream();
+
+			companyIds = stream.mapToLong(
+				Company::getCompanyId
+			).toArray();
+		}
+
+		return companyIds;
 	}
 
 }

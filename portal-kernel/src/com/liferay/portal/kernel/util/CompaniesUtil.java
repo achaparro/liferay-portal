@@ -33,6 +33,52 @@ import java.util.stream.Stream;
  */
 public class CompaniesUtil {
 
+	@SuppressWarnings("all")
+	public static <T, E extends Exception> Stream<T> applyForEachCompanyId(
+			UnsafeFunction<Long, T, E> unsafeFunction)
+		throws E {
+
+		LongStream longStream = Arrays.stream(_getCompanyIds());
+
+		return applyForEachCompanyId(
+			unsafeFunction, (__, e) -> ReflectionUtil.throwException(e),
+			longStream.boxed());
+	}
+
+	public static <T, E extends Exception> Stream<T> applyForEachCompanyId(
+		UnsafeFunction<Long, T, E> unsafeFunction,
+		BiConsumer<Long, E> biConsumer) {
+
+		LongStream longStream = Arrays.stream(_getCompanyIds());
+
+		return applyForEachCompanyId(
+			unsafeFunction, biConsumer, longStream.boxed());
+	}
+
+	public static <T, E extends Exception> Stream<T> applyForEachCompanyId(
+		UnsafeFunction<Long, T, E> unsafeFunction,
+		BiConsumer<Long, E> biConsumer, Stream<Long> companyIdsStream) {
+
+		long currentCompanyId = CompanyThreadLocal.getCompanyId();
+
+		return companyIdsStream.flatMap(
+			companyId -> {
+				try {
+					CompanyThreadLocal.setCompanyId(companyId);
+
+					return Stream.of(unsafeFunction.apply(companyId));
+				}
+				catch (Exception exception) {
+					biConsumer.accept(companyId, (E)exception);
+
+					return Stream.empty();
+				}
+				finally {
+					CompanyThreadLocal.setCompanyId(currentCompanyId);
+				}
+			});
+	}
+
 	public static <E extends Exception> void forEach(
 			UnsafeConsumer<Company, E> unsafeConsumer)
 		throws E {
@@ -127,52 +173,6 @@ public class CompaniesUtil {
 		forEachCompanyId(
 			unsafeConsumer, (__, e) -> ReflectionUtil.throwException(e),
 			companyIds);
-	}
-
-	@SuppressWarnings("all")
-	public static <T, E extends Exception> Stream<T> functionForEachCompanyId(
-			UnsafeFunction<Long, T, E> unsafeFunction)
-		throws E {
-
-		LongStream longStream = Arrays.stream(_getCompanyIds());
-
-		return functionForEachCompanyId(
-			unsafeFunction, (__, e) -> ReflectionUtil.throwException(e),
-			longStream.boxed());
-	}
-
-	public static <T, E extends Exception> Stream<T> functionForEachCompanyId(
-		UnsafeFunction<Long, T, E> unsafeFunction,
-		BiConsumer<Long, E> biConsumer) {
-
-		LongStream longStream = Arrays.stream(_getCompanyIds());
-
-		return functionForEachCompanyId(
-			unsafeFunction, biConsumer, longStream.boxed());
-	}
-
-	public static <T, E extends Exception> Stream<T> functionForEachCompanyId(
-		UnsafeFunction<Long, T, E> unsafeFunction,
-		BiConsumer<Long, E> biConsumer, Stream<Long> companyIdsStream) {
-
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
-
-		return companyIdsStream.flatMap(
-			companyId -> {
-				try {
-					CompanyThreadLocal.setCompanyId(companyId);
-
-					return Stream.of(unsafeFunction.apply(companyId));
-				}
-				catch (Exception exception) {
-					biConsumer.accept(companyId, (E)exception);
-
-					return Stream.empty();
-				}
-				finally {
-					CompanyThreadLocal.setCompanyId(currentCompanyId);
-				}
-			});
 	}
 
 	private static long[] _getCompanyIds() {

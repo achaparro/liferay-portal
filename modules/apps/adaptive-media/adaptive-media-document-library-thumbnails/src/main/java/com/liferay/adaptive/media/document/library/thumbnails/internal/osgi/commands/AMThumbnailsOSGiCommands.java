@@ -72,7 +72,7 @@ public class AMThumbnailsOSGiCommands {
 		System.out.println("Company ID\t# of thumbnails pending migration");
 		System.out.println("-------------------------------------------------");
 
-		Stream<Integer> countsStream = CompaniesUtil.functionForEachCompanyId(
+		Stream<Integer> countsStream = CompaniesUtil.applyForEachCompanyId(
 			this::_countPendingThumbnails,
 			AMThumbnailsOSGiCommands::_processException);
 

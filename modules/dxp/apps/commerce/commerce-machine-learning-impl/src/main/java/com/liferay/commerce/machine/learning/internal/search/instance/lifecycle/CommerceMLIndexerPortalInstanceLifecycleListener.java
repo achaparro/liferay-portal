@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.CompanyLocalService;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +69,7 @@ public class CommerceMLIndexerPortalInstanceLifecycleListener
 		catch (Exception exception) {
 			_log.error(
 				"Unable to remove commerce recommend index for company " +
-					company,
+				company,
 				exception);
 		}
 	}
@@ -102,7 +101,7 @@ public class CommerceMLIndexerPortalInstanceLifecycleListener
 		_companyLocalService = companyLocalService;
 
 		for (CommerceMLIndexer queuedCommerceMLIndexer :
-				_queuedCommerceMLIndexers) {
+			_queuedCommerceMLIndexers) {
 
 			verifyCompanies(queuedCommerceMLIndexer);
 		}
@@ -122,7 +121,9 @@ public class CommerceMLIndexerPortalInstanceLifecycleListener
 	}
 
 	protected void verifyCompanies(CommerceMLIndexer commerceMLIndexer) {
-		CompaniesUtil.forEachCompanyId(commerceMLIndexer::createIndex);
+		for (Company company : _companyLocalService.getCompanies()) {
+			commerceMLIndexer.createIndex(company.getCompanyId());
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

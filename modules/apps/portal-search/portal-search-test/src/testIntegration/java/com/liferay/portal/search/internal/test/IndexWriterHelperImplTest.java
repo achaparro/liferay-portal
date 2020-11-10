@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.uuid.PortalUUID;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.search.CountSearchRequest;
@@ -147,30 +146,26 @@ public class IndexWriterHelperImplTest {
 	protected void assertReindexedCounts(
 		Map<Long, Long> originalCounts, String className) {
 
-		CompaniesUtil.forEachCompanyId(
-			companyId -> {
-				CountSearchRequest countSearchRequest =
-					new CountSearchRequest();
+		for (long companyId : getCompanyIds()) {
+			CountSearchRequest countSearchRequest = new CountSearchRequest();
 
-				countSearchRequest.setIndexNames("liferay-" + companyId);
+			countSearchRequest.setIndexNames("liferay-" + companyId);
 
-				TermQuery termQuery = _queries.term(
-					Field.ENTRY_CLASS_NAME, className);
+			TermQuery termQuery = _queries.term(
+				Field.ENTRY_CLASS_NAME, className);
 
-				countSearchRequest.setQuery(termQuery);
+			countSearchRequest.setQuery(termQuery);
 
-				CountSearchResponse countSearchResponse =
-					_searchEngineAdapter.execute(countSearchRequest);
+			CountSearchResponse countSearchResponse =
+				_searchEngineAdapter.execute(countSearchRequest);
 
-				Long originalCount = originalCounts.get(companyId);
+			Long originalCount = originalCounts.get(companyId);
 
-				Long newCount = Long.valueOf(countSearchResponse.getCount());
+			Long newCount = Long.valueOf(countSearchResponse.getCount());
 
-				Assert.assertEquals(
-					className + " companyId=" + companyId, originalCount,
-					newCount);
-			},
-			getCompanyIds());
+			Assert.assertEquals(
+				className + " companyId=" + companyId, originalCount, newCount);
+		}
 	}
 
 	protected long[] getCompanyIds() {
@@ -188,49 +183,42 @@ public class IndexWriterHelperImplTest {
 		Map<Long, Long> originalCounts, String className,
 		boolean systemIndexer) {
 
-		CompaniesUtil.forEachCompanyId(
-			companyId -> {
-				CountSearchRequest countSearchRequest =
-					new CountSearchRequest();
+		for (long companyId : getCompanyIds()) {
+			CountSearchRequest countSearchRequest = new CountSearchRequest();
 
-				countSearchRequest.setIndexNames("liferay-" + companyId);
+			countSearchRequest.setIndexNames("liferay-" + companyId);
 
-				TermQuery termQuery = _queries.term(
-					Field.ENTRY_CLASS_NAME, className);
+			TermQuery termQuery = _queries.term(
+				Field.ENTRY_CLASS_NAME, className);
 
-				countSearchRequest.setQuery(termQuery);
+			countSearchRequest.setQuery(termQuery);
 
-				CountSearchResponse countSearchResponse =
-					_searchEngineAdapter.execute(countSearchRequest);
+			CountSearchResponse countSearchResponse =
+				_searchEngineAdapter.execute(countSearchRequest);
 
-				if (systemIndexer) {
-					if (companyId == CompanyConstants.SYSTEM) {
-						assertCountGreaterThanZero(
-							className, companyId,
-							countSearchResponse.getCount());
-					}
-					else {
-						assertCountEqualsZero(
-							className, companyId,
-							countSearchResponse.getCount());
-					}
+			if (systemIndexer) {
+				if (companyId == CompanyConstants.SYSTEM) {
+					assertCountGreaterThanZero(
+						className, companyId, countSearchResponse.getCount());
 				}
 				else {
-					if (companyId == CompanyConstants.SYSTEM) {
-						assertCountEqualsZero(
-							className, companyId,
-							countSearchResponse.getCount());
-					}
-					else {
-						assertCountGreaterThanZero(
-							className, companyId,
-							countSearchResponse.getCount());
-					}
+					assertCountEqualsZero(
+						className, companyId, countSearchResponse.getCount());
 				}
+			}
+			else {
+				if (companyId == CompanyConstants.SYSTEM) {
+					assertCountEqualsZero(
+						className, companyId, countSearchResponse.getCount());
+				}
+				else {
+					assertCountGreaterThanZero(
+						className, companyId, countSearchResponse.getCount());
+				}
+			}
 
-				originalCounts.put(companyId, countSearchResponse.getCount());
-			},
-			getCompanyIds());
+			originalCounts.put(companyId, countSearchResponse.getCount());
+		}
 	}
 
 	protected void reindex(String className) throws Exception {

@@ -35,8 +35,6 @@ import com.liferay.portal.kernel.search.background.task.ReindexBackgroundTaskCon
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.configuration.IndexWriterHelperConfiguration;
@@ -139,9 +137,9 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void commit(String searchEngineId) throws SearchException {
-		CompaniesUtil.forEachCompanyId(
-			companyId -> commit(searchEngineId, companyId),
-			ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
+		for (long companyId : _searchEngineHelper.getCompanyIds()) {
+			commit(searchEngineId, companyId);
+		}
 	}
 
 	@Override

@@ -18,8 +18,6 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.elasticsearch7.internal.configuration.ElasticsearchConfigurationObserver;
@@ -193,21 +191,21 @@ public class CompanyIndexFactory
 	}
 
 	protected synchronized void createCompanyIndexes() {
-		CompaniesUtil.forEachCompanyId(
-			companyId -> {
+		for (Long companyId : _companyIds) {
+			try {
 				RestHighLevelClient restHighLevelClient =
 					_elasticsearchConnectionManager.getRestHighLevelClient();
 
 				createIndices(restHighLevelClient.indices(), companyId);
-			},
-			(companyId, exception) -> {
+			}
+			catch (Exception exception) {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
 						"Unable to reinitialize index for company " + companyId,
 						exception);
 				}
-			},
-			ArrayUtil.toLongArray(_companyIds));
+			}
+		}
 	}
 
 	protected void createIndex(String indexName, IndicesClient indicesClient) {

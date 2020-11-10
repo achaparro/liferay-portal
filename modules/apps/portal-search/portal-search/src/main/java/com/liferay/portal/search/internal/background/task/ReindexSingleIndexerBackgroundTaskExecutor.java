@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.search.background.task.ReindexBackgroundTaskConstants;
 import com.liferay.portal.kernel.search.background.task.ReindexStatusMessageSender;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.ServiceProxyFactory;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -122,39 +121,36 @@ public class ReindexSingleIndexerBackgroundTaskExecutor
 
 		boolean systemIndexer = isSystemIndexer(indexer);
 
-		CompaniesUtil.forEachCompanyId(
-			companyId -> {
-				if (((companyId == CompanyConstants.SYSTEM) &&
-					 !systemIndexer) ||
-					((companyId != CompanyConstants.SYSTEM) && systemIndexer)) {
+		for (long companyId : companyIds) {
+			if (((companyId == CompanyConstants.SYSTEM) && !systemIndexer) ||
+				((companyId != CompanyConstants.SYSTEM) && systemIndexer)) {
 
-					return;
+				continue;
+			}
+
+			reindexStatusMessageSender.sendStatusMessage(
+				ReindexBackgroundTaskConstants.SINGLE_START, companyId,
+				companyIds);
+
+			try {
+				for (SearchEngine searchEngine : searchEngines) {
+					searchEngine.initialize(companyId);
 				}
 
+				indexWriterHelper.deleteEntityDocuments(
+					indexer.getSearchEngineId(), companyId, className, true);
+
+				indexer.reindex(new String[] {String.valueOf(companyId)});
+			}
+			catch (Exception exception) {
+				_log.error(exception, exception);
+			}
+			finally {
 				reindexStatusMessageSender.sendStatusMessage(
-					ReindexBackgroundTaskConstants.SINGLE_START, companyId,
+					ReindexBackgroundTaskConstants.SINGLE_END, companyId,
 					companyIds);
-
-				try {
-					for (SearchEngine searchEngine : searchEngines) {
-						searchEngine.initialize(companyId);
-					}
-
-					indexWriterHelper.deleteEntityDocuments(
-						indexer.getSearchEngineId(), companyId, className,
-						true);
-
-					indexer.reindex(new String[] {String.valueOf(companyId)});
-				}
-				catch (Exception exception) {
-					_log.error(exception, exception);
-				}
-				finally {
-					reindexStatusMessageSender.sendStatusMessage(
-						ReindexBackgroundTaskConstants.SINGLE_END, companyId,
-						companyIds);
-				}
-			});
+			}
+		}
 	}
 
 	protected static volatile IndexWriterHelper indexWriterHelper =

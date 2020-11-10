@@ -18,8 +18,6 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.elasticsearch7.internal.configuration.ElasticsearchConfigurationObserver;
@@ -70,7 +68,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 )
 public class CompanyIndexFactory
 	implements ElasticsearchConfigurationObserver, IndexContributorReceiver,
-			   IndexFactory {
+	IndexFactory {
 
 	@Override
 	public void addIndexContributor(IndexContributor indexContributor) {
@@ -180,7 +178,7 @@ public class CompanyIndexFactory
 		LiferayDocumentTypeFactory liferayDocumentTypeFactory) {
 
 		if (Validator.isNotNull(
-				_elasticsearchConfigurationWrapper.overrideTypeMappings())) {
+			_elasticsearchConfigurationWrapper.overrideTypeMappings())) {
 
 			liferayDocumentTypeFactory.createLiferayDocumentTypeMappings(
 				createIndexRequest,
@@ -193,21 +191,21 @@ public class CompanyIndexFactory
 	}
 
 	protected synchronized void createCompanyIndexes() {
-		CompaniesUtil.forEachCompanyId(
-			companyId -> {
+		for (Long companyId : _companyIds) {
+			try {
 				RestHighLevelClient restHighLevelClient =
 					_elasticsearchConnectionManager.getRestHighLevelClient();
 
 				createIndices(restHighLevelClient.indices(), companyId);
-			},
-			(companyId, exception) -> {
+			}
+			catch (Exception exception) {
 				if (_log.isWarnEnabled()) {
 					_log.warn(
 						"Unable to reinitialize index for company " + companyId,
 						exception);
 				}
-			},
-			ArrayUtil.toLongArray(_companyIds));
+			}
+		}
 	}
 
 	protected void createIndex(String indexName, IndicesClient indicesClient) {
@@ -312,7 +310,7 @@ public class CompanyIndexFactory
 		LiferayDocumentTypeFactory liferayDocumentTypeFactory) {
 
 		if (Validator.isNull(
-				_elasticsearchConfigurationWrapper.additionalTypeMappings())) {
+			_elasticsearchConfigurationWrapper.additionalTypeMappings())) {
 
 			return;
 		}
@@ -345,11 +343,11 @@ public class CompanyIndexFactory
 
 		com.liferay.portal.search.elasticsearch7.settings.IndexSettingsHelper
 			elasticsearchIndexSettingsHelper = (setting, value) -> builder.put(
-				setting, value);
+			setting, value);
 
 		for (com.liferay.portal.search.elasticsearch7.settings.
-				IndexSettingsContributor indexSettingsContributor :
-					_elasticsearchIndexSettingsContributors) {
+			IndexSettingsContributor indexSettingsContributor :
+			_elasticsearchIndexSettingsContributors) {
 
 			indexSettingsContributor.populate(elasticsearchIndexSettingsHelper);
 		}
@@ -358,7 +356,7 @@ public class CompanyIndexFactory
 			(setting, value) -> builder.put(setting, value);
 
 		for (IndexSettingsContributor indexSettingsContributor1 :
-				_indexSettingsContributors) {
+			_indexSettingsContributors) {
 
 			indexSettingsContributor1.populate(indexSettingsHelper);
 		}
@@ -380,15 +378,15 @@ public class CompanyIndexFactory
 		LiferayDocumentTypeFactory liferayDocumentTypeFactory) {
 
 		for (com.liferay.portal.search.elasticsearch7.settings.
-				IndexSettingsContributor elasticsearchIndexSettingsContributor :
-					_elasticsearchIndexSettingsContributors) {
+			IndexSettingsContributor elasticsearchIndexSettingsContributor :
+			_elasticsearchIndexSettingsContributors) {
 
 			elasticsearchIndexSettingsContributor.contribute(
 				indexName, liferayDocumentTypeFactory);
 		}
 
 		for (IndexSettingsContributor indexSettingsContributor :
-				_indexSettingsContributors) {
+			_indexSettingsContributors) {
 
 			indexSettingsContributor.contribute(
 				indexName, liferayDocumentTypeFactory);
@@ -465,7 +463,7 @@ public class CompanyIndexFactory
 		LiferayDocumentTypeFactory liferayDocumentTypeFactory) {
 
 		if (Validator.isNotNull(
-				_elasticsearchConfigurationWrapper.overrideTypeMappings())) {
+			_elasticsearchConfigurationWrapper.overrideTypeMappings())) {
 
 			return;
 		}
@@ -487,7 +485,7 @@ public class CompanyIndexFactory
 	private final Set
 		<com.liferay.portal.search.elasticsearch7.settings.
 			IndexSettingsContributor> _elasticsearchIndexSettingsContributors =
-				new ConcurrentSkipListSet<>();
+		new ConcurrentSkipListSet<>();
 	private final List<IndexContributor> _indexContributors =
 		new CopyOnWriteArrayList<>();
 	private IndexNameBuilder _indexNameBuilder;

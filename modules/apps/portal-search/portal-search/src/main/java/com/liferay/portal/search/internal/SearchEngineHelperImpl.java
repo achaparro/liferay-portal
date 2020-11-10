@@ -27,9 +27,7 @@ import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineConfigurator;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.search.queue.QueuingSearchEngine;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ClassUtil;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.search.configuration.SearchEngineHelperConfiguration;
 
@@ -64,7 +62,7 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 	public void flushQueuedSearchEngine() {
 		synchronized (_queuingSearchEngines) {
 			for (QueuingSearchEngine queuingSearchEngine :
-					_queuingSearchEngines.values()) {
+				_queuingSearchEngines.values()) {
 
 				queuingSearchEngine.flush();
 			}
@@ -244,9 +242,9 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 
 		_searchEngines.put(searchEngineId, searchEngine);
 
-		CompaniesUtil.forEachCompanyId(
-			searchEngine::initialize,
-			ArrayUtil.toLongArray(_companyIds.keySet()));
+		for (Long companyId : _companyIds.keySet()) {
+			searchEngine.initialize(companyId);
+		}
 
 		synchronized (_queuingSearchEngines) {
 			QueuingSearchEngine queuingSearchEngine = _queuingSearchEngines.get(
@@ -261,7 +259,7 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 					if (_log.isWarnEnabled()) {
 						_log.warn(
 							"Unable to execute pending write events for " +
-								"engine: " + searchEngineId,
+							"engine: " + searchEngineId,
 							exception);
 					}
 				}
@@ -295,7 +293,7 @@ public class SearchEngineHelperImpl implements SearchEngineHelper {
 						serviceReference) {
 
 					if (GetterUtil.getBoolean(
-							serviceReference.getProperty("original.bean"))) {
+						serviceReference.getProperty("original.bean"))) {
 
 						return null;
 					}

@@ -35,8 +35,6 @@ import com.liferay.portal.kernel.search.background.task.ReindexBackgroundTaskCon
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.configuration.IndexWriterHelperConfiguration;
@@ -69,8 +67,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void addDocument(
-			String searchEngineId, long companyId, Document document,
-			boolean commitImmediately)
+		String searchEngineId, long companyId, Document document,
+		boolean commitImmediately)
 		throws SearchException {
 
 		_enforceStandardUID(document);
@@ -102,8 +100,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void addDocuments(
-			String searchEngineId, long companyId,
-			Collection<Document> documents, boolean commitImmediately)
+		String searchEngineId, long companyId,
+		Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
 		_enforceStandardUID(documents);
@@ -139,9 +137,9 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void commit(String searchEngineId) throws SearchException {
-		CompaniesUtil.forEachCompanyId(
-			companyId -> commit(searchEngineId, companyId),
-			ArrayUtil.toLongArray(_searchEngineHelper.getCompanyIds()));
+		for (long companyId : _searchEngineHelper.getCompanyIds()) {
+			commit(searchEngineId, companyId);
+		}
 	}
 
 	@Override
@@ -163,8 +161,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void deleteDocument(
-			String searchEngineId, long companyId, String uid,
-			boolean commitImmediately)
+		String searchEngineId, long companyId, String uid,
+		boolean commitImmediately)
 		throws SearchException {
 
 		if (_indexStatusManager.isIndexReadOnly()) {
@@ -188,8 +186,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void deleteDocuments(
-			String searchEngineId, long companyId, Collection<String> uids,
-			boolean commitImmediately)
+		String searchEngineId, long companyId, Collection<String> uids,
+		boolean commitImmediately)
 		throws SearchException {
 
 		if (_indexStatusManager.isIndexReadOnly() || (uids == null) ||
@@ -215,8 +213,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void deleteEntityDocuments(
-			String searchEngineId, long companyId, String className,
-			boolean commitImmediately)
+		String searchEngineId, long companyId, String className,
+		boolean commitImmediately)
 		throws SearchException {
 
 		if (_indexStatusManager.isIndexReadOnly()) {
@@ -257,8 +255,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void indexKeyword(
-			long companyId, String querySuggestion, float weight,
-			String keywordType, Locale locale)
+		long companyId, String querySuggestion, float weight,
+		String keywordType, Locale locale)
 		throws SearchException {
 
 		String searchEngineId = _searchEngineHelper.getDefaultSearchEngineId();
@@ -270,8 +268,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void indexKeyword(
-			String searchEngineId, long companyId, String querySuggestion,
-			float weight, String keywordType, Locale locale)
+		String searchEngineId, long companyId, String querySuggestion,
+		float weight, String keywordType, Locale locale)
 		throws SearchException {
 
 		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine(
@@ -302,7 +300,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void indexQuerySuggestionDictionaries(
-			String searchEngineId, long companyId)
+		String searchEngineId, long companyId)
 		throws SearchException {
 
 		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine(
@@ -329,7 +327,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void indexQuerySuggestionDictionary(
-			String searchEngineId, long companyId, Locale locale)
+		String searchEngineId, long companyId, Locale locale)
 		throws SearchException {
 
 		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine(
@@ -357,7 +355,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void indexSpellCheckerDictionaries(
-			String searchEngineId, long companyId)
+		String searchEngineId, long companyId)
 		throws SearchException {
 
 		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine(
@@ -384,7 +382,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void indexSpellCheckerDictionary(
-			String searchEngineId, long companyId, Locale locale)
+		String searchEngineId, long companyId, Locale locale)
 		throws SearchException {
 
 		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine(
@@ -423,8 +421,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void partiallyUpdateDocument(
-			String searchEngineId, long companyId, Document document,
-			boolean commitImmediately)
+		String searchEngineId, long companyId, Document document,
+		boolean commitImmediately)
 		throws SearchException {
 
 		_enforceStandardUID(document);
@@ -456,8 +454,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void partiallyUpdateDocuments(
-			String searchEngineId, long companyId,
-			Collection<Document> documents, boolean commitImmediately)
+		String searchEngineId, long companyId,
+		Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
 		_enforceStandardUID(documents);
@@ -493,8 +491,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public BackgroundTask reindex(
-			long userId, String jobName, long[] companyIds,
-			Map<String, Serializable> taskContextMap)
+		long userId, String jobName, long[] companyIds,
+		Map<String, Serializable> taskContextMap)
 		throws SearchException {
 
 		if (taskContextMap == null) {
@@ -520,8 +518,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public BackgroundTask reindex(
-			long userId, String jobName, long[] companyIds, String className,
-			Map<String, Serializable> taskContextMap)
+		long userId, String jobName, long[] companyIds, String className,
+		Map<String, Serializable> taskContextMap)
 		throws SearchException {
 
 		if (Validator.isNull(className)) {
@@ -573,8 +571,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void updateDocument(
-			String searchEngineId, long companyId, Document document,
-			boolean commitImmediately)
+		String searchEngineId, long companyId, Document document,
+		boolean commitImmediately)
 		throws SearchException {
 
 		_enforceStandardUID(document);
@@ -608,8 +606,8 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 
 	@Override
 	public void updateDocuments(
-			String searchEngineId, long companyId,
-			Collection<Document> documents, boolean commitImmediately)
+		String searchEngineId, long companyId,
+		Collection<Document> documents, boolean commitImmediately)
 		throws SearchException {
 
 		_enforceStandardUID(documents);
@@ -650,7 +648,7 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 		}
 
 		if (PermissionThreadLocal.isFlushResourcePermissionEnabled(
-				name, primKey)) {
+			name, primKey)) {
 
 			_searchPermissionChecker.updatePermissionFields(
 				_getIndexerModelName(name), primKey);

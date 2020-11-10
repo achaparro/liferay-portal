@@ -24,8 +24,8 @@ import com.liferay.portal.kernel.model.WorkflowedModel;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -176,8 +176,14 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 			return;
 		}
 
-		CompaniesUtil.forEachCompanyId(
-			companyId -> {
+		long companyThreadLocalCompanyId = CompanyThreadLocal.getCompanyId();
+
+		try {
+			for (String id : ids) {
+				long companyId = GetterUtil.getLong(id);
+
+				CompanyThreadLocal.setCompanyId(companyId);
+
 				BatchIndexingActionable batchIndexingActionable =
 					getBatchIndexingActionable();
 
@@ -189,21 +195,26 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 						_modelSearchSettings.getClassName(),
 						_indexerDocumentBuilder));
 
-				batchIndexingActionable.performActions();
-			},
-			(companyId, exception) -> {
-				if (_log.isWarnEnabled()) {
-					StringBundler sb = new StringBundler(4);
-
-					sb.append("Error reindexing all ");
-					sb.append(_modelSearchSettings.getClassName());
-					sb.append(" for company: ");
-					sb.append(companyId);
-
-					_log.warn(sb.toString(), exception);
+				try {
+					batchIndexingActionable.performActions();
 				}
-			},
-			GetterUtil.getLongValues(ids));
+				catch (Exception exception) {
+					if (_log.isWarnEnabled()) {
+						StringBundler sb = new StringBundler(4);
+
+						sb.append("Error reindexing all ");
+						sb.append(_modelSearchSettings.getClassName());
+						sb.append(" for company: ");
+						sb.append(companyId);
+
+						_log.warn(sb.toString(), exception);
+					}
+				}
+			}
+		}
+		finally {
+			CompanyThreadLocal.setCompanyId(companyThreadLocalCompanyId);
+		}
 	}
 
 	@Override

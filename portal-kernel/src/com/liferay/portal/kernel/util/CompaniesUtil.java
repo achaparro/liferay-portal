@@ -17,18 +17,10 @@ package com.liferay.portal.kernel.util;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.reflect.ReflectionUtil;
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -193,34 +185,17 @@ public class CompaniesUtil {
 		}
 
 		if (companyIds.length == 0) {
-			companyIds = _getCompanyIdsBySQL();
+			List<Company> companies = CompanyLocalServiceUtil.getCompanies(
+				false);
+
+			Stream<Company> stream = companies.stream();
+
+			companyIds = stream.mapToLong(
+				Company::getCompanyId
+			).toArray();
 		}
 
 		return companyIds;
-	}
-
-	private static long[] _getCompanyIdsBySQL() {
-		List<Long> companyIds = new ArrayList<>();
-
-		try (Connection con = DataAccess.getConnection();
-			PreparedStatement ps = con.prepareStatement(
-				"select companyId from Company where system_ = ?")) {
-
-			ps.setBoolean(1, false);
-
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) {
-					long companyId = rs.getLong("companyId");
-
-					companyIds.add(companyId);
-				}
-			}
-		}
-		catch (SQLException sqlException) {
-			throw new SystemException(sqlException);
-		}
-
-		return ArrayUtil.toArray(companyIds.toArray(new Long[0]));
 	}
 
 }

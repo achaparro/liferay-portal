@@ -143,6 +143,7 @@ import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
@@ -7169,10 +7170,9 @@ public class JournalArticleLocalServiceImpl
 					WorkflowConstants.STATUS_APPROVED));
 		}
 
-		for (Company company : companyLocalService.getCompanies(false)) {
-			checkArticlesByCompanyIdAndExpirationDate(
-				company.getCompanyId(), expirationDate, nextExpirationDate);
-		}
+		CompaniesUtil.forEachCompanyId(
+			companyId -> checkArticlesByCompanyIdAndExpirationDate(
+				companyId, expirationDate, nextExpirationDate));
 
 		if (_previousCheckDate == null) {
 			_previousCheckDate = new Date(

@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
@@ -37,7 +36,7 @@ import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 
 import java.nio.charset.StandardCharsets;
 
@@ -87,9 +86,7 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 			return;
 		}
 
-		for (Company company : _companyLocalService.getCompanies(false)) {
-			_process(company.getCompanyId());
-		}
+		CompaniesUtil.forEachCompanyId(this::_process);
 	}
 
 	@Override
@@ -190,9 +187,6 @@ public class SendAnalyticsMessagesMessageListener extends BaseMessageListener {
 
 	@Reference
 	private AnalyticsMessageSenderClient _analyticsMessageSenderClient;
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private SchedulerEngineHelper _schedulerEngineHelper;

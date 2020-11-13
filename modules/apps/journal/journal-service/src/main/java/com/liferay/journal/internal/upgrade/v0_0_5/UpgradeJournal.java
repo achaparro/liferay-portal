@@ -26,11 +26,9 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.xml.XMLUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourceLocalService;
@@ -38,6 +36,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.DateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
@@ -77,7 +76,6 @@ import java.util.regex.Pattern;
 public class UpgradeJournal extends UpgradeProcess {
 
 	public UpgradeJournal(
-		CompanyLocalService companyLocalService,
 		DDMStorageLinkLocalService ddmStorageLinkLocalService,
 		DDMStructureLocalService ddmStructureLocalService,
 		DDMTemplateLinkLocalService ddmTemplateLinkLocalService,
@@ -88,7 +86,6 @@ public class UpgradeJournal extends UpgradeProcess {
 		ResourceLocalService resourceLocalService,
 		UserLocalService userLocalService) {
 
-		_companyLocalService = companyLocalService;
 		_ddmStorageLinkLocalService = ddmStorageLinkLocalService;
 		_ddmStructureLocalService = ddmStructureLocalService;
 		_ddmTemplateLinkLocalService = ddmTemplateLinkLocalService;
@@ -574,11 +571,7 @@ public class UpgradeJournal extends UpgradeProcess {
 
 	protected void updateJournalArticles() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			List<Company> companies = _companyLocalService.getCompanies();
-
-			for (Company company : companies) {
-				updateJournalArticles(company.getCompanyId());
-			}
+			CompaniesUtil.forEachCompanyId(this::updateJournalArticles);
 		}
 	}
 
@@ -655,7 +648,6 @@ public class UpgradeJournal extends UpgradeProcess {
 		}
 	}
 
-	private final CompanyLocalService _companyLocalService;
 	private final DDMStorageLinkLocalService _ddmStorageLinkLocalService;
 	private final DDMStructureLocalService _ddmStructureLocalService;
 	private final DDMTemplateLinkLocalService _ddmTemplateLinkLocalService;

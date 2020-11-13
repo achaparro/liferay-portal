@@ -14,7 +14,6 @@
 
 package com.liferay.portal.workflow.metrics.internal.messaging;
 
-import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -22,7 +21,6 @@ import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelper;
 import com.liferay.portal.kernel.scheduler.SchedulerEntry;
@@ -30,7 +28,7 @@ import com.liferay.portal.kernel.scheduler.SchedulerEntryImpl;
 import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.Trigger;
 import com.liferay.portal.kernel.scheduler.TriggerFactory;
-import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexRequest;
 import com.liferay.portal.search.engine.adapter.index.IndicesExistsIndexResponse;
@@ -97,13 +95,7 @@ public class WorkflowMetricsSLADefinitionTransformerMessageListener
 			return;
 		}
 
-		ActionableDynamicQuery actionableDynamicQuery =
-			_companyLocalService.getActionableDynamicQuery();
-
-		actionableDynamicQuery.setPerformActionMethod(
-			(Company company) -> _transform(company.getCompanyId()));
-
-		actionableDynamicQuery.performActions();
+		CompaniesUtil.forEachCompanyId(this::_transform);
 	}
 
 	@Override
@@ -187,9 +179,6 @@ public class WorkflowMetricsSLADefinitionTransformerMessageListener
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		WorkflowMetricsSLADefinitionTransformerMessageListener.class);
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference(target = "(workflow.metrics.index.entity.name=process)")
 	private WorkflowMetricsIndexNameBuilder

@@ -184,12 +184,19 @@ public class CompaniesUtil {
 	}
 
 	private static long[] _getCompanyIds() {
+		long[] companyIds = new long[0];
+
 		try {
-			return PortalUtil.getCompanyIds();
+			companyIds = PortalUtil.getCompanyIds();
 		}
 		catch (NullPointerException nullPointerException) {
-			return _getCompanyIdsBySQL();
 		}
+
+		if (companyIds.length == 0) {
+			companyIds = _getCompanyIdsBySQL();
+		}
+
+		return companyIds;
 	}
 
 	private static long[] _getCompanyIdsBySQL() {

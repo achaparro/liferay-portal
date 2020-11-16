@@ -14,16 +14,12 @@
 
 package com.liferay.vldap.server.internal.portal.security.samba;
 
-import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.model.ExpandoColumnConstants;
-import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.registry.BasicRegistryImpl;
-import com.liferay.registry.RegistryUtil;
 import com.liferay.vldap.server.internal.BaseVLDAPTestCase;
 
 import java.lang.reflect.Method;
@@ -36,21 +32,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Jonathan McCann
  */
-@PrepareForTest(ExpandoBridgeFactoryUtil.class)
 @RunWith(PowerMockRunner.class)
 public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 
 	@Before
 	@Override
 	public void setUp() throws Exception {
-		RegistryUtil.setRegistry(new BasicRegistryImpl());
+		super.setUp();
 
 		_clazz = Class.forName(PortalSambaUtil.class.getName());
 
@@ -59,7 +52,6 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 
 	@Test
 	public void testCheckAttribute() throws Exception {
-		setUpExpandoBridge();
 		setUpPortalUtil();
 
 		Method checkAttributeMethod = _clazz.getDeclaredMethod(
@@ -75,13 +67,13 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 			ExpandoColumnConstants.PROPERTY_HIDDEN, StringPool.TRUE);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).addAttribute(
 			"sambaLMPassword", false
 		);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttributeProperties(
 			"sambaLMPassword", unicodeProperties, false
 		);
@@ -89,7 +81,6 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 
 	@Test
 	public void testCheckAttributes() throws Exception {
-		setUpExpandoBridge();
 		setUpPortalUtil();
 
 		PortalSambaUtil.checkAttributes();
@@ -100,25 +91,25 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 			ExpandoColumnConstants.PROPERTY_HIDDEN, StringPool.TRUE);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).addAttribute(
 			"sambaLMPassword", false
 		);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttributeProperties(
 			"sambaLMPassword", unicodeProperties, false
 		);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).addAttribute(
 			"sambaNTPassword", false
 		);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttributeProperties(
 			"sambaNTPassword", unicodeProperties, false
 		);
@@ -126,11 +117,10 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 
 	@Test
 	public void testCheckAttributeWithExistingAttribute() throws Exception {
-		setUpExpandoBridge();
 		setUpPortalUtil();
 
 		when(
-			_expandoBridge.hasAttribute("sambaLMPassword")
+			expandoBridge.hasAttribute("sambaLMPassword")
 		).thenReturn(
 			true
 		);
@@ -148,13 +138,13 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 			ExpandoColumnConstants.PROPERTY_HIDDEN, StringPool.TRUE);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(0)
+			expandoBridge, Mockito.times(0)
 		).addAttribute(
 			Matchers.anyString(), Matchers.anyBoolean()
 		);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttributeProperties(
 			"sambaLMPassword", unicodeProperties, false
 		);
@@ -208,13 +198,12 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 
 	@Test
 	public void testGetSambaLMPassword() throws Exception {
-		setUpExpandoBridge();
 		setUpUser();
 
 		PortalSambaUtil.getSambaLMPassword(_user);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).getAttribute(
 			"sambaLMPassword", false
 		);
@@ -222,13 +211,12 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 
 	@Test
 	public void testGetSambaNTPassword() throws Exception {
-		setUpExpandoBridge();
 		setUpUser();
 
 		PortalSambaUtil.getSambaNTPassword(_user);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).getAttribute(
 			"sambaNTPassword", false
 		);
@@ -236,13 +224,12 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 
 	@Test
 	public void testSetSambaLMPassword() throws Exception {
-		setUpExpandoBridge();
 		setUpUser();
 
 		PortalSambaUtil.setSambaLMPassword(_user, "password");
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttribute(
 			"sambaLMPassword", "E52CAC67419A9A224A3B108F3FA6CB6D", false
 		);
@@ -250,40 +237,14 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 
 	@Test
 	public void testSetSambaNTPassword() throws Exception {
-		setUpExpandoBridge();
 		setUpUser();
 
 		PortalSambaUtil.setSambaNTPassword(_user, "password");
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttribute(
 			"sambaNTPassword", "8846F7EAEE8FB117AD06BDD830B7586C", false
-		);
-	}
-
-	protected void setUpExpandoBridge() throws Exception {
-		_expandoBridge = mock(ExpandoBridge.class);
-
-		when(
-			_expandoBridge.getAttributeProperties("sambaLMPassword")
-		).thenReturn(
-			new UnicodeProperties()
-		);
-
-		when(
-			_expandoBridge.getAttributeProperties("sambaNTPassword")
-		).thenReturn(
-			new UnicodeProperties()
-		);
-
-		PowerMockito.mockStatic(ExpandoBridgeFactoryUtil.class);
-
-		PowerMockito.doReturn(
-			_expandoBridge
-		).when(
-			ExpandoBridgeFactoryUtil.class, "getExpandoBridge", PRIMARY_KEY,
-			User.class.getName()
 		);
 	}
 
@@ -308,13 +269,12 @@ public class PortalSambaUtilTest extends BaseVLDAPTestCase {
 		when(
 			_user.getExpandoBridge()
 		).thenReturn(
-			_expandoBridge
+			expandoBridge
 		);
 	}
 
 	private static Object _classInstance;
 	private static Class<?> _clazz;
-	private static ExpandoBridge _expandoBridge;
 	private static User _user;
 
 }

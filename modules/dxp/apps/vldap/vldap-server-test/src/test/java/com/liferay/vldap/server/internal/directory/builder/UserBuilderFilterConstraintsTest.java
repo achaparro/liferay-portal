@@ -14,7 +14,6 @@
 
 package com.liferay.vldap.server.internal.directory.builder;
 
-import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.PasswordPolicy;
 import com.liferay.portal.kernel.model.Role;
@@ -95,22 +94,6 @@ public class UserBuilderFilterConstraintsTest extends BaseVLDAPTestCase {
 	}
 
 	protected void setUpExpando() {
-		ExpandoBridge expandoBridge = mock(ExpandoBridge.class);
-
-		when(
-			expandoBridge.getAttribute(
-				Mockito.eq("sambaLMPassword"), Mockito.eq(false))
-		).thenReturn(
-			"testLMPassword"
-		);
-
-		when(
-			expandoBridge.getAttribute(
-				Mockito.eq("sambaNTPassword"), Mockito.eq(false))
-		).thenReturn(
-			"testNTPassword"
-		);
-
 		when(
 			_hasOrganizationUser.getExpandoBridge()
 		).thenReturn(

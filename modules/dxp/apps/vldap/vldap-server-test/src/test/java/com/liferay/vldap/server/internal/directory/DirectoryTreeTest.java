@@ -14,7 +14,6 @@
 
 package com.liferay.vldap.server.internal.directory;
 
-import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.portal.kernel.exception.NoSuchCompanyException;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -1515,22 +1514,6 @@ public class DirectoryTreeTest extends BaseVLDAPTestCase {
 	}
 
 	protected void setUpExpando() {
-		ExpandoBridge expandoBridge = mock(ExpandoBridge.class);
-
-		when(
-			expandoBridge.getAttribute(
-				Mockito.eq("sambaLMPassword"), Mockito.eq(false))
-		).thenReturn(
-			"testLMPassword"
-		);
-
-		when(
-			expandoBridge.getAttribute(
-				Mockito.eq("sambaNTPassword"), Mockito.eq(false))
-		).thenReturn(
-			"testNTPassword"
-		);
-
 		when(
 			_user.getExpandoBridge()
 		).thenReturn(

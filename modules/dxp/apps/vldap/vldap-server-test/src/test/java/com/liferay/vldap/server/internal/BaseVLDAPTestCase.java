@@ -14,6 +14,8 @@
 
 package com.liferay.vldap.server.internal;
 
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.petra.lang.ClassLoaderPool;
 import com.liferay.portal.kernel.bean.BeanLocator;
 import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
@@ -28,6 +30,7 @@ import com.liferay.portal.kernel.dao.orm.RestrictionsFactory;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.PasswordPolicy;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.PortletClassLoaderUtil;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
@@ -47,6 +50,9 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.registry.BasicRegistryImpl;
+import com.liferay.registry.RegistryUtil;
 import com.liferay.vldap.server.internal.directory.SearchBase;
 import com.liferay.vldap.server.internal.util.PortletPropsKeys;
 
@@ -62,20 +68,25 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author William Newbury
  */
+@PrepareForTest(ExpandoBridgeFactoryUtil.class)
 @RunWith(PowerMockRunner.class)
 public abstract class BaseVLDAPTestCase extends PowerMockito {
 
 	@Before
 	public void setUp() throws Exception {
+		RegistryUtil.setRegistry(new BasicRegistryImpl());
+
 		setUpPortal();
 
 		setUpConfiguration();
 		setUpCompany();
+		setUpExpandoBridge();
 		setUpORM();
 		setUpProps();
 		setUpSearchBase();
@@ -187,6 +198,31 @@ public abstract class BaseVLDAPTestCase extends PowerMockito {
 		);
 
 		ConfigurationFactoryUtil.setConfigurationFactory(configurationFactory);
+	}
+
+	protected void setUpExpandoBridge() throws Exception {
+		expandoBridge = mock(ExpandoBridge.class);
+
+		when(
+			expandoBridge.getAttributeProperties("sambaLMPassword")
+		).thenReturn(
+			new UnicodeProperties()
+		);
+
+		when(
+			expandoBridge.getAttributeProperties("sambaNTPassword")
+		).thenReturn(
+			new UnicodeProperties()
+		);
+
+		mockStatic(ExpandoBridgeFactoryUtil.class);
+
+		doReturn(
+			expandoBridge
+		).when(
+			ExpandoBridgeFactoryUtil.class, "getExpandoBridge", PRIMARY_KEY,
+			User.class.getName()
+		);
 	}
 
 	protected void setUpORM() {
@@ -371,6 +407,7 @@ public abstract class BaseVLDAPTestCase extends PowerMockito {
 
 	protected final List<Company> companies = new ArrayList<>();
 	protected Company company;
+	protected ExpandoBridge expandoBridge;
 	protected GroupLocalService groupLocalService;
 	protected ImageService imageService;
 	protected OrganizationLocalService organizationLocalService;

@@ -42,7 +42,6 @@ import com.liferay.portal.verify.VerifyProcess;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;

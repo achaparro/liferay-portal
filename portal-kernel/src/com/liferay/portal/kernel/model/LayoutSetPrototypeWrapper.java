@@ -134,6 +134,11 @@ public class LayoutSetPrototypeWrapper
 		}
 	}
 
+	@Override
+	public Group fetchGroup() {
+		return model.fetchGroup();
+	}
+
 	/**
 	 * Returns the active of this layout set prototype.
 	 *

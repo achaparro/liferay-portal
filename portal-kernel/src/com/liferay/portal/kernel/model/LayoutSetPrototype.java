@@ -57,6 +57,8 @@ public interface LayoutSetPrototype
 
 			};
 
+	public Group fetchGroup();
+
 	public Group getGroup()
 		throws com.liferay.portal.kernel.exception.PortalException;
 

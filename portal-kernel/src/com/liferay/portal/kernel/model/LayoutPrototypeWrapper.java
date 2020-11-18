@@ -133,6 +133,11 @@ public class LayoutPrototypeWrapper
 		}
 	}
 
+	@Override
+	public Group fetchGroup() {
+		return model.fetchGroup();
+	}
+
 	/**
 	 * Returns the active of this layout prototype.
 	 *

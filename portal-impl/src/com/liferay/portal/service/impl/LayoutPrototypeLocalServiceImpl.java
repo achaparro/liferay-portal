@@ -142,7 +142,11 @@ public class LayoutPrototypeLocalServiceImpl
 			}
 		}
 
-		groupLocalService.deleteGroup(layoutPrototype.getGroup());
+		Group group = layoutPrototype.fetchGroup();
+
+		if (group != null) {
+			groupLocalService.deleteGroup(group);
+		}
 
 		// Resources
 

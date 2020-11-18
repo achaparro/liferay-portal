@@ -14,8 +14,10 @@
 
 package com.liferay.portal.model.impl;
 
+import com.liferay.portal.kernel.exception.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
@@ -27,6 +29,19 @@ import java.util.List;
  * @author Jorge Ferrer
  */
 public class LayoutPrototypeImpl extends LayoutPrototypeBaseImpl {
+
+	@Override
+	public Group fetchGroup() {
+		try {
+			return getGroup();
+		}
+		catch (NoSuchGroupException noSuchGroupException) {
+			return null;
+		}
+		catch (PortalException portalException) {
+			throw new SystemException(portalException);
+		}ommit
+	}
 
 	@Override
 	public Group getGroup() throws PortalException {

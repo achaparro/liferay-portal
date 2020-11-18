@@ -1248,11 +1248,13 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		// Portal preferences
 
 		PortalPreferences portalPreferences =
-			portalPreferencesPersistence.findByO_O(
+			portalPreferencesPersistence.fetchByO_O(
 				companyId, PortletKeys.PREFS_OWNER_TYPE_COMPANY);
 
-		portalPreferencesLocalService.deletePortalPreferences(
-			portalPreferences);
+		if (portalPreferences != null) {
+			portalPreferencesLocalService.deletePortalPreferences(
+				portalPreferences);
+		}
 
 		// User
 

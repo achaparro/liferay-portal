@@ -90,6 +90,8 @@ public class ReleaseManagerImpl implements ReleaseManager {
 
 	@Override
 	public String getStatusMessage(boolean onlyRequiredUpgrades) {
+		_log.error("** GET RELEASE STATUS **");
+
 		String message =
 			"%s upgrades in %s are pending. Run the upgrade process or type " +
 				"upgrade:checkAll in the Gogo shell to get more information.";

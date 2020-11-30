@@ -1274,6 +1274,8 @@ public class MainServlet extends HttpServlet {
 				},
 				properties);
 
+		_log.info("** PORTAL INITIALIZED **");
+
 		properties = HashMapBuilder.<String, Object>put(
 			"module.service.lifecycle", "portlets.initialized"
 		).put(
@@ -1288,6 +1290,8 @@ public class MainServlet extends HttpServlet {
 				new ModuleServiceLifecycle() {
 				},
 				properties);
+
+		_log.info("** PORTLETS INITIALIZED **");
 
 		properties = HashMapBuilder.<String, Object>put(
 			"bean.id", ServletContext.class.getName()
@@ -1314,6 +1318,8 @@ public class MainServlet extends HttpServlet {
 				new ModuleServiceLifecycle() {
 				},
 				properties);
+
+		_log.info("** SYSTEM CHECK **");
 
 		properties = HashMapBuilder.<String, Object>put(
 			"module.service.lifecycle", "license.install"

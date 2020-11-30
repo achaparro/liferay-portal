@@ -77,12 +77,6 @@ public class UpgradeStepRegistratorTracker {
 		<UpgradeStepRegistrator, Collection<ServiceRegistration<UpgradeStep>>>
 			_serviceTracker;
 
-	@Reference
-	private SwappedLogExecutor _swappedLogExecutor;
-
-	@Reference
-	private UpgradeExecutor _upgradeExecutor;
-
 	private class UpgradeStepRegistratorServiceTrackerCustomizer
 		implements ServiceTrackerCustomizer
 			<UpgradeStepRegistrator,
@@ -126,27 +120,14 @@ public class UpgradeStepRegistratorTracker {
 
 			upgradeStepRegistrator.register(upgradeStepRegistry);
 
+			_log.error("Registered upgrades for " + bundleSymbolicName);
+
 			List<UpgradeInfo> upgradeInfos =
 				upgradeStepRegistry.getUpgradeInfos();
 
 			if (PropsValues.UPGRADE_DATABASE_AUTO_RUN ||
 				(_releaseLocalService.fetchRelease(bundleSymbolicName) ==
 					null)) {
-
-				try {
-					_upgradeExecutor.execute(
-						bundleSymbolicName, upgradeInfos,
-						OutputStreamContainerConstants.FACTORY_NAME_DUMMY);
-				}
-				catch (Throwable throwable) {
-					_swappedLogExecutor.execute(
-						bundleSymbolicName,
-						() -> _log.error(
-							"Failed upgrade process for module ".concat(
-								bundleSymbolicName),
-							throwable),
-						null);
-				}
 			}
 
 			List<ServiceRegistration<UpgradeStep>> serviceRegistrations =

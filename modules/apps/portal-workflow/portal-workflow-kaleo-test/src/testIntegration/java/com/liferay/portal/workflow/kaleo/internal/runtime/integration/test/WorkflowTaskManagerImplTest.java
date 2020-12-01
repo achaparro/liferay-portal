@@ -75,6 +75,7 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.OrganizationLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -89,6 +90,7 @@ import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerB
 import com.liferay.portal.kernel.test.randomizerbumpers.UniqueStringRandomizerBumper;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DataGuard;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -150,7 +152,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 /**
  * @author Inácio Nery
  */
-@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 public class WorkflowTaskManagerImplTest {
 
@@ -187,11 +188,13 @@ public class WorkflowTaskManagerImplTest {
 
 		_companyAdminUser = UserTestUtil.addCompanyAdminUser(_company);
 
-		_group = GroupTestUtil.addGroup(
+		Group group = GroupTestUtil.addGroup(
 			_company.getCompanyId(), _companyAdminUser.getUserId(), 0);
 
+		_groupId = group.getGroupId();
+
 		_serviceContext = ServiceContextTestUtil.getServiceContext(
-			_group, _companyAdminUser.getUserId());
+			group, _companyAdminUser.getUserId());
 
 		_setUpPermissionThreadLocal();
 		_setUpPrincipalThreadLocal();
@@ -489,7 +492,7 @@ public class WorkflowTaskManagerImplTest {
 		throws Exception {
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			_group.getGroupId(), JournalArticle.class.getName());
+			_groupId, JournalArticle.class.getName());
 
 		JournalFolder folder = _addJournalFolder(
 			ddmStructure.getStructureId(),
@@ -603,8 +606,7 @@ public class WorkflowTaskManagerImplTest {
 		_deactivateWorkflow(
 			childOrganization.getGroupId(), BlogsEntry.class.getName(), 0, 0);
 
-		_serviceContext = ServiceContextTestUtil.getServiceContext(
-			_group.getGroupId());
+		_serviceContext = ServiceContextTestUtil.getServiceContext(_groupId);
 	}
 
 	@Test
@@ -652,8 +654,7 @@ public class WorkflowTaskManagerImplTest {
 		_deactivateWorkflow(
 			childOrganization.getGroupId(), BlogsEntry.class.getName(), 0, 0);
 
-		_serviceContext = ServiceContextTestUtil.getServiceContext(
-			_group.getGroupId());
+		_serviceContext = ServiceContextTestUtil.getServiceContext(_groupId);
 	}
 
 	@Test
@@ -697,8 +698,7 @@ public class WorkflowTaskManagerImplTest {
 		_deactivateWorkflow(
 			organization.getGroupId(), BlogsEntry.class.getName(), 0, 0);
 
-		_serviceContext = ServiceContextTestUtil.getServiceContext(
-			_group.getGroupId());
+		_serviceContext = ServiceContextTestUtil.getServiceContext(_groupId);
 	}
 
 	@Test
@@ -1052,9 +1052,11 @@ public class WorkflowTaskManagerImplTest {
 
 		_addBlogsEntry();
 
-		_group.setActive(false);
+		Group group = GroupLocalServiceUtil.getGroup(_groupId);
 
-		_groupLocalService.updateGroup(_group);
+		group.setActive(false);
+
+		_groupLocalService.updateGroup(group);
 
 		int total = _searchCountByUserRoles(_siteContentReviewerUser);
 
@@ -1165,8 +1167,7 @@ public class WorkflowTaskManagerImplTest {
 		throws Exception {
 
 		_activateWorkflow(
-			_group.getGroupId(), className, classPK, typePK, "Single Approver",
-			1);
+			_groupId, className, classPK, typePK, "Single Approver", 1);
 	}
 
 	private void _activateWorkflow(
@@ -1185,8 +1186,8 @@ public class WorkflowTaskManagerImplTest {
 		throws Exception {
 
 		_activateWorkflow(
-			_group.getGroupId(), className, classPK, typePK,
-			workflowDefinitionName, workflowDefinitionVersion);
+			_groupId, className, classPK, typePK, workflowDefinitionName,
+			workflowDefinitionVersion);
 	}
 
 	private BlogsEntry _addBlogsEntry() throws Exception {
@@ -1210,14 +1211,14 @@ public class WorkflowTaskManagerImplTest {
 		DDMForm ddmForm = DDMStructureTestUtil.getSampleDDMForm();
 
 		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+			ServiceContextTestUtil.getServiceContext(_groupId);
 
 		serviceContext.setAttribute(
 			"ddmForm", DDMBeanTranslatorUtil.translate(ddmForm));
 
 		return _dlFileEntryTypeLocalService.addFileEntryType(
-			_adminUser.getUserId(), _group.getGroupId(), null, map, map,
-			new long[0], serviceContext);
+			_adminUser.getUserId(), _groupId, null, map, map, new long[0],
+			serviceContext);
 	}
 
 	private FileVersion _addFileVersion(long folderId) throws Exception {
@@ -1228,12 +1229,12 @@ public class WorkflowTaskManagerImplTest {
 		throws Exception {
 
 		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+			ServiceContextTestUtil.getServiceContext(_groupId);
 
 		serviceContext.setAttribute("fileEntryTypeId", fileEntryTypeId);
 
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
-			_adminUser.getUserId(), _group.getGroupId(), folderId,
+			_adminUser.getUserId(), _groupId, folderId,
 			RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
 			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
 			TestDataConstants.TEST_BYTE_ARRAY, serviceContext);
@@ -1243,13 +1244,13 @@ public class WorkflowTaskManagerImplTest {
 
 	private Folder _addFolder() throws Exception {
 		return _dlAppService.addFolder(
-			_group.getGroupId(), 0, RandomTestUtil.randomString(),
+			_groupId, 0, RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), _serviceContext);
 	}
 
 	private JournalArticle _addJournalArticle(long folderId) throws Exception {
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			_group.getGroupId(), JournalArticle.class.getName());
+			_groupId, JournalArticle.class.getName());
 
 		return _addJournalArticle(folderId, ddmStructure);
 	}
@@ -1259,7 +1260,7 @@ public class WorkflowTaskManagerImplTest {
 		throws Exception {
 
 		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
-			_group.getGroupId(), ddmStructure.getStructureId(),
+			_groupId, ddmStructure.getStructureId(),
 			_portal.getClassNameId(JournalArticle.class));
 
 		Map<Locale, String> titleMap = HashMapBuilder.put(
@@ -1273,14 +1274,14 @@ public class WorkflowTaskManagerImplTest {
 		String content = DDMStructureTestUtil.getSampleStructuredContent();
 
 		return _journalArticleLocalService.addArticle(
-			_adminUser.getUserId(), _group.getGroupId(), folderId, titleMap,
+			_adminUser.getUserId(), _groupId, folderId, titleMap,
 			descriptionMap, content, ddmStructure.getStructureKey(),
 			ddmTemplate.getTemplateKey(), _serviceContext);
 	}
 
 	private JournalFolder _addJournalFolder() throws Exception {
 		return _journalFolderLocalService.addFolder(
-			_adminUser.getUserId(), _group.getGroupId(),
+			_adminUser.getUserId(), _groupId,
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			_serviceContext);
@@ -1295,7 +1296,7 @@ public class WorkflowTaskManagerImplTest {
 		JournalFolder folder = _addJournalFolder();
 
 		return _journalFolderLocalService.updateFolder(
-			_adminUser.getUserId(), _group.getGroupId(), folder.getFolderId(),
+			_adminUser.getUserId(), _groupId, folder.getFolderId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			ddmStructureIds, restrictionType, false, _serviceContext);
@@ -1308,8 +1309,7 @@ public class WorkflowTaskManagerImplTest {
 		DDMFormValues ddmFormValues = _createDDMFormValues(ddmForm);
 
 		return _ddlRecordLocalService.addRecord(
-			_adminUser.getUserId(), _group.getGroupId(),
-			recordSet.getRecordSetId(),
+			_adminUser.getUserId(), _groupId, recordSet.getRecordSetId(),
 			DDLRecordConstants.DISPLAY_INDEX_DEFAULT, ddmFormValues,
 			_serviceContext);
 	}
@@ -1320,14 +1320,15 @@ public class WorkflowTaskManagerImplTest {
 
 		DDMStructureTestHelper ddmStructureTestHelper =
 			new DDMStructureTestHelper(
-				_portal.getClassNameId(DDLRecordSet.class), _group);
+				_portal.getClassNameId(DDLRecordSet.class),
+				GroupLocalServiceUtil.getGroup(_groupId));
 
 		DDMStructure ddmStructure = ddmStructureTestHelper.addStructure(
 			ddmForm, StorageType.JSON.toString());
 
 		return _ddlRecordSetLocalService.addRecordSet(
-			_adminUser.getUserId(), _group.getGroupId(),
-			ddmStructure.getStructureId(), null,
+			_adminUser.getUserId(), _groupId, ddmStructure.getStructureId(),
+			null,
 			HashMapBuilder.put(
 				LocaleUtil.US, RandomTestUtil.randomString()
 			).build(),
@@ -1382,7 +1383,7 @@ public class WorkflowTaskManagerImplTest {
 		PermissionThreadLocal.setPermissionChecker(userPermissionChecker);
 
 		_workflowTaskManager.assignWorkflowTaskToUser(
-			_group.getCompanyId(), user.getUserId(),
+			_company.getCompanyId(), user.getUserId(),
 			workflowTask.getWorkflowTaskId(), assigneeUser.getUserId(),
 			StringPool.BLANK, null, null);
 	}
@@ -1436,7 +1437,7 @@ public class WorkflowTaskManagerImplTest {
 		PermissionThreadLocal.setPermissionChecker(userPermissionChecker);
 
 		return _workflowTaskManager.completeWorkflowTask(
-			_group.getCompanyId(), user.getUserId(),
+			_company.getCompanyId(), user.getUserId(),
 			workflowTask.getWorkflowTaskId(), transition, StringPool.BLANK,
 			null);
 	}
@@ -1524,15 +1525,15 @@ public class WorkflowTaskManagerImplTest {
 	}
 
 	private User _createUser(String roleName) throws Exception {
-		return _createUser(roleName, _group, true);
+		return _createUser(roleName, _groupId, true);
 	}
 
 	private User _createUser(String roleName, Group group) throws Exception {
-		return _createUser(roleName, group, true);
+		return _createUser(roleName, group.getGroupId(), true);
 	}
 
 	private User _createUser(
-			String roleName, Group group, boolean addUserToRole)
+			String roleName, long groupId, boolean addUserToRole)
 		throws Exception {
 
 		User user = UserTestUtil.addUser(
@@ -1541,7 +1542,7 @@ public class WorkflowTaskManagerImplTest {
 				NumericStringRandomizerBumper.INSTANCE,
 				UniqueStringRandomizerBumper.INSTANCE),
 			LocaleUtil.getDefault(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), new long[] {group.getGroupId()},
+			RandomTestUtil.randomString(), new long[] {groupId},
 			ServiceContextTestUtil.getServiceContext());
 
 		Role role = _roleLocalService.getRole(
@@ -1552,8 +1553,7 @@ public class WorkflowTaskManagerImplTest {
 		}
 
 		_userGroupRoleLocalService.addUserGroupRoles(
-			new long[] {user.getUserId()}, group.getGroupId(),
-			role.getRoleId());
+			new long[] {user.getUserId()}, groupId, role.getRoleId());
 
 		return user;
 	}
@@ -1571,7 +1571,7 @@ public class WorkflowTaskManagerImplTest {
 			String className, long classPK, long typePK)
 		throws Exception {
 
-		_deactivateWorkflow(_group.getGroupId(), className, classPK, typePK);
+		_deactivateWorkflow(_groupId, className, classPK, typePK);
 	}
 
 	private WorkflowInstanceLink _fetchWorkflowInstanceLink(
@@ -1777,7 +1777,7 @@ public class WorkflowTaskManagerImplTest {
 		throws Exception {
 
 		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+			ServiceContextTestUtil.getServiceContext(_groupId);
 
 		serviceContext.setAttribute("restrictionType", restrictionType);
 
@@ -1835,7 +1835,9 @@ public class WorkflowTaskManagerImplTest {
 	@Inject
 	private BlogsEntryLocalService _blogsEntryLocalService;
 
+	@DeleteAfterTestRun
 	private Company _company;
+
 	private User _companyAdminUser;
 
 	@Inject
@@ -1856,7 +1858,7 @@ public class WorkflowTaskManagerImplTest {
 	@Inject
 	private DLTrashService _dlTrashService;
 
-	private Group _group;
+	private long _groupId;
 
 	@Inject
 	private GroupLocalService _groupLocalService;

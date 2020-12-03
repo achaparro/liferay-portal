@@ -68,13 +68,7 @@ public abstract class BaseSubscriptionLocalizedContentTestCase
 			localizedContents
 		).build();
 
-		Locale locale = LocaleUtil.GERMANY;
-
-		user.setLanguageId(locale.toString());
-
-		user = _userLocalService.updateUser(user);
-
-		localizedContents.put(locale, GERMAN_BODY);
+		_initializeLocale(LocaleUtil.GERMANY, GERMAN_BODY);
 
 		setBaseModelSubscriptionBodyPreferences(
 			getSubscriptionAddedBodyPreferenceName());
@@ -99,13 +93,7 @@ public abstract class BaseSubscriptionLocalizedContentTestCase
 			localizedContents
 		).build();
 
-		Locale locale = LocaleUtil.SPAIN;
-
-		user.setLanguageId(locale.toString());
-
-		user = _userLocalService.updateUser(user);
-
-		localizedContents.put(locale, SPANISH_BODY);
+		_initializeLocale(LocaleUtil.SPAIN, SPANISH_BODY);
 
 		setBaseModelSubscriptionBodyPreferences(
 			getSubscriptionUpdatedBodyPreferenceName());
@@ -173,6 +161,14 @@ public abstract class BaseSubscriptionLocalizedContentTestCase
 	protected Locale defaultLocale;
 	protected Layout layout;
 	protected Map<Locale, String> localizedContents = new HashMap<>();
+
+	private void _initializeLocale(Locale locale, String body) {
+		user.setLanguageId(locale.toString());
+
+		user = _userLocalService.updateUser(user);
+
+		localizedContents.put(locale, body);
+	}
 
 	@Inject
 	private SettingsFactory _settingsFactory;

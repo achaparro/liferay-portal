@@ -133,13 +133,22 @@ public class UpgradeDiscussionSubscriptionClassName extends UpgradeProcess {
 					newSubscriptionClassName, subscription.getClassPK());
 
 				if (assetEntry == null) {
+					AssetEntry oldAssetEntry =
+						_assetEntryLocalService.fetchEntry(
+							_oldSubscriptionClassName,
+							subscription.getClassPK());
+
+					if (oldAssetEntry == null) {
+						return;
+					}
+
 					_assetEntryLocalService.updateEntry(
-						subscription.getUserId(), subscription.getGroupId(),
-						subscription.getCreateDate(),
-						subscription.getModifiedDate(),
+						oldAssetEntry.getUserId(), oldAssetEntry.getGroupId(),
+						oldAssetEntry.getCreateDate(),
+						oldAssetEntry.getModifiedDate(),
 						newSubscriptionClassName, subscription.getClassPK(),
 						null, 0, null, null, true, false, null, null, null,
-						null, null, String.valueOf(subscription.getGroupId()),
+						null, null, String.valueOf(oldAssetEntry.getGroupId()),
 						null, null, null, null, 0, 0, null);
 				}
 			});

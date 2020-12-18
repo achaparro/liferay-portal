@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.util;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
@@ -59,6 +60,7 @@ public class CompaniesUtil {
 		UnsafeFunction<Long, T, E> unsafeFunction,
 		BiConsumer<Long, E> biConsumer, Stream<Long> companyIdsStream) {
 
+		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();
 		long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
 		return companyIdsStream.flatMap(
@@ -75,6 +77,7 @@ public class CompaniesUtil {
 				}
 				finally {
 					CompanyThreadLocal.setCompanyId(currentCompanyId);
+					CTCollectionThreadLocal.setCTCollectionId(ctCollectionId);
 				}
 			});
 	}
@@ -99,6 +102,7 @@ public class CompaniesUtil {
 		UnsafeConsumer<Company, E> unsafeConsumer,
 		BiConsumer<Company, E> biConsumer, List<Company> companies) {
 
+		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();
 		long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
 		try {
@@ -115,6 +119,7 @@ public class CompaniesUtil {
 		}
 		finally {
 			CompanyThreadLocal.setCompanyId(currentCompanyId);
+			CTCollectionThreadLocal.setCTCollectionId(ctCollectionId);
 		}
 	}
 
@@ -146,6 +151,7 @@ public class CompaniesUtil {
 		UnsafeConsumer<Long, E> unsafeConsumer, BiConsumer<Long, E> biConsumer,
 		long[] companyIds) {
 
+		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();
 		long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
 		try {
@@ -162,6 +168,7 @@ public class CompaniesUtil {
 		}
 		finally {
 			CompanyThreadLocal.setCompanyId(currentCompanyId);
+			CTCollectionThreadLocal.setCTCollectionId(ctCollectionId);
 		}
 	}
 

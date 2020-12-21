@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.util;
 
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
@@ -59,11 +60,11 @@ public class CompaniesUtil {
 		UnsafeFunction<Long, T, E> unsafeFunction,
 		BiConsumer<Long, E> biConsumer, Stream<Long> companyIdsStream) {
 
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
-
 		return companyIdsStream.flatMap(
 			companyId -> {
-				try {
+				try (SafeClosable safeClosable =
+						CompanyThreadLocal.setWithSafeClosable(companyId)) {
+
 					CompanyThreadLocal.setCompanyId(companyId);
 
 					return Stream.of(unsafeFunction.apply(companyId));
@@ -72,9 +73,6 @@ public class CompaniesUtil {
 					biConsumer.accept(companyId, (E)exception);
 
 					return Stream.empty();
-				}
-				finally {
-					CompanyThreadLocal.setCompanyId(currentCompanyId);
 				}
 			});
 	}
@@ -99,22 +97,16 @@ public class CompaniesUtil {
 		UnsafeConsumer<Company, E> unsafeConsumer,
 		BiConsumer<Company, E> biConsumer, List<Company> companies) {
 
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
+		for (Company company : companies) {
+			try (SafeClosable safeClosable =
+					CompanyThreadLocal.setWithSafeClosable(
+						company.getCompanyId())) {
 
-		try {
-			for (Company company : companies) {
-				CompanyThreadLocal.setCompanyId(company.getCompanyId());
-
-				try {
-					unsafeConsumer.accept(company);
-				}
-				catch (Exception exception) {
-					biConsumer.accept(company, (E)exception);
-				}
+				unsafeConsumer.accept(company);
 			}
-		}
-		finally {
-			CompanyThreadLocal.setCompanyId(currentCompanyId);
+			catch (Exception exception) {
+				biConsumer.accept(company, (E)exception);
+			}
 		}
 	}
 
@@ -146,22 +138,15 @@ public class CompaniesUtil {
 		UnsafeConsumer<Long, E> unsafeConsumer, BiConsumer<Long, E> biConsumer,
 		long[] companyIds) {
 
-		long currentCompanyId = CompanyThreadLocal.getCompanyId();
+		for (long companyId : companyIds) {
+			try (SafeClosable safeClosable =
+					CompanyThreadLocal.setWithSafeClosable(companyId)) {
 
-		try {
-			for (long companyId : companyIds) {
-				CompanyThreadLocal.setCompanyId(companyId);
-
-				try {
-					unsafeConsumer.accept(companyId);
-				}
-				catch (Exception exception) {
-					biConsumer.accept(companyId, (E)exception);
-				}
+				unsafeConsumer.accept(companyId);
 			}
-		}
-		finally {
-			CompanyThreadLocal.setCompanyId(currentCompanyId);
+			catch (Exception exception) {
+				biConsumer.accept(companyId, (E)exception);
+			}
 		}
 	}
 

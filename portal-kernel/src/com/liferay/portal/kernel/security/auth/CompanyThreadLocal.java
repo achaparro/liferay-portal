@@ -25,6 +25,9 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.TimeZoneThreadLocal;
 
+import java.util.Locale;
+import java.util.TimeZone;
+
 /**
  * @author Brian Wing Shun Chan
  */
@@ -88,6 +91,22 @@ public class CompanyThreadLocal {
 		}
 
 		return _companyId.setWithSafeClosable(CompanyConstants.SYSTEM);
+	}
+
+	public static SafeClosable setWithSafeClosable(Long companyId) {
+		long currentCompanyId = _companyId.get();
+		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();
+		Locale defaultLocale = LocaleThreadLocal.getDefaultLocale();
+		TimeZone defaultTimeZone = TimeZoneThreadLocal.getDefaultTimeZone();
+
+		setCompanyId(companyId);
+
+		return () -> {
+			_companyId.set(currentCompanyId);
+			CTCollectionThreadLocal.setCTCollectionId(ctCollectionId);
+			LocaleThreadLocal.setDefaultLocale(defaultLocale);
+			TimeZoneThreadLocal.setDefaultTimeZone(defaultTimeZone);
+		};
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

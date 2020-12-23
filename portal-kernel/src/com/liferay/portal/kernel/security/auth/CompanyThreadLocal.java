@@ -95,15 +95,18 @@ public class CompanyThreadLocal {
 
 	public static SafeClosable setWithSafeClosable(Long companyId) {
 		long currentCompanyId = _companyId.get();
-		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();
 		Locale defaultLocale = LocaleThreadLocal.getDefaultLocale();
 		TimeZone defaultTimeZone = TimeZoneThreadLocal.getDefaultTimeZone();
+
+		SafeClosable ctCollectionSafeClosable =
+			CTCollectionThreadLocal.setCTCollectionId(0);
 
 		setCompanyId(companyId);
 
 		return () -> {
+			ctCollectionSafeClosable.close();
+
 			_companyId.set(currentCompanyId);
-			CTCollectionThreadLocal.setCTCollectionId(ctCollectionId);
 			LocaleThreadLocal.setDefaultLocale(defaultLocale);
 			TimeZoneThreadLocal.setDefaultTimeZone(defaultTimeZone);
 		};

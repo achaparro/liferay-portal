@@ -47,6 +47,8 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserTable;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Indexable;
+import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.SearchContext;
@@ -402,6 +404,7 @@ public class AccountEntryLocalServiceImpl
 		accountEntryImpl.setUserName(defaultUser.getFullName());
 		accountEntryImpl.setParentAccountEntryId(
 			AccountConstants.PARENT_ACCOUNT_ENTRY_ID_DEFAULT);
+		accountEntryImpl.setEmailAddress(defaultUser.getEmailAddress());
 		accountEntryImpl.setName(defaultUser.getFullName());
 		accountEntryImpl.setType(AccountConstants.ACCOUNT_ENTRY_TYPE_GUEST);
 		accountEntryImpl.setStatus(WorkflowConstants.STATUS_APPROVED);
@@ -595,11 +598,46 @@ public class AccountEntryLocalServiceImpl
 		return accountEntryPersistence.update(accountEntry);
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public AccountEntry updateDefaultBillingAddressId(
+			long accountEntryId, long addressId)
+		throws PortalException {
+
+		AccountEntry accountEntry = getAccountEntry(accountEntryId);
+
+		accountEntry.setDefaultBillingAddressId(addressId);
+
+		return updateAccountEntry(accountEntry);
+	}
+
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public AccountEntry updateDefaultShippingAddressId(
+			long accountEntryId, long addressId)
+		throws PortalException {
+
+		AccountEntry accountEntry = getAccountEntry(accountEntryId);
+
+		accountEntry.setDefaultShippingAddressId(addressId);
+
+		return updateAccountEntry(accountEntry);
+	}
+
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public AccountEntry updateStatus(AccountEntry accountEntry, int status) {
 		accountEntry.setStatus(status);
 
 		return updateAccountEntry(accountEntry);
+	}
+
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public AccountEntry updateStatus(long accountEntryId, int status)
+		throws PortalException {
+
+		return updateStatus(getAccountEntry(accountEntryId), status);
 	}
 
 	private GroupByStep _getGroupByStep(

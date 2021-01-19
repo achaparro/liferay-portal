@@ -485,9 +485,7 @@ public class CommerceAccountLocalServiceImpl
 		return TransformUtil.transform(
 			accountEntryLocalService.getUserAccountEntries(
 				userId, parentCommerceAccountId, keywords,
-				new String[] {
-					CommerceAccountImpl.toAccountEntryType(commerceSiteType)
-				},
+				CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
 				CommerceAccountImpl.toAccountEntryStatus(active), start, end),
 			CommerceAccountImpl::fromAccountEntry);
 	}
@@ -504,9 +502,7 @@ public class CommerceAccountLocalServiceImpl
 		return TransformUtil.transform(
 			accountEntryLocalService.getUserAccountEntries(
 				userId, parentCommerceAccountId, keywords,
-				new String[] {
-					CommerceAccountImpl.toAccountEntryType(commerceSiteType)
-				},
+				CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
 				start, end),
 			CommerceAccountImpl::fromAccountEntry);
 	}
@@ -535,9 +531,7 @@ public class CommerceAccountLocalServiceImpl
 
 		return accountEntryLocalService.getUserAccountEntriesCount(
 			userId, parentCommerceAccountId, keywords,
-			new String[] {
-				CommerceAccountImpl.toAccountEntryType(commerceSiteType)
-			},
+			CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
 			CommerceAccountImpl.toAccountEntryStatus(active));
 	}
 

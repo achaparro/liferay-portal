@@ -141,7 +141,7 @@ public class CommerceAccountLocalServiceImpl
 			null, taxId, CommerceAccountImpl.toAccountEntryType(type),
 			CommerceAccountImpl.toAccountEntryStatus(active), serviceContext);
 
-		if (externalReferenceCode == null) {
+		if (externalReferenceCode != null) {
 			accountEntry.setExternalReferenceCode(externalReferenceCode);
 
 			accountEntry = accountEntryLocalService.updateAccountEntry(

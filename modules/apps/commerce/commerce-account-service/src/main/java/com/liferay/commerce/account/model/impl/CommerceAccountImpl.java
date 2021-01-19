@@ -116,6 +116,23 @@ public class CommerceAccountImpl extends CommerceAccountBaseImpl {
 		return null;
 	}
 
+	public static String[] toAccountEntryTypes(int commerceSiteType) {
+		if (commerceSiteType == CommerceAccountConstants.SITE_TYPE_B2X) {
+			return new String[] {
+				AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
+				AccountConstants.ACCOUNT_ENTRY_TYPE_PERSON
+			};
+		}
+		else if (commerceSiteType == CommerceAccountConstants.SITE_TYPE_B2B) {
+			return new String[] {AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS};
+		}
+		else if (commerceSiteType == CommerceAccountConstants.SITE_TYPE_B2C) {
+			return new String[] {AccountConstants.ACCOUNT_ENTRY_TYPE_PERSON};
+		}
+
+		return null;
+	}
+
 	public static boolean toCommerceAccountActive(int accountEntryStatus) {
 		if (accountEntryStatus == WorkflowConstants.STATUS_APPROVED) {
 			return true;

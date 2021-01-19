@@ -26,9 +26,7 @@ import com.liferay.commerce.account.util.CommerceAccountRoleHelper;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
-import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
-import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -45,7 +43,6 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
-import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.spring.extender.service.ServiceReference;
@@ -288,43 +285,6 @@ public class CommerceAccountLocalServiceImpl
 
 	@Override
 	public <T> T dslQuery(DSLQuery dslQuery) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public DynamicQuery dynamicQuery() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public <T> List<T> dynamicQuery(
-		DynamicQuery dynamicQuery, int start, int end) {
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public <T> List<T> dynamicQuery(
-		DynamicQuery dynamicQuery, int start, int end,
-		OrderByComparator<T> orderByComparator) {
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public long dynamicQueryCount(DynamicQuery dynamicQuery) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public long dynamicQueryCount(
-		DynamicQuery dynamicQuery, Projection projection) {
-
 		throw new UnsupportedOperationException();
 	}
 

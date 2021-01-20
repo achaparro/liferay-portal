@@ -1771,10 +1771,6 @@ public class WorkflowTaskManagerImplTest {
 				"defaultFileEntryTypeId", defaultFileEntryTypeId);
 		}
 
-		serviceContext.setAttribute(
-			"dlFileEntryTypesSearchContainerPrimaryKeys",
-			StringUtil.merge(dlFileEntryTypeMap.keySet()));
-
 		dlFileEntryTypeMap.forEach(
 			(dlFileEntryType, workflowDefinition) ->
 				serviceContext.setAttribute(

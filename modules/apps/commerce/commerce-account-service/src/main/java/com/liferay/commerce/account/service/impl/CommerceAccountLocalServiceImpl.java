@@ -520,7 +520,7 @@ public class CommerceAccountLocalServiceImpl
 		}
 
 		BaseModelSearchResult<AccountEntry> baseModelSearchResult =
-			accountEntryLocalService.search(
+			accountEntryLocalService.searchAccountEntries(
 				companyId, keywords, params, start, end - start, fieldName,
 				reverse);
 
@@ -546,7 +546,7 @@ public class CommerceAccountLocalServiceImpl
 			).build();
 
 		BaseModelSearchResult<AccountEntry> baseModelSearchResult =
-			accountEntryLocalService.search(
+			accountEntryLocalService.searchAccountEntries(
 				companyId, keywords, params, QueryUtil.ALL_POS, 0, null, false);
 
 		return baseModelSearchResult.getLength();

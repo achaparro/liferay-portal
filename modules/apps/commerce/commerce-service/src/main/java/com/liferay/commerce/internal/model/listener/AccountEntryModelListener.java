@@ -27,8 +27,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Alec Sloan
  */
 @Component(enabled = false, immediate = true, service = ModelListener.class)
-public class AccountEntryModelListener
-	extends BaseModelListener<AccountEntry> {
+public class AccountEntryModelListener extends BaseModelListener<AccountEntry> {
 
 	@Override
 	public void onBeforeRemove(AccountEntry accountEntry) {

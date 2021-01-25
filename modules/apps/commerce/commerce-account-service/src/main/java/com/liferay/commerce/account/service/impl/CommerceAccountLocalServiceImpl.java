@@ -15,36 +15,50 @@
 package com.liferay.commerce.account.service.impl;
 
 import com.liferay.account.model.AccountEntry;
+import com.liferay.account.model.AccountEntryOrganizationRelTable;
+import com.liferay.account.model.AccountEntryTable;
+import com.liferay.account.model.AccountEntryUserRelTable;
 import com.liferay.commerce.account.constants.CommerceAccountConstants;
 import com.liferay.commerce.account.exception.CommerceAccountNameException;
 import com.liferay.commerce.account.exception.CommerceAccountOrdersException;
 import com.liferay.commerce.account.exception.DuplicateCommerceAccountException;
 import com.liferay.commerce.account.model.CommerceAccount;
+import com.liferay.commerce.account.model.CommerceAccountOrganizationRelTable;
+import com.liferay.commerce.account.model.CommerceAccountUserRelTable;
 import com.liferay.commerce.account.model.impl.CommerceAccountImpl;
 import com.liferay.commerce.account.service.base.CommerceAccountLocalServiceBaseImpl;
 import com.liferay.commerce.account.util.CommerceAccountRoleHelper;
+import com.liferay.petra.sql.dsl.DSLFunctionFactoryUtil;
+import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
+import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
+import com.liferay.petra.sql.dsl.query.FromStep;
+import com.liferay.petra.sql.dsl.query.GroupByStep;
+import com.liferay.petra.sql.dsl.query.JoinStep;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
-import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.model.PersistedModel;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserTable;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
@@ -52,7 +66,9 @@ import java.io.Serializable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Marco Leo
@@ -429,11 +445,27 @@ public class CommerceAccountLocalServiceImpl
 			String keywords, Boolean active, int start, int end)
 		throws PortalException {
 
-		return TransformUtil.transform(
-			accountEntryLocalService.getUserAccountEntries(
+		accountEntryLocalService.dslQuery(
+			_getGroupByStep(
+				DSLQueryFactoryUtil.selectDistinct(AccountEntryTable.INSTANCE),
 				userId, parentCommerceAccountId, keywords,
 				CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
-				CommerceAccountImpl.toAccountEntryStatus(active), start, end),
+				CommerceAccountImpl.toAccountEntryStatus(active)
+			).limit(
+				start, end
+			));
+
+		return TransformUtil.transform(
+			accountEntryLocalService.dslQuery(
+				_getGroupByStep(
+					DSLQueryFactoryUtil.selectDistinct(
+						AccountEntryTable.INSTANCE),
+					userId, parentCommerceAccountId, keywords,
+					CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
+					CommerceAccountImpl.toAccountEntryStatus(active)
+				).limit(
+					start, end
+				)),
 			CommerceAccountImpl::fromAccountEntry);
 	}
 
@@ -447,10 +479,16 @@ public class CommerceAccountLocalServiceImpl
 		throws PortalException {
 
 		return TransformUtil.transform(
-			accountEntryLocalService.getUserAccountEntries(
-				userId, parentCommerceAccountId, keywords,
-				CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
-				start, end),
+			accountEntryLocalService.dslQuery(
+				_getGroupByStep(
+					DSLQueryFactoryUtil.selectDistinct(
+						AccountEntryTable.INSTANCE),
+					userId, parentCommerceAccountId, keywords,
+					CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
+					WorkflowConstants.STATUS_ANY
+				).limit(
+					start, end
+				)),
 			CommerceAccountImpl::fromAccountEntry);
 	}
 
@@ -476,10 +514,14 @@ public class CommerceAccountLocalServiceImpl
 			String keywords, Boolean active)
 		throws PortalException {
 
-		return accountEntryLocalService.getUserAccountEntriesCount(
-			userId, parentCommerceAccountId, keywords,
-			CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
-			CommerceAccountImpl.toAccountEntryStatus(active));
+		return accountEntryLocalService.dslQuery(
+			_getGroupByStep(
+				DSLQueryFactoryUtil.countDistinct(
+					AccountEntryTable.INSTANCE.accountEntryId.as(
+						"COUNT_VALUE")),
+				userId, parentCommerceAccountId, keywords,
+				CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
+				CommerceAccountImpl.toAccountEntryStatus(active)));
 	}
 
 	/**
@@ -493,9 +535,11 @@ public class CommerceAccountLocalServiceImpl
 
 		LinkedHashMap<String, Object> params =
 			LinkedHashMapBuilder.<String, Object>put(
-				"type", CommerceAccountImpl.toAccountEntryType(type)
+				"parentAccountEntryId", parentCommerceAccountId
 			).put(
 				"status", () -> CommerceAccountImpl.toAccountEntryStatus(active)
+			).put(
+				"type", CommerceAccountImpl.toAccountEntryType(type)
 			).build();
 
 		String fieldName = null;
@@ -789,8 +833,159 @@ public class CommerceAccountLocalServiceImpl
 		}
 	}
 
+	private GroupByStep _getGroupByStep(
+			FromStep fromStep, long userId, Long parentAccountId,
+			String keywords, String[] types, Integer status)
+		throws PortalException {
+
+		JoinStep joinStep = fromStep.from(
+			UserTable.INSTANCE
+		).leftJoinOn(
+			AccountEntryUserRelTable.INSTANCE,
+			AccountEntryUserRelTable.INSTANCE.accountUserId.eq(
+				UserTable.INSTANCE.userId)
+		);
+
+		// @todo remove after bridging CommerceAccountUserRel service
+
+		joinStep = joinStep.leftJoinOn(
+			CommerceAccountUserRelTable.INSTANCE,
+			CommerceAccountUserRelTable.INSTANCE.commerceAccountUserId.eq(
+				UserTable.INSTANCE.userId));
+
+		Long[] organizationIds = _getOrganizationIds(userId);
+
+		if (ArrayUtil.isNotEmpty(organizationIds)) {
+			joinStep = joinStep.leftJoinOn(
+				AccountEntryOrganizationRelTable.INSTANCE,
+				AccountEntryOrganizationRelTable.INSTANCE.organizationId.in(
+					organizationIds));
+
+			// @todo remove after bridging CommerceAccountOrganizationRel
+			//  service
+
+			joinStep = joinStep.leftJoinOn(
+				CommerceAccountOrganizationRelTable.INSTANCE,
+				CommerceAccountOrganizationRelTable.INSTANCE.organizationId.in(
+					organizationIds));
+		}
+
+		Predicate accountEntryPredicate =
+			AccountEntryTable.INSTANCE.accountEntryId.eq(
+				AccountEntryUserRelTable.INSTANCE.accountEntryId
+			).or(
+				AccountEntryTable.INSTANCE.userId.eq(userId)
+			);
+
+		// @todo remove after bridging CommerceAccountUserRel service
+
+		accountEntryPredicate = accountEntryPredicate.or(
+			AccountEntryTable.INSTANCE.accountEntryId.eq(
+				CommerceAccountUserRelTable.INSTANCE.commerceAccountId));
+
+		if (ArrayUtil.isNotEmpty(organizationIds)) {
+			accountEntryPredicate = accountEntryPredicate.or(
+				AccountEntryTable.INSTANCE.accountEntryId.eq(
+					AccountEntryOrganizationRelTable.INSTANCE.accountEntryId));
+
+			// @todo remove after bridging CommerceAccountOrganizationRel
+			//  serviceCommerceAccountPersistenceTest
+
+			accountEntryPredicate = accountEntryPredicate.or(
+				AccountEntryTable.INSTANCE.accountEntryId.eq(
+					CommerceAccountOrganizationRelTable.INSTANCE.
+						commerceAccountId));
+		}
+
+		joinStep = joinStep.leftJoinOn(
+			AccountEntryTable.INSTANCE, accountEntryPredicate);
+
+		return joinStep.where(
+			() -> {
+				Predicate predicate = UserTable.INSTANCE.userId.eq(userId);
+
+				if (parentAccountId != null) {
+					predicate = predicate.and(
+						AccountEntryTable.INSTANCE.parentAccountEntryId.eq(
+							parentAccountId));
+				}
+
+				if (Validator.isNotNull(keywords)) {
+					String[] terms = _customSQL.keywords(keywords, true);
+
+					Predicate keywordsPredicate = null;
+
+					for (String term : terms) {
+						Predicate termPredicate = DSLFunctionFactoryUtil.lower(
+							AccountEntryTable.INSTANCE.name
+						).like(
+							term
+						);
+
+						if (keywordsPredicate == null) {
+							keywordsPredicate = termPredicate;
+						}
+						else {
+							keywordsPredicate = keywordsPredicate.or(
+								termPredicate);
+						}
+					}
+
+					if (keywordsPredicate != null) {
+						predicate = predicate.and(
+							keywordsPredicate.withParentheses());
+					}
+				}
+
+				if (types != null) {
+					predicate = predicate.and(
+						AccountEntryTable.INSTANCE.type.in(types));
+				}
+
+				if ((status != null) &&
+					(status != WorkflowConstants.STATUS_ANY)) {
+
+					predicate = predicate.and(
+						AccountEntryTable.INSTANCE.status.eq(status));
+				}
+
+				return predicate;
+			});
+	}
+
+	private Long[] _getOrganizationIds(long userId) {
+		List<Organization> organizations =
+			organizationLocalService.getUserOrganizations(userId);
+
+		ListIterator<Organization> listIterator = organizations.listIterator();
+
+		while (listIterator.hasNext()) {
+			Organization organization = listIterator.next();
+
+			for (Organization curOrganization :
+					organizationLocalService.getOrganizations(
+						organization.getCompanyId(),
+						organization.getTreePath() + "%")) {
+
+				listIterator.add(curOrganization);
+			}
+		}
+
+		Stream<Organization> stream = organizations.stream();
+
+		return stream.map(
+			Organization::getOrganizationId
+		).distinct(
+		).toArray(
+			Long[]::new
+		);
+	}
+
 	@ServiceReference(type = CommerceAccountRoleHelper.class)
 	private CommerceAccountRoleHelper _commerceAccountRoleHelper;
+
+	@ServiceReference(type = CustomSQL.class)
+	private CustomSQL _customSQL;
 
 	@ServiceReference(type = Portal.class)
 	private Portal _portal;

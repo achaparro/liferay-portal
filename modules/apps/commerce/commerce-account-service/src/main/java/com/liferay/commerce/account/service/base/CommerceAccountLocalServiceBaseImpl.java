@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.service.BaseLocalServiceImpl;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
+import com.liferay.portal.kernel.service.persistence.OrganizationPersistence;
 import com.liferay.portal.kernel.service.persistence.RolePersistence;
 import com.liferay.portal.kernel.service.persistence.UserGroupRolePersistence;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
@@ -833,6 +834,49 @@ public abstract class CommerceAccountLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the organization local service.
+	 *
+	 * @return the organization local service
+	 */
+	public com.liferay.portal.kernel.service.OrganizationLocalService
+		getOrganizationLocalService() {
+
+		return organizationLocalService;
+	}
+
+	/**
+	 * Sets the organization local service.
+	 *
+	 * @param organizationLocalService the organization local service
+	 */
+	public void setOrganizationLocalService(
+		com.liferay.portal.kernel.service.OrganizationLocalService
+			organizationLocalService) {
+
+		this.organizationLocalService = organizationLocalService;
+	}
+
+	/**
+	 * Returns the organization persistence.
+	 *
+	 * @return the organization persistence
+	 */
+	public OrganizationPersistence getOrganizationPersistence() {
+		return organizationPersistence;
+	}
+
+	/**
+	 * Sets the organization persistence.
+	 *
+	 * @param organizationPersistence the organization persistence
+	 */
+	public void setOrganizationPersistence(
+		OrganizationPersistence organizationPersistence) {
+
+		this.organizationPersistence = organizationPersistence;
+	}
+
+	/**
 	 * Returns the resource local service.
 	 *
 	 * @return the resource local service
@@ -1165,6 +1209,15 @@ public abstract class CommerceAccountLocalServiceBaseImpl
 
 	@ServiceReference(type = ClassNamePersistence.class)
 	protected ClassNamePersistence classNamePersistence;
+
+	@ServiceReference(
+		type = com.liferay.portal.kernel.service.OrganizationLocalService.class
+	)
+	protected com.liferay.portal.kernel.service.OrganizationLocalService
+		organizationLocalService;
+
+	@ServiceReference(type = OrganizationPersistence.class)
+	protected OrganizationPersistence organizationPersistence;
 
 	@ServiceReference(
 		type = com.liferay.portal.kernel.service.ResourceLocalService.class

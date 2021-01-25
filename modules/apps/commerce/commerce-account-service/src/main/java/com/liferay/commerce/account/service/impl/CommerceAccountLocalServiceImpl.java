@@ -326,11 +326,6 @@ public class CommerceAccountLocalServiceImpl
 	}
 
 	@Override
-	public ActionableDynamicQuery getActionableDynamicQuery() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public CommerceAccount getCommerceAccount(long commerceAccountId)
 		throws PortalException {
 
@@ -391,14 +386,6 @@ public class CommerceAccountLocalServiceImpl
 
 		return CommerceAccountImpl.fromAccountEntry(
 			accountEntryLocalService.getGuestAccountEntry(companyId));
-	}
-
-	@Override
-	public IndexableActionableDynamicQuery
-		getIndexableActionableDynamicQuery() {
-		//		@todo remove usages
-
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

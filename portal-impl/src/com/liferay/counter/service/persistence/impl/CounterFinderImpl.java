@@ -375,7 +375,7 @@ public class CounterFinderImpl implements CacheRegistryItem, CounterFinder {
 	}
 
 	private CounterHolder _obtainIncrement(
-		String counterName, long range, long size) {
+		String counterName, long range, long expectedValue) {
 
 		Session session = null;
 
@@ -387,8 +387,8 @@ public class CounterFinderImpl implements CacheRegistryItem, CounterFinder {
 
 			long newValue = counter.getCurrentId();
 
-			if (size > newValue) {
-				newValue = size;
+			if (expectedValue > newValue) {
+				newValue = expectedValue;
 			}
 
 			long rangeMax = newValue + range;

@@ -354,7 +354,7 @@ public class CounterFinderImpl implements CacheRegistryItem, CounterFinder {
 			if (newValue > counterHolder.getRangeMax()) {
 				CounterHolder newCounterHolder = _obtainIncrement(
 					counterRegister.getName(), counterRegister.getRangeSize(),
-					0);
+					newValue);
 
 				newValue = newCounterHolder.addAndGet(size);
 

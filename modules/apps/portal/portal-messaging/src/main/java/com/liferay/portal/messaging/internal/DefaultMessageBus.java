@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusEventListener;
 import com.liferay.portal.kernel.messaging.MessageBusInterceptor;
 import com.liferay.portal.kernel.messaging.MessageListener;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CompaniesUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -215,6 +216,10 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 
 	@Override
 	public void sendMessage(String destinationName, Message message) {
+		if (CompanyThreadLocal.isDeleteInProcess()) {
+			return;
+		}
+
 		MessageBusThreadLocalUtil.populateMessageFromThreadLocals(message);
 
 		for (MessageBusInterceptor messageBusInterceptor :

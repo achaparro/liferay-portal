@@ -18,7 +18,10 @@ import com.liferay.expando.kernel.model.ExpandoColumn;
 import com.liferay.expando.kernel.model.ExpandoTable;
 import com.liferay.petra.encryptor.Encryptor;
 import com.liferay.petra.encryptor.EncryptorException;
+import com.liferay.petra.function.UnsafeConsumer;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.lang.SafeClosable;
+import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.db.partition.DBPartitionUtil;
@@ -119,6 +122,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
@@ -275,6 +281,39 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			null, webId, virtualHostname, mx, system, maxUsers, active);
 	}
 
+	@Override
+	public <T, E extends Exception> Stream applyForEachCompanyId(
+		UnsafeFunction<Long, T, E> unsafeFunction,
+		BiConsumer<Long, E> biConsumer) {
+
+		LongStream longStream = Arrays.stream(_getCompanyIds());
+
+		return applyForEachCompanyId(
+			unsafeFunction, biConsumer, longStream.boxed());
+	}
+
+	@Override
+	public <T, E extends Exception> Stream<T> applyForEachCompanyId(
+		UnsafeFunction<Long, T, E> unsafeFunction,
+		BiConsumer<Long, E> biConsumer, Stream<Long> companyIdsStream) {
+
+		return companyIdsStream.flatMap(
+			companyId -> {
+				try (SafeClosable safeClosable =
+						CompanyThreadLocal.setWithSafeClosable(companyId)) {
+
+					CompanyThreadLocal.setCompanyId(companyId);
+
+					return Stream.of(unsafeFunction.apply(companyId));
+				}
+				catch (Exception exception) {
+					biConsumer.accept(companyId, (E)exception);
+
+					return Stream.empty();
+				}
+			});
+	}
+
 	/**
 	 * Returns the company with the web domain.
 	 *
@@ -422,6 +461,93 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 
 		return companyPersistence.fetchByPrimaryKey(virtualHost.getCompanyId());
+	}
+
+	@Override
+	public <E extends Exception> void forEach(
+			UnsafeConsumer<Company, E> unsafeConsumer)
+		throws E {
+
+		forEach(unsafeConsumer, getCompanies(false));
+	}
+
+	@Override
+	public <E extends Exception> void forEach(
+		UnsafeConsumer<Company, E> unsafeConsumer,
+		BiConsumer<Company, E> biConsumer) {
+
+		forEach(unsafeConsumer, biConsumer, getCompanies(false));
+	}
+
+	@Override
+	public <E extends Exception> void forEach(
+		UnsafeConsumer<Company, E> unsafeConsumer,
+		BiConsumer<Company, E> biConsumer, List<Company> companies) {
+
+		for (Company company : companies) {
+			try (SafeClosable safeClosable =
+					CompanyThreadLocal.setWithSafeClosable(
+						company.getCompanyId())) {
+
+				unsafeConsumer.accept(company);
+			}
+			catch (Exception exception) {
+				biConsumer.accept(company, (E)exception);
+			}
+		}
+	}
+
+	@Override
+	public <E extends Exception> void forEach(
+			UnsafeConsumer<Company, E> unsafeConsumer, List<Company> companies)
+		throws E {
+
+		forEach(
+			unsafeConsumer, (__, e) -> ReflectionUtil.throwException(e),
+			companies);
+	}
+
+	@Override
+	public <E extends Exception> void forEachCompanyId(
+			UnsafeConsumer<Long, E> unsafeConsumer)
+		throws E {
+
+		forEachCompanyId(unsafeConsumer, _getCompanyIds());
+	}
+
+	@Override
+	public <E extends Exception> void forEachCompanyId(
+		UnsafeConsumer<Long, E> unsafeConsumer,
+		BiConsumer<Long, E> biConsumer) {
+
+		forEachCompanyId(unsafeConsumer, biConsumer, _getCompanyIds());
+	}
+
+	@Override
+	public <E extends Exception> void forEachCompanyId(
+		UnsafeConsumer<Long, E> unsafeConsumer, BiConsumer<Long, E> biConsumer,
+		long[] companyIds) {
+
+		for (long companyId : companyIds) {
+			try (SafeClosable safeClosable =
+					CompanyThreadLocal.setWithSafeClosable(companyId)) {
+
+				unsafeConsumer.accept(companyId);
+			}
+			catch (Exception exception) {
+				biConsumer.accept(companyId, (E)exception);
+			}
+		}
+	}
+
+	@Override
+	public <E extends Exception> void forEachCompanyId(
+			UnsafeConsumer<Long, E> unsafeConsumer, long[] companyIds)
+		throws E {
+
+		forEachCompanyId(
+			unsafeConsumer, (__, e) -> ReflectionUtil.throwException(e),
+			companyIds);
 	}
 
 	/**
@@ -1996,6 +2122,16 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		};
 
 		TransactionCommitCallbackUtil.registerCallback(callable);
+	}
+
+	private long[] _getCompanyIds() {
+		List<Company> companies = getCompanies(false);
+
+		Stream<Company> stream = companies.stream();
+
+		return stream.mapToLong(
+			Company::getCompanyId
+		).toArray();
 	}
 
 	private static final String _DEFAULT_VIRTUAL_HOST = "localhost";

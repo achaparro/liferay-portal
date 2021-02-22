@@ -18,7 +18,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -90,9 +89,7 @@ public abstract class BaseWorkflowMetricsIndex implements WorkflowMetricsIndex {
 
 	@Activate
 	protected void activate() throws Exception {
-		for (Company company : companyLocalService.getCompanies()) {
-			createIndex(company.getCompanyId());
-		}
+		_companyLocalService.forEachCompanyId(this::createIndex);
 	}
 
 	protected boolean hasIndex(String indexName) {
@@ -116,9 +113,6 @@ public abstract class BaseWorkflowMetricsIndex implements WorkflowMetricsIndex {
 		ModuleServiceLifecycle moduleServiceLifecycle) {
 	}
 
-	@Reference
-	protected CompanyLocalService companyLocalService;
-
 	@Reference(
 		cardinality = ReferenceCardinality.OPTIONAL,
 		policy = ReferencePolicy.DYNAMIC,
@@ -129,5 +123,8 @@ public abstract class BaseWorkflowMetricsIndex implements WorkflowMetricsIndex {
 
 	@Reference
 	protected WorkflowMetricsPortalExecutor workflowMetricsPortalExecutor;
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 }

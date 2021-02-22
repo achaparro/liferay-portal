@@ -14,7 +14,6 @@
 
 package com.liferay.vldap.server.internal.portal.security.auth;
 
-import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.Authenticator;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -50,8 +49,6 @@ public class SambaAuthTest extends BaseVLDAPTestCase {
 
 		_authenticator = new SambaAuth();
 
-		_expandoBridge = mock(ExpandoBridge.class);
-
 		Class<?> clazz = Class.forName(SambaAuth.class.getName());
 
 		Method setUserLocalServiceMethod = clazz.getDeclaredMethod(
@@ -73,13 +70,13 @@ public class SambaAuthTest extends BaseVLDAPTestCase {
 		Assert.assertEquals(1, authResult);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttribute(
 			"sambaLMPassword", "E52CAC67419A9A224A3B108F3FA6CB6D", false
 		);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttribute(
 			"sambaNTPassword", "8846F7EAEE8FB117AD06BDD830B7586C", false
 		);
@@ -94,7 +91,7 @@ public class SambaAuthTest extends BaseVLDAPTestCase {
 		Assert.assertEquals(1, authResult);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(0)
+			expandoBridge, Mockito.times(0)
 		).setAttribute(
 			Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()
 		);
@@ -111,13 +108,13 @@ public class SambaAuthTest extends BaseVLDAPTestCase {
 		Assert.assertEquals(1, authResult);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttribute(
 			"sambaLMPassword", "E52CAC67419A9A224A3B108F3FA6CB6D", false
 		);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttribute(
 			"sambaNTPassword", "8846F7EAEE8FB117AD06BDD830B7586C", false
 		);
@@ -132,7 +129,7 @@ public class SambaAuthTest extends BaseVLDAPTestCase {
 		Assert.assertEquals(1, authResult);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(0)
+			expandoBridge, Mockito.times(0)
 		).setAttribute(
 			Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()
 		);
@@ -149,13 +146,13 @@ public class SambaAuthTest extends BaseVLDAPTestCase {
 		Assert.assertEquals(1, authResult);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttribute(
 			"sambaLMPassword", "E52CAC67419A9A224A3B108F3FA6CB6D", false
 		);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(1)
+			expandoBridge, Mockito.times(1)
 		).setAttribute(
 			"sambaNTPassword", "8846F7EAEE8FB117AD06BDD830B7586C", false
 		);
@@ -170,7 +167,7 @@ public class SambaAuthTest extends BaseVLDAPTestCase {
 		Assert.assertEquals(1, authResult);
 
 		Mockito.verify(
-			_expandoBridge, Mockito.times(0)
+			expandoBridge, Mockito.times(0)
 		).setAttribute(
 			Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()
 		);
@@ -217,11 +214,10 @@ public class SambaAuthTest extends BaseVLDAPTestCase {
 		when(
 			user.getExpandoBridge()
 		).thenReturn(
-			_expandoBridge
+			expandoBridge
 		);
 	}
 
 	private static Authenticator _authenticator;
-	private static ExpandoBridge _expandoBridge;
 
 }

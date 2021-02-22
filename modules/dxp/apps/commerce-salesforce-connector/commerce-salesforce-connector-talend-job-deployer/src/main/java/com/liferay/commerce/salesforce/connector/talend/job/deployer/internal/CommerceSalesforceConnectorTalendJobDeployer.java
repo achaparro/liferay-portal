@@ -21,6 +21,7 @@ import com.liferay.dispatch.service.DispatchTriggerLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
@@ -57,11 +58,8 @@ public class CommerceSalesforceConnectorTalendJobDeployer {
 				jobFileURL.getFile(), StringPool.FORWARD_SLASH);
 
 			try {
-				long[] companyIds = _portal.getCompanyIds();
-
-				for (long companyId : companyIds) {
-					_deployJob(companyId, fileName, jobFileURL);
-				}
+				_companyLocalService.forEachCompanyId(
+					companyId -> _deployJob(companyId, fileName, jobFileURL));
 			}
 			catch (Exception exception) {
 				_log.error("Unable to deploy job " + fileName, exception);
@@ -120,6 +118,9 @@ public class CommerceSalesforceConnectorTalendJobDeployer {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommerceSalesforceConnectorTalendJobDeployer.class);
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private DispatchFileRepository _dispatchFileRepository;

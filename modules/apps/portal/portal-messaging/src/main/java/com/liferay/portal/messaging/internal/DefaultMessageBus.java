@@ -28,7 +28,8 @@ import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusEventListener;
 import com.liferay.portal.kernel.messaging.MessageBusInterceptor;
 import com.liferay.portal.kernel.messaging.MessageListener;
-import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -243,20 +244,13 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 			Long[] companyIds = (Long[])message.get("companyIds");
 
 			if (companyIds != null) {
-				long orignalCompanyId = CompanyThreadLocal.getCompanyId();
-
-				try {
-					for (Long id : companyIds) {
-						CompanyThreadLocal.setCompanyId(id);
-
-						message.put("companyId", id);
+				_companyLocalService.forEachCompanyId(
+					companyId -> {
+						message.put("companyId", companyId);
 
 						destination.send(message);
-					}
-				}
-				finally {
-					CompanyThreadLocal.setCompanyId(orignalCompanyId);
-				}
+					},
+					ArrayUtil.toArray(companyIds));
 
 				return;
 			}
@@ -602,6 +596,9 @@ public class DefaultMessageBus implements ManagedServiceFactory, MessageBus {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DefaultMessageBus.class);
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 	private final Map<String, Destination> _destinations =
 		new ConcurrentHashMap<>();

@@ -181,7 +181,7 @@ public class JournalArticleExpirationTest {
 		article.setExpirationDate(
 			new Date(expirationDate.getTime() - (Time.HOUR * 2)));
 
-		JournalArticleLocalServiceUtil.updateJournalArticle(article);
+		article = JournalArticleLocalServiceUtil.updateJournalArticle(article);
 
 		JournalArticleLocalServiceUtil.checkArticles();
 

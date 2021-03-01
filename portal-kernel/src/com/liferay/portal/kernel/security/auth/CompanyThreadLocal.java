@@ -97,7 +97,7 @@ public class CompanyThreadLocal {
 			_companyId.set(companyId);
 
 			try {
-				User defaultUser = UserLocalServiceUtil.fetchDefaultUser(
+				User defaultUser = UserLocalServiceUtil.getDefaultUser(
 					companyId);
 
 				if (defaultUser == null) {

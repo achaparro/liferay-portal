@@ -2128,17 +2128,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	}
 
 	private long[] _getCompanyIds() {
-		List<Company> companies = getCompanies(false);
-
-		long[] companyIds = new long[companies.size()];
-
-		for (int i = 0; i < companies.size(); i++) {
-			Company company = companies.get(i);
-
-			companyIds[i] = company.getCompanyId();
-		}
-
-		return companyIds;
+		return PortalInstances.getCompanyIds();
 	}
 
 	private static final String _DEFAULT_VIRTUAL_HOST = "localhost";

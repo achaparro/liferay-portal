@@ -42,7 +42,7 @@ public class CPAttachmentFileEntryUpgradeProcess
 					"Dropping index %s from table %s", indexName, tableName));
 		}
 
-		if (tableHasIndex(tableName, indexName)) {
+		if (hasIndex(tableName, indexName)) {
 			runSQL(
 				StringBundler.concat(
 					"drop index ", indexName, " on ", tableName));

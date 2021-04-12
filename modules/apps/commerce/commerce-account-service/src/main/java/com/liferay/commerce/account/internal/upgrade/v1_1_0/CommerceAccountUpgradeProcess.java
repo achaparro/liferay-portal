@@ -52,7 +52,7 @@ public class CommerceAccountUpgradeProcess extends UpgradeProcess {
 						indexMetadata.getIndexName(), tableName));
 			}
 
-			if (hasIndex(tableName, indexMetadata.getIndexName())) {
+			if (!hasIndex(tableName, indexMetadata.getIndexName())) {
 				runSQL(indexMetadata.getCreateSQL(null));
 			}
 			else if (_log.isInfoEnabled()) {

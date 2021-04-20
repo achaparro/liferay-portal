@@ -14,10 +14,9 @@
 
 package com.liferay.portal.properties.swapper.internal.portal.profile;
 
-import com.liferay.document.library.kernel.store.Store;
 import com.liferay.osgi.util.ComponentUtil;
 import com.liferay.portal.change.tracking.store.CTStoreFactory;
-import com.liferay.portal.util.PropsValues;
+import com.liferay.portlet.documentlibrary.store.StoreFactory;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -33,7 +32,7 @@ public class ModulePortalProfileEnabler {
 	@Activate
 	protected void activate(ComponentContext componentContext) {
 		ComponentUtil.enableComponents(
-			Store.class, "(store.type=" + PropsValues.DL_STORE_IMPL + ")",
+			StoreFactory.class, "(dl.store.impl.enabled=true)",
 			componentContext, ModulePortalProfile.class);
 	}
 

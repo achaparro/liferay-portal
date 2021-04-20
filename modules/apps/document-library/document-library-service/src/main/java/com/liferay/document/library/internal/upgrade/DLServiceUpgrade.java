@@ -119,7 +119,7 @@ public class DLServiceUpgrade implements UpgradeStepRegistrator {
 	@Reference
 	private ResourceLocalService _resourceLocalService;
 
-	@Reference(target = "(dl.store.upgrade=true)")
+	@Reference(target = "(dl.store.impl.enabled=true)")
 	private StoreFactory _storeFactory;
 
 	@Reference

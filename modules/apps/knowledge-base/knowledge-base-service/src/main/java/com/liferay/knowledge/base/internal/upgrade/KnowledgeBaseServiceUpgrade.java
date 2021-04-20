@@ -204,7 +204,7 @@ public class KnowledgeBaseServiceUpgrade implements UpgradeStepRegistrator {
 
 	private SettingsFactory _settingsFactory;
 
-	@Reference(target = "(dl.store.upgrade=true)")
+	@Reference(target = "(dl.store.impl.enabled=true)")
 	private StoreFactory _storeFactory;
 
 	/**

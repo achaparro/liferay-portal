@@ -148,7 +148,7 @@ public class BlogsServiceUpgrade implements UpgradeStepRegistrator {
 	@Reference
 	private PortletFileRepository _portletFileRepository;
 
-	@Reference(target = "(dl.store.upgrade=true)")
+	@Reference(target = "(dl.store.impl.enabled=true)")
 	private StoreFactory _storeFactory;
 
 	@Reference

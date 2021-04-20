@@ -48,7 +48,7 @@ public class TensorFlowAssetAutoTagProviderUpgrade
 	@Reference
 	private ConfigurationProvider _configurationProvider;
 
-	@Reference(target = "(dl.store.upgrade=true)")
+	@Reference(target = "(dl.store.impl.enabled=true)")
 	private StoreFactory _storeFactory;
 
 }

@@ -242,7 +242,7 @@ public class StoreFactory {
 			if (StringUtil.equals(storeType, PropsValues.DL_STORE_IMPL)) {
 				Map<String, Object> properties =
 					HashMapBuilder.<String, Object>put(
-						"dl.store.upgrade", GetterUtil.getObject("true")
+						"dl.store.impl.enabled", GetterUtil.getObject("true")
 					).build();
 
 				Registry registry = RegistryUtil.getRegistry();

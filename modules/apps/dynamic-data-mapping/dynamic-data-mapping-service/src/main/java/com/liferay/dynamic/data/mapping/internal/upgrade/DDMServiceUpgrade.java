@@ -542,7 +542,7 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 	@Reference
 	private ResourcePermissionLocalService _resourcePermissionLocalService;
 
-	@Reference(target = "(dl.store.upgrade=true)")
+	@Reference(target = "(dl.store.impl.enabled=true)")
 	private StoreFactory _storeFactory;
 
 	@Reference

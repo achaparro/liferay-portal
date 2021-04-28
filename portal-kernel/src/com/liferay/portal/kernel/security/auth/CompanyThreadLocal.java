@@ -142,14 +142,7 @@ public class CompanyThreadLocal {
 			try {
 				User defaultUser = _fetchDefaultUser(companyId);
 
-				if (defaultUser == null) {
-					if (_log.isWarnEnabled()) {
-						_log.warn(
-							"No default user was found for company " +
-								companyId);
-					}
-				}
-				else {
+				if (defaultUser != null) {
 					LocaleThreadLocal.setDefaultLocale(defaultUser.getLocale());
 					TimeZoneThreadLocal.setDefaultTimeZone(
 						defaultUser.getTimeZone());

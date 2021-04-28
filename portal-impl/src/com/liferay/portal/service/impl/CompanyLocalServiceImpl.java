@@ -226,6 +226,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			updateAccount(
 				company, name, null, null, null, null, null, null, null, null);
 
+			_addDefaultUser(company);
+
 			// Company info
 
 			try {
@@ -242,8 +244,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			if (webId.equals("liferay.net")) {
 				_addDemoSettings(company);
 			}
-
-			_addDefaultUser(company);
 
 			if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
 				return company;

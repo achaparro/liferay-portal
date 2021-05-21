@@ -45,7 +45,7 @@ public class ProcessWorkflowMetricsIndexerTest
 				workflowDefinition.getCompanyId()),
 			"WorkflowMetricsProcessType", "companyId",
 			workflowDefinition.getCompanyId(), "deleted", false, "processId",
-			workflowDefinition.getWorkflowDefinitionId(), "version", "1.0");
+			workflowDefinition.getWorkflowDefinitionId(), "version", 1);
 		retryAssertCount(
 			_instanceWorkflowMetricsIndexNameBuilder.getIndexName(
 				workflowDefinition.getCompanyId()),
@@ -71,7 +71,7 @@ public class ProcessWorkflowMetricsIndexerTest
 		retryAssertCount(
 			_processWorkflowMetricsIndexNameBuilder.getIndexName(companyId),
 			"WorkflowMetricsProcessType", "companyId", companyId, "deleted",
-			true, "processId", workflowDefinitionId, "version", "1.0");
+			true, "processId", workflowDefinitionId, "version", 1);
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class ProcessWorkflowMetricsIndexerTest
 				workflowDefinition.getCompanyId()),
 			"WorkflowMetricsProcessType", "companyId",
 			workflowDefinition.getCompanyId(), "deleted", false, "processId",
-			workflowDefinition.getWorkflowDefinitionId(), "version", "1.0");
+			workflowDefinition.getWorkflowDefinitionId(), "version", 1);
 
 		updateWorkflowDefinition();
 
@@ -109,7 +109,7 @@ public class ProcessWorkflowMetricsIndexerTest
 				workflowDefinition.getCompanyId()),
 			"WorkflowMetricsProcessType", "companyId",
 			workflowDefinition.getCompanyId(), "deleted", false, "processId",
-			workflowDefinition.getWorkflowDefinitionId(), "version", "2.0");
+			workflowDefinition.getWorkflowDefinitionId(), "version", 2);
 	}
 
 	@Inject(filter = "workflow.metrics.index.entity.name=instance")

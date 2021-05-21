@@ -14,8 +14,6 @@
 
 package com.liferay.portal.workflow.kaleo.metrics.integration.internal.search.index.reindexer;
 
-import com.liferay.petra.string.CharPool;
-import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
@@ -74,8 +72,7 @@ public class ProcessWorkflowMetricsReindexer
 					kaleoDefinition.getKaleoDefinitionId(),
 					kaleoDefinition.getTitle(defaultLanguageId),
 					kaleoDefinition.getTitleMap(),
-					StringBundler.concat(
-						kaleoDefinition.getVersion(), CharPool.PERIOD, 0));
+					String.valueOf(kaleoDefinition.getVersion()));
 
 				_workflowMetricsReindexStatusMessageSender.sendStatusMessage(
 					atomicCounter.incrementAndGet(), total, "process");

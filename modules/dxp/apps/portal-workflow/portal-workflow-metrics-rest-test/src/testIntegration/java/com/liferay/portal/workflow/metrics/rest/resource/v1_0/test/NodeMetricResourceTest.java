@@ -398,7 +398,7 @@ public class NodeMetricResourceTest extends BaseNodeMetricResourceTestCase {
 		throws Exception {
 
 		return testGetProcessNodeMetricsPage_addNodeMetric(
-			processId, nodeMetric, "1.0");
+			processId, nodeMetric, "1");
 	}
 
 	protected NodeMetric testGetProcessNodeMetricsPage_addNodeMetric(

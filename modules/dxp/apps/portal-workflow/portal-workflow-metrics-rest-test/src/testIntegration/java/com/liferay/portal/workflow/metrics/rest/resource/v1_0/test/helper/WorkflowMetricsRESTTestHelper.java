@@ -241,7 +241,7 @@ public class WorkflowMetricsRESTTestHelper {
 
 		return addNodeMetric(
 			assignee, companyId, instanceSuplier, task, processId, status, user,
-			"1.0");
+			"1");
 	}
 
 	public NodeMetric addNodeMetric(
@@ -298,7 +298,7 @@ public class WorkflowMetricsRESTTestHelper {
 			{
 				id = RandomTestUtil.randomLong();
 				title = RandomTestUtil.randomString();
-				version = "1.0";
+				version = "1";
 			}
 		};
 
@@ -339,7 +339,7 @@ public class WorkflowMetricsRESTTestHelper {
 	}
 
 	public ProcessMetric addProcessMetric(long companyId) throws Exception {
-		return addProcessMetric(companyId, "1.0");
+		return addProcessMetric(companyId, "1");
 	}
 
 	public ProcessMetric addProcessMetric(
@@ -507,7 +507,7 @@ public class WorkflowMetricsRESTTestHelper {
 		task.setName(name);
 		task.setNodeId(nodeId);
 		task.setProcessId(processId);
-		task.setProcessVersion("1.0");
+		task.setProcessVersion("1");
 
 		return addTask(companyId, instance, task, user);
 	}

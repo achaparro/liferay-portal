@@ -35,9 +35,19 @@ public abstract class BaseAdminPortletsUpgradeProcess extends UpgradeProcess {
 		throws Exception {
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				"insert into ResourcePermission (resourcePermissionId, " +
-					"companyId, name, scope, primKey, roleId, actionIds) " +
-						"values (?, ?, ?, ?, ?, ?, ?)")) {
+				StringBundler.concat(
+					"insert into ResourcePermission (resourcePermissionId, ",
+					"companyId, name, scope, primKey, roleId, actionIds, ",
+					"primKeyId, viewActionId) values (?, ?, ?, ?, ?, ?, ?, ?, ",
+					"?)"))) {
+
+			long primKeyId = GetterUtil.getLong(primKey);
+
+			boolean viewActionId = false;
+
+			if ((actionIds % 2) == 1) {
+				viewActionId = true;
+			}
 
 			preparedStatement.setLong(1, resourcePermissionId);
 			preparedStatement.setLong(2, companyId);
@@ -46,6 +56,8 @@ public abstract class BaseAdminPortletsUpgradeProcess extends UpgradeProcess {
 			preparedStatement.setString(5, primKey);
 			preparedStatement.setLong(6, roleId);
 			preparedStatement.setLong(7, actionIds);
+			preparedStatement.setLong(8, primKeyId);
+			preparedStatement.setBoolean(9, viewActionId);
 
 			preparedStatement.executeUpdate();
 		}

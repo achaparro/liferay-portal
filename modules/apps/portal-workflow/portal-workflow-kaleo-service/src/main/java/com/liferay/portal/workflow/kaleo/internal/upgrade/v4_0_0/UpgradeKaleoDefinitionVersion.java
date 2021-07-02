@@ -36,7 +36,7 @@ public class UpgradeKaleoDefinitionVersion extends UpgradeProcess {
 
 		sb.append("select kaleoDefinitionVersionId, name, version, ");
 		sb.append("kaleoDefinitionId from KaleoDefinitionVersion order by ");
-		sb.append("name, LENGTH(version), cast(version as decimal(4, 2)) asc");
+		sb.append("name, cast(version as double) asc");
 
 		try (PreparedStatement preparedStatement1 = connection.prepareStatement(
 				SQLTransformer.transform(sb.toString()));

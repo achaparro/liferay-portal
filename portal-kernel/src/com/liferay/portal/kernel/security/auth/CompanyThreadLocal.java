@@ -53,6 +53,18 @@ public class CompanyThreadLocal {
 		return _deleteInProcess.get();
 	}
 
+	public static SafeCloseable lock(long companyId) {
+		SafeCloseable safeCloseable = setWithSafeCloseable(companyId);
+
+		_locked = true;
+
+		return() -> {
+			_locked = true;
+
+			safeCloseable.close();
+		};
+	}
+
 	public static void setCompanyId(Long companyId) {
 		if (_setCompanyId(companyId)) {
 			CTCollectionThreadLocal.removeCTCollectionId();
@@ -174,7 +186,7 @@ public class CompanyThreadLocal {
 	}
 
 	private static boolean _setCompanyId(Long companyId) {
-		if (companyId.equals(_companyId.get())) {
+		if (companyId.equals(_companyId.get()) || _locked) {
 			return false;
 		}
 
@@ -214,6 +226,8 @@ public class CompanyThreadLocal {
 
 		return true;
 	}
+
+	private static boolean _locked = false;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CompanyThreadLocal.class);

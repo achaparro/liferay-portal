@@ -17,6 +17,7 @@ package com.liferay.portal.verify.test.util;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.settings.CompanyServiceSettingsLocator;
 import com.liferay.portal.kernel.settings.ModifiableSettings;
@@ -29,6 +30,8 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.verify.VerifyException;
 import com.liferay.portal.verify.VerifyProcess;
+
+import java.util.List;
 
 import javax.portlet.PortletPreferences;
 
@@ -65,25 +68,29 @@ public abstract class BaseCompanySettingsVerifyProcessTestCase
 
 		populateLegacyProperties(unicodeProperties);
 
-		companyLocalService.forEachCompanyId(
-			companyId -> companyLocalService.updatePreferences(
-				companyId, unicodeProperties));
+		List<Company> companies = companyLocalService.getCompanies(false);
+
+		for (Company company : companies) {
+			companyLocalService.updatePreferences(
+				company.getCompanyId(), unicodeProperties);
+		}
 	}
 
 	@After
 	@Override
 	public void tearDown() throws Exception {
-		companyLocalService.forEachCompanyId(
-			companyId -> {
-				Settings settings = getSettings(companyId);
+		List<Company> companies = companyLocalService.getCompanies(false);
 
-				ModifiableSettings modifiableSettings =
-					settings.getModifiableSettings();
+		for (Company company : companies) {
+			Settings settings = getSettings(company.getCompanyId());
 
-				modifiableSettings.reset();
+			ModifiableSettings modifiableSettings =
+				settings.getModifiableSettings();
 
-				modifiableSettings.store();
-			});
+			modifiableSettings.reset();
+
+			modifiableSettings.store();
+		}
 
 		super.tearDown();
 	}
@@ -92,17 +99,18 @@ public abstract class BaseCompanySettingsVerifyProcessTestCase
 	protected void doVerify() throws VerifyException {
 		super.doVerify();
 
-		companyLocalService.forEachCompanyId(
-			companyId -> {
-				PortletPreferences portletPreferences =
-					prefsProps.getPreferences(companyId, true);
+		List<Company> companies = companyLocalService.getCompanies(false);
 
-				Settings settings = getSettings(companyId);
+		for (Company company : companies) {
+			PortletPreferences portletPreferences = prefsProps.getPreferences(
+				company.getCompanyId(), true);
 
-				Assert.assertNotNull(settings);
+			Settings settings = getSettings(company.getCompanyId());
 
-				doVerify(portletPreferences, settings);
-			});
+			Assert.assertNotNull(settings);
+
+			doVerify(portletPreferences, settings);
+		}
 	}
 
 	protected abstract void doVerify(

@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -64,6 +63,15 @@ public class DataRemoval implements UpgradeStepRegistrator {
 
 	@Activate
 	protected void activate(Map<String, Object> properties) {
+		if (_defaultProperties.size() < properties.size()) {
+			for (Map.Entry<String, Object> entry : properties.entrySet()) {
+				String key = entry.getKey();
+
+				_defaultProperties.put(
+					key, key.startsWith("remove") ? false : entry.getValue());
+			}
+		}
+
 		_dataRemovalConfiguration = ConfigurableUtil.createConfigurable(
 			DataRemovalConfiguration.class, properties);
 	}
@@ -88,33 +96,13 @@ public class DataRemoval implements UpgradeStepRegistrator {
 	}
 
 	private void _resetConfiguration() throws Exception {
-		String pid = DataRemovalConfiguration.class.getName();
-
-		if (!_persistenceManager.exists(pid)) {
-			return;
-		}
-
-		Dictionary<?, ?> properties = _persistenceManager.load(pid);
-
-		Dictionary<String, Object> newProperties = new HashMapDictionary<>();
-
-		Enumeration<?> enumeration = properties.keys();
-
-		while (enumeration.hasMoreElements()) {
-			String key = (String)enumeration.nextElement();
-
-			if (key.startsWith("remove")) {
-				newProperties.put(key, false);
-			}
-			else {
-				newProperties.put(key, properties.get(key));
-			}
-		}
-
-		_persistenceManager.store(pid, newProperties);
+		_persistenceManager.store(
+			DataRemovalConfiguration.class.getName(), _defaultProperties);
 	}
 
 	private DataRemovalConfiguration _dataRemovalConfiguration;
+	private final Dictionary<String, Object> _defaultProperties =
+		new HashMapDictionary<>();
 
 	@Reference
 	private JournalArticleLocalService _journalArticleLocalService;

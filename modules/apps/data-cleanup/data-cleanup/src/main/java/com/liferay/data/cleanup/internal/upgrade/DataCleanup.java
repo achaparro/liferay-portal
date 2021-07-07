@@ -25,10 +25,15 @@ import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import org.apache.felix.cm.PersistenceManager;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -90,9 +95,11 @@ public class DataCleanup implements UpgradeStepRegistrator {
 			_cleanUpModuleData(
 				_dataCleanupConfiguration::cleanUpTwitterModuleData,
 				"com.liferay.twitter.service", TwitterUpgradeProcess::new);
+
+			_resetConfiguration();
 		}
-		catch (UpgradeException upgradeException) {
-			ReflectionUtil.throwException(upgradeException);
+		catch (Exception exception) {
+			ReflectionUtil.throwException(exception);
 		}
 	}
 
@@ -121,6 +128,33 @@ public class DataCleanup implements UpgradeStepRegistrator {
 		}
 	}
 
+	private void _resetConfiguration() throws Exception {
+		String pid = DataCleanupConfiguration.class.getName();
+
+		if (!_persistenceManager.exists(pid)) {
+			return;
+		}
+
+		Dictionary<?, ?> properties = _persistenceManager.load(pid);
+
+		Dictionary<String, Object> newProperties = new HashMapDictionary<>();
+
+		Enumeration<?> enumeration = properties.keys();
+
+		while (enumeration.hasMoreElements()) {
+			String key = (String)enumeration.nextElement();
+
+			if (key.startsWith("cleanUp")) {
+				newProperties.put(key, false);
+			}
+			else {
+				newProperties.put(key, properties.get(key));
+			}
+		}
+
+		_persistenceManager.store(pid, newProperties);
+	}
+
 	private DataCleanupConfiguration _dataCleanupConfiguration;
 
 	@Reference
@@ -131,6 +165,9 @@ public class DataCleanup implements UpgradeStepRegistrator {
 
 	@Reference
 	private MBThreadLocalService _mbThreadLocalService;
+
+	@Reference
+	private PersistenceManager _persistenceManager;
 
 	@Reference
 	private ReleaseLocalService _releaseLocalService;

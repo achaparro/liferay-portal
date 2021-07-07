@@ -23,10 +23,15 @@ import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import org.apache.felix.cm.PersistenceManager;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -49,9 +54,11 @@ public class DataRemoval implements UpgradeStepRegistrator {
 				"com.liferay.journal.service",
 				() -> new ExpiredJournalArticleUpgradeProcess(
 					_journalArticleLocalService));
+
+			_resetConfiguration();
 		}
-		catch (UpgradeException upgradeException) {
-			ReflectionUtil.throwException(upgradeException);
+		catch (Exception exception) {
+			ReflectionUtil.throwException(exception);
 		}
 	}
 
@@ -80,10 +87,40 @@ public class DataRemoval implements UpgradeStepRegistrator {
 		}
 	}
 
+	private void _resetConfiguration() throws Exception {
+		String pid = DataRemovalConfiguration.class.getName();
+
+		if (!_persistenceManager.exists(pid)) {
+			return;
+		}
+
+		Dictionary<?, ?> properties = _persistenceManager.load(pid);
+
+		Dictionary<String, Object> newProperties = new HashMapDictionary<>();
+
+		Enumeration<?> enumeration = properties.keys();
+
+		while (enumeration.hasMoreElements()) {
+			String key = (String)enumeration.nextElement();
+
+			if (key.startsWith("remove")) {
+				newProperties.put(key, false);
+			}
+			else {
+				newProperties.put(key, properties.get(key));
+			}
+		}
+
+		_persistenceManager.store(pid, newProperties);
+	}
+
 	private DataRemovalConfiguration _dataRemovalConfiguration;
 
 	@Reference
 	private JournalArticleLocalService _journalArticleLocalService;
+
+	@Reference
+	private PersistenceManager _persistenceManager;
 
 	@Reference
 	private ReleaseLocalService _releaseLocalService;

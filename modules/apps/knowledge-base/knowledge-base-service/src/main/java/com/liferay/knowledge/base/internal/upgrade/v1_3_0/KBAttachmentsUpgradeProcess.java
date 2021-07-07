@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.sql.PreparedStatement;
@@ -40,18 +41,15 @@ import java.sql.ResultSet;
  */
 public class KBAttachmentsUpgradeProcess extends UpgradeProcess {
 
-	public KBAttachmentsUpgradeProcess(
-		CompanyLocalService companyLocalService, Store store) {
-
-		_companyLocalService = companyLocalService;
+	public KBAttachmentsUpgradeProcess(Store store) {
 		_store = store;
 	}
 
 	protected void deleteEmptyDirectories() throws Exception {
-		_companyLocalService.forEachCompanyId(
-			companyId -> _store.deleteDirectory(
-				companyId, CompanyConstants.SYSTEM,
-				"knowledgebase/kbarticles"));
+		for (long companyId : PortalUtil.getCompanyIds()) {
+			_store.deleteDirectory(
+				companyId, CompanyConstants.SYSTEM, "knowledgebase/kbarticles");
+		}
 	}
 
 	@Override
@@ -172,7 +170,6 @@ public class KBAttachmentsUpgradeProcess extends UpgradeProcess {
 	private static final Log _log = LogFactoryUtil.getLog(
 		KBAttachmentsUpgradeProcess.class);
 
-	private final CompanyLocalService _companyLocalService;
 	private final Store _store;
 
 }

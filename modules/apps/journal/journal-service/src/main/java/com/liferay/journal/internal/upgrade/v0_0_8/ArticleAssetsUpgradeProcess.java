@@ -21,6 +21,7 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
@@ -28,6 +29,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 /**
  * @author Preston Crary
@@ -50,8 +52,11 @@ public class ArticleAssetsUpgradeProcess extends UpgradeProcess {
 
 	protected void updateDefaultDraftArticleAssets() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
-			_companyLocalService.forEachCompanyId(
-				companyId -> updateDefaultDraftArticleAssets(companyId));
+			List<Company> companies = _companyLocalService.getCompanies();
+
+			for (Company company : companies) {
+				updateDefaultDraftArticleAssets(company.getCompanyId());
+			}
 		}
 	}
 

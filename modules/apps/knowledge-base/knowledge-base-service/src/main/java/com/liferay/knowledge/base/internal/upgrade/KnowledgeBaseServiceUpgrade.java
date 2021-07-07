@@ -81,8 +81,7 @@ public class KnowledgeBaseServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"1.2.0", "1.3.0",
 			new com.liferay.knowledge.base.internal.upgrade.v1_3_0.
-				KBAttachmentsUpgradeProcess(
-					_companyLocalService, _storeFactory.getStore()),
+				KBAttachmentsUpgradeProcess(_storeFactory.getStore()),
 			new com.liferay.knowledge.base.internal.upgrade.v1_3_0.
 				UpgradePortletPreferences());
 
@@ -176,9 +175,6 @@ public class KnowledgeBaseServiceUpgrade implements UpgradeStepRegistrator {
 	protected void setSettingsFactory(SettingsFactory settingsFactory) {
 		_settingsFactory = settingsFactory;
 	}
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	private SettingsFactory _settingsFactory;
 

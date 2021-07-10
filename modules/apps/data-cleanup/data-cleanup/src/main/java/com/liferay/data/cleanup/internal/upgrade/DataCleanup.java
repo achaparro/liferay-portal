@@ -25,17 +25,10 @@ import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
-import java.io.IOException;
-
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.function.Supplier;
-
-import org.apache.felix.cm.PersistenceManager;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -53,7 +46,8 @@ public class DataCleanup implements UpgradeStepRegistrator {
 	@Override
 	public void register(Registry registry) {
 		try {
-			_resetConfiguration();
+			ConfigurationPersistenceManagerUtil.resetConfiguration(
+				DataCleanupConfiguration.class);
 
 			_cleanUpModuleData(
 				_dataCleanupConfiguration::cleanUpChatModuleData,
@@ -134,29 +128,6 @@ public class DataCleanup implements UpgradeStepRegistrator {
 		}
 	}
 
-	private void _resetConfiguration() throws IOException {
-		Dictionary<String, Object> properties = _persistenceManager.load(
-			DataCleanupConfiguration.class.getName());
-
-		if (properties == null) {
-			return;
-		}
-
-		Dictionary<String, Object> dictionary = new HashMapDictionary<>();
-
-		for (Enumeration<String> enumeration = properties.keys();
-			 enumeration.hasMoreElements();) {
-
-			String key = enumeration.nextElement();
-
-			dictionary.put(
-				key, key.startsWith("cleanUp") ? false : properties.get(key));
-		}
-
-		_persistenceManager.store(
-			DataCleanupConfiguration.class.getName(), dictionary);
-	}
-
 	private DataCleanupConfiguration _dataCleanupConfiguration;
 
 	@Reference
@@ -167,9 +138,6 @@ public class DataCleanup implements UpgradeStepRegistrator {
 
 	@Reference
 	private MBThreadLocalService _mbThreadLocalService;
-
-	@Reference
-	private PersistenceManager _persistenceManager;
 
 	@Reference
 	private ReleaseLocalService _releaseLocalService;

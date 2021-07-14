@@ -36,6 +36,7 @@ public class UpgradeClassNames extends UpgradeKernelPackage {
 		updateCalEventClassName();
 
 		deleteRelatedAssetEntries();
+		deleteRelatedExpandoTables();
 
 		deleteCalEventClassName();
 		deleteDuplicateResourcePermissions();
@@ -151,6 +152,62 @@ public class UpgradeClassNames extends UpgradeKernelPackage {
 			preparedStatement2.executeBatch();
 
 			preparedStatement3.executeBatch();
+		}
+		catch (SQLException sqlException) {
+			throw new UpgradeException(sqlException);
+		}
+	}
+
+	protected void deleteRelatedExpandoTables() throws UpgradeException {
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement preparedStatement1 = connection.prepareStatement(
+				"select tableId from ExpandoTable where classNameId = ?");
+			PreparedStatement preparedStatement2 =
+				AutoBatchPreparedStatementUtil.autoBatch(
+					connection.prepareStatement(
+						"delete from ExpandoColumn where tableId = ?"));
+			PreparedStatement preparedStatement3 =
+				AutoBatchPreparedStatementUtil.autoBatch(
+					connection.prepareStatement(
+						"delete from ExpandoRow where tableId = ?"));
+			PreparedStatement preparedStatement4 =
+				AutoBatchPreparedStatementUtil.autoBatch(
+					connection.prepareStatement(
+						"delete from ExpandoValue where tableId = ?"));
+			PreparedStatement preparedStatement5 =
+				AutoBatchPreparedStatementUtil.autoBatch(
+					connection.prepareStatement(
+						"delete from ExpandoTable where tableId = ? "))) {
+
+			preparedStatement1.setLong(
+				1, PortalUtil.getClassNameId(_CLASS_NAME_CAL_EVENT));
+
+			ResultSet resultSet = preparedStatement1.executeQuery();
+
+			while (resultSet.next()) {
+				long tableId = resultSet.getLong("tableId");
+
+				preparedStatement2.setLong(1, tableId);
+
+				preparedStatement2.addBatch();
+
+				preparedStatement3.setLong(1, tableId);
+				preparedStatement3.addBatch();
+
+				preparedStatement4.setLong(1, tableId);
+				preparedStatement4.addBatch();
+
+				preparedStatement5.setLong(1, tableId);
+				preparedStatement5.addBatch();
+			}
+
+			preparedStatement2.executeBatch();
+
+			preparedStatement3.executeBatch();
+
+			preparedStatement4.executeBatch();
+
+			preparedStatement5.executeBatch();
 		}
 		catch (SQLException sqlException) {
 			throw new UpgradeException(sqlException);

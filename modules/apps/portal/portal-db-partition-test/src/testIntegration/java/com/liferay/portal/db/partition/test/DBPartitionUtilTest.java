@@ -223,6 +223,8 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 	public void testUpdateIndexes() throws Exception {
 		_addDBPartition();
 
+		_insertCompanyAndDefaultUser();
+
 		try {
 			DBPartitionUtil.forEachCompanyId(
 				companyId -> {

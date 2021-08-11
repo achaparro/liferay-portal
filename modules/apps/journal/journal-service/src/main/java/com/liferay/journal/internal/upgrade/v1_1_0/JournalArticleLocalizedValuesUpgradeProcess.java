@@ -135,7 +135,7 @@ public class JournalArticleLocalizedValuesUpgradeProcess
 
 					return null;
 				},
-				BaseUpgradeCallable::call);
+				UpdateJournalArticleLocalizedFieldsUpgradeCallable::doCall);
 		}
 	}
 

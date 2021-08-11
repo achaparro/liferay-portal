@@ -24,7 +24,6 @@ import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBInspector;
-import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.db.Index;
 import com.liferay.portal.kernel.dao.db.IndexMetadata;
@@ -34,7 +33,6 @@ import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -47,7 +45,6 @@ import java.io.InputStream;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -287,63 +284,9 @@ public abstract class BaseDB implements DB {
 		String normalizedTableName = dbInspector.normalizeName(
 			tableName, databaseMetaData);
 
-		DB db = DBManagerUtil.getDB();
-
-		DBType dbType = db.getDBType();
-
-		if ((dbType == DBType.SQLSERVER) || (dbType == DBType.SYBASE)) {
-			String primaryKeyConstraintName = null;
-
-			if (dbType == DBType.SQLSERVER) {
-				try (PreparedStatement preparedStatement =
-						connection.prepareStatement(
-							StringBundler.concat(
-								"select name from sys.key_constraints where ",
-								"type = 'PK' and ",
-								"OBJECT_NAME(parent_object_id) = '",
-								normalizedTableName, "'"));
-					ResultSet resultSet = preparedStatement.executeQuery()) {
-
-					if (resultSet.next()) {
-						primaryKeyConstraintName = resultSet.getString("name");
-					}
-				}
-			}
-			else {
-				try (PreparedStatement preparedStatement =
-						connection.prepareStatement(
-							"sp_helpconstraint " + normalizedTableName);
-					ResultSet resultSet = preparedStatement.executeQuery()) {
-
-					while (resultSet.next()) {
-						String definition = resultSet.getString("definition");
-
-						if (definition.startsWith("PRIMARY KEY INDEX")) {
-							primaryKeyConstraintName = resultSet.getString(
-								"name");
-
-							break;
-						}
-					}
-				}
-			}
-
-			if (primaryKeyConstraintName == null) {
-				throw new UpgradeException(
-					"No primary key constraint found for " +
-						normalizedTableName);
-			}
-
-			runSQL(
-				StringBundler.concat(
-					"alter table ", normalizedTableName, " drop constraint ",
-					primaryKeyConstraintName));
-		}
-		else {
-			runSQL(
-				StringBundler.concat(
-					"alter table ", normalizedTableName, " drop primary key"));
-		}
+		runSQL(
+			StringBundler.concat(
+				"alter table ", normalizedTableName, " drop primary key"));
 	}
 
 	@Override

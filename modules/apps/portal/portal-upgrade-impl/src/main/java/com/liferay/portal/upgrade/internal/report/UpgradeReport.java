@@ -53,6 +53,7 @@ public class UpgradeReport {
 
 	public UpgradeReport(PersistenceManager persistenceManager) {
 		_persistenceManager = persistenceManager;
+
 		_initialBuildNumber = _getBuildNumber();
 		_initialSchemaVersion = _getSchemaVersion();
 	}
@@ -91,9 +92,7 @@ public class UpgradeReport {
 			FileUtil.write(logFile, sb.toString());
 		}
 		catch (IOException ioException) {
-			if (_log.isWarnEnabled()) {
-				_log.warn("Unable to generate report");
-			}
+			_log.error("Unable to generate the upgrade report");
 		}
 	}
 
@@ -111,7 +110,7 @@ public class UpgradeReport {
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn("Unable to get the build number");
+				_log.warn("Unable to get build number");
 			}
 		}
 
@@ -141,20 +140,20 @@ public class UpgradeReport {
 			reportsDir.mkdirs();
 		}
 
-		File logFile = new File(reportsDir, "upgrade_report.info");
+		File reportFile = new File(reportsDir, "upgrade_report.info");
 
-		if (logFile.exists()) {
-			String logFileName = logFile.getName();
+		if (reportFile.exists()) {
+			String logFileName = reportFile.getName();
 
-			logFile.renameTo(
+			reportFile.renameTo(
 				new File(
 					PropsValues.LIFERAY_HOME,
-					logFileName + "." + logFile.lastModified()));
+					logFileName + "." + reportFile.lastModified()));
 
-			logFile = new File(PropsValues.LIFERAY_HOME, logFileName);
+			reportFile = new File(PropsValues.LIFERAY_HOME, logFileName);
 		}
 
-		return logFile;
+		return reportFile;
 	}
 
 	private String _getPortalVersions() {
@@ -285,35 +284,11 @@ public class UpgradeReport {
 		}
 		catch (SQLException sqlException) {
 			if (_log.isWarnEnabled()) {
-				_log.warn("Unable to get schemaVersion");
+				_log.warn("Unable to get schema version");
 			}
 		}
 
 		return null;
-	}
-
-	private void _setInitialBuildNumber() {
-		try (Connection connection = DataAccess.getConnection();
-			PreparedStatement preparedStatement = connection.prepareStatement(
-				"select buildNumber from Release_ where releaseId = " +
-					ReleaseConstants.DEFAULT_ID)) {
-
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			if (resultSet.next()) {
-				_initialBuildNumber = resultSet.getInt("buildNumber");
-			}
-		}
-		catch (Exception exception) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					"Unable to get initial build Number and schema version");
-			}
-		}
-	}
-
-	private void _setInitialSchemaVersion() {
-		_initialSchemaVersion = _getSchemaVersion();
 	}
 
 	private static final String _ADVACNED_FILE_SYSTEM_STORE_PID =
@@ -328,8 +303,8 @@ public class UpgradeReport {
 		new ConcurrentHashMap<>();
 	private final Map<String, ArrayList<String>> _eventMessages =
 		new ConcurrentHashMap<>();
-	private int _initialBuildNumber;
-	private String _initialSchemaVersion;
+	private final int _initialBuildNumber;
+	private final String _initialSchemaVersion;
 	private final PersistenceManager _persistenceManager;
 	private final Map<String, ArrayList<String>> _warningMessages =
 		new ConcurrentHashMap<>();

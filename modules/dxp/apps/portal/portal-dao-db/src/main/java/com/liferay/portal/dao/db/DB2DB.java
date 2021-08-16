@@ -17,8 +17,10 @@ package com.liferay.portal.dao.db;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.db.DBType;
+import com.liferay.portal.kernel.dao.db.IndexMetadata;
 import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -32,6 +34,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -44,6 +47,30 @@ public class DB2DB extends BaseDB {
 
 	public DB2DB(int majorVersion, int minorVersion) {
 		super(DBType.DB2, majorVersion, minorVersion);
+	}
+
+	@Override
+	public void alterColumnName(
+			Connection connection, String tableName, String oldColumnName,
+			String newColumnDefinition)
+		throws Exception {
+
+		List<IndexMetadata> indexMetadatas = dropIndexes(
+			connection, tableName, oldColumnName);
+
+		String[] primaryKeyColumnNames = getPrimaryKeyColumnNames(
+			connection, tableName);
+
+		if (ArrayUtil.contains(primaryKeyColumnNames, oldColumnName)) {
+			removePrimaryKey(connection, tableName);
+		}
+
+		super.alterColumnName(
+			connection, tableName, oldColumnName, newColumnDefinition);
+
+		addPrimaryKey(connection, tableName, primaryKeyColumnNames);
+
+		addIndexes(connection, tableName, indexMetadatas);
 	}
 
 	@Override

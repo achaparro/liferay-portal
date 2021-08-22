@@ -16,6 +16,7 @@ package com.liferay.portal.dao.db;
 
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.db.IndexMetadata;
@@ -74,8 +75,19 @@ public class DB2DB extends BaseDB {
 		super.alterColumnName(
 			connection, tableName, oldColumnName, newColumnDefinition);
 
+		String newColumnName = StringUtil.extractFirst(
+			newColumnDefinition, StringPool.SPACE);
+
 		if (primaryKey) {
+			ArrayUtil.replace(
+				primaryKeyColumnNames, oldColumnName, newColumnName);
+
 			addPrimaryKey(connection, tableName, primaryKeyColumnNames);
+		}
+
+		for (IndexMetadata indexMetadata : indexMetadatas) {
+			ArrayUtil.replace(
+				indexMetadata.getColumnNames(), oldColumnName, newColumnName);
 		}
 
 		addIndexes(connection, tableName, indexMetadatas);

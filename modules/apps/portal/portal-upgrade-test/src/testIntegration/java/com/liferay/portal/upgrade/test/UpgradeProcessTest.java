@@ -12,15 +12,16 @@
  * details.
  */
 
-package com.liferay.portal.kernel.upgrade;
+package com.liferay.portal.upgrade.test;
 
+import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.upgrade.UpgradeProcess.AlterColumnName;
+import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.sql.Connection;
@@ -51,14 +52,6 @@ public class UpgradeProcessTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		_upgradeProcess = new UpgradeProcess() {
-
-			@Override
-			protected void doUpgrade() throws Exception {
-			}
-
-		};
-
 		_connection = DataAccess.getConnection();
 
 		_dbInspector = new DBInspector(_connection);
@@ -86,10 +79,19 @@ public class UpgradeProcessTest {
 
 	@Test
 	public void testDeprecatedAlterColumnName() throws Exception {
-		_upgradeProcess.alter(
-			getClass(),
-			_upgradeProcess.new AlterColumnName(
-				"typeVarchar", "typeVarcharTest"));
+		UpgradeProcess upgradeProcess = new UpgradeProcess() {
+
+			@Override
+			protected void doUpgrade() throws Exception {
+				alter(
+					UpgradeProcessTest.class,
+					new UpgradeProcess.AlterColumnName(
+						"typeVarchar", "typeVarcharTest VARCHAR(75) not null"));
+			}
+
+		};
+
+		upgradeProcess.upgrade();
 
 		Assert.assertTrue(
 			_dbInspector.hasColumn(TABLE_NAME, "typeVarcharTest"));
@@ -97,9 +99,18 @@ public class UpgradeProcessTest {
 
 	@Test
 	public void testDeprecatedAlterColumnType() throws Exception {
-		_upgradeProcess.alter(
-			getClass(),
-			_upgradeProcess.new AlterColumnType("typeVarchar", "LONG null"));
+		UpgradeProcess upgradeProcess = new UpgradeProcess() {
+
+			@Override
+			protected void doUpgrade() throws Exception {
+				alter(
+					UpgradeProcessTest.class,
+					new AlterColumnType("typeVarchar", "LONG null"));
+			}
+
+		};
+
+		upgradeProcess.upgrade();
 
 		Assert.assertTrue(
 			_dbInspector.hasColumnType(TABLE_NAME, "typeVarchar", "LONG null"));
@@ -107,19 +118,36 @@ public class UpgradeProcessTest {
 
 	@Test
 	public void testDeprecatedAlterTableAddColumn() throws Exception {
-		_upgradeProcess.alter(
-			getClass(),
-			_upgradeProcess.new AlterTableAddColumn(
-				"testColumn", "STRING null"));
+		UpgradeProcess upgradeProcess = new UpgradeProcess() {
+
+			@Override
+			protected void doUpgrade() throws Exception {
+				alter(
+					UpgradeProcessTest.class,
+					new AlterTableAddColumn("testColumn", "STRING null"));
+			}
+
+		};
+
+		upgradeProcess.upgrade();
 
 		Assert.assertTrue(_dbInspector.hasColumn(TABLE_NAME, "testColumn"));
 	}
 
 	@Test
 	public void testDeprecatedAlterTableDropColumn() throws Exception {
-		_upgradeProcess.alter(
-			getClass(),
-			_upgradeProcess.new AlterTableDropColumn("typeVarchar"));
+		UpgradeProcess upgradeProcess = new UpgradeProcess() {
+
+			@Override
+			protected void doUpgrade() throws Exception {
+				alter(
+					UpgradeProcessTest.class,
+					new AlterTableDropColumn("typeVarchar"));
+			}
+
+		};
+
+		upgradeProcess.upgrade();
 
 		Assert.assertFalse(_dbInspector.hasColumn(TABLE_NAME, "typeVarchar"));
 	}
@@ -127,6 +155,5 @@ public class UpgradeProcessTest {
 	private static Connection _connection;
 	private static DB _db;
 	private static DBInspector _dbInspector;
-	private static UpgradeProcess _upgradeProcess;
 
 }

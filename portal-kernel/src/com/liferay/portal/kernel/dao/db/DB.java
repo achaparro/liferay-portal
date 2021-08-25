@@ -47,6 +47,10 @@ public interface DB {
 	public static final int DEFAULT = 1;
 
 	public void addIndexes(
+			Connection connection, List<IndexMetadata> indexMetadatas)
+		throws IOException, SQLException;
+
+	public void addIndexes(
 			Connection connection, String indexesSQL,
 			Set<String> validIndexNames)
 		throws IOException;

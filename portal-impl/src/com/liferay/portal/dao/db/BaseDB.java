@@ -244,6 +244,35 @@ public abstract class BaseDB implements DB {
 	}
 
 	@Override
+	public String[] getPrimaryKeyColumnNames(
+			Connection connection, String tableName)
+		throws SQLException {
+
+		DatabaseMetaData databaseMetaData = connection.getMetaData();
+
+		DBInspector dbInspector = new DBInspector(connection);
+
+		String normalizedTableName = dbInspector.normalizeName(
+			tableName, databaseMetaData);
+
+		String[] columnNames = new String[0];
+
+		try (ResultSet resultSet = databaseMetaData.getPrimaryKeys(
+				dbInspector.getCatalog(), dbInspector.getSchema(),
+				normalizedTableName)) {
+
+			if (resultSet.next()) {
+				columnNames = ArrayUtil.append(
+					columnNames,
+					dbInspector.normalizeName(
+						resultSet.getString("COLUMN_NAME"), databaseMetaData));
+			}
+		}
+
+		return columnNames;
+	}
+
+	@Override
 	public Integer getSQLType(String templateType) {
 		return _sqlTypes.get(templateType);
 	}
@@ -1011,34 +1040,6 @@ public abstract class BaseDB implements DB {
 		}
 
 		return new ArrayList<>(indexMetadatas);
-	}
-
-	protected String[] getPrimaryKeyColumnNames(
-			Connection connection, String tableName)
-		throws SQLException {
-
-		DatabaseMetaData databaseMetaData = connection.getMetaData();
-
-		DBInspector dbInspector = new DBInspector(connection);
-
-		String normalizedTableName = dbInspector.normalizeName(
-			tableName, databaseMetaData);
-
-		String[] columnNames = new String[0];
-
-		try (ResultSet resultSet = databaseMetaData.getPrimaryKeys(
-				dbInspector.getCatalog(), dbInspector.getSchema(),
-				normalizedTableName)) {
-
-			if (resultSet.next()) {
-				columnNames = ArrayUtil.append(
-					columnNames,
-					dbInspector.normalizeName(
-						resultSet.getString("COLUMN_NAME"), databaseMetaData));
-			}
-		}
-
-		return columnNames;
 	}
 
 	protected abstract int[] getSQLTypes();

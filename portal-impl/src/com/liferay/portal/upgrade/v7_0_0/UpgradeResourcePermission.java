@@ -14,6 +14,7 @@
 
 package com.liferay.portal.upgrade.v7_0_0;
 
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
 import com.liferay.portal.kernel.dao.db.DB;
@@ -41,7 +42,11 @@ public class UpgradeResourcePermission extends UpgradeProcess {
 	protected void doUpgrade() throws Exception {
 		updateIndexes(ResourcePermissionTable.class);
 
-		upgradeResourcePermissions();
+		try (SafeCloseable safeCloseable = addTempIndex(
+				"ResourcePermission", false, "name")) {
+
+			upgradeResourcePermissions();
+		}
 	}
 
 	protected void upgradeResourcePermissions() throws Exception {

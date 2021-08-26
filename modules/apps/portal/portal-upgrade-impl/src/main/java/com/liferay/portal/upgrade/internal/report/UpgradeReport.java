@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.felix.cm.PersistenceManager;
@@ -119,59 +120,21 @@ public class UpgradeReport {
 
 	private String _getDatabaseInfo() {
 		try (Connection connection = DataAccess.getConnection()) {
-			DB db = DBManagerUtil.getDB();
-
-			DBType dbType = db.getDBType();
-
 			DatabaseMetaData metadata = connection.getMetaData();
 
 			String catalog = connection.getCatalog();
 			String schema = null;
 
-			if ((catalog == null) && dbType.equals(DBType.ORACLE)) {
+			if ((catalog == null) &&
+				Objects.equals(_getDBType(), DBType.ORACLE)) {
+
 				catalog = metadata.getUserName();
 
 				schema = catalog;
 			}
 
-			List<TableInfo> tableInfos = new ArrayList<>();
-
-			try (ResultSet resultSet1 = metadata.getTables(
-					catalog, schema, "%", null)) {
-
-				while (resultSet1.next()) {
-					String tableType = resultSet1.getString("TABLE_TYPE");
-
-					if (dbType.equals(DBType.MARIADB)) {
-						if (!tableType.equals("BASE TABLE")) {
-							continue;
-						}
-					}
-					else if (!tableType.equals("TABLE")) {
-						continue;
-					}
-
-					String tableName = resultSet1.getString("TABLE_NAME");
-
-					try (PreparedStatement preparedStatement =
-							connection.prepareStatement(
-								"select count(*) from " + tableName);
-						ResultSet resultSet2 =
-							preparedStatement.executeQuery()) {
-
-						if (resultSet2.next()) {
-							tableInfos.add(
-								new TableInfo(tableName, resultSet2.getInt(1)));
-						}
-					}
-					catch (SQLException sqlException) {
-						if (_log.isWarnEnabled()) {
-							_log.warn(
-								"Unable to retrieve data from " + tableName);
-						}
-					}
-				}
-			}
+			List<TableInfo> tableInfos = _getTableInfos(
+				connection, metadata, catalog, schema);
 
 			StringBundler sb = new StringBundler((2 * tableInfos.size()) + 5);
 
@@ -199,6 +162,12 @@ public class UpgradeReport {
 
 			return null;
 		}
+	}
+
+	private DBType _getDBType() {
+		DB db = DBManagerUtil.getDB();
+
+		return db.getDBType();
 	}
 
 	private String _getDialectInfo() {
@@ -369,6 +338,53 @@ public class UpgradeReport {
 		}
 
 		return null;
+	}
+
+	private List<TableInfo> _getTableInfos(
+			Connection connection, DatabaseMetaData metadata, String catalog,
+			String schema)
+		throws SQLException {
+
+		List<TableInfo> tableInfos = new ArrayList<>();
+
+		try (ResultSet resultSet1 = metadata.getTables(
+				catalog, schema, "%", null)) {
+
+			DBType dbType = _getDBType();
+
+			while (resultSet1.next()) {
+				String tableType = resultSet1.getString("TABLE_TYPE");
+
+				if (Objects.equals(dbType, DBType.MARIADB)) {
+					if (!tableType.equals("BASE TABLE")) {
+						continue;
+					}
+				}
+				else if (!tableType.equals("TABLE")) {
+					continue;
+				}
+
+				String tableName = resultSet1.getString("TABLE_NAME");
+
+				try (PreparedStatement preparedStatement =
+						connection.prepareStatement(
+							"select count(*) from " + tableName);
+					ResultSet resultSet2 = preparedStatement.executeQuery()) {
+
+					if (resultSet2.next()) {
+						tableInfos.add(
+							new TableInfo(tableName, resultSet2.getInt(1)));
+					}
+				}
+				catch (SQLException sqlException) {
+					if (_log.isWarnEnabled()) {
+						_log.warn("Unable to retrieve data from " + tableName);
+					}
+				}
+			}
+		}
+
+		return tableInfos;
 	}
 
 	private static final String _CONFIGURATION_PID_ADVANCED_FILE_SYSTEM_STORE =

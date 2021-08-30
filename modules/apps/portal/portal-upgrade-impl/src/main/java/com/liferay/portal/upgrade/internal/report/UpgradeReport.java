@@ -42,12 +42,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.felix.cm.PersistenceManager;
@@ -94,8 +98,8 @@ public class UpgradeReport {
 			FileUtil.write(
 				_getReportFile(),
 				StringBundler.concat(
-					_getPortalVersions(), _getDialectInfo(), _getProperties(),
-					_getDatabaseInfo()));
+					_getDate(), _getPortalVersions(), _getDialectInfo(),
+					_getProperties(), _getDatabaseInfo()));
 		}
 		catch (IOException ioException) {
 			_log.error("Unable to generate the upgrade report");
@@ -147,6 +151,18 @@ public class UpgradeReport {
 		}
 
 		return sb.toString();
+	}
+
+	private String _getDate() {
+		Calendar calendar = Calendar.getInstance();
+
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+			"EEE, MMM dd, yyyy hh:mm:ss z");
+
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		return String.format(
+			"Date: %s\n", simpleDateFormat.format(calendar.getTime()));
 	}
 
 	private String _getDialectInfo() {

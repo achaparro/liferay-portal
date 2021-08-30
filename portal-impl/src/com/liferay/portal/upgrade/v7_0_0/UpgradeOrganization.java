@@ -15,7 +15,6 @@
 package com.liferay.portal.upgrade.v7_0_0;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.upgrade.v7_0_0.util.OrganizationTable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,7 +28,7 @@ public class UpgradeOrganization extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		alter(OrganizationTable.class, new AlterColumnType("statusId", "LONG"));
+		alterColumnType("Organization_", "statusId", "LONG");
 
 		upgradeOrganizationLogoId();
 	}

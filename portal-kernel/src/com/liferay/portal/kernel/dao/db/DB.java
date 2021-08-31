@@ -97,6 +97,10 @@ public interface DB {
 	@Deprecated
 	public void buildSQLFile(String sqlDir, String fileName) throws IOException;
 
+	public List<IndexMetadata> dropIndexes(
+			Connection connection, String tableName, String columnName)
+		throws IOException, SQLException;
+
 	public DBType getDBType();
 
 	public List<Index> getIndexes(Connection connection) throws SQLException;

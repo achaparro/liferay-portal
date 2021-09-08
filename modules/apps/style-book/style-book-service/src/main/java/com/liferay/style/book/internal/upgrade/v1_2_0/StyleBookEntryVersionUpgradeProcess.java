@@ -33,10 +33,15 @@ public class StyleBookEntryVersionUpgradeProcess extends UpgradeProcess {
 	}
 
 	protected void upgradeSchema() throws Exception {
-		alterTableAddColumn(
-			"StyleBookEntryVersion", "modifiedDate", "DATE null");
-		alterTableAddColumn(
-			"StyleBookEntryVersion", "uuid_", "VARCHAR(75) null");
+		if (!hasColumn("StyleBookEntryVersion", "modifiedDate")) {
+			alterTableAddColumn(
+				"StyleBookEntryVersion", "modifiedDate", "DATE null");
+		}
+
+		if (!hasColumn("StyleBookEntryVersion", "uuid_")) {
+			alterTableAddColumn(
+				"StyleBookEntryVersion", "uuid_", "VARCHAR(75) null");
+		}
 
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			try (PreparedStatement preparedStatement1 =

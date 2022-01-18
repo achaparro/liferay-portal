@@ -298,7 +298,7 @@ public class DBInspector {
 
 		Integer dataTypeSize = _getDataTypeSize(columnType);
 
-		if ((dataTypeSize != null) && (dataTypeSize != -1)) {
+		if (dataTypeSize != null) {
 			return dataTypeSize;
 		}
 

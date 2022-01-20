@@ -152,6 +152,18 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 	public void testForEachCompanyId() throws Exception {
 		CompanyThreadLocal.setCompanyId(CompanyConstants.SYSTEM);
 
+		ReflectionTestUtil.setFieldValue(
+			DBPartitionUtil.class, "_DATABASE_PARTITION_THREAD_POOL_ENABLED",
+			false);
+
+		DBPartitionUtil.forEachCompanyId(
+			companyId -> Assert.assertEquals(
+				companyId, CompanyThreadLocal.getCompanyId()));
+
+		ReflectionTestUtil.setFieldValue(
+			DBPartitionUtil.class, "_DATABASE_PARTITION_THREAD_POOL_ENABLED",
+			true);
+
 		DBPartitionUtil.forEachCompanyId(
 			companyId -> Assert.assertEquals(
 				companyId, CompanyThreadLocal.getCompanyId()));

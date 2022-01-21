@@ -301,6 +301,9 @@ public class DBPartitionUtil {
 
 								unsafeConsumer.accept(companyId);
 							}
+							catch (Exception exception) {
+								throwableCollector.collect(exception);
+							}
 
 							return null;
 						});

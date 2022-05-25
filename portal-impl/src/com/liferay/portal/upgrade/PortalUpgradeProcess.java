@@ -132,6 +132,21 @@ public class PortalUpgradeProcess extends UpgradeProcess {
 		return false;
 	}
 
+	public static boolean isSchemaVersionInitialized(Connection connection)
+		throws SQLException {
+
+		Version currentVersion = getCurrentSchemaVersion(connection);
+
+		if ((currentVersion.compareTo(_initialSchemaVersion) < 0) ||
+			((currentVersion.getMajor() == 6) &&
+			 (currentVersion.getMinor() == 2))) {
+
+			return false;
+		}
+
+		return true;
+	}
+
 	@Override
 	public void upgrade() throws UpgradeException {
 		long start = System.currentTimeMillis();
@@ -207,8 +222,10 @@ public class PortalUpgradeProcess extends UpgradeProcess {
 		throws Exception {
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				"update Release_ set schemaVersion = ? where " +
-					"servletContextName = ? and buildNumber < 7100")) {
+				StringBundler.concat(
+					"update Release_ set schemaVersion = ? where ",
+					"servletContextName = ? and buildNumber < 7100 and ",
+					"schemaVersion like '6.2.%'"))) {
 
 			preparedStatement.setString(1, _initialSchemaVersion.toString());
 			preparedStatement.setString(

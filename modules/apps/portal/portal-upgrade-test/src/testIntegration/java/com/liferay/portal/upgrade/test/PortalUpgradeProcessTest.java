@@ -225,6 +225,63 @@ public class PortalUpgradeProcessTest {
 	}
 
 	@Test
+	public void testSchemaVersionIsInitializedAfterInitialSchemaVersion()
+		throws SQLException {
+
+		Version initialSchemaVersion = ReflectionTestUtil.getFieldValue(
+			PortalUpgradeProcess.class, "_initialSchemaVersion");
+
+		Version nextMajorSchemaVersion = new Version(
+			initialSchemaVersion.getMajor() + 1, 0, 0);
+
+		_updateSchemaVersion(nextMajorSchemaVersion);
+
+		try (Connection connection = DataAccess.getConnection()) {
+			Assert.assertTrue(
+				PortalUpgradeProcess.isSchemaVersionInitialized(connection));
+		}
+	}
+
+	@Test
+	public void testSchemaVersionIsInitializedPreviousTo7100()
+		throws SQLException {
+
+		Version schemaVersion = Version.parseVersion("6.2.1.0");
+
+		_updateSchemaVersion(schemaVersion);
+
+		try (Connection connection = DataAccess.getConnection()) {
+			Assert.assertFalse(
+				PortalUpgradeProcess.isSchemaVersionInitialized(connection));
+		}
+	}
+
+	@Test
+	public void testSchemaVersionIsInitializedWithInitialSchemaVersion()
+		throws SQLException {
+
+		Version initialSchemaVersion = ReflectionTestUtil.getFieldValue(
+			PortalUpgradeProcess.class, "_initialSchemaVersion");
+
+		_updateSchemaVersion(initialSchemaVersion);
+
+		try (Connection connection = DataAccess.getConnection()) {
+			Assert.assertTrue(
+				PortalUpgradeProcess.isSchemaVersionInitialized(connection));
+		}
+	}
+
+	@Test
+	public void testSchemaVersionIsNotInitialized() throws SQLException {
+		_updateSchemaVersion(Version.parseVersion(null));
+
+		try (Connection connection = DataAccess.getConnection()) {
+			Assert.assertFalse(
+				PortalUpgradeProcess.isSchemaVersionInitialized(connection));
+		}
+	}
+
+	@Test
 	public void testUpgradeWhenCoreIsInLatestSchemaVersion() throws Exception {
 		_updateSchemaVersion(PortalUpgradeProcess.getLatestSchemaVersion());
 

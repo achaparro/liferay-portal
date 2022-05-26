@@ -124,6 +124,15 @@ public class UpgradeProcess_7_0_0 extends UpgradeProcess {
 		clearIndexesCache();
 	}
 
+	@Override
+	protected boolean isSkipUpgradeProcess() throws Exception {
+		if (PortalUpgradeProcess.isSchemaVersionInitialized(connection)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	protected void populateUUIDModels() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			VerifyUUID.verify(

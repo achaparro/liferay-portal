@@ -46,4 +46,13 @@ public class UpgradeProcess_7_0_1 extends UpgradeProcess {
 		clearIndexesCache();
 	}
 
+	@Override
+	protected boolean isSkipUpgradeProcess() throws Exception {
+		if (PortalUpgradeProcess.isSchemaVersionInitialized(connection)) {
+			return true;
+		}
+
+		return false;
+	}
+
 }

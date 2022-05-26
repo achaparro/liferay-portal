@@ -56,8 +56,9 @@ public class UpgradeProcess_7_0_5 extends UpgradeProcess {
 
 	@Override
 	protected boolean isSkipUpgradeProcess() throws Exception {
-		if (hasColumnType("User_", "emailAddress", "VARCHAR(254) null") &&
-			hasColumnType("VirtualHost", "hostname", "VARCHAR(200) null")) {
+		if (PortalUpgradeProcess.isSchemaVersionInitialized(connection) ||
+			(hasColumnType("User_", "emailAddress", "VARCHAR(254) null") &&
+			 hasColumnType("VirtualHost", "hostname", "VARCHAR(200) null"))) {
 
 			return true;
 		}

@@ -126,11 +126,7 @@ public class UpgradeProcess_7_0_0 extends UpgradeProcess {
 
 	@Override
 	protected boolean isSkipUpgradeProcess() throws Exception {
-		if (PortalUpgradeProcess.isSchemaVersionInitialized(connection)) {
-			return true;
-		}
-
-		return false;
+		return PortalUpgradeProcess.isSchemaVersionInitialized(connection);
 	}
 
 	protected void populateUUIDModels() throws Exception {

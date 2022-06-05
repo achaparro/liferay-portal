@@ -75,6 +75,28 @@ public class DBUpgrader {
 			return;
 		}
 
+		if (StartupHelperUtil.isUpgrading()) {
+			try (Connection connection = DataAccess.getConnection()) {
+				if (PortalUpgradeProcess.isSchemaVersionInitialized(
+						connection)) {
+
+					String msg = StringBundler.concat(
+						"The database contains changes from a previous upgrade ",
+						"attempt that failed, but the upgrades previous to 7.1.0 ",
+						"where executed so the upgrade will be executed. If it ",
+						"fails again, please consider restoring the old database ",
+						"and file system and retry the upgrade. A patch may be ",
+						"required if the upgrade failed due to a bug or an ",
+						"unforeseen data permutation that resulted from a corrupt ",
+						"database.");
+
+					System.out.println(msg);
+
+					return;
+				}
+			}
+		}
+
 		throw new IllegalStateException(
 			StringBundler.concat(
 				"The database contains changes from a previous upgrade ",
@@ -203,38 +225,6 @@ public class DBUpgrader {
 		}
 
 		StartupHelperUtil.initResourceActions();
-	}
-
-	private static void _checkReleaseStateForUpgrade() throws Exception {
-		if (_getReleaseColumnValue("state_") == ReleaseConstants.STATE_GOOD) {
-			return;
-		}
-
-		try (Connection connection = DataAccess.getConnection()) {
-			if (PortalUpgradeProcess.isSchemaVersionInitialized(connection)) {
-				String msg = StringBundler.concat(
-					"The database contains changes from a previous upgrade ",
-					"attempt that failed, but the upgrades previous to 7.1.0 ",
-					"where executed so the upgrade will be executed. If it ",
-					"fails again, please consider restoring the old database ",
-					"and file system and retry the upgrade. A patch may be ",
-					"required if the upgrade failed due to a bug or an ",
-					"unforeseen data permutation that resulted from a corrupt ",
-					"database.");
-
-				System.out.println(msg);
-
-				return;
-			}
-		}
-
-		throw new IllegalStateException(
-			StringBundler.concat(
-				"The database contains changes from a previous upgrade ",
-				"attempt that failed. Please restore the old database and ",
-				"file system and retry the upgrade. A patch may be required ",
-				"if the upgrade failed due to a bug or an unforeseen data ",
-				"permutation that resulted from a corrupt database."));
 	}
 
 	private static int _getBuildNumberForMissedUpgradeProcesses(int buildNumber)
@@ -380,7 +370,7 @@ public class DBUpgrader {
 	private static void _upgradePortal() throws Exception {
 		checkRequiredBuildNumber(ReleaseInfo.RELEASE_6_2_0_BUILD_NUMBER);
 
-		_checkReleaseStateForUpgrade();
+		checkReleaseState();
 
 		int buildNumber = _getReleaseColumnValue("buildNumber");
 

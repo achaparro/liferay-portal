@@ -147,6 +147,22 @@ public class DBPartitionUtil {
 		return _DATABASE_PARTITION_ENABLED;
 	}
 
+	public static void populateCompanyId(
+		Class<?> entityClass, BaseModel<?> baseModel) {
+
+		if (!_DATABASE_PARTITION_ENABLED) {
+			return;
+		}
+
+		if (entityClass.isAssignableFrom(ShardedModel.class)) {
+			ShardedModel shardedModel = (ShardedModel)baseModel;
+
+			if (shardedModel.getCompanyId() == 0) {
+				shardedModel.setCompanyId(CompanyThreadLocal.getCompanyId());
+			}
+		}
+	}
+
 	public static boolean removeDBPartition(long companyId)
 		throws PortalException {
 
@@ -184,12 +200,14 @@ public class DBPartitionUtil {
 		}
 	}
 
-	public static BaseModel<?> toEntityModel(BaseModel<?> entityModel) {
+	public static BaseModel<?> toEntityModel(
+		Class<?> entityClass, BaseModel<?> entityModel) {
+
 		if (!_DATABASE_PARTITION_ENABLED) {
 			return entityModel;
 		}
 
-		if (entityModel instanceof ShardedModel) {
+		if (entityClass.isAssignableFrom(ShardedModel.class)) {
 			ShardedModel shardedModel = (ShardedModel)entityModel;
 
 			if (CompanyThreadLocal.getCompanyId() !=

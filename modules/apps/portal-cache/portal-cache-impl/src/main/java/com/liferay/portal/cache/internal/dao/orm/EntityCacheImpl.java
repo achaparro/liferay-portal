@@ -174,7 +174,7 @@ public class EntityCacheImpl
 			}
 		}
 
-		return _toEntityModel(result);
+		return _toEntityModel(clazz, result);
 	}
 
 	@Override
@@ -351,6 +351,8 @@ public class EntityCacheImpl
 			return;
 		}
 
+		DBPartitionUtil.populateCompanyId(clazz, baseModel);
+
 		if (!quiet && updateFinderCache) {
 			_notifyFinderCache(clazz.getName(), baseModel, null);
 		}
@@ -404,7 +406,7 @@ public class EntityCacheImpl
 		portalCache.remove(primaryKey);
 	}
 
-	private Serializable _toEntityModel(Serializable result) {
+	private Serializable _toEntityModel(Class<?> clazz, Serializable result) {
 		if (result == StringPool.BLANK) {
 			return null;
 		}
@@ -415,7 +417,7 @@ public class EntityCacheImpl
 
 		entityModel.setCachedModel(true);
 
-		return DBPartitionUtil.toEntityModel(entityModel);
+		return DBPartitionUtil.toEntityModel(clazz, entityModel);
 	}
 
 	private static final String _GROUP_KEY_PREFIX =

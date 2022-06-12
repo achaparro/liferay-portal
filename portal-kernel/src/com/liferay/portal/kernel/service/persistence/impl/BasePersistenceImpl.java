@@ -71,6 +71,7 @@ import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.model.ModelListenerRegistrationUtil;
 import com.liferay.portal.kernel.model.ModelWrapper;
+import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
@@ -1225,7 +1226,8 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 	private Table<?> _table;
 
 	private static class NullModel
-		implements BaseModel<NullModel>, CacheModel<NullModel>, MVCCModel {
+		implements BaseModel<NullModel>, CacheModel<NullModel>, MVCCModel,
+				   ShardedModel {
 
 		@Override
 		public Object clone() {
@@ -1240,6 +1242,11 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 		@Override
 		public int compareTo(NullModel nullModel) {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public long getCompanyId() {
+			return _companyId;
 		}
 
 		@Override
@@ -1314,6 +1321,11 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 		}
 
 		@Override
+		public void setCompanyId(long companyId) {
+			_companyId = companyId;
+		}
+
+		@Override
 		public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 			throw new UnsupportedOperationException();
 		}
@@ -1371,6 +1383,8 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 		public String toXmlString() {
 			throw new UnsupportedOperationException();
 		}
+
+		private long _companyId;
 
 	}
 

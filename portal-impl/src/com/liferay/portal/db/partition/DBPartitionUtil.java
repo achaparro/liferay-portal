@@ -201,14 +201,14 @@ public class DBPartitionUtil {
 	}
 
 	public static BaseModel<?> toEntityModel(
-		Class<?> entityClass, BaseModel<?> entityModel) {
+		Class<?> entityClass, BaseModel<?> baseModel) {
 
 		if (!_DATABASE_PARTITION_ENABLED) {
-			return entityModel;
+			return baseModel;
 		}
 
 		if (entityClass.isAssignableFrom(ShardedModel.class)) {
-			ShardedModel shardedModel = (ShardedModel)entityModel;
+			ShardedModel shardedModel = (ShardedModel)baseModel;
 
 			if (CompanyThreadLocal.getCompanyId() !=
 					shardedModel.getCompanyId()) {
@@ -217,7 +217,7 @@ public class DBPartitionUtil {
 			}
 		}
 
-		return entityModel;
+		return baseModel;
 	}
 
 	public static DataSource wrapDataSource(DataSource dataSource)

@@ -406,7 +406,9 @@ public class EntityCacheImpl
 		portalCache.remove(primaryKey);
 	}
 
-	private Serializable _toEntityModel(Class<?> clazz, Serializable result) {
+	private Serializable _toEntityModel(
+		Class<?> entityClass, Serializable result) {
+
 		if (result == StringPool.BLANK) {
 			return null;
 		}
@@ -417,7 +419,7 @@ public class EntityCacheImpl
 
 		entityModel.setCachedModel(true);
 
-		return DBPartitionUtil.toEntityModel(clazz, entityModel);
+		return DBPartitionUtil.toEntityModel(entityClass, entityModel);
 	}
 
 	private static final String _GROUP_KEY_PREFIX =

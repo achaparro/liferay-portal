@@ -21,8 +21,8 @@ import com.liferay.portal.cache.TransactionalPortalCache;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cache.PortalCacheHelperUtil;
 import com.liferay.portal.kernel.cache.transactional.TransactionalPortalCacheUtil;
+import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.model.MVCCModel;
-import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.CodeCoverageAssertor;
@@ -567,8 +567,7 @@ public class TransactionalPortalCacheTest {
 
 		transactionalPortalCache.remove(_KEY_1);
 
-		MVCCModel nullMVCCModel = ReflectionTestUtil.getFieldValue(
-			BasePersistenceImpl.class, "nullModel");
+		MVCCModel nullMVCCModel = (MVCCModel)EntityCacheUtil.getNullModel();
 
 		transactionalPortalCache.put(_KEY_1, nullMVCCModel);
 

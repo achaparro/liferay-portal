@@ -17,7 +17,6 @@ package com.liferay.portal.cache.internal.dao.orm;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.cluster.ClusterExecutor;
-import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.PropsTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -50,8 +49,6 @@ public class EntityCacheImplTest {
 	@Before
 	public void setUp() {
 		_classLoader = EntityCacheImplTest.class.getClassLoader();
-		_nullModel = ReflectionTestUtil.getFieldValue(
-			BasePersistenceImpl.class, "nullModel");
 
 		_props = PropsTestUtil.setProps(
 			HashMapBuilder.<String, Object>put(
@@ -123,15 +120,15 @@ public class EntityCacheImplTest {
 
 		entityCacheImpl.activate();
 
-		entityCacheImpl.putResult(EntityCacheImplTest.class, 12345, _nullModel);
+		entityCacheImpl.putResult(
+			EntityCacheImplTest.class, 12345, entityCacheImpl.getNullModel());
 
 		Assert.assertSame(
-			_nullModel,
+			entityCacheImpl.getNullModel(),
 			entityCacheImpl.getResult(EntityCacheImplTest.class, 12345));
 	}
 
 	private ClassLoader _classLoader;
-	private Serializable _nullModel;
 	private Props _props;
 
 }

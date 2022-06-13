@@ -19,6 +19,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.CompanyConstants;
@@ -28,8 +29,6 @@ import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
-import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
@@ -65,8 +64,7 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 	public static void setUpClass() throws Exception {
 		enableDBPartition();
 
-		_nullModel = ReflectionTestUtil.getFieldValue(
-			BasePersistenceImpl.class, "nullModel");
+		_nullModel = (BaseModel<?>)EntityCacheUtil.getNullModel();
 	}
 
 	@AfterClass
@@ -302,7 +300,7 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 		ResourceAction resourceAction =
 			_resourceActionLocalService.createResourceAction(0);
 
-		Assert.assertEquals(
+		Assert.assertSame(
 			resourceAction,
 			DBPartitionUtil.toEntityModel(
 				ResourceAction.class, resourceAction));
@@ -315,7 +313,8 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 
 		resourcePermission.setCompanyId(COMPANY_ID);
 
-		Assert.assertNull(
+		Assert.assertSame(
+			_nullModel,
 			DBPartitionUtil.toEntityModel(
 				ResourcePermission.class, resourcePermission));
 	}
@@ -327,10 +326,21 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 
 		resourcePermission.setCompanyId(portal.getDefaultCompanyId());
 
-		Assert.assertEquals(
+		Assert.assertSame(
 			resourcePermission,
 			DBPartitionUtil.toEntityModel(
 				ResourcePermission.class, resourcePermission));
+	}
+
+	@Test
+	public void testToEntityNoncontrolNullModelDifferentCompany() {
+		ShardedModel shardedModel = (ShardedModel)_nullModel;
+
+		shardedModel.setCompanyId(COMPANY_ID);
+
+		Assert.assertNull(
+			DBPartitionUtil.toEntityModel(
+				ResourcePermission.class, _nullModel));
 	}
 
 	private int _getCount(String tableName, boolean defaultSchema)

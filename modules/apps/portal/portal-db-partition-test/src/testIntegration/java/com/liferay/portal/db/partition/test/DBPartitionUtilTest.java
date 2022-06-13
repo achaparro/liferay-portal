@@ -301,9 +301,7 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 			_resourceActionLocalService.createResourceAction(0);
 
 		Assert.assertSame(
-			resourceAction,
-			DBPartitionUtil.toEntityModel(
-				ResourceAction.class, resourceAction));
+			resourceAction, DBPartitionUtil.toEntityModel(resourceAction));
 	}
 
 	@Test
@@ -314,9 +312,7 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 		resourcePermission.setCompanyId(COMPANY_ID);
 
 		Assert.assertSame(
-			_nullModel,
-			DBPartitionUtil.toEntityModel(
-				ResourcePermission.class, resourcePermission));
+			_nullModel, DBPartitionUtil.toEntityModel(resourcePermission));
 	}
 
 	@Test
@@ -328,8 +324,7 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 
 		Assert.assertSame(
 			resourcePermission,
-			DBPartitionUtil.toEntityModel(
-				ResourcePermission.class, resourcePermission));
+			DBPartitionUtil.toEntityModel(resourcePermission));
 	}
 
 	@Test
@@ -338,9 +333,7 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 
 		shardedModel.setCompanyId(COMPANY_ID);
 
-		Assert.assertNull(
-			DBPartitionUtil.toEntityModel(
-				ResourcePermission.class, _nullModel));
+		Assert.assertNull(DBPartitionUtil.toEntityModel(_nullModel));
 	}
 
 	private int _getCount(String tableName, boolean defaultSchema)

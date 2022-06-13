@@ -203,20 +203,19 @@ public class DBPartitionUtil {
 		}
 	}
 
-	public static BaseModel<?> toEntityModel(
-		Class<?> entityClass, BaseModel<?> baseModel) {
-
+	public static BaseModel<?> toEntityModel(BaseModel<?> baseModel) {
 		if (!GetterUtil.getBoolean(
 				PropsUtil.get("database.partition.enabled"))) {
 
 			return baseModel;
 		}
 
-		if (ShardedModel.class.isAssignableFrom(entityClass)) {
+		if (baseModel instanceof ShardedModel) {
 			ShardedModel shardedModel = (ShardedModel)baseModel;
 
-			if (CompanyThreadLocal.getCompanyId() !=
-					shardedModel.getCompanyId()) {
+			if ((shardedModel.getCompanyId() != 0) &&
+				(CompanyThreadLocal.getCompanyId() !=
+					shardedModel.getCompanyId())) {
 
 				BaseModel<?> nullModel =
 					(BaseModel<?>)EntityCacheUtil.getNullModel();

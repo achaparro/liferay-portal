@@ -154,7 +154,7 @@ public class DBPartitionUtil {
 			return;
 		}
 
-		if (entityClass.isAssignableFrom(ShardedModel.class)) {
+		if (ShardedModel.class.isAssignableFrom(entityClass)) {
 			ShardedModel shardedModel = (ShardedModel)baseModel;
 
 			if (shardedModel.getCompanyId() == 0) {
@@ -207,7 +207,7 @@ public class DBPartitionUtil {
 			return baseModel;
 		}
 
-		if (entityClass.isAssignableFrom(ShardedModel.class)) {
+		if (ShardedModel.class.isAssignableFrom(entityClass)) {
 			ShardedModel shardedModel = (ShardedModel)baseModel;
 
 			if (CompanyThreadLocal.getCompanyId() !=

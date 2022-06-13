@@ -20,11 +20,20 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.ResourceAction;
+import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
+import com.liferay.portal.test.rule.Inject;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -55,6 +64,9 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 		enableDBPartition();
+
+		_nullModel = ReflectionTestUtil.getFieldValue(
+			BasePersistenceImpl.class, "nullModel");
 	}
 
 	@AfterClass
@@ -67,6 +79,12 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 		db.runSQL(
 			"create schema if not exists " + getSchemaName(COMPANY_ID) +
 				" character set utf8");
+
+		ShardedModel shardedModel = (ShardedModel)_nullModel;
+
+		shardedModel.setCompanyId(CompanyConstants.SYSTEM);
+
+		CompanyThreadLocal.setCompanyId(portal.getDefaultCompanyId());
 	}
 
 	@After
@@ -232,6 +250,37 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 	}
 
 	@Test
+	public void testPopulateCompanyIdForControlNullModel() {
+		DBPartitionUtil.populateCompanyId(ResourceAction.class, _nullModel);
+
+		ShardedModel shardedModel = (ShardedModel)_nullModel;
+
+		Assert.assertEquals(0, shardedModel.getCompanyId());
+	}
+
+	@Test
+	public void testPopulateCompanyIdForNoncontrolModel() {
+		ResourcePermission resourcePermission =
+			_resourcePermissionLocalService.createResourcePermission(0);
+
+		resourcePermission.setCompanyId(COMPANY_ID);
+
+		DBPartitionUtil.populateCompanyId(ResourcePermission.class, _nullModel);
+
+		Assert.assertEquals(COMPANY_ID, resourcePermission.getCompanyId());
+	}
+
+	@Test
+	public void testPopulateCompanyIdForNoncontrolNullModel() {
+		DBPartitionUtil.populateCompanyId(ResourcePermission.class, _nullModel);
+
+		ShardedModel shardedModel = (ShardedModel)_nullModel;
+
+		Assert.assertEquals(
+			portal.getDefaultCompanyId(), shardedModel.getCompanyId());
+	}
+
+	@Test
 	public void testRemoveDBPartition() throws Exception {
 		addDBPartition();
 
@@ -246,6 +295,42 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 				Assert.assertNotEquals(getSchemaName(COMPANY_ID), schemaName);
 			}
 		}
+	}
+
+	@Test
+	public void testToEntityControlModel() {
+		ResourceAction resourceAction =
+			_resourceActionLocalService.createResourceAction(0);
+
+		Assert.assertEquals(
+			resourceAction,
+			DBPartitionUtil.toEntityModel(
+				ResourceAction.class, resourceAction));
+	}
+
+	@Test
+	public void testToEntityNoncontrolModelDifferentCompany() {
+		ResourcePermission resourcePermission =
+			_resourcePermissionLocalService.createResourcePermission(0);
+
+		resourcePermission.setCompanyId(COMPANY_ID);
+
+		Assert.assertNull(
+			DBPartitionUtil.toEntityModel(
+				ResourcePermission.class, resourcePermission));
+	}
+
+	@Test
+	public void testToEntityNoncontrolModelSameCompany() {
+		ResourcePermission resourcePermission =
+			_resourcePermissionLocalService.createResourcePermission(0);
+
+		resourcePermission.setCompanyId(portal.getDefaultCompanyId());
+
+		Assert.assertEquals(
+			resourcePermission,
+			DBPartitionUtil.toEntityModel(
+				ResourcePermission.class, resourcePermission));
 	}
 
 	private int _getCount(String tableName, boolean defaultSchema)
@@ -304,5 +389,13 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 
 		return viewNames.size();
 	}
+
+	private static BaseModel<?> _nullModel;
+
+	@Inject
+	private ResourceActionLocalService _resourceActionLocalService;
+
+	@Inject
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
 
 }

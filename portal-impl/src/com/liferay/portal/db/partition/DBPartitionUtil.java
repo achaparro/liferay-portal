@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
+import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -216,6 +217,13 @@ public class DBPartitionUtil {
 
 			if (CompanyThreadLocal.getCompanyId() !=
 					shardedModel.getCompanyId()) {
+
+				BaseModel<?> nullModel =
+					(BaseModel<?>)EntityCacheUtil.getNullModel();
+
+				if (baseModel != nullModel) {
+					return nullModel;
+				}
 
 				return null;
 			}

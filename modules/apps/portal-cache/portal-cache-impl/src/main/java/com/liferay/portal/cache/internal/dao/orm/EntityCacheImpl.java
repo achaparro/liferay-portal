@@ -14,6 +14,7 @@
 
 package com.liferay.portal.cache.internal.dao.orm;
 
+import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.db.partition.DBPartitionUtil;
@@ -33,6 +34,8 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.MVCCModel;
+import com.liferay.portal.kernel.model.ShardedModel;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LRUMap;
 import com.liferay.portal.kernel.util.MethodHandler;
@@ -95,6 +98,11 @@ public class EntityCacheImpl
 		_notifyFinderCache(null, null, true);
 
 		_portalCaches.clear();
+	}
+
+	@Override
+	public Serializable getNullModel() {
+		return _nullModel;
 	}
 
 	@Override
@@ -432,6 +440,7 @@ public class EntityCacheImpl
 	private static final MethodKey _notifyMethodKey = new MethodKey(
 		EntityCacheImpl.class, "_notify", String.class, BaseModel.class,
 		Boolean.class);
+	private static final NullModel _nullModel = new NullModel();
 
 	@Reference
 	private ClusterExecutor _clusterExecutor;
@@ -479,6 +488,169 @@ public class EntityCacheImpl
 
 		private final String _className;
 		private final Serializable _primaryKey;
+
+	}
+
+	private static class NullModel
+		implements BaseModel<NullModel>, CacheModel<NullModel>, MVCCModel,
+				   ShardedModel {
+
+		@Override
+		public Object clone() {
+			return this;
+		}
+
+		@Override
+		public NullModel cloneWithOriginalValues() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public int compareTo(NullModel nullModel) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public long getCompanyId() {
+			return _companyId;
+		}
+
+		@Override
+		public ExpandoBridge getExpandoBridge() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Map<String, Object> getModelAttributes() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Class<?> getModelClass() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String getModelClassName() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public long getMvccVersion() {
+			return -1;
+		}
+
+		@Override
+		public Serializable getPrimaryKeyObj() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isCachedModel() {
+			throw new UnsupportedOperationException();
+		}
+
+		/**
+		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+		 */
+		@Deprecated
+		@Override
+		public boolean isEntityCacheEnabled() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isEscapedModel() {
+			throw new UnsupportedOperationException();
+		}
+
+		/**
+		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
+		 */
+		@Deprecated
+		@Override
+		public boolean isFinderCacheEnabled() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isNew() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void resetOriginalValues() {
+		}
+
+		@Override
+		public void setCachedModel(boolean cachedModel) {
+		}
+
+		@Override
+		public void setCompanyId(long companyId) {
+			_companyId = companyId;
+		}
+
+		@Override
+		public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setModelAttributes(Map<String, Object> attributes) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setMvccVersion(long mvccVersion) {
+		}
+
+		@Override
+		public void setNew(boolean n) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setPrimaryKeyObj(Serializable primaryKeyObj) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public CacheModel<NullModel> toCacheModel() {
+			return _nullModel;
+		}
+
+		@Override
+		public NullModel toEntityModel() {
+			return _nullModel;
+		}
+
+		@Override
+		public NullModel toEscapedModel() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public NullModel toUnescapedModel() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String toXmlString() {
+			throw new UnsupportedOperationException();
+		}
+
+		private long _companyId;
 
 	}
 

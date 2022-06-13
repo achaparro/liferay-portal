@@ -14,7 +14,6 @@
 
 package com.liferay.portal.kernel.service.persistence.impl;
 
-import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.petra.sql.dsl.Table;
@@ -66,12 +65,9 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.AuditedModel;
 import com.liferay.portal.kernel.model.BaseModel;
-import com.liferay.portal.kernel.model.CacheModel;
-import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.model.ModelListenerRegistrationUtil;
 import com.liferay.portal.kernel.model.ModelWrapper;
-import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
@@ -320,7 +316,7 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 		Serializable serializable = entityCache.getResult(
 			_modelImplClass, primaryKey);
 
-		if (serializable == nullModel) {
+		if (serializable == entityCache.getNullModel()) {
 			return null;
 		}
 
@@ -336,7 +332,8 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 
 				if (model == null) {
 					entityCache.putResult(
-						_modelImplClass, primaryKey, nullModel);
+						_modelImplClass, primaryKey,
+						entityCache.getNullModel());
 				}
 				else {
 					cacheResult(model);
@@ -398,7 +395,7 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 			Serializable serializable = entityCache.getResult(
 				_modelImplClass, primaryKey);
 
-			if (serializable != nullModel) {
+			if (serializable != entityCache.getNullModel()) {
 				if (serializable == null) {
 					if (uncachedPrimaryKeys == null) {
 						uncachedPrimaryKeys = new HashSet<>();
@@ -489,7 +486,8 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 			}
 
 			for (Serializable primaryKey : uncachedPrimaryKeys) {
-				entityCache.putResult(_modelImplClass, primaryKey, nullModel);
+				entityCache.putResult(
+					_modelImplClass, primaryKey, entityCache.getNullModel());
 			}
 		}
 		catch (Exception exception) {
@@ -1027,7 +1025,6 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 		ProxyFactory.newDummyInstance(EntityCache.class);
 	protected static FinderCache dummyFinderCache =
 		ProxyFactory.newDummyInstance(FinderCache.class);
-	protected static final NullModel nullModel = new NullModel();
 
 	protected int databaseInMaxParameters;
 	protected Map<String, String> dbColumnNames;
@@ -1224,169 +1221,6 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 	private ModelPKType _modelPKType = ModelPKType.COMPOUND;
 	private SessionFactory _sessionFactory;
 	private Table<?> _table;
-
-	private static class NullModel
-		implements BaseModel<NullModel>, CacheModel<NullModel>, MVCCModel,
-				   ShardedModel {
-
-		@Override
-		public Object clone() {
-			return this;
-		}
-
-		@Override
-		public NullModel cloneWithOriginalValues() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public int compareTo(NullModel nullModel) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public long getCompanyId() {
-			return _companyId;
-		}
-
-		@Override
-		public ExpandoBridge getExpandoBridge() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public Map<String, Object> getModelAttributes() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public Class<?> getModelClass() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public String getModelClassName() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public long getMvccVersion() {
-			return -1;
-		}
-
-		@Override
-		public Serializable getPrimaryKeyObj() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isCachedModel() {
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-		 */
-		@Deprecated
-		@Override
-		public boolean isEntityCacheEnabled() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isEscapedModel() {
-			throw new UnsupportedOperationException();
-		}
-
-		/**
-		 * @deprecated As of Athanasius (7.3.x), with no direct replacement
-		 */
-		@Deprecated
-		@Override
-		public boolean isFinderCacheEnabled() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isNew() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void resetOriginalValues() {
-		}
-
-		@Override
-		public void setCachedModel(boolean cachedModel) {
-		}
-
-		@Override
-		public void setCompanyId(long companyId) {
-			_companyId = companyId;
-		}
-
-		@Override
-		public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setModelAttributes(Map<String, Object> attributes) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setMvccVersion(long mvccVersion) {
-		}
-
-		@Override
-		public void setNew(boolean n) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setPrimaryKeyObj(Serializable primaryKeyObj) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public CacheModel<NullModel> toCacheModel() {
-			return nullModel;
-		}
-
-		@Override
-		public NullModel toEntityModel() {
-			return nullModel;
-		}
-
-		@Override
-		public NullModel toEscapedModel() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public NullModel toUnescapedModel() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public String toXmlString() {
-			throw new UnsupportedOperationException();
-		}
-
-		private long _companyId;
-
-	}
 
 	private enum ModelPKType {
 

@@ -41,6 +41,10 @@ public class EntityCacheUtil {
 		return _entityCache;
 	}
 
+	public static Serializable getNullModel() {
+		return _entityCache.getNullModel();
+	}
+
 	public static PortalCache<Serializable, Serializable> getPortalCache(
 		Class<?> clazz) {
 

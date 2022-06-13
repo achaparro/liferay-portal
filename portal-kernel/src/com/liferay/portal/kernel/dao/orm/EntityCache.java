@@ -33,6 +33,8 @@ public interface EntityCache {
 
 	public void clearLocalCache();
 
+	public Serializable getNullModel();
+
 	public PortalCache<Serializable, Serializable> getPortalCache(
 		Class<?> clazz);
 

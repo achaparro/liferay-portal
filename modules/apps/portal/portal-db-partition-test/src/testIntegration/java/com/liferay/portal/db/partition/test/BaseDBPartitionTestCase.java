@@ -33,7 +33,9 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.AssumeTestRule;
+import com.liferay.portal.kernel.test.util.PropsTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Props;
@@ -168,6 +170,11 @@ public abstract class BaseDBPartitionTestCase {
 		if (_dbPartitionEnabled) {
 			return;
 		}
+
+		PropsTestUtil.setProps(
+			HashMapBuilder.<String, Object>put(
+				"database.partition.enabled", "true"
+			).build());
 
 		ReflectionTestUtil.setFieldValue(
 			DBPartitionUtil.class, "_DATABASE_PARTITION_ENABLED", true);

@@ -150,7 +150,9 @@ public class DBPartitionUtil {
 	public static void populateCompanyId(
 		Class<?> entityClass, BaseModel<?> baseModel) {
 
-		if (!_DATABASE_PARTITION_ENABLED) {
+		if (!GetterUtil.getBoolean(
+				PropsUtil.get("database.partition.enabled"))) {
+
 			return;
 		}
 
@@ -203,7 +205,9 @@ public class DBPartitionUtil {
 	public static BaseModel<?> toEntityModel(
 		Class<?> entityClass, BaseModel<?> baseModel) {
 
-		if (!_DATABASE_PARTITION_ENABLED) {
+		if (!GetterUtil.getBoolean(
+				PropsUtil.get("database.partition.enabled"))) {
+
 			return baseModel;
 		}
 

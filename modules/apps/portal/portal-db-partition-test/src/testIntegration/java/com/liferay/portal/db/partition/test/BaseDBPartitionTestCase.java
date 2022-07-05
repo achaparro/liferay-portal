@@ -82,8 +82,8 @@ public abstract class BaseDBPartitionTestCase {
 				CurrentConnectionUtil.class, "_currentConnection",
 				currentConnection);
 
-			for (long companyId : COMPANY_IDS) {
-				DBPartitionUtil.addDBPartition(companyId);
+			for (long company : COMPANY_IDS) {
+				DBPartitionUtil.addDBPartition(company);
 			}
 		}
 		finally {
@@ -117,12 +117,12 @@ public abstract class BaseDBPartitionTestCase {
 
 	protected static void deleteCompanyAndDefaultUser() throws Exception {
 		try (Statement statement = connection.createStatement()) {
-			for (long companyId : COMPANY_IDS) {
+			for (long company : COMPANY_IDS) {
 				statement.execute(
-					"delete from Company where companyId = " + companyId);
+					"delete from Company where companyId = " + company);
 
 				statement.execute(
-					"delete from User_ where companyId = " + companyId);
+					"delete from User_ where companyId = " + company);
 			}
 		}
 	}
@@ -156,8 +156,8 @@ public abstract class BaseDBPartitionTestCase {
 	}
 
 	protected static void dropSchema() throws Exception {
-		for (long companyId : COMPANY_IDS) {
-			db.runSQL("drop schema if exists " + getSchemaName(companyId));
+		for (long company : COMPANY_IDS) {
+			db.runSQL("drop schema if exists " + getSchemaName(company));
 		}
 	}
 
@@ -229,23 +229,25 @@ public abstract class BaseDBPartitionTestCase {
 	}
 
 	protected static void insertCompanyAndDefaultUser() throws Exception {
-		for (long companyId : COMPANY_IDS) {
+		for (long company : COMPANY_IDS) {
 			try (SafeCloseable safeCloseable =
-					 CompanyThreadLocal.setWithSafeCloseable(companyId);
-				 PreparedStatement preparedStatement1 = connection.prepareStatement(
-					 "insert into Company (companyId, webId) values (?, ?)");
-				 PreparedStatement preparedStatement2 = connection.prepareStatement(
-					 "insert into User_ (userId, companyId, defaultUser, " +
-					 "screenName, emailAddress, languageId, timeZoneId) " +
-					 "values (?, ?, ?, ?, ?, ?, ?)")) {
+					CompanyThreadLocal.setWithSafeCloseable(company);
+				PreparedStatement preparedStatement1 =
+					connection.prepareStatement(
+						"insert into Company (companyId, webId) values (?, ?)");
+				PreparedStatement preparedStatement2 =
+					connection.prepareStatement(
+						"insert into User_ (userId, companyId, defaultUser, " +
+							"screenName, emailAddress, languageId, " +
+								"timeZoneId) values (?, ?, ?, ?, ?, ?, ?)")) {
 
-				preparedStatement1.setLong(1, companyId);
-				preparedStatement1.setString(2, "Test" + companyId);
+				preparedStatement1.setLong(1, company);
+				preparedStatement1.setString(2, "Test" + company);
 
 				preparedStatement1.executeUpdate();
 
 				preparedStatement2.setLong(1, 1);
-				preparedStatement2.setLong(2, companyId);
+				preparedStatement2.setLong(2, company);
 				preparedStatement2.setBoolean(3, true);
 				preparedStatement2.setString(4, "Test");
 				preparedStatement2.setString(5, "test@test.com");
@@ -271,8 +273,8 @@ public abstract class BaseDBPartitionTestCase {
 				CurrentConnectionUtil.class, "_currentConnection",
 				currentConnection);
 
-			for (long companyId : COMPANY_IDS) {
-				DBPartitionUtil.removeDBPartition(companyId);
+			for (long company : COMPANY_IDS) {
+				DBPartitionUtil.removeDBPartition(company);
 			}
 		}
 		finally {

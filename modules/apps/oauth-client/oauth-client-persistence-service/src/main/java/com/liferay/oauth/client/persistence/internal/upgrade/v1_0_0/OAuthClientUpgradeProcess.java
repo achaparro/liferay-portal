@@ -65,64 +65,59 @@ public class OAuthClientUpgradeProcess extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		Map<Long, Map<String, Dictionary<String, ?>>> companiesProperties =
-			_getCompaniesProperties();
-
 		Date date = new Date(System.currentTimeMillis());
 
-		for (Map.Entry<Long, Map<String, Dictionary<String, ?>>> entry :
-				companiesProperties.entrySet()) {
+		_companyLocalService.forEachCompanyId(
+			companyId -> {
+				Map<String, Dictionary<String, ?>> companyProperties =
+					_getCompanyProperties(companyId);
 
-			long companyId = entry.getKey();
+				long defaultUserId = 0;
 
-			long defaultUserId = 0;
-
-			try {
-				defaultUserId = _userLocalService.getDefaultUserId(companyId);
-			}
-			catch (PortalException portalException) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(
-						"Unable to find user for company: " + companyId,
-						portalException);
+				try {
+					defaultUserId = _userLocalService.getDefaultUserId(
+						companyId);
 				}
-			}
-
-			Map<String, Dictionary<String, ?>> companyProperties =
-				entry.getValue();
-
-			for (Dictionary<String, ?> properties :
-					companyProperties.values()) {
-
-				String discoveryEndPoint = (String)properties.get(
-					"discoveryEndPoint");
-
-				if (Validator.isNull(discoveryEndPoint)) {
-					try {
-						discoveryEndPoint = _generateLocalWellKnownURI(
-							(String)properties.get("issuerURL"),
-							(String)properties.get("tokenEndPoint"));
+				catch (PortalException portalException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(
+							"Unable to find user for company: " + companyId,
+							portalException);
 					}
-					catch (Exception exception) {
-						if (_log.isDebugEnabled()) {
-							_log.debug(
-								"Unable to generate a wellKnown URI",
-								exception);
+				}
+
+				for (Dictionary<String, ?> properties :
+						companyProperties.values()) {
+
+					String discoveryEndPoint = (String)properties.get(
+						"discoveryEndPoint");
+
+					if (Validator.isNull(discoveryEndPoint)) {
+						try {
+							discoveryEndPoint = _generateLocalWellKnownURI(
+								(String)properties.get("issuerURL"),
+								(String)properties.get("tokenEndPoint"));
+						}
+						catch (Exception exception) {
+							if (_log.isDebugEnabled()) {
+								_log.debug(
+									"Unable to generate a wellKnown URI",
+									exception);
+							}
+
+							continue;
 						}
 
-						continue;
+						_addOAuthClientASLocalMetadata(
+							companyId, defaultUserId, date, discoveryEndPoint,
+							properties);
 					}
 
-					_addOAuthClientASLocalMetadata(
-						companyId, defaultUserId, date, discoveryEndPoint,
-						properties);
+					_addOAuthClientEntry(
+						companyId, defaultUserId, date, properties,
+						discoveryEndPoint);
 				}
-
-				_addOAuthClientEntry(
-					companyId, defaultUserId, date, properties,
-					discoveryEndPoint);
-			}
-		}
+			});
 	}
 
 	private void _addOAuthClientASLocalMetadata(
@@ -468,12 +463,11 @@ public class OAuthClientUpgradeProcess extends UpgradeProcess {
 	 * 3. System properties will be inserted into each instance company, while 2 is true.
 	 * 4. This method is required because we need to ensure table entry uniqueness.
 	 */
-	private Map<Long, Map<String, Dictionary<String, ?>>>
-			_getCompaniesProperties()
+	private Map<String, Dictionary<String, ?>> _getCompanyProperties(
+			long companyId)
 		throws Exception {
 
-		Map<Long, Map<String, Dictionary<String, ?>>> companiesProperties =
-			new HashMap<>();
+		Map<String, Dictionary<String, ?>> companyProperties = new HashMap<>();
 
 		Configuration[] configurations = _configurationAdmin.listConfigurations(
 			StringBundler.concat(
@@ -482,23 +476,19 @@ public class OAuthClientUpgradeProcess extends UpgradeProcess {
 				"configuration.OpenIdConnectProviderConfiguration)"));
 
 		if (configurations == null) {
-			return companiesProperties;
+			return companyProperties;
 		}
 
 		for (Configuration configuration : configurations) {
 			Dictionary<String, ?> properties = configuration.getProperties();
 
-			Long companyId = (Long)properties.get("companyId");
+			Long propertyCompanyId = (Long)properties.get("companyId");
 
-			if (companyId == null) {
-				companyId = (long)0;
+			if (propertyCompanyId == null) {
+				propertyCompanyId = (long)0;
 			}
-
-			Map<String, Dictionary<String, ?>> companyProperties =
-				companiesProperties.getOrDefault(companyId, new HashMap<>());
-
-			if (companyProperties.isEmpty()) {
-				companiesProperties.put(companyId, companyProperties);
+			else if (propertyCompanyId != companyId) {
+				continue;
 			}
 
 			String clientId = (String)properties.get("openIdConnectClientId");
@@ -516,32 +506,7 @@ public class OAuthClientUpgradeProcess extends UpgradeProcess {
 			}
 		}
 
-		Map<String, Dictionary<String, ?>> systemProperties =
-			companiesProperties.remove(0L);
-
-		if (systemProperties == null) {
-			return companiesProperties;
-		}
-
-		_companyLocalService.forEachCompanyId(
-			(Long companyId) -> {
-				Map<String, Dictionary<String, ?>> companyProperties =
-					companiesProperties.getOrDefault(
-						companyId, new HashMap<>());
-
-				if (companyProperties.isEmpty()) {
-					companiesProperties.put(companyId, companyProperties);
-				}
-
-				for (Map.Entry<String, Dictionary<String, ?>> entry :
-						systemProperties.entrySet()) {
-
-					companyProperties.putIfAbsent(
-						entry.getKey(), entry.getValue());
-				}
-			});
-
-		return companiesProperties;
+		return companyProperties;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

@@ -107,6 +107,13 @@ public class UpgradeExecutor {
 
 		int size = upgradeInfosList.size();
 
+		if ((size == 0) && schemaVersionString.equals("0.0.0")) {
+			_releaseLocalService.addRelease(
+				bundleSymbolicName, _getFinalSchemaVersion(upgradeInfos));
+
+			return;
+		}
+
 		if (size > 1) {
 			throw new IllegalStateException(
 				StringBundler.concat(
@@ -182,6 +189,28 @@ public class UpgradeExecutor {
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
+	}
+
+	private String _getFinalSchemaVersion(List<UpgradeInfo> upgradeInfos) {
+		Version finalSchemaVersion = null;
+
+		for (UpgradeInfo upgradeInfo : upgradeInfos) {
+			String toSchemaVersion = upgradeInfo.getToSchemaVersionString();
+
+			Version schemaVersion = Version.parseVersion(
+				toSchemaVersion.substring(0, 5));
+
+			if (finalSchemaVersion == null) {
+				finalSchemaVersion = schemaVersion;
+			}
+			else {
+				finalSchemaVersion =
+					(finalSchemaVersion.compareTo(schemaVersion) >= 0) ?
+						finalSchemaVersion : schemaVersion;
+			}
+		}
+
+		return finalSchemaVersion.toString();
 	}
 
 	private boolean _isInitialRelease(List<UpgradeInfo> upgradeInfos) {

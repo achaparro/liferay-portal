@@ -16,7 +16,6 @@ package com.liferay.item.selector.web.internal.upgrade.registry;
 
 import com.liferay.item.selector.constants.ItemSelectorPortletKeys;
 import com.liferay.portal.kernel.upgrade.BasePortletIdUpgradeProcess;
-import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
@@ -31,8 +30,6 @@ public class ItemSelectorWebUpgradeStepRegistrator
 
 	@Override
 	public void register(Registry registry) {
-		registry.register("0.0.0", "1.0.0", new DummyUpgradeStep());
-
 		UpgradeStep upgradePortletId = new BasePortletIdUpgradeProcess() {
 
 			@Override

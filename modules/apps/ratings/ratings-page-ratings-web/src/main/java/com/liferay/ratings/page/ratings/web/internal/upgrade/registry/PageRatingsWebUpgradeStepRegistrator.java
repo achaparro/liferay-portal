@@ -15,7 +15,6 @@
 package com.liferay.ratings.page.ratings.web.internal.upgrade.registry;
 
 import com.liferay.portal.kernel.upgrade.BasePortletIdUpgradeProcess;
-import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.ratings.page.ratings.constants.PageRatingsPortletKeys;
@@ -31,8 +30,6 @@ public class PageRatingsWebUpgradeStepRegistrator
 
 	@Override
 	public void register(Registry registry) {
-		registry.register("0.0.0", "1.0.0", new DummyUpgradeStep());
-
 		UpgradeStep upgradePortletId = new BasePortletIdUpgradeProcess() {
 
 			@Override

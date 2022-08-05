@@ -18,7 +18,6 @@ import com.liferay.asset.publisher.web.internal.upgrade.v1_0_0.UpgradePortletId;
 import com.liferay.asset.publisher.web.internal.upgrade.v1_0_0.UpgradePortletPreferences;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
-import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.kernel.xml.SAXReader;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
@@ -34,8 +33,6 @@ public class AssetPublisherWebUpgradeStepRegistrator
 
 	@Override
 	public void register(Registry registry) {
-		registry.register("0.0.0", "1.0.4", new DummyUpgradeStep());
-
 		registry.register(
 			"0.0.1", "1.0.0", new UpgradePortletId(),
 			new UpgradePortletPreferences(

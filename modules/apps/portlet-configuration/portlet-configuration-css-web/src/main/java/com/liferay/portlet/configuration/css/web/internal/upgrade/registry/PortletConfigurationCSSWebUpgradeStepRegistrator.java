@@ -15,7 +15,6 @@
 package com.liferay.portlet.configuration.css.web.internal.upgrade.registry;
 
 import com.liferay.portal.kernel.upgrade.BasePortletIdUpgradeProcess;
-import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.portlet.configuration.css.web.internal.constants.PortletConfigurationCSSPortletKeys;
 
@@ -30,8 +29,6 @@ public class PortletConfigurationCSSWebUpgradeStepRegistrator
 
 	@Override
 	public void register(Registry registry) {
-		registry.register("0.0.0", "1.0.0", new DummyUpgradeStep());
-
 		registry.register(
 			"0.0.1", "1.0.0",
 			new BasePortletIdUpgradeProcess() {

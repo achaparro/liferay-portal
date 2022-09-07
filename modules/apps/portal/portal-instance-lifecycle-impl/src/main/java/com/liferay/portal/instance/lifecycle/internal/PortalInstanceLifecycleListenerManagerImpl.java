@@ -231,6 +231,7 @@ public class PortalInstanceLifecycleListenerManagerImpl
 			CompanyThreadLocal.setCompanyId(company.getCompanyId());
 			LocaleThreadLocal.setSiteDefaultLocale(null);
 
+			_log.info("registerCompany - portalInstanceLifecycleListener: " + portalInstanceLifecycleListener);
 			_log.info("registerCompany - CompanyThreadThreadLocal: " + CompanyThreadLocal.getCompanyId());
 			_log.info("registerCompany - Current company: " + company.getCompanyId());
 

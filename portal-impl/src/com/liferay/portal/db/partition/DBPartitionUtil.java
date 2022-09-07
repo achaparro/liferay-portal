@@ -686,7 +686,7 @@ public class DBPartitionUtil {
 					return 0;
 				}
 
-				if (sql.contains("LayoutSet")) {
+				if (lowerCaseSQL.contains("layoutset")) {
 					_log.info(sql);
 					_log.info("CompanyThreadLocal " + CompanyThreadLocal.getCompanyId());
 					_log.info("Catalog " + connection.getCatalog());

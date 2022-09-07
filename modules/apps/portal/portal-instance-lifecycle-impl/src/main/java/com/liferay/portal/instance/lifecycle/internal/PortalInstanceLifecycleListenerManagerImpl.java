@@ -131,11 +131,18 @@ public class PortalInstanceLifecycleListenerManagerImpl
 					TransactionInvokerUtil.invoke(
 						_transactionConfig,
 						() -> {
+							_log.info("addPortalInstanceLifecycleListener - CompanyThreadThreadLocal: " + CompanyThreadLocal.getCompanyId());
+							_log.info("addPortalInstanceLifecycleListener - Current company: " + company.getCompanyId());
+
+
 							preregisterCompany(
 								portalInstanceLifecycleListener, company);
 
 							registerCompany(
 								portalInstanceLifecycleListener, company);
+
+							_log.info("addPortalInstanceLifecycleListener ends - CompanyThreadThreadLocal: " + CompanyThreadLocal.getCompanyId());
+							_log.info("addPortalInstanceLifecycleListener ends - Current company: " + company.getCompanyId());
 
 							return null;
 						});
@@ -223,6 +230,9 @@ public class PortalInstanceLifecycleListenerManagerImpl
 
 			CompanyThreadLocal.setCompanyId(company.getCompanyId());
 			LocaleThreadLocal.setSiteDefaultLocale(null);
+
+			_log.info("registerCompany - CompanyThreadThreadLocal: " + CompanyThreadLocal.getCompanyId());
+			_log.info("registerCompany - Current company: " + company.getCompanyId());
 
 			portalInstanceLifecycleListener.portalInstanceRegistered(company);
 		}

@@ -686,6 +686,12 @@ public class DBPartitionUtil {
 					return 0;
 				}
 
+				if (sql.contains("LayoutSet")) {
+					_log.info(sql);
+					_log.info("CompanyThreadLocal " + CompanyThreadLocal.getCompanyId());
+					_log.info("Catalog " + connection.getCatalog());
+				}
+
 				int returnValue = super.executeUpdate(sql);
 
 				if (!StringUtil.startsWith(lowerCaseSQL, "alter table")) {

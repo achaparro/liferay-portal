@@ -62,6 +62,7 @@
 		<Logger level="ERROR" name="com.liferay.portal.dao.orm.common.SQLTransformer" />
 		<Logger level="ERROR" name="com.liferay.portal.dao.orm.hibernate.SessionFactoryImpl" />
 		<Logger level="FATAL" name="com.liferay.portal.dao.orm.hibernate.VerifySessionFactoryWrapper" />
+		<Logger level="INFO" name="com.liferay.portal.db.partition.DBPartitionUtil" />
 		<Logger level="INFO" name="com.liferay.portal.deploy" />
 		<Logger level="INFO" name="com.liferay.portal.deploy.hot.HookHotDeployListener" />
 		<Logger level="ERROR" name="com.liferay.portal.deploy.hot.PluginPackageHotDeployListener" />
@@ -147,7 +148,8 @@
 		<Logger level="INFO" name="com.liferay.portal.security.permission.BasicPermissionChecker" />
 		<Logger level="WARN" name="com.liferay.portal.security.permission.ResourceActionsImpl" />
 		<Logger level="WARN" name="com.liferay.portal.security.pwd.RegExpToolkit" />
-		<Logger level="ERROR" name="com.liferay.portal.server.capabilities.ServerCapabilitiesUtil" />
+		<Logger level="INFO" name="com.liferay.portal.server.capabilities.ServerCapabilitiesUtil" />
+		<Logger level="ERROR" name="com.liferay.portal.service.impl.LayoutSetLocalServiceImpl" />
 		<Logger level="ERROR" name="com.liferay.portal.service.impl.LayoutLocalServiceImpl" />
 		<Logger level="ERROR" name="com.liferay.portal.service.impl.PermissionLocalServiceImpl" />
 		<Logger level="INFO" name="com.liferay.portal.service.impl.PortalLocalServiceImpl" />

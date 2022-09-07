@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetBranch;
 import com.liferay.portal.kernel.model.LayoutSetStagingHandler;
 import com.liferay.portal.kernel.model.VirtualHost;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -393,6 +394,11 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 		LayoutSet layoutSet = layoutSetPersistence.findByG_P(
 			groupId, privateLayout);
 
+		_log.info("updateLookAndFeel - CompanyThreadThreadLocal: " + CompanyThreadLocal.getCompanyId());
+		_log.info("LayoutSet Company "+ layoutSet.getCompanyId());
+		_log.info("LayoutSet Id "+ layoutSet.getLayoutSetId());
+		_log.info("LayoutSet Mvcc "+ layoutSet.getMvccVersion());
+
 		if (Validator.isNull(themeId)) {
 			themeId = ThemeFactoryUtil.getDefaultRegularThemeId(
 				layoutSet.getCompanyId());
@@ -411,7 +417,10 @@ public class LayoutSetLocalServiceImpl extends LayoutSetLocalServiceBaseImpl {
 			layoutSet.setColorSchemeId(colorSchemeId);
 			layoutSet.setCss(css);
 
+			_log.info("updateLookAndFeel 2 - CompanyThreadThreadLocal: " + CompanyThreadLocal.getCompanyId());
 			layoutSet = layoutSetPersistence.update(layoutSet);
+
+			_log.info("updateLookAndFeel 3 LayoutSet MVcc " + layoutSet.getMvccVersion());
 
 			if (PrefsPropsUtil.getBoolean(
 					PropsKeys.THEME_SYNC_ON_GROUP,

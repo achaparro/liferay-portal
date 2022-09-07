@@ -2,6 +2,6 @@
 
 <Configuration strict="true">
 	<Loggers>
-		<Logger level="WARN" name="com.liferay.portal.instance.lifecycle.internal.PortalInstanceLifecycleListenerManagerImpl" />
+		<Logger level="INFO" name="com.liferay.portal.instance.lifecycle.internal.PortalInstanceLifecycleListenerManagerImpl" />
 	</Loggers>
 </Configuration>

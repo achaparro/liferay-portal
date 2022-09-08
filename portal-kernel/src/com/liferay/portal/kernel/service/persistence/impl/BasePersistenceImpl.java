@@ -735,6 +735,10 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 	public T update(T model) {
 		if (model instanceof LayoutSet) {
 			_log.info("Updating the LayoutSet " + ((LayoutSet)model).getLayoutSetId() + "#" + ((LayoutSet)model).getMvccVersion());
+
+			for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+				_log.info(ste);
+			}
 		}
 
 		if (ReadOnlyTransactionThreadLocal.isReadOnly()) {

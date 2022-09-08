@@ -107,6 +107,7 @@
 		<Logger level="INFO" name="com.liferay.portal.kernel.process" />
 		<Logger level="WARN" name="com.liferay.portal.kernel.search.HitsOpenSearchImpl" />
 		<Logger level="WARN" name="com.liferay.portal.kernel.security.auth.CompanyThreadLocal" />
+		<Logger level="INFO" name="com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl" />
 		<Logger level="ERROR" name="com.liferay.portal.kernel.servlet.PipingServletResponse" />
 		<Logger level="WARN" name="com.liferay.portal.kernel.servlet.PluginContextListener" />
 		<Logger level="ERROR" name="com.liferay.portal.kernel.servlet.SecurePluginContextListener" />

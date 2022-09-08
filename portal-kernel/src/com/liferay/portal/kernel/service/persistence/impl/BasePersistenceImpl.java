@@ -67,6 +67,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.AuditedModel;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.model.ModelListenerRegistrationUtil;
@@ -651,6 +652,10 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 
 	@Override
 	public T remove(T model) {
+		if (model instanceof LayoutSet) {
+			_log.info("Removing the LayoutSet " + ((LayoutSet)model).getLayoutSetId() + "#" + ((LayoutSet)model).getMvccVersion());
+		}
+
 		if (ReadOnlyTransactionThreadLocal.isReadOnly()) {
 			throw new IllegalStateException(
 				"Remove called with read only transaction");
@@ -728,6 +733,10 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 
 	@Override
 	public T update(T model) {
+		if (model instanceof LayoutSet) {
+			_log.info("Updating the LayoutSet " + ((LayoutSet)model).getLayoutSetId() + "#" + ((LayoutSet)model).getMvccVersion());
+		}
+
 		if (ReadOnlyTransactionThreadLocal.isReadOnly()) {
 			throw new IllegalStateException(
 				"Update called with read only transaction");

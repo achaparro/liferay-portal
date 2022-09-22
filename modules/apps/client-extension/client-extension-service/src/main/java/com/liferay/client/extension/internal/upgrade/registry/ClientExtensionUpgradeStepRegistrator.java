@@ -137,7 +137,9 @@ public class ClientExtensionUpgradeStepRegistrator
 				"lastPublishDate DATE null"));
 	}
 
-	@Reference
+	@Reference(
+		target = "(&(release.bundle.symbolic.name=com.liferay.client.extension.service)(release.schema.version>=1.0.0))"
+	)
 	private ReleaseLocalService _releaseLocalService;
 
 }

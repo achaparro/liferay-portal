@@ -262,7 +262,8 @@ public class VerifyProcessTrackerOSGiCommands {
 
 			if (verifyException1 == null) {
 				if (Validator.isNull(release.getSchemaVersion())) {
-					release.setSchemaVersion("1.0.0");
+					release.setSchemaVersion(
+						ReleaseConstants.INITIAL_SCHEMA_VERSION);
 				}
 
 				release.setVerified(true);

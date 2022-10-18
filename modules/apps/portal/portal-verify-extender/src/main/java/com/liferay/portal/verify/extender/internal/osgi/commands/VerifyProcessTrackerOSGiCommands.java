@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.service.ReleaseLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.NotificationThreadLocal;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
 import com.liferay.portal.verify.VerifyException;
 import com.liferay.portal.verify.VerifyProcess;
@@ -260,6 +261,10 @@ public class VerifyProcessTrackerOSGiCommands {
 			}
 
 			if (verifyException1 == null) {
+				if (Validator.isNull(release.getSchemaVersion())) {
+					release.setSchemaVersion("1.0.0");
+				}
+
 				release.setVerified(true);
 				release.setState(ReleaseConstants.STATE_GOOD);
 

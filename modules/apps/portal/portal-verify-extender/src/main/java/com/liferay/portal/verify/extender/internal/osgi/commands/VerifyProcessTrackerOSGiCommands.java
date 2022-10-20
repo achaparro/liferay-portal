@@ -18,6 +18,7 @@ import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.gogo.shell.logging.TeeLoggingUtil;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
+import com.liferay.osgi.util.BundleUtil;
 import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -307,8 +308,9 @@ public class VerifyProcessTrackerOSGiCommands {
 	private boolean _isInitialDeployment(VerifyProcess verifyProcess) {
 		Bundle bundle = FrameworkUtil.getBundle(verifyProcess.getClass());
 
-		if (_releaseLocalService.fetchRelease(bundle.getSymbolicName()) ==
-				null) {
+		if (!BundleUtil.isLiferayServiceBundle(bundle) &&
+			(_releaseLocalService.fetchRelease(bundle.getSymbolicName()) ==
+				null)) {
 
 			return true;
 		}

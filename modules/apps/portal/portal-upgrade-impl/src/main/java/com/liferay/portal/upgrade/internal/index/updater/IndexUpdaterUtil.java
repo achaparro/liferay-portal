@@ -14,13 +14,11 @@
 
 package com.liferay.portal.upgrade.internal.index.updater;
 
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -31,8 +29,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import java.sql.Connection;
-
-import java.util.Dictionary;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -74,13 +70,6 @@ public class IndexUpdaterUtil {
 
 			return null;
 		}
-	}
-
-	public static boolean isLiferayServiceBundle(Bundle bundle) {
-		Dictionary<String, String> headers = bundle.getHeaders(
-			StringPool.BLANK);
-
-		return GetterUtil.getBoolean(headers.get("Liferay-Service"));
 	}
 
 	public static void updateIndexes(Bundle bundle) throws Exception {

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.upgrade.internal.executor;
 
+import com.liferay.osgi.util.BundleUtil;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -271,7 +272,7 @@ public class UpgradeExecutor {
 	private boolean _requiresUpdateIndexes(
 		Bundle bundle, List<UpgradeInfo> upgradeInfos) {
 
-		if (!IndexUpdaterUtil.isLiferayServiceBundle(bundle)) {
+		if (!BundleUtil.isLiferayServiceBundle(bundle)) {
 			return false;
 		}
 

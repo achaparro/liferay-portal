@@ -20,6 +20,7 @@ import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.concurrent.DefaultNoticeableFuture;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.lpkg.deployer.LPKGDeployer;
@@ -152,6 +153,13 @@ public class BundleUtil {
 
 		BundleStartLevelUtil.setStartLevelAndStart(
 			bundle, startLevel, bundleContext);
+	}
+
+	public static boolean isLiferayServiceBundle(Bundle bundle) {
+		Dictionary<String, String> headers = bundle.getHeaders(
+			StringPool.BLANK);
+
+		return GetterUtil.getBoolean(headers.get("Liferay-Service"));
 	}
 
 	public static void refreshBundles(

@@ -148,7 +148,7 @@ public class StartupHelperUtil {
 			buildNumber, upgradeProcesses);
 	}
 
-	public static void verifyRequiredSchemaVersion() throws Exception {
+	public static void verifyLatestSchemaVersion() throws Exception {
 		if (_log.isDebugEnabled()) {
 			_log.debug("Check the portal's required schema version");
 		}
@@ -162,15 +162,15 @@ public class StartupHelperUtil {
 				PortalUpgradeProcess.getCurrentSchemaVersion(
 					DataAccess.getConnection());
 
-			Version requiredSchemaVersion =
-				PortalUpgradeProcess.getRequiredSchemaVersion();
+			Version latestSchemaVersion =
+				PortalUpgradeProcess.getLatestSchemaVersion();
 
 			String msg;
 
-			if (currentSchemaVersion.compareTo(requiredSchemaVersion) < 0) {
+			if (currentSchemaVersion.compareTo(latestSchemaVersion) < 0) {
 				msg =
 					"You must first upgrade the portal to the required " +
-						"schema version " + requiredSchemaVersion;
+						"schema version " + latestSchemaVersion;
 			}
 			else {
 				msg =

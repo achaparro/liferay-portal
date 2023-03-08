@@ -128,7 +128,7 @@ public class StartupAction extends SimpleAction {
 
 		// Check required schema version
 
-		StartupHelperUtil.verifyRequiredSchemaVersion();
+		StartupHelperUtil.verifyLatestSchemaVersion();
 
 		DBUpgrader.checkReleaseState();
 

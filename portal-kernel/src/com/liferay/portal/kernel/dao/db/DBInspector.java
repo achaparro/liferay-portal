@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -28,6 +29,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
@@ -44,6 +47,22 @@ public class DBInspector {
 
 	public String getCatalog() throws SQLException {
 		return _connection.getCatalog();
+	}
+
+	public String[] getColumnNames(String tableName) throws SQLException {
+		DatabaseMetaData databaseMetaData = _connection.getMetaData();
+
+		List<String> columnNames = new ArrayList<>();
+
+		try (ResultSet resultSet = databaseMetaData.getColumns(
+				getCatalog(), getSchema(), normalizeName(tableName), null)) {
+
+			while (resultSet.next()) {
+				columnNames.add(resultSet.getString("COLUMN_NAME"));
+			}
+		}
+
+		return ArrayUtil.toStringArray(columnNames);
 	}
 
 	public String getSchema() {

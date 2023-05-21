@@ -199,47 +199,35 @@ public abstract class BaseDB implements DB {
 
 	@Override
 	public void copyTableRows(
-			Connection connection, String sourceTableName,
-			String targetTableName)
+			Connection connection, String sourceTableName, String sourceIdName,
+			String[] sourceColumnNames, String targetTableName,
+			String targetIdName, String[] targetColumnNames)
 		throws Exception {
 
-		String[] primaryKeyColumnNames = getPrimaryKeyColumnNames(
-			connection, sourceTableName);
+		if (sourceColumnNames.length != targetColumnNames.length) {
+			throw new IllegalArgumentException(
+				"The number of columns do not match");
+		}
 
-		StringBundler sb = new StringBundler(
-			14 + (((primaryKeyColumnNames.length - 1) * 8) + 7));
+		StringBundler sb = new StringBundler(17);
 
 		sb.append("insert into ");
 		sb.append(targetTableName);
-		sb.append(" select ");
+		sb.append(" (");
+		sb.append(StringUtil.merge(targetColumnNames, ", "));
+		sb.append(") select ");
+		sb.append(StringUtil.merge(sourceColumnNames, ", "));
+		sb.append(" from ");
 		sb.append(sourceTableName);
-		sb.append(".* from ");
-		sb.append(sourceTableName);
-		sb.append(" left join ");
-		sb.append(targetTableName);
-		sb.append(" on ");
-
-		for (int i = 0; i < primaryKeyColumnNames.length; i++) {
-			String primaryKeyColumnName = primaryKeyColumnNames[i];
-
-			sb.append(sourceTableName);
-			sb.append(".");
-			sb.append(primaryKeyColumnName);
-			sb.append(" = ");
-			sb.append(targetTableName);
-			sb.append(".");
-			sb.append(primaryKeyColumnName);
-
-			if (i < (primaryKeyColumnNames.length - 1)) {
-				sb.append(" and ");
-			}
-		}
-
 		sb.append(" where ");
+		sb.append(sourceTableName);
+		sb.append(StringPool.PERIOD);
+		sb.append(sourceIdName);
+		sb.append(" not in (select ");
+		sb.append(targetIdName);
+		sb.append(" from ");
 		sb.append(targetTableName);
-		sb.append(".");
-		sb.append(primaryKeyColumnNames[0]);
-		sb.append(" IS NULL");
+		sb.append(")");
 
 		runSQL(sb.toString());
 	}

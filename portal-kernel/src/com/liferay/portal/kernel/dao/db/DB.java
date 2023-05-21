@@ -66,8 +66,9 @@ public interface DB {
 	public String buildSQL(String template) throws IOException, SQLException;
 
 	public void copyTableRows(
-			Connection connection, String sourceTableName,
-			String targetTableName)
+			Connection connection, String sourceTableName, String sourceIdName,
+			String[] sourceColumnNames, String targetTableName,
+			String targetIdName, String[] targetColumnNames)
 		throws Exception;
 
 	public void copyTableStructure(

@@ -73,6 +73,17 @@ public class DBInspectorTest {
 	}
 
 	@Test
+	public void testGetColumnNames() throws Exception {
+		Assert.assertArrayEquals(
+			new String[] {
+				"id", "notNilColumn", "nilColumn", "typeBlob", "typeBoolean",
+				"typeDate", "typeDouble", "typeInteger", "typeLong",
+				"typeSBlob", "typeString", "typeText", "typeVarchar"
+			},
+			_dbInspector.getColumnNames(_TABLE_NAME));
+	}
+
+	@Test
 	public void testHasColumn() throws Exception {
 		Assert.assertTrue(_dbInspector.hasColumn(_TABLE_NAME, _COLUMN_NAME));
 	}

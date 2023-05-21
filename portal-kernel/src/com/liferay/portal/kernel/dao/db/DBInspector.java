@@ -50,13 +50,9 @@ public class DBInspector {
 	}
 
 	public String[] getColumnNames(String tableName) throws SQLException {
-		DatabaseMetaData databaseMetaData = _connection.getMetaData();
-
 		List<String> columnNames = new ArrayList<>();
 
-		try (ResultSet resultSet = databaseMetaData.getColumns(
-				getCatalog(), getSchema(), normalizeName(tableName), null)) {
-
+		try (ResultSet resultSet = _getColumnsResultSet(tableName)) {
 			while (resultSet.next()) {
 				columnNames.add(resultSet.getString("COLUMN_NAME"));
 			}
@@ -81,11 +77,8 @@ public class DBInspector {
 	public boolean hasColumn(String tableName, String columnName)
 		throws Exception {
 
-		DatabaseMetaData databaseMetaData = _connection.getMetaData();
-
-		try (ResultSet resultSet = databaseMetaData.getColumns(
-				getCatalog(), getSchema(), normalizeName(tableName),
-				normalizeName(columnName))) {
+		try (ResultSet resultSet = _getColumnsResultSet(
+				tableName, columnName)) {
 
 			if (!resultSet.next()) {
 				return false;
@@ -104,12 +97,8 @@ public class DBInspector {
 			String tableName, String columnName, String columnType)
 		throws Exception {
 
-		DatabaseMetaData databaseMetaData = _connection.getMetaData();
-
-		try (ResultSet resultSet = databaseMetaData.getColumns(
-				getCatalog(), getSchema(),
-				normalizeName(tableName, databaseMetaData),
-				normalizeName(columnName, databaseMetaData))) {
+		try (ResultSet resultSet = _getColumnsResultSet(
+				tableName, columnName)) {
 
 			if (!resultSet.next()) {
 				return false;
@@ -227,12 +216,8 @@ public class DBInspector {
 	public boolean isNullable(String tableName, String columnName)
 		throws SQLException {
 
-		DatabaseMetaData databaseMetaData = _connection.getMetaData();
-
-		try (ResultSet resultSet = databaseMetaData.getColumns(
-				getCatalog(), getSchema(),
-				normalizeName(tableName, databaseMetaData),
-				normalizeName(columnName, databaseMetaData))) {
+		try (ResultSet resultSet = _getColumnsResultSet(
+				tableName, columnName)) {
 
 			if (!resultSet.next()) {
 				throw new SQLException(
@@ -311,6 +296,25 @@ public class DBInspector {
 		}
 
 		return DB.SQL_SIZE_NONE;
+	}
+
+	private ResultSet _getColumnsResultSet(String tableName)
+		throws SQLException {
+
+		return _getColumnsResultSet(tableName, null);
+	}
+
+	private ResultSet _getColumnsResultSet(String tableName, String columnName)
+		throws SQLException {
+
+		DatabaseMetaData databaseMetaData = _connection.getMetaData();
+
+		if (columnName != null) {
+			columnName = normalizeName(columnName, databaseMetaData);
+		}
+
+		return databaseMetaData.getColumns(
+			getCatalog(), getSchema(), normalizeName(tableName), columnName);
 	}
 
 	private boolean _hasTable(String tableName) throws Exception {

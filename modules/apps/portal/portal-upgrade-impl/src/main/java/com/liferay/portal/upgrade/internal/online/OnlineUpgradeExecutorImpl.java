@@ -18,6 +18,8 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.upgrade.online.OnlineUpgradeExecutor;
@@ -51,21 +53,29 @@ public class OnlineUpgradeExecutorImpl implements OnlineUpgradeExecutor {
 
 			DB db = DBManagerUtil.getDB();
 
-			db.copyTableStructure(connection, tableName, tempTableName);
+			try {
+				db.copyTableStructure(connection, tableName, tempTableName);
 
-			for (OnlineUpgradeProcess onlineUpgradeProcess :
-					onlineUpgradeProcesses) {
+				for (OnlineUpgradeProcess onlineUpgradeProcess :
+						onlineUpgradeProcesses) {
 
-				onlineUpgradeProcess.upgrade(tempTableName);
+					onlineUpgradeProcess.upgrade(tempTableName);
+				}
+
+				DBInspector dbInspector = new DBInspector(connection);
+
+				String[] columnNames = dbInspector.getColumnNames(tableName);
+
+				db.copyTableRows(
+					connection, tableName, tableId, columnNames, tempTableName,
+					tableId, columnNames);
 			}
+			catch (Exception exception) {
+				_log.error("Could not perform online upgrade", exception);
 
-			DBInspector dbInspector = new DBInspector(connection);
-
-			String[] columnNames = dbInspector.getColumnNames(tableName);
-
-			db.copyTableRows(
-				connection, tableName, tableId, columnNames, tempTableName,
-				tableId, columnNames);
+				db.runSQL(
+					connection, "DROP_TABLE_IF_EXISTS(" + tempTableName + ")");
+			}
 		}
 	}
 
@@ -76,5 +86,8 @@ public class OnlineUpgradeExecutorImpl implements OnlineUpgradeExecutor {
 	private static final String _UPGRADE_ONLINE_TABLE_NAME_PREFIX =
 		GetterUtil.get(
 			PropsUtil.get("upgrade.online.table.name.prefix"), "tmp_");
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		OnlineUpgradeExecutorImpl.class);
 
 }

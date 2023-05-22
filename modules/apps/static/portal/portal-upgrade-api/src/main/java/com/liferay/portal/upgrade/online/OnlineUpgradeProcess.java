@@ -20,6 +20,8 @@ package com.liferay.portal.upgrade.online;
 @FunctionalInterface
 public interface OnlineUpgradeProcess {
 
-	public void upgrade(String tableName) throws Exception;
+	public void upgrade(
+			String tableName, OnlineUpgradeSchemaDiff onlineUpgradeSchemaDiff)
+		throws Exception;
 
 }

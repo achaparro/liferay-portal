@@ -25,10 +25,13 @@ public class OnlineUpgradeProcessFactory {
 	public static OnlineUpgradeProcess alterColumnName(
 		String oldColumnName, String newColumnDefinition) {
 
-		return tableName -> {
+		return (tableName, onlineUpgradeSchemaDiff) -> {
 			UpgradeProcess upgradeProcess =
 				UpgradeProcessFactory.alterColumnName(
 					tableName, oldColumnName, newColumnDefinition);
+
+			onlineUpgradeSchemaDiff.recordAlterColumnName(
+				oldColumnName, newColumnDefinition);
 
 			upgradeProcess.upgrade();
 		};
@@ -37,10 +40,13 @@ public class OnlineUpgradeProcessFactory {
 	public static OnlineUpgradeProcess alterColumnType(
 		String columnName, String newColumnType) {
 
-		return tableName -> {
+		return (tableName, onlineUpgradeSchemaDiff) -> {
 			UpgradeProcess upgradeProcess =
 				UpgradeProcessFactory.alterColumnType(
 					tableName, columnName, newColumnType);
+
+			onlineUpgradeSchemaDiff.recordAlterColumnType(
+				columnName, newColumnType);
 
 			upgradeProcess.upgrade();
 		};

@@ -14,6 +14,7 @@
 
 package com.liferay.portal.upgrade.internal.online;
 
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -24,6 +25,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.upgrade.online.OnlineUpgradeExecutor;
 import com.liferay.portal.upgrade.online.OnlineUpgradeProcess;
+import com.liferay.portal.upgrade.online.OnlineUpgradeSchemaDiff;
 
 import java.sql.Connection;
 
@@ -56,19 +58,28 @@ public class OnlineUpgradeExecutorImpl implements OnlineUpgradeExecutor {
 			try {
 				db.copyTableStructure(connection, tableName, tempTableName);
 
+				OnlineUpgradeSchemaDiff onlineUpgradeSchemaDiff =
+					new OnlineUpgradeSchemaDiff();
+
 				for (OnlineUpgradeProcess onlineUpgradeProcess :
 						onlineUpgradeProcesses) {
 
-					onlineUpgradeProcess.upgrade(tempTableName);
+					onlineUpgradeProcess.upgrade(
+						tempTableName, onlineUpgradeSchemaDiff);
 				}
 
 				DBInspector dbInspector = new DBInspector(connection);
 
 				String[] columnNames = dbInspector.getColumnNames(tableName);
 
+				String[] newColumnNames = TransformUtil.transform(
+					columnNames, onlineUpgradeSchemaDiff::getNewColumnName,
+					String.class);
+
 				db.copyTableRows(
 					connection, tableName, tableId, columnNames, tempTableName,
-					tableId, columnNames);
+					onlineUpgradeSchemaDiff.getNewColumnName(tableId),
+					newColumnNames);
 			}
 			catch (Exception exception) {
 				_log.error("Could not perform online upgrade", exception);

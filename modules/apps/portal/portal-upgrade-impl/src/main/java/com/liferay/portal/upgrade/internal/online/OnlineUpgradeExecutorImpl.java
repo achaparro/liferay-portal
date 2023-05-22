@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.upgrade.online.OnlineUpgradeExecutor;
@@ -54,12 +55,15 @@ public class OnlineUpgradeExecutorImpl implements OnlineUpgradeExecutor {
 			String tempTableName = _getTempTableName(tableName);
 
 			DB db = DBManagerUtil.getDB();
+			DBInspector dbInspector = new DBInspector(connection);
 
 			try {
 				db.copyTableStructure(connection, tableName, tempTableName);
 
+				String[] columnNames = dbInspector.getColumnNames(tableName);
+
 				OnlineUpgradeSchemaDiff onlineUpgradeSchemaDiff =
-					new OnlineUpgradeSchemaDiff();
+					new OnlineUpgradeSchemaDiff(columnNames);
 
 				for (OnlineUpgradeProcess onlineUpgradeProcess :
 						onlineUpgradeProcesses) {
@@ -68,9 +72,8 @@ public class OnlineUpgradeExecutorImpl implements OnlineUpgradeExecutor {
 						tempTableName, onlineUpgradeSchemaDiff);
 				}
 
-				DBInspector dbInspector = new DBInspector(connection);
-
-				String[] columnNames = dbInspector.getColumnNames(tableName);
+				columnNames = ArrayUtil.filter(
+					columnNames, onlineUpgradeSchemaDiff::isDroppedColumn);
 
 				String[] newColumnNames = TransformUtil.transform(
 					columnNames, onlineUpgradeSchemaDiff::getNewColumnName,

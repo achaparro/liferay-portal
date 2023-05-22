@@ -15,8 +15,11 @@
 package com.liferay.portal.upgrade.online;
 
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.util.ArrayUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,8 +29,22 @@ public class OnlineUpgradeSchemaDiff {
 
 	public OnlineUpgradeSchemaDiff(String[] columnNames) {
 		for (String columnName : columnNames) {
-			_columnDiffMap.put(columnName, new ColumnDiff());
+			_columnDiffMap.put(columnName, new ColumnDiff(false));
 		}
+	}
+
+	public String[] getAddedColumnNames() {
+		List<String> addedColumnNames = new ArrayList<>();
+
+		for (Map.Entry<String, ColumnDiff> entry : _columnDiffMap.entrySet()) {
+			ColumnDiff columnDiff = entry.getValue();
+
+			if (columnDiff.isAdded()) {
+				addedColumnNames.add(entry.getKey());
+			}
+		}
+
+		return ArrayUtil.toStringArray(addedColumnNames);
 	}
 
 	public String getNewColumnName(String columnName) {
@@ -40,12 +57,41 @@ public class OnlineUpgradeSchemaDiff {
 		return columnDiff.getNewColumnName();
 	}
 
+	public boolean isDroppedColumn(String columnName) {
+		ColumnDiff columnDiff = _columnDiffMap.get(columnName);
+
+		if (columnDiff == null) {
+			return false;
+		}
+
+		return columnDiff.isDropped();
+	}
+
+	protected void recordAddColumns(String... columnDefinitions) {
+		for (String columnDefinition : columnDefinitions) {
+			String columnName = columnDefinition.substring(
+				0, columnDefinition.indexOf(StringPool.SPACE));
+
+			if (_columnDiffMap.containsKey(columnName)) {
+				continue;
+			}
+
+			ColumnDiff columnDiff = new ColumnDiff(true);
+
+			columnDiff.setNewColumnType(
+				columnDefinition.substring(
+					columnDefinition.indexOf(StringPool.SPACE) + 1));
+
+			_columnDiffMap.put(columnName, columnDiff);
+		}
+	}
+
 	protected void recordAlterColumnName(
 		String oldColumnName, String newColumnDefinition) {
 
 		ColumnDiff columnDiff = _columnDiffMap.get(oldColumnName);
 
-		if (columnDiff == null) {
+		if ((columnDiff == null) || columnDiff.isDropped()) {
 			return;
 		}
 
@@ -65,9 +111,25 @@ public class OnlineUpgradeSchemaDiff {
 		columnDiff.setNewColumnType(newColumnType);
 	}
 
+	protected void recordDropColumns(String... columnNames) {
+		for (String columnName : columnNames) {
+			ColumnDiff columnDiff = _columnDiffMap.get(columnName);
+
+			if (columnDiff == null) {
+				continue;
+			}
+
+			columnDiff.setDropped(true);
+		}
+	}
+
 	private final Map<String, ColumnDiff> _columnDiffMap = new HashMap<>();
 
 	private class ColumnDiff {
+
+		public ColumnDiff(boolean added) {
+			_added = added;
+		}
 
 		public String getNewColumnName() {
 			return _newColumnName;
@@ -77,8 +139,12 @@ public class OnlineUpgradeSchemaDiff {
 			return _newColumnType;
 		}
 
-		public void setAdded(boolean added) {
-			_added = added;
+		public boolean isAdded() {
+			return _added;
+		}
+
+		public boolean isDropped() {
+			return _dropped;
 		}
 
 		public void setDropped(boolean dropped) {
@@ -93,7 +159,7 @@ public class OnlineUpgradeSchemaDiff {
 			_newColumnType = newColumnType;
 		}
 
-		private boolean _added;
+		private final boolean _added;
 		private boolean _dropped;
 		private String _newColumnName;
 		private String _newColumnType;

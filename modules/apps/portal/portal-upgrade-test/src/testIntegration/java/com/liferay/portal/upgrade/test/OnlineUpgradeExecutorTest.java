@@ -91,7 +91,7 @@ public class OnlineUpgradeExecutorTest {
 	@Test
 	public void testAlterColumnName() throws Exception {
 		_onlineUpgradeExecutor.upgrade(
-			_TABLE_NAME,
+			_TABLE_NAME, "id",
 			OnlineUpgradeProcessFactory.alterColumnName(
 				"name", "title VARCHAR(128) not null"));
 
@@ -106,7 +106,7 @@ public class OnlineUpgradeExecutorTest {
 	@Test
 	public void testAlterColumnType() throws Exception {
 		_onlineUpgradeExecutor.upgrade(
-			_TABLE_NAME,
+			_TABLE_NAME, "id",
 			OnlineUpgradeProcessFactory.alterColumnType(
 				"name", "VARCHAR(255) null"));
 
@@ -120,9 +120,9 @@ public class OnlineUpgradeExecutorTest {
 	}
 
 	@Test
-	public void testEmptyUpgrade() throws Exception {
+	public void testEmptyUpgrade() {
 		try {
-			_onlineUpgradeExecutor.upgrade(_TABLE_NAME);
+			_onlineUpgradeExecutor.upgrade(_TABLE_NAME, "id");
 
 			Assert.fail();
 		}
@@ -134,7 +134,7 @@ public class OnlineUpgradeExecutorTest {
 	@Test
 	public void testMultipleUpgrades() throws Exception {
 		_onlineUpgradeExecutor.upgrade(
-			_TABLE_NAME,
+			_TABLE_NAME, "id",
 			OnlineUpgradeProcessFactory.alterColumnName(
 				"name", "title VARCHAR(128) not null"),
 			OnlineUpgradeProcessFactory.alterColumnType(

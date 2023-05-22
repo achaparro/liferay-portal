@@ -15,6 +15,7 @@
 package com.liferay.portal.upgrade.internal.online;
 
 import com.liferay.portal.kernel.dao.db.DB;
+import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -34,7 +35,8 @@ public class OnlineUpgradeExecutorImpl implements OnlineUpgradeExecutor {
 
 	@Override
 	public void upgrade(
-			String tableName, OnlineUpgradeProcess... onlineUpgradeProcesses)
+			String tableName, String tableId,
+			OnlineUpgradeProcess... onlineUpgradeProcesses)
 		throws Exception {
 
 		if ((onlineUpgradeProcesses == null) ||
@@ -57,7 +59,13 @@ public class OnlineUpgradeExecutorImpl implements OnlineUpgradeExecutor {
 				onlineUpgradeProcess.upgrade(tempTableName);
 			}
 
-			db.copyTableRows(connection, tableName, tempTableName);
+			DBInspector dbInspector = new DBInspector(connection);
+
+			String[] columnNames = dbInspector.getColumnNames(tableName);
+
+			db.copyTableRows(
+				connection, tableName, tableId, columnNames, tempTableName,
+				tableId, columnNames);
 		}
 	}
 

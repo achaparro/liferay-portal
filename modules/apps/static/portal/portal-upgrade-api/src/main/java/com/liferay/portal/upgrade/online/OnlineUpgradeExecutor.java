@@ -20,7 +20,8 @@ package com.liferay.portal.upgrade.online;
 public interface OnlineUpgradeExecutor {
 
 	public void upgrade(
-			String tableName, OnlineUpgradeProcess... onlineUpgradeProcesses)
+			String tableName, String tableId,
+			OnlineUpgradeProcess... onlineUpgradeProcesses)
 		throws Exception;
 
 }

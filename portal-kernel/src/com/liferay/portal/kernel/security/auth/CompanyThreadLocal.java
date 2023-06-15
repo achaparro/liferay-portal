@@ -85,6 +85,24 @@ public class CompanyThreadLocal {
 		};
 	}
 
+	public static long popCompanyId() {
+		Long companyId = _companyId.get();
+
+		if (!_needsPopCompanyId.get()) {
+			_companyId.remove();
+
+			_needsPopCompanyId.set(false);
+		}
+
+		return companyId;
+	}
+
+	public static void pushCompanyId(Long companyId) {
+		_companyId.set(companyId);
+
+		_needsPopCompanyId.set(true);
+	}
+
 	public static void setCompanyId(Long companyId) {
 		if (_setCompanyId(companyId)) {
 			CTCollectionThreadLocal.removeCTCollectionId();
@@ -252,6 +270,9 @@ public class CompanyThreadLocal {
 			CompanyThreadLocal.class + "._initializingPortalInstance",
 			() -> Boolean.FALSE);
 	private static final ThreadLocal<Boolean> _locked =
+		new CentralizedThreadLocal<>(
+			CompanyThreadLocal.class + "._locked", () -> Boolean.FALSE);
+	private static final ThreadLocal<Boolean> _needsPopCompanyId =
 		new CentralizedThreadLocal<>(
 			CompanyThreadLocal.class + "._locked", () -> Boolean.FALSE);
 

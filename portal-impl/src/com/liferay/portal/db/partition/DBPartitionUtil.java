@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.module.framework.ThrowableCollector;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -52,6 +53,7 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -120,6 +122,21 @@ public class DBPartitionUtil {
 		_companyIds.add(companyId);
 
 		return true;
+	}
+
+	public static void checkCompanyThreadLocal(Object object) {
+		if (!_DATABASE_PARTITION_ENABLED) {
+			return;
+		}
+
+		if ((object instanceof ShardedModel) &&
+			!Objects.equals(
+				CompanyThreadLocal.getCompanyId(),
+				((ShardedModel)object).getCompanyId())) {
+
+			throw new UnsupportedOperationException(
+				"Invalid partition for object");
+		}
 	}
 
 	public static void forEachCompanyId(

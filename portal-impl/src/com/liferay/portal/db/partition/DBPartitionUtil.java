@@ -497,7 +497,7 @@ public class DBPartitionUtil {
 			}
 
 			private void _setCatalog() throws SQLException {
-				long companyId = CompanyThreadLocal.popCompanyId();
+				long companyId = CompanyThreadLocal.getCompanyId();
 
 				String schemaName = _getSchemaName(companyId);
 

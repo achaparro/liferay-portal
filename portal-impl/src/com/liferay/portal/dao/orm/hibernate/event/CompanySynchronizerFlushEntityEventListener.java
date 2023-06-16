@@ -14,20 +14,19 @@
 
 package com.liferay.portal.dao.orm.hibernate.event;
 
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 
-import java.util.Objects;
-
 import org.hibernate.HibernateException;
+import org.hibernate.event.internal.DefaultFlushEntityEventListener;
 import org.hibernate.event.spi.FlushEntityEvent;
-import org.hibernate.event.spi.FlushEntityEventListener;
 
 /**
  * @author Alberto Chaparro
  */
 public class CompanySynchronizerFlushEntityEventListener
-	implements FlushEntityEventListener {
+	extends DefaultFlushEntityEventListener {
 
 	public static final CompanySynchronizerFlushEntityEventListener INSTANCE =
 		new CompanySynchronizerFlushEntityEventListener();
@@ -39,11 +38,16 @@ public class CompanySynchronizerFlushEntityEventListener
 		Object entity = flushEntityEvent.getEntity();
 
 		if (entity instanceof ShardedModel) {
-			long companyId = ((ShardedModel)entity).getCompanyId();
+			try (SafeCloseable safeCloseable =
+					CompanyThreadLocal.
+						setInitializingCompanyIdWithSafeCloseable(
+							((ShardedModel)entity).getCompanyId())) {
 
-			if (!Objects.equals(CompanyThreadLocal.getCompanyId(), companyId)) {
-				CompanyThreadLocal.setCompanyId(companyId);
+				super.onFlushEntity(flushEntityEvent);
 			}
+		}
+		else {
+			super.onFlushEntity(flushEntityEvent);
 		}
 	}
 

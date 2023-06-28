@@ -21,6 +21,8 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.db.partition.test.util.BaseDBPartitionTestCase;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
@@ -305,6 +307,9 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 		long companyId, long companyThreadLocalCompanyId,
 		boolean throwException) {
 
+		_log.info("Test companyId " + companyId);
+		_log.info("Test companyThreadLocalCompanyId " + companyThreadLocalCompanyId);
+
 		long resourcePermissionId = _counterLocalService.increment();
 
 		ResourcePermission resourcePermission =
@@ -354,6 +359,9 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 
 	private static final String _DB_PARTITION_SCHEMA_NAME_PREFIX =
 		"lpartitiontest_";
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DBPartitionTest.class);
 
 	@Inject
 	private CompanyLocalService _companyLocalService;

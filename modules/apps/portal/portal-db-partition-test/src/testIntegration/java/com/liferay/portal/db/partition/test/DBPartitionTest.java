@@ -323,10 +323,6 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 			Assert.assertFalse(
 				"UnsupportedOperationException should be thrown",
 				throwException);
-
-			Assert.assertNotNull(
-				_resourcePermissionLocalService.fetchResourcePermission(
-					resourcePermissionId));
 		}
 		catch (Exception exception) {
 			if (!throwException) {
@@ -349,7 +345,7 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 				_resourcePermissionLocalService.fetchResourcePermission(
 					resourcePermissionId);
 
-			if (resourcePermission != null) {
+			if (!throwException || (resourcePermission != null)) {
 				_resourcePermissionLocalService.deleteResourcePermission(
 					resourcePermission);
 			}

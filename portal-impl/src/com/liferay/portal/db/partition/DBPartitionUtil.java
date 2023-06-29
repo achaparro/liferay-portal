@@ -812,7 +812,7 @@ public class DBPartitionUtil {
 		};
 	}
 
-	private static final boolean _DATABASE_PARTITION_ENABLED =
+	private static boolean _DATABASE_PARTITION_ENABLED =
 		GetterUtil.getBoolean(PropsUtil.get("database.partition.enabled"));
 
 	private static final boolean _DATABASE_PARTITION_MIGRATE_ENABLED =

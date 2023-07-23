@@ -248,7 +248,7 @@ public class MySQLDB extends BaseDB {
 	};
 
 	private static final int[] _SQL_TYPES = {
-		Types.LONGVARBINARY, Types.LONGVARBINARY, Types.TINYINT,
+		Types.LONGVARBINARY, Types.LONGVARBINARY, Types.DECIMAL, Types.TINYINT,
 		Types.TIMESTAMP, Types.DOUBLE, Types.INTEGER, Types.BIGINT,
 		Types.LONGVARCHAR, Types.LONGVARCHAR, Types.VARCHAR
 	};

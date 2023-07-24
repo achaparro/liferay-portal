@@ -109,8 +109,6 @@ public interface DB {
 
 	public Integer getSQLTypeSize(String templateType);
 
-	public Integer getSQLVarcharSize(String templateType);
-
 	public String getTemplateBlob();
 
 	public String getTemplateFalse();

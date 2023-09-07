@@ -153,6 +153,16 @@ public class CompanyThreadLocal {
 			initializingPortalInstance);
 	}
 
+	public static SafeCloseable setWebId(String webId) {
+
+		// We should have a map to get the company from the webId
+
+		Long companyId = 0L;
+
+		return setWithSafeCloseable(
+			companyId, CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION);
+	}
+
 	public static SafeCloseable setWithSafeCloseable(Long companyId) {
 		return setWithSafeCloseable(
 			companyId, CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION);

@@ -143,6 +143,8 @@ public class AddInstanceMVCActionCommand extends BaseMVCActionCommand {
 		String siteInitializerKey = ParamUtil.getString(
 			actionRequest, "siteInitializerKey");
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(
 					company.getCompanyId())) {

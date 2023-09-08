@@ -164,6 +164,8 @@ public abstract class BaseBackgroundTaskTestCase {
 	}
 
 	protected void initalizeThreadLocals() {
+		// @WebIdRouting: we can use a random webId
+
 		CompanyThreadLocal.setCompanyId(_COMPANY_ID);
 		ClusterInvokeThreadLocal.setEnabled(true);
 		GroupThreadLocal.setGroupId(_GROUP_ID);

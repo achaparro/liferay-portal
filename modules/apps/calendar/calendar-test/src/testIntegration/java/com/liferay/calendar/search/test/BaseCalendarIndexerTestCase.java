@@ -76,6 +76,8 @@ public abstract class BaseCalendarIndexerTestCase {
 
 		UserTestUtil.setUser(TestPropsValues.getUser());
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 	}
 

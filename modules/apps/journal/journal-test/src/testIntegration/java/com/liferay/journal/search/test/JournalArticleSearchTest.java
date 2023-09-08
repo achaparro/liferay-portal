@@ -115,6 +115,8 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 
 		super.setUp();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 
 		ServiceContext serviceContext =

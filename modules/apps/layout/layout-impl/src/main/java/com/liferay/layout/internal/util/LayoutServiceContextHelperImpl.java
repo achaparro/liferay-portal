@@ -593,6 +593,8 @@ public class LayoutServiceContextHelperImpl
 
 			_company = company;
 
+			// @WebIdRouting: we can set the _webId
+
 			_originalCompanyId = CompanyThreadLocal.getCompanyId();
 			_originalPermissionChecker =
 				PermissionThreadLocal.getPermissionChecker();
@@ -673,6 +675,8 @@ public class LayoutServiceContextHelperImpl
 
 		@Override
 		public void close() {
+			// @WebIdRouting: we can set the _webId
+
 			CompanyThreadLocal.setCompanyId(_originalCompanyId);
 			PermissionThreadLocal.setPermissionChecker(
 				_originalPermissionChecker);
@@ -802,6 +806,8 @@ public class LayoutServiceContextHelperImpl
 		}
 
 		private void _setCompanyServiceContext() throws PortalException {
+			// @WebIdRouting: replace by webId since we have the Company object
+
 			CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 
 			PermissionThreadLocal.setPermissionChecker(_permissionChecker);

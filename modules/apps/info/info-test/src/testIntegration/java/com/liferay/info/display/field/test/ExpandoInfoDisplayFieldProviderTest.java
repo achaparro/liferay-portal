@@ -61,6 +61,8 @@ public class ExpandoInfoDisplayFieldProviderTest {
 
 		_company = CompanyTestUtil.addCompany();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 
 		_expandoTable = _expandoTableLocalService.addDefaultTable(
@@ -71,6 +73,8 @@ public class ExpandoInfoDisplayFieldProviderTest {
 
 	@After
 	public void tearDown() {
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(_defaultCompanyId);
 	}
 

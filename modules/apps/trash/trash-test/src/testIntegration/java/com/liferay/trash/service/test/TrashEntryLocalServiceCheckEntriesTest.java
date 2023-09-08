@@ -93,6 +93,8 @@ public class TrashEntryLocalServiceCheckEntriesTest {
 		for (int i = 0; i < _COMPANIES_COUNT; i++) {
 			long newCompanyId = createCompany();
 
+			// @WebIdRouting: replace by webId since we have the Company object
+
 			CompanyThreadLocal.setCompanyId(newCompanyId);
 
 			Group group = updateTrashEntriesMaxAge(

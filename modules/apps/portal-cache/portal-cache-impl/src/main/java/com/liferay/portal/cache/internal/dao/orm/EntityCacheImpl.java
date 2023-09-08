@@ -316,6 +316,8 @@ public class EntityCacheImpl
 		long companyId, String className, BaseModel<?> baseModel,
 		Boolean removePortalCache) {
 
+		// @WebIdRouting: we can remove the method
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
 

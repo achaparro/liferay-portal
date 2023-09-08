@@ -62,6 +62,8 @@ public class JournalPortletDataHandlerTest
 	public void setUp() throws Exception {
 		super.setUp();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 
 		PortalPreferences portalPreferences =

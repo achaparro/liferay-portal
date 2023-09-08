@@ -83,6 +83,8 @@ public class DefaultMessageBus implements MessageBus {
 			return;
 		}
 
+		// @WebIdRouting: we need to use webIds in MessageBus
+
 		message.setDestinationName(destinationName);
 
 		if (message.get("companyId") == null) {

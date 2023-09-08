@@ -93,6 +93,8 @@ public class AuditFilter extends BaseFilter implements TryFilter {
 		String userLogin = StringPool.BLANK;
 
 		if (userId != null) {
+			// @WebIdRouting: we should get the webId instead
+
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setWithSafeCloseable(
 						_portal.getCompanyId(httpServletRequest))) {

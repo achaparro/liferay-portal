@@ -85,6 +85,8 @@ public class LayoutsRemotePublisherMessageListener
 
 			User user = _userLocalService.getUserById(userId);
 
+			// @WebIdRouting: not needed since we call it in initThreadLocals
+
 			CompanyThreadLocal.setCompanyId(user.getCompanyId());
 
 			_staging.copyRemoteLayouts(

@@ -33,6 +33,8 @@ public class FeatureFlagManagerUtil {
 	}
 
 	public static boolean isEnabled(long companyId, String key) {
+		// @WebIdRouting: we must change all feature flag logic to use webId
+
 		return _withFeatureFlagManager(
 			featureFlagManager -> featureFlagManager.isEnabled(companyId, key),
 			() -> {

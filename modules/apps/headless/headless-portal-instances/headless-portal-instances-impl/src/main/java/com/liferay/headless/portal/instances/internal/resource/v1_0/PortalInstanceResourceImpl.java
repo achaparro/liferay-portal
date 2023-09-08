@@ -138,6 +138,8 @@ public class PortalInstanceResourceImpl extends BasePortalInstanceResourceImpl {
 			_userLocalService.updateUser(defaultAdminUser);
 		}
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(
 					company.getCompanyId())) {

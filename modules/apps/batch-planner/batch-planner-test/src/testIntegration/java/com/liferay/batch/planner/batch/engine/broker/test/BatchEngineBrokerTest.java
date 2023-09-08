@@ -328,6 +328,8 @@ public class BatchEngineBrokerTest {
 		PermissionChecker originalPermissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
 

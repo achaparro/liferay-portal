@@ -108,6 +108,8 @@ public class IndexableAdvice extends ChainableMethodAdvice {
 					return null;
 				}
 
+				// @WebIdRouting: we get companyId from CThreadLocal. Use webId instead
+
 				try (SafeCloseable safeCloseable =
 						CompanyThreadLocal.setWithSafeCloseable(companyId)) {
 

@@ -34,6 +34,8 @@ public class ConfigurationFactoryUtil {
 			UnsafeConsumer<Long, E> unsafeConsumer)
 		throws E {
 
+		// @WebIdRouting: we have the webId in the properties
+
 		long companyId = getCompanyId(companyLocalService, properties);
 
 		try (SafeCloseable safeCloseable =

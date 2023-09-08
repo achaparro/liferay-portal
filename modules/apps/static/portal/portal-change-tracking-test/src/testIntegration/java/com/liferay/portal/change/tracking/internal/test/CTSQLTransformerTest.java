@@ -1089,6 +1089,8 @@ public class CTSQLTransformerTest {
 
 		long originalUserId = PrincipalThreadLocal.getUserId();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(companyId);
 
 		PrincipalThreadLocal.setName(userId);
@@ -1151,6 +1153,8 @@ public class CTSQLTransformerTest {
 		long originalCompanyId = CompanyThreadLocal.getCompanyId();
 
 		long originalUserId = PrincipalThreadLocal.getUserId();
+
+		// @WebIdRouting: replace by webId since we have the Company object
 
 		CompanyThreadLocal.setCompanyId(companyId);
 

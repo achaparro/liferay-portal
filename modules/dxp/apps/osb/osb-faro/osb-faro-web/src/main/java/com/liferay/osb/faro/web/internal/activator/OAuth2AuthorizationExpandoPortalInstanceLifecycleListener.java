@@ -84,6 +84,8 @@ public class OAuth2AuthorizationExpandoPortalInstanceLifecycleListener
 	public void portalInstanceRegistered(Company company) throws Exception {
 		_addSAPEntries(company.getCompanyId());
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		Long companyId = CompanyThreadLocal.getCompanyId();
 
 		try {

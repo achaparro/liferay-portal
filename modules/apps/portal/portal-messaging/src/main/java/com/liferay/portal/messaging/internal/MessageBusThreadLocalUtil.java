@@ -72,6 +72,8 @@ public class MessageBusThreadLocalUtil {
 		Message message, PermissionCheckerFactory permissionCheckerFactory,
 		UserLocalService userLocalService) {
 
+		// @WebIdRouting: we need to use webIds in MessageBus
+
 		long companyId = message.getLong("companyId");
 
 		if (companyId > 0) {

@@ -42,6 +42,9 @@ public class BufferedIncrementRunnable implements Runnable {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void run() {
+
+		// @WebIdRouting: we get companyId from CThreadLocal. Use webId instead
+
 		CompanyThreadLocal.setCompanyId(_companyId);
 
 		while (true) {

@@ -60,6 +60,13 @@ public class BatchEngineExportTaskExecutorImpl
 
 	@Override
 	public void execute(BatchEngineExportTask batchEngineExportTask) {
+
+		// @WebIdRouting: LPS-167011 This is required because we are executing
+		// this in a new thread so we should propagate the CompanyThreadLocal
+		// via webId in com.liferay.headless.batch.engine.internal.resource.
+		// v1_0.ExportTaskResourceImpl.postExportTask
+		// (DefaultPortalExecutorManager) for the new threads
+
 		SafeCloseable safeCloseable = CompanyThreadLocal.setWithSafeCloseable(
 			batchEngineExportTask.getCompanyId());
 

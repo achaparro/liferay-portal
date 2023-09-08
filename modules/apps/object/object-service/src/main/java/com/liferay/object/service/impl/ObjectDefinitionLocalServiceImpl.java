@@ -582,6 +582,8 @@ public class ObjectDefinitionLocalServiceImpl
 			Map<Long, List<ServiceRegistration<?>>> serviceRegistrationsMap =
 				entry.getValue();
 
+			// @WebIdRouting: we should have a webId column in ObjectDefinition
+
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setWithSafeCloseable(
 						objectDefinition.getCompanyId())) {
@@ -607,6 +609,8 @@ public class ObjectDefinitionLocalServiceImpl
 			ObjectDefinitionDeployer objectDefinitionDeployer = entry.getKey();
 			Map<Long, List<ServiceRegistration<?>>> serviceRegistrationsMap =
 				entry.getValue();
+
+			// @WebIdRouting: we should have a webId column in ObjectDefinition
 
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setWithSafeCloseable(

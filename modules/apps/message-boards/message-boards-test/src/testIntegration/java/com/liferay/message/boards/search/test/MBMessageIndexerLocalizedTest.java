@@ -68,6 +68,8 @@ public class MBMessageIndexerLocalizedTest {
 
 		UserTestUtil.setUser(TestPropsValues.getUser());
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 
 		List<Locale> availableLocales = Collections.singletonList(

@@ -93,6 +93,13 @@ public class CompanyFeatureFlagsProvider {
 	}
 
 	private CompanyFeatureFlags _createCompanyFeatureFlags(long companyId) {
+
+		// @WebIdRouting: we should add a method to use the webId and replace
+		// the calls with that keeping backward compatibility. The critical
+		// point is the method _portal.getCompanyId(httpServletRequest) we
+		// should try to always use the host to get the company y revisar el uso
+		// de WebKeys.COMPANY
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
 

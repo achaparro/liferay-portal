@@ -36,6 +36,11 @@ public abstract class DoAsUserThread extends Thread {
 	public void run() {
 		for (int i = 0; i < _retries; i++) {
 			try {
+
+				// @WebIdRouting: we should propagate the CompanyThreadLocal
+				// instead. Otherwise, we won't be able to get the user when
+				// DB Partitioning is enabled.
+
 				User user = UserLocalServiceUtil.getUserById(_userId);
 
 				CompanyThreadLocal.setCompanyId(user.getCompanyId());

@@ -75,6 +75,8 @@ public class DDMFormInstanceRecordSearchTest {
 
 		_user = UserTestUtil.addGroupAdminUser(_group);
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 
 		ServiceContext serviceContext =

@@ -527,6 +527,8 @@ public class PermissionCheckerTest {
 		try {
 			_company = CompanyTestUtil.addCompany();
 
+			// @WebIdRouting: replace by webId since we have the Company object
+
 			CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 
 			_user = UserTestUtil.addCompanyAdminUser(_company);
@@ -1058,6 +1060,8 @@ public class PermissionCheckerTest {
 		long companyId = CompanyThreadLocal.getCompanyId();
 
 		_company = CompanyTestUtil.addCompany();
+
+		// @WebIdRouting: replace by webId since we have the Company object
 
 		CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 

@@ -114,6 +114,9 @@ public abstract class BaseDBPartitionTestCase {
 	protected static void deletePartitionRequiredData() throws Exception {
 		try (Statement statement = connection.createStatement()) {
 			for (long companyId : COMPANY_IDS) {
+
+				// @WebIdRouting: replace by webId since we have the Company object
+
 				try (SafeCloseable safeCloseable =
 						CompanyThreadLocal.setWithSafeCloseable(companyId)) {
 
@@ -167,6 +170,8 @@ public abstract class BaseDBPartitionTestCase {
 	}
 
 	protected static void enableDBPartition() throws Exception {
+		// @WebIdRouting: use default webId instead
+
 		CompanyThreadLocal.setCompanyId(PortalInstances.getDefaultCompanyId());
 
 		_dbPartitionEnabled = DBPartition.isPartitionEnabled();
@@ -233,6 +238,8 @@ public abstract class BaseDBPartitionTestCase {
 
 	protected static void insertPartitionRequiredData() throws Exception {
 		for (long companyId : COMPANY_IDS) {
+			// @WebIdRouting: replace by webId since we have the Company object
+
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setWithSafeCloseable(companyId);
 				PreparedStatement preparedStatement1 =

@@ -71,6 +71,8 @@ public class JournalArticleIndexerSummaryTest {
 
 		UserTestUtil.setUser(TestPropsValues.getUser());
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 
 		_indexer = IndexerRegistryUtil.getIndexer(JournalArticle.class);

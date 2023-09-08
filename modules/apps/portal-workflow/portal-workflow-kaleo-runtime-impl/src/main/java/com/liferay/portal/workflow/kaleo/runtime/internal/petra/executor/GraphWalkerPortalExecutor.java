@@ -62,6 +62,10 @@ public class GraphWalkerPortalExecutor {
 
 		ServiceContext serviceContext = executionContext.getServiceContext();
 
+		// @WebIdRouting: we need to add webId to serviceContext and populate
+		// where required or, maybe just need to propagate the companyThreadLocal
+		// to the runnables of _noticeableExecutorService
+
 		long companyId = serviceContext.getCompanyId();
 
 		long ctCollectionId = CTCollectionThreadLocal.getCTCollectionId();

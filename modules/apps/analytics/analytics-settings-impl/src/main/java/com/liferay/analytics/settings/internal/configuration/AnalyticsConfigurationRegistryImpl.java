@@ -1112,6 +1112,9 @@ public class AnalyticsConfigurationRegistryImpl
 
 		@Override
 		public void deleted(String pid) {
+
+			// @WebIdRouting: The map _companyIds should have the webIds
+
 			long companyId = getCompanyId(pid);
 
 			_unmapPid(pid);

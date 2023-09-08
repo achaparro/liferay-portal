@@ -72,6 +72,8 @@ public class ContactFixture {
 	}
 
 	public void setUp() throws Exception {
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 	}
 

@@ -393,6 +393,8 @@ public class RestrictedLiferayObjectWrapperTest
 				CompanyThreadLocal.class.getName(), Level.OFF)) {
 
 			try {
+				// @WebIdRouting: we can use a fake webId too
+
 				CompanyThreadLocal.setCompanyId(1L);
 
 				// Base model without company ID

@@ -64,6 +64,8 @@ public class MBMessageSearchHighlightTest {
 
 		UserTestUtil.setUser(TestPropsValues.getUser());
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 	}
 

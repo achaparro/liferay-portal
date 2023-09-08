@@ -70,6 +70,8 @@ public class JournalIndexerTest {
 	public void setUp() throws Exception {
 		_group = GroupTestUtil.addGroup();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 
 		ServiceContext serviceContext =

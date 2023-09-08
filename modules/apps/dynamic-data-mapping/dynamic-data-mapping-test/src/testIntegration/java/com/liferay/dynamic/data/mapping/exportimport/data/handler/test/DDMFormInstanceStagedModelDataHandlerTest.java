@@ -116,6 +116,8 @@ public class DDMFormInstanceStagedModelDataHandlerTest
 
 		Company company = CompanyTestUtil.addCompany();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(
 					company.getCompanyId())) {

@@ -81,6 +81,8 @@ public class JournalFeedStagedModelDataHandlerTest
 			_layout.getType(), _layout.isHidden(), _layout.getFriendlyURL(),
 			serviceContext);
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 
 		serviceContext.setCompanyId(TestPropsValues.getCompanyId());

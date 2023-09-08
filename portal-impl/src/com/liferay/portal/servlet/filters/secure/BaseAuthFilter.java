@@ -187,6 +187,9 @@ public abstract class BaseAuthFilter extends BasePortalFilter {
 	}
 
 	protected void initThreadLocals(User user) throws Exception {
+		// @WebIdRouting: we must review this case, if we get the user the
+		// CompanyThreadLocal should be set already
+
 		CompanyThreadLocal.setCompanyId(user.getCompanyId());
 
 		long userId = user.getUserId();

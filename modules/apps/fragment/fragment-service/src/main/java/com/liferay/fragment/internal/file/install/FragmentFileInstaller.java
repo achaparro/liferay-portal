@@ -83,6 +83,9 @@ public class FragmentFileInstaller implements FileInstaller {
 
 	@Override
 	public URL transformURL(File file) throws Exception {
+
+		// @WebIdRouting: just use safeClosable
+
 		Long currentCompanyId = CompanyThreadLocal.getCompanyId();
 		PermissionChecker currentPermissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
@@ -129,6 +132,8 @@ public class FragmentFileInstaller implements FileInstaller {
 		}
 
 		if ((company != null) && deployJSONObject.has("groupKey")) {
+			// @WebIdRouting: replace by webId since we have the Company object
+
 			CompanyThreadLocal.setCompanyId(company.getCompanyId());
 
 			group = _getDeploymentGroup(
@@ -137,6 +142,8 @@ public class FragmentFileInstaller implements FileInstaller {
 			_importFragmentEntriesAndLayouts(company, file, group);
 		}
 		else if (company != null) {
+			// @WebIdRouting: replace by webId since we have the Company object
+
 			CompanyThreadLocal.setCompanyId(company.getCompanyId());
 
 			group = _groupLocalService.getCompanyGroup(company.getCompanyId());
@@ -147,6 +154,10 @@ public class FragmentFileInstaller implements FileInstaller {
 			_companyLocalService.forEachCompany(
 				currentCompany -> {
 					try {
+
+						// @WebIdRouting: replace by webId since we have the
+						// Company object
+
 						CompanyThreadLocal.setCompanyId(
 							currentCompany.getCompanyId());
 

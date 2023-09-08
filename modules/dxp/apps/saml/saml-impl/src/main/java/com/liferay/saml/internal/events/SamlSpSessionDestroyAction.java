@@ -55,6 +55,11 @@ public class SamlSpSessionDestroyAction extends SessionAction {
 			return;
 		}
 
+		// @WebIdRouting: we get the company from the user, if the user does not
+		// belong to the current CompanyThreadLocal this is not working with
+		// DB Partitioning. At least, we can get the webId in the same way we get
+		// the companyId
+
 		long companyId = CompanyThreadLocal.getCompanyId();
 
 		CompanyThreadLocal.setCompanyId(userCompanyId);

@@ -573,6 +573,9 @@ public class ObjectRelatedModelsProviderTest {
 		PermissionChecker originalPermissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
 
+		// @WebIdRouting: we can get the webId from the CompanyThreadLocal
+		// (see previous call)
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
 

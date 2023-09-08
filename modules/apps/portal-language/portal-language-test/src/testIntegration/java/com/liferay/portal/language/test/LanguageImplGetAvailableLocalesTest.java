@@ -50,6 +50,8 @@ public class LanguageImplGetAvailableLocalesTest {
 
 	@Test
 	public void testCompanyThreadLocalIsDefaultWithNoArgs() throws Exception {
+		// @WebIdRouting: we get companyId from CThreadLocal. Use webId instead
+
 		long companyId = CompanyThreadLocal.getCompanyId();
 
 		try {
@@ -64,6 +66,8 @@ public class LanguageImplGetAvailableLocalesTest {
 
 	@Test
 	public void testGroupWithoutLocalesInheritsFromCompany() throws Exception {
+		// @WebIdRouting: we get companyId from CThreadLocal. Use webId instead
+
 		long companyId = CompanyThreadLocal.getCompanyId();
 
 		try {

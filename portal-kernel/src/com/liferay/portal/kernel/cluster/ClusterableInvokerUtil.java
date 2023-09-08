@@ -154,6 +154,8 @@ public class ClusterableInvokerUtil {
 
 		long companyId = GetterUtil.getLong(context.get("companyId"));
 
+		// @WebIdRouting: the context should have the webId instead
+
 		if (companyId > 0) {
 			CompanyThreadLocal.setCompanyId(companyId);
 		}

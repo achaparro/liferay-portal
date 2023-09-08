@@ -75,11 +75,15 @@ public class ServicePreActionTest {
 
 		_companyThreadLocalCompanyId = CompanyThreadLocal.getCompanyId();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 	}
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
+		// @WebIdRouting: back to the original webId
+
 		CompanyThreadLocal.setCompanyId(_companyThreadLocalCompanyId);
 
 		UserTestUtil.setUser(

@@ -54,6 +54,8 @@ public class JournalArticlePermissionCheckerTest
 				JournalServiceConfiguration.class,
 				TestPropsValues.getCompanyId());
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(TestPropsValues.getCompanyId());
 	}
 

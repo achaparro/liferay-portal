@@ -59,6 +59,10 @@ public class AccessControlImpl implements AccessControl {
 	@Override
 	public void initContextUser(long userId) throws AuthException {
 		try {
+			// @WebIdRouting: if we get the user we should have set the
+			// CompanyThreadLocal already. We can get the webId in the previous
+			// method com.liferay.portal.servlet.filters.authverifier.AuthVerifierFilter.processFilter
+
 			User user = UserLocalServiceUtil.getUser(userId);
 
 			CompanyThreadLocal.setCompanyId(user.getCompanyId());

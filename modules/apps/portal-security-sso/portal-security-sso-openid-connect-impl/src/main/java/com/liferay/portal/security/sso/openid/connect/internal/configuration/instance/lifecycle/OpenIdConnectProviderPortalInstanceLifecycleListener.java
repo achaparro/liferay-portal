@@ -497,6 +497,8 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 		public void deleted(String pid) {
 			Dictionary<String, ?> properties = _properties.remove(pid);
 
+			// @WebIdRouting: in properties de webId must be present
+
 			long companyId = GetterUtil.getLong(properties.get("companyId"));
 
 			if (companyId == CompanyConstants.SYSTEM) {

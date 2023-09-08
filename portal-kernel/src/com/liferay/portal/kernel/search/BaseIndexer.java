@@ -449,6 +449,9 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 				return;
 			}
 
+			// @WebIdRouting: we must use the webId instead of companyId in the
+			// whole Search logic
+
 			if (ids.length > 0) {
 				CompanyThreadLocal.setCompanyId(GetterUtil.getLong(ids[0]));
 			}

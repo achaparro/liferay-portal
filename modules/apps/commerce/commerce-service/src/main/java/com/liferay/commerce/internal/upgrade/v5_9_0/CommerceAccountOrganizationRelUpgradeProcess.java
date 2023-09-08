@@ -42,6 +42,12 @@ public class CommerceAccountOrganizationRelUpgradeProcess
 				long accountEntryId = resultSet.getLong("commerceAccountId");
 				long organizationId = resultSet.getLong("organizationId");
 
+				// @WebIdRouting: this is used to populate the companyId column
+				// This would work for DBPartitioning since we run once the
+				// upgrade once per company. However, we do not want to allow
+				// using companyId to set the CompanyThreadLocal.
+				// We can run iterate over companies here too.
+
 				CompanyThreadLocal.setCompanyId(resultSet.getLong("companyId"));
 
 				_accountEntryOrganizationRelLocalService.

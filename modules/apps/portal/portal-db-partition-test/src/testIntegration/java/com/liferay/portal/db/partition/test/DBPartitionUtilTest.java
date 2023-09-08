@@ -91,6 +91,8 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 
 		long currentCompanyId = CompanyThreadLocal.getCompanyId();
 
+		// @WebIdRouting: use default webId
+
 		CompanyThreadLocal.setCompanyId(portal.getDefaultCompanyId());
 
 		try (Connection connection = DataAccess.getConnection();
@@ -161,6 +163,8 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 
 			Set<Long> companyIds = new ConcurrentSkipListSet<>();
 			Set<Long> threadIds = new ConcurrentSkipListSet<>();
+
+			// @WebIdRouting: use system webId
 
 			CompanyThreadLocal.setCompanyId(CompanyConstants.SYSTEM);
 

@@ -84,6 +84,9 @@ public class CompanyTestUtil {
 
 		// Reset thread locals
 
+		// @WebIdRouting: replace by webId since there is only one call and have
+		// the company object
+
 		CompanyThreadLocal.setCompanyId(companyId);
 
 		LocaleThreadLocal.setDefaultLocale(

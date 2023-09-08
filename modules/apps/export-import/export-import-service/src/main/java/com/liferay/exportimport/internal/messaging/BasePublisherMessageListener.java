@@ -37,6 +37,12 @@ public abstract class BasePublisherMessageListener implements MessageListener {
 
 		User user = UserLocalServiceUtil.getUserById(userId);
 
+		// @WebIdRouting: if we get the user, we should be already in a company
+		// This seems could not work in DB Partitioning since it could not find
+		// The modification is really old, maybe it is working because this call
+		// when executing a job and we set the CompanyThreadLocal accordingly
+		// for DB Partitioning in that case
+
 		CompanyThreadLocal.setCompanyId(user.getCompanyId());
 
 		PrincipalThreadLocal.setName(userId);

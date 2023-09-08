@@ -37,6 +37,8 @@ public class BaseUpgradeCallableTest {
 
 	@Test
 	public void testInheritCompanyThreadLocal() throws Exception {
+		// @WebIdRouting: replace with getDefaultWebId
+
 		UpgradeProcess upgradeProcess = new UpgradeProcess() {
 
 			@Override

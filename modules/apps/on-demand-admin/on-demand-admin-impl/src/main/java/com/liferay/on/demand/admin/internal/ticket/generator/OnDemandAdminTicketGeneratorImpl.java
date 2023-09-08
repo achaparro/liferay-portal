@@ -80,6 +80,8 @@ public class OnDemandAdminTicketGeneratorImpl
 		int expirationTime =
 			onDemandAdminConfiguration.authenticationTokenExpirationTime();
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(
 					company.getCompanyId())) {
@@ -96,6 +98,8 @@ public class OnDemandAdminTicketGeneratorImpl
 
 	private User _addOnDemandAdminUser(Company company, User requestorUser)
 		throws PortalException {
+
+		// @WebIdRouting: replace by webId since we have the Company object
 
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(

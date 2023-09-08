@@ -88,6 +88,8 @@ public abstract class BaseDBPartitionMessageBusInterceptorTestCase
 
 		_currentCompanyId = CompanyThreadLocal.getCompanyId();
 
+		// @WebIdRouting: use a system webId instead
+
 		CompanyThreadLocal.setCompanyId(CompanyConstants.SYSTEM);
 	}
 
@@ -100,6 +102,8 @@ public abstract class BaseDBPartitionMessageBusInterceptorTestCase
 		ReflectionTestUtil.setFieldValue(
 			_dbPartitionMessageBusInterceptor, "_excludedSchedulerJobNames",
 			_currentExcludedSchedulerJobNames);
+
+		// @WebIdRouting: replace by webId since we have the Company object
 
 		CompanyThreadLocal.setCompanyId(_currentCompanyId);
 	}
@@ -116,6 +120,8 @@ public abstract class BaseDBPartitionMessageBusInterceptorTestCase
 		_testDBPartitionMessageListener.assertCollected(_activeCompanyIds);
 
 		// Test 2
+
+		// @WebIdRouting: replace by webId since we have the Company object
 
 		CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 
@@ -196,6 +202,8 @@ public abstract class BaseDBPartitionMessageBusInterceptorTestCase
 
 		// Test 2
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 
 		message = new Message();
@@ -209,6 +217,8 @@ public abstract class BaseDBPartitionMessageBusInterceptorTestCase
 		_testDBPartitionMessageListener.assertCollected(_activeCompanyIds);
 
 		// Test 3
+
+		// @WebIdRouting: replace by webId since we have the Company object
 
 		CompanyThreadLocal.setCompanyId(_company.getCompanyId());
 

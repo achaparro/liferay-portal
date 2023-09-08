@@ -42,6 +42,8 @@ public class SynchronousDestination extends BaseDestination {
 			return;
 		}
 
+		// @WebIdRouting: we need to use webIds in MessageBus
+
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
 

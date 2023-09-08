@@ -160,6 +160,8 @@ public class CompanyLocalServiceTest {
 
 	@After
 	public void tearDown() throws Exception {
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(_companyId);
 
 		resetBackgroundTaskThreadLocal();
@@ -979,6 +981,8 @@ public class CompanyLocalServiceTest {
 			null, null);
 
 		PortalInstances.initCompany(company);
+
+		// @WebIdRouting: replace by webId since we have the Company object
 
 		CompanyThreadLocal.setCompanyId(company.getCompanyId());
 

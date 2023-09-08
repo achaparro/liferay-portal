@@ -145,6 +145,10 @@ public class PortalInstances {
 		httpServletRequest.setAttribute(
 			WebKeys.COMPANY_ID, Long.valueOf(companyId));
 
+		// @WebIdRouting: we are getting the company through the hostName so
+		// it should not be an issue. Maybe we do not need this call anymore since
+		// we already set the company in _getCompanyIdByVirtualHosts
+
 		CompanyThreadLocal.setCompanyId(companyId);
 
 		if (Validator.isNotNull(PropsValues.VIRTUAL_HOSTS_DEFAULT_SITE_NAME) &&
@@ -261,6 +265,8 @@ public class PortalInstances {
 		Long currentThreadCompanyId = CompanyThreadLocal.getCompanyId();
 
 		String currentThreadPrincipalName = PrincipalThreadLocal.getName();
+
+		// @WebIdRouting: replace by webId since we have the Company object
 
 		try {
 			CompanyThreadLocal.setCompanyId(company.getCompanyId());
@@ -444,6 +450,8 @@ public class PortalInstances {
 			if (virtualHost == null) {
 				return 0;
 			}
+
+			// @WebIdRouting: replace by webId since we have the Company object
 
 			CompanyThreadLocal.setCompanyId(virtualHost.getCompanyId());
 

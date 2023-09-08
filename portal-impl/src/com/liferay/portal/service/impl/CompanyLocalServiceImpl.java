@@ -220,6 +220,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		boolean newDBPartitionAdded = DBPartitionUtil.addDBPartition(
 			company.getCompanyId());
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		SafeCloseable safeCloseable =
 			CompanyThreadLocal.setInitializingCompanyIdWithSafeCloseable(
 				company.getCompanyId());
@@ -379,6 +381,9 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					companyId);
 		}
 
+		// @WebIdRouting: we should create another method where we use the webId
+		// to remove the Company and deprecate this one
+
 		try (SafeCloseable safeCloseable1 =
 				CompanyThreadLocal.setWithSafeCloseable(companyId);
 			SafeCloseable safeCloseable2 =
@@ -478,6 +483,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			return;
 		}
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		for (Company company : companies) {
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setWithSafeCloseable(
@@ -515,6 +522,9 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 			return;
 		}
+
+		// @WebIdRouting: we must create another method that admits webIds
+		// instead and deprecate this one
 
 		for (long companyId : companyIds) {
 			try (SafeCloseable safeCloseable =

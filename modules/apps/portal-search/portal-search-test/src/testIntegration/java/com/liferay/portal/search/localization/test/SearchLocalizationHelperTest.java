@@ -60,6 +60,8 @@ public class SearchLocalizationHelperTest {
 
 	@After
 	public void tearDown() {
+		// @WebIdRouting: we get companyId from CThreadLocal. Use webId instead
+
 		CompanyThreadLocal.setCompanyId(_companyId);
 	}
 

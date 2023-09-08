@@ -101,6 +101,9 @@ public class ClusterLinkPortalCacheClusterListener extends BaseMessageListener {
 		}
 
 		if (portalCache.isSharded()) {
+			// @WebIdRouting: we get the companyId from the CompanyThreadLocal
+			// we could get the webId instead
+
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setWithSafeCloseable(
 						portalCacheClusterEvent.getCompanyId())) {

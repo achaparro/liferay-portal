@@ -100,6 +100,9 @@ public class BackgroundTaskThreadLocalManagerImpl
 
 		long companyId = GetterUtil.getLong(threadLocalValues.get("companyId"));
 
+		// @WebIdRouting: it seems we get the companyId from the
+		// CompanyThreadLocals. We could get the webId instead
+
 		if (companyId > 0) {
 			CompanyThreadLocal.setCompanyId(_requireCompany(companyId));
 		}

@@ -397,6 +397,8 @@ public class FragmentCollectionContributorPropagationTest {
 		Company company = _companyLocalService.getCompany(
 			TestPropsValues.getCompanyId());
 
+		// @WebIdRouting: replace by webId since we have the Company object
+
 		CompanyThreadLocal.setCompanyId(company.getCompanyId());
 
 		Group group = _groupLocalService.getGroup(

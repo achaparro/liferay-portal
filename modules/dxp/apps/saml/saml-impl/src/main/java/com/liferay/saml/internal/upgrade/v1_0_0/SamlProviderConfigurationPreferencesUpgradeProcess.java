@@ -115,6 +115,9 @@ public class SamlProviderConfigurationPreferencesUpgradeProcess
 				CompanyThreadLocal.getCompanyId();
 
 			try {
+				// @WebIdRouting: we case use for eachCompany in the parent call
+				// instead or have a forEachWebId method
+
 				CompanyThreadLocal.setCompanyId(companyId);
 
 				_samlProviderConfigurationHelper.updateProperties(
@@ -164,6 +167,8 @@ public class SamlProviderConfigurationPreferencesUpgradeProcess
 				CompanyThreadLocal.getCompanyId();
 
 			try {
+				// @WebIdRouting: use System webId
+
 				CompanyThreadLocal.setCompanyId(CompanyConstants.SYSTEM);
 
 				_samlProviderConfigurationHelper.updateProperties(

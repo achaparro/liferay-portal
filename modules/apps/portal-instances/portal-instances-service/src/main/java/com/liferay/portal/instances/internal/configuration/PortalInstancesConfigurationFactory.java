@@ -65,6 +65,8 @@ public class PortalInstancesConfigurationFactory {
 				null, webId, virtualHostname, mx, maxUsers, active, null, null,
 				null, null, null, null);
 
+			// @WebIdRouting: replace by webId since we have the Company object
+
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setWithSafeCloseable(
 						company.getCompanyId())) {

@@ -70,6 +70,8 @@ public abstract class BaseLocalizedColumnUpgradeProcess extends UpgradeProcess {
 
 		Long originalCompanyId = CompanyThreadLocal.getCompanyId();
 
+		// @WebIdRouting: we use forEachCompany in the parent method instead
+
 		CompanyThreadLocal.setCompanyId(companyId);
 
 		try {

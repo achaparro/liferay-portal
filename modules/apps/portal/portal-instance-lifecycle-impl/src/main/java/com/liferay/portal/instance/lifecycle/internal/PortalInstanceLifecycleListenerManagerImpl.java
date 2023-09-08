@@ -183,6 +183,8 @@ public class PortalInstanceLifecycleListenerManagerImpl
 						CompanyThreadLocal.setInitializingPortalInstance(
 							true)) {
 
+					// @WebIdRouting: replace by webId since we have the Company object
+
 					CompanyThreadLocal.setCompanyId(company.getCompanyId());
 					LocaleThreadLocal.setDefaultLocale(company.getLocale());
 					LocaleThreadLocal.setSiteDefaultLocale(null);

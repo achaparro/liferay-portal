@@ -168,6 +168,8 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 			for (String id : ids) {
 				long companyId = GetterUtil.getLong(id);
 
+				// @WebIdRouting: we need to use webIds in Search
+
 				CompanyThreadLocal.setCompanyId(companyId);
 
 				BatchIndexingActionable batchIndexingActionable =

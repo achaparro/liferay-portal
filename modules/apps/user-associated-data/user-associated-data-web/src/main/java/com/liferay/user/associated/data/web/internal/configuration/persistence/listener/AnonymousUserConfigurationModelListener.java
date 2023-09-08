@@ -43,6 +43,9 @@ public class AnonymousUserConfigurationModelListener
 		try {
 			long companyId = (long)properties.get("companyId");
 
+			// @WebIdRouting: we should store the webId in the Configuration
+			// properties
+
 			CompanyThreadLocal.setCompanyId(companyId);
 
 			_companyLocalService.getCompanyById(companyId);

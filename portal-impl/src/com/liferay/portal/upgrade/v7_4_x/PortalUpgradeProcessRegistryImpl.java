@@ -324,7 +324,7 @@ public class PortalUpgradeProcessRegistryImpl
 				new String[] {"com.liferay.comment.web"}, null));
 
 		upgradeVersionTreeMap.put(
-			new Version(28, 0, 0), new UpgradePartitionedListType());
+			new Version(28, 0, 0), new UpgradeListTypeCompanyId());
 	}
 
 }

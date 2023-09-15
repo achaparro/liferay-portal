@@ -8,7 +8,6 @@ package com.liferay.portal.upgrade.v7_4_x;
 import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.db.partition.DBPartition;
 import com.liferay.portal.kernel.model.CompanyConstants;
-import com.liferay.portal.kernel.model.ListType;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.UpgradeProcessFactory;
@@ -82,7 +81,7 @@ public class UpgradeListTypeCompanyId extends UpgradeProcess {
 					"name, type_) values (?, ?, ?, ?, ?)")) {
 
 			for (ListTypeEntry listTypeEntry : listTypeEntries) {
-				long newListTypeId = increment(ListType.class.getName());
+				long newListTypeId = increment();
 
 				preparedStatement.setLong(1, 0);
 				preparedStatement.setLong(2, newListTypeId);

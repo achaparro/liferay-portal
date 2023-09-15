@@ -32,8 +32,7 @@ public class ListTypeLocalServiceImpl extends ListTypeLocalServiceBaseImpl {
 			return listType;
 		}
 
-		long listTypeId = counterLocalService.increment(
-			ListType.class.getName());
+		long listTypeId = counterLocalService.increment();
 
 		listType = listTypePersistence.create(listTypeId);
 

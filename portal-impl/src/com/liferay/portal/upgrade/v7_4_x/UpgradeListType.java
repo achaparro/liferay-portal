@@ -8,7 +8,6 @@ package com.liferay.portal.upgrade.v7_4_x;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.ListType;
 import com.liferay.portal.kernel.model.ListTypeConstants;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -44,7 +43,7 @@ public class UpgradeListType extends UpgradeProcess {
 				"insert into ListType (listTypeId, name, type_) values (?, " +
 					"?, ?)")) {
 
-			preparedStatement.setLong(1, increment(ListType.class.getName()));
+			preparedStatement.setLong(1, increment());
 			preparedStatement.setString(2, name);
 			preparedStatement.setString(3, type);
 

@@ -36,7 +36,7 @@ public class UpgradeListTypeCompanyId extends UpgradeProcess {
 	protected void doUpgrade() throws Exception {
 		long defaultCompanyId = PortalInstances.getDefaultCompanyIdBySQL();
 
-		_resetCounter(defaultCompanyId);
+		_increment(defaultCompanyId);
 
 		if (DBPartition.isPartitionEnabled()) {
 			_upgradeDBPartition(defaultCompanyId);
@@ -72,6 +72,40 @@ public class UpgradeListTypeCompanyId extends UpgradeProcess {
 		return listTypeEntries;
 	}
 
+	private void _increment(long defaultCompanyId) throws Exception {
+		if (DBPartition.isPartitionEnabled() &&
+			(CompanyThreadLocal.getCompanyId() != defaultCompanyId)) {
+
+			return;
+		}
+
+		try (Statement statement = connection.createStatement();
+			ResultSet resultSet1 = statement.executeQuery(
+				StringBundler.concat(
+					"select currentId from Counter where name = '",
+					ListType.class.getName(), "'"))) {
+
+			long currentId = 0;
+
+			if (resultSet1.next()) {
+				currentId = resultSet1.getLong("currentId");
+			}
+
+			try (ResultSet resultSet2 = statement.executeQuery(
+					"select max(listTypeId) from ListType")) {
+
+				if (resultSet2.next()) {
+					long increment = Math.max(
+						0, resultSet2.getLong(1) - currentId);
+
+					if (increment > 0) {
+						increment(ListType.class.getName(), (int)increment);
+					}
+				}
+			}
+		}
+	}
+
 	private HashMap<Long, Long> _insertListTypes(
 			List<ListTypeEntry> listTypeEntries, long companyId)
 		throws Exception {
@@ -98,40 +132,6 @@ public class UpgradeListTypeCompanyId extends UpgradeProcess {
 		}
 
 		return listTypeIds;
-	}
-
-	private void _resetCounter(long defaultCompanyId) throws Exception {
-		if (DBPartition.isPartitionEnabled() &&
-			(CompanyThreadLocal.getCompanyId() != defaultCompanyId)) {
-
-			return;
-		}
-
-		try (Statement statement = connection.createStatement();
-			ResultSet resultSet1 = statement.executeQuery(
-				StringBundler.concat(
-					"select currentId from Counter where name = '",
-					ListType.class.getName(), "'"))) {
-
-			long counter = 0;
-
-			if (resultSet1.next()) {
-				counter = resultSet1.getLong("currentId");
-			}
-
-			try (ResultSet resultSet2 = statement.executeQuery(
-					"select max(listTypeId) from ListType")) {
-
-				if (resultSet2.next()) {
-					long increment = Math.max(
-						0, resultSet2.getLong(1) - counter);
-
-					if (increment > 0) {
-						increment(ListType.class.getName(), (int)increment);
-					}
-				}
-			}
-		}
 	}
 
 	private void _updateListTypeReferences(

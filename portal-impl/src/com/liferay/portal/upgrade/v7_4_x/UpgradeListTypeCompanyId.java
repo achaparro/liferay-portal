@@ -101,31 +101,33 @@ public class UpgradeListTypeCompanyId extends UpgradeProcess {
 	}
 
 	private void _resetCounter(long defaultCompanyId) throws Exception {
-		if (!DBPartition.isPartitionEnabled() ||
-			(CompanyThreadLocal.getCompanyId() == defaultCompanyId)) {
+		if (DBPartition.isPartitionEnabled() &&
+			(CompanyThreadLocal.getCompanyId() != defaultCompanyId)) {
 
-			try (Statement statement = connection.createStatement();
-				ResultSet resultSet1 = statement.executeQuery(
-					StringBundler.concat(
-						"select currentId from Counter where name = '",
-						ListType.class.getName(), "'"))) {
+			return;
+		}
 
-				long counter = 0;
+		try (Statement statement = connection.createStatement();
+			ResultSet resultSet1 = statement.executeQuery(
+				StringBundler.concat(
+					"select currentId from Counter where name = '",
+					ListType.class.getName(), "'"))) {
 
-				if (resultSet1.next()) {
-					counter = resultSet1.getLong("currentId");
-				}
+			long counter = 0;
 
-				try (ResultSet resultSet2 = statement.executeQuery(
-						"select max(listTypeId) from ListType")) {
+			if (resultSet1.next()) {
+				counter = resultSet1.getLong("currentId");
+			}
 
-					if (resultSet2.next()) {
-						long increment = Math.max(
-							0, resultSet2.getLong(1) - counter);
+			try (ResultSet resultSet2 = statement.executeQuery(
+					"select max(listTypeId) from ListType")) {
 
-						if (increment > 0) {
-							increment(ListType.class.getName(), (int)increment);
-						}
+				if (resultSet2.next()) {
+					long increment = Math.max(
+						0, resultSet2.getLong(1) - counter);
+
+					if (increment > 0) {
+						increment(ListType.class.getName(), (int)increment);
 					}
 				}
 			}

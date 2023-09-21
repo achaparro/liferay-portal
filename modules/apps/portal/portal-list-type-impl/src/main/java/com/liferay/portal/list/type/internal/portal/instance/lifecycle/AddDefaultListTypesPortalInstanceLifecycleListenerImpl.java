@@ -31,7 +31,7 @@ public class AddDefaultListTypesPortalInstanceLifecycleListenerImpl
 	public void portalInstancePreunregistered(Company company)
 		throws Exception {
 
-		_listTypeLocalService.deleteCompanyListTypes(company.getCompanyId());
+		_listTypeLocalService.deleteListTypes();
 	}
 
 	@Override

@@ -290,6 +290,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 	}
 
+	@Override
 	public void run(
 			long companyId, String jobName, String groupName,
 			StorageType storageType)
@@ -634,41 +635,6 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 	}
 
-	protected void update(
-			Scheduler scheduler,
-			com.liferay.portal.kernel.scheduler.Trigger trigger,
-			StorageType storageType)
-		throws Exception {
-
-		Trigger quartzTrigger = (Trigger)trigger.getWrappedTrigger();
-
-		if (quartzTrigger == null) {
-			return;
-		}
-
-		TriggerKey triggerKey = quartzTrigger.getKey();
-
-		if (scheduler.getTrigger(triggerKey) != null) {
-			scheduler.rescheduleJob(triggerKey, quartzTrigger);
-		}
-		else {
-			JobKey jobKey = quartzTrigger.getJobKey();
-
-			JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-
-			if (jobDetail == null) {
-				return;
-			}
-
-			synchronized (this) {
-				scheduler.deleteJob(jobKey);
-				scheduler.scheduleJob(jobDetail, quartzTrigger);
-			}
-
-			_updateJobState(scheduler, jobKey, TriggerState.NORMAL);
-		}
-	}
-
 	private String _fixMaxLength(
 		String argument, int maxLength, StorageType storageType) {
 
@@ -869,18 +835,22 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 
 	private class SchedulerListenerImpl extends SchedulerListenerSupport {
 
+		@Override
 		public void jobPaused(JobKey jobKey) {
 			_audit(jobKey, TriggerState.PAUSED);
 		}
 
+		@Override
 		public void jobResumed(JobKey jobKey) {
 			_audit(jobKey, TriggerState.NORMAL);
 		}
 
+		@Override
 		public void jobScheduled(Trigger trigger) {
 			_audit(trigger.getJobKey(), TriggerState.NORMAL);
 		}
 
+		@Override
 		public void triggerFinalized(Trigger trigger) {
 			JobKey jobKey = trigger.getJobKey();
 

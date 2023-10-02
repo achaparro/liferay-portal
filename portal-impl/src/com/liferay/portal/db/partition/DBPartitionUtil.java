@@ -90,6 +90,15 @@ public class DBPartitionUtil {
 						continue;
 					}
 
+					if (StringUtil.startsWith(
+							tableName, _QUARTZ_TABLE_PREFIX)) {
+
+						statement.executeUpdate(
+							_getCreateTableSQL(companyId, tableName));
+
+						continue;
+					}
+
 					if (dbInspector.isControlTable(
 							_getCompanyIds(), tableName)) {
 
@@ -780,6 +789,10 @@ public class DBPartitionUtil {
 	private static final boolean _DATABASE_PARTITION_THREAD_POOL_ENABLED =
 		GetterUtil.getBoolean(
 			PropsUtil.get("database.partition.thread.pool.enabled"), true);
+
+	private static final String _QUARTZ_TABLE_PREFIX = GetterUtil.get(
+		PropsUtil.get("persisted.scheduler.org.quartz.jobStore.tablePrefix"),
+		"QUARTZ_");
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DBPartitionUtil.class);

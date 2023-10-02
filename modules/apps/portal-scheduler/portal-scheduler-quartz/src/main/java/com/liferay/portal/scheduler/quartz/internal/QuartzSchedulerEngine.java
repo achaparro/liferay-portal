@@ -5,6 +5,7 @@
 
 package com.liferay.portal.scheduler.quartz.internal;
 
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.db.partition.DBPartitionUtil;
@@ -28,12 +29,15 @@ import com.liferay.portal.kernel.scheduler.TriggerState;
 import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.scheduler.quartz.internal.job.MessageSenderJob;
+
+import java.sql.Connection;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +47,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.sql.DataSource;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -67,6 +73,7 @@ import org.quartz.impl.jdbcjobstore.UpdateLockRowSemaphore;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.listeners.SchedulerListenerSupport;
 import org.quartz.spi.OperableTrigger;
+import org.quartz.utils.ConnectionProvider;
 import org.quartz.utils.DBConnectionManager;
 
 /**
@@ -723,7 +730,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 
 		dbConnectionManager.addConnectionProvider(
 			_getPersistedSchedulerDataSourceName(companyId),
-			new QuartzConnectionProvider(companyId));
+			new ConnectionProviderImpl(companyId));
 
 		DB db = DBManagerUtil.getDB();
 
@@ -833,7 +840,40 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 
 	private volatile boolean _schedulerEngineEnabled;
 
-	private class SchedulerListenerImpl extends SchedulerListenerSupport {
+	private static class ConnectionProviderImpl implements ConnectionProvider {
+
+		public ConnectionProviderImpl(long companyId) {
+			_companyId = companyId;
+		}
+
+		@Override
+		public Connection getConnection() {
+			Connection connection = null;
+
+			try (SafeCloseable safeCloseable =
+					CompanyThreadLocal.setWithSafeCloseable(_companyId)) {
+
+				DataSource dataSource = InfrastructureUtil.getDataSource();
+
+				connection = dataSource.getConnection();
+			}
+			catch (Exception exception) {
+				_log.error(exception);
+			}
+
+			return connection;
+		}
+
+		@Override
+		public void shutdown() {
+		}
+
+		private final long _companyId;
+
+	}
+
+	private static class SchedulerListenerImpl
+		extends SchedulerListenerSupport {
 
 		@Override
 		public void jobPaused(JobKey jobKey) {

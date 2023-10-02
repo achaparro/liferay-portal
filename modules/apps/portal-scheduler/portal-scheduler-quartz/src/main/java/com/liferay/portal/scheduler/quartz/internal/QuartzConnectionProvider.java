@@ -5,8 +5,10 @@
 
 package com.liferay.portal.scheduler.quartz.internal;
 
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 
 import java.sql.Connection;
@@ -24,7 +26,9 @@ public class QuartzConnectionProvider implements ConnectionProvider {
 	public Connection getConnection() {
 		Connection connection = null;
 
-		try {
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setWithSafeCloseable(_companyId)) {
+
 			DataSource dataSource = InfrastructureUtil.getDataSource();
 
 			connection = dataSource.getConnection();
@@ -40,7 +44,13 @@ public class QuartzConnectionProvider implements ConnectionProvider {
 	public void shutdown() {
 	}
 
+	protected QuartzConnectionProvider(long companyId) {
+		_companyId = companyId;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		QuartzConnectionProvider.class);
+
+	private final long _companyId;
 
 }

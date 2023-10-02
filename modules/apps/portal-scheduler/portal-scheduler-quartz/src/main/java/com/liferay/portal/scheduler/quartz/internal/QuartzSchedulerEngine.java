@@ -6,6 +6,8 @@
 package com.liferay.portal.scheduler.quartz.internal;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
@@ -24,6 +26,7 @@ import com.liferay.portal.kernel.scheduler.SchedulerException;
 import com.liferay.portal.kernel.scheduler.StorageType;
 import com.liferay.portal.kernel.scheduler.TriggerState;
 import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.Props;
@@ -39,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -63,6 +67,7 @@ import org.quartz.impl.jdbcjobstore.UpdateLockRowSemaphore;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.listeners.SchedulerListenerSupport;
 import org.quartz.spi.OperableTrigger;
+import org.quartz.utils.DBConnectionManager;
 
 /**
  * @author Michael C. Han
@@ -168,13 +173,15 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		throws SchedulerException {
 
 		try {
-			List<String> groupNames = _persistedScheduler.getJobGroupNames();
+			Scheduler persistedScheduler = _getScheduler(StorageType.PERSISTED);
+
+			List<String> groupNames = persistedScheduler.getJobGroupNames();
 
 			List<SchedulerResponse> schedulerResponses = new ArrayList<>();
 
 			for (String groupName : groupNames) {
 				schedulerResponses.addAll(
-					getScheduledJobs(_persistedScheduler, groupName, null));
+					getScheduledJobs(persistedScheduler, groupName, null));
 			}
 
 			groupNames = _memoryScheduler.getJobGroupNames();
@@ -365,8 +372,10 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	@Override
 	public void shutdown() throws SchedulerException {
 		try {
-			if (!_persistedScheduler.isInStandbyMode()) {
-				_persistedScheduler.standby();
+			for (Scheduler persistedScheduler : _persistedSchedulers.values()) {
+				if (!persistedScheduler.isInStandbyMode()) {
+					persistedScheduler.standby();
+				}
 			}
 
 			if (!_memoryScheduler.isInStandbyMode()) {
@@ -382,7 +391,9 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	@Override
 	public void start() throws SchedulerException {
 		try {
-			_persistedScheduler.start();
+			for (Scheduler persistedScheduler : _persistedSchedulers.values()) {
+				persistedScheduler.start();
+			}
 
 			_memoryScheduler.start();
 		}
@@ -446,10 +457,11 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 
 		try {
-			_persistedScheduler = _initializeScheduler(
-				"persisted.scheduler.", true);
+			DBPartitionUtil.forEachCompanyId(
+				companyId -> _persistedSchedulers.put(
+					companyId, _initializePersistedScheduler(companyId)));
 
-			_memoryScheduler = _initializeScheduler("memory.scheduler.", false);
+			_memoryScheduler = _initializeMemoryScheduler();
 		}
 		catch (Exception exception) {
 			_log.error("Unable to initialize engine", exception);
@@ -463,8 +475,10 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 
 		try {
-			if (!_persistedScheduler.isShutdown()) {
-				_persistedScheduler.shutdown(false);
+			for (Scheduler persistedScheduler : _persistedSchedulers.values()) {
+				if (!persistedScheduler.isShutdown()) {
+					persistedScheduler.shutdown(false);
+				}
 			}
 
 			if (!_memoryScheduler.isShutdown()) {
@@ -676,51 +690,107 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		return JobStateSerializeUtil.deserialize(jobStateMap);
 	}
 
-	private Scheduler _getScheduler(StorageType storageType) {
-		if (storageType == StorageType.PERSISTED) {
-			return _persistedScheduler;
-		}
+	private String _getPersistedSchedulerDataSourceName(long companyId) {
+		String dataSourcePrefix = _props.get(
+			"persisted.scheduler.data.source.name.prefix");
 
-		return _memoryScheduler;
+		return dataSourcePrefix + StringPool.AT + companyId;
 	}
 
-	private Scheduler _initializeScheduler(
-			String propertiesPrefix, boolean useQuartzCluster)
+	private String _getPersistedSchedulerInstanceName(long companyId) {
+		String instanceNamePrefix = _props.get(
+			"persisted.scheduler.instance.name.prefix");
+
+		return instanceNamePrefix + StringPool.AT + companyId;
+	}
+
+	private Scheduler _getScheduler(StorageType storageType) {
+		if (storageType != StorageType.PERSISTED) {
+			return _memoryScheduler;
+		}
+
+		long companyId = CompanyThreadLocal.getCompanyId();
+
+		Scheduler persistedScheduler = _persistedSchedulers.get(companyId);
+
+		if (persistedScheduler == null) {
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Creating a new persisted scheduler instance for company " +
+						companyId);
+			}
+
+			try {
+				_persistedSchedulers.put(
+					companyId,
+					persistedScheduler = _initializePersistedScheduler(
+						companyId));
+			}
+			catch (Exception exception) {
+				_log.error(
+					"Unable to create a new persisted scheduler instance for " +
+						"company " + companyId,
+					exception);
+			}
+		}
+
+		return persistedScheduler;
+	}
+
+	private Scheduler _initializeMemoryScheduler() throws Exception {
+		return _initializeScheduler(
+			_props.getProperties("memory.scheduler.", true));
+	}
+
+	private Scheduler _initializePersistedScheduler(long companyId)
+		throws Exception {
+
+		Properties properties = _props.getProperties(
+			"persisted.scheduler.", true);
+
+		properties.setProperty(
+			"org.quartz.scheduler.instanceName",
+			_getPersistedSchedulerInstanceName(companyId));
+
+		DBConnectionManager dbConnectionManager =
+			DBConnectionManager.getInstance();
+
+		dbConnectionManager.addConnectionProvider(
+			_getPersistedSchedulerDataSourceName(companyId),
+			new QuartzConnectionProvider(companyId));
+
+		DB db = DBManagerUtil.getDB();
+
+		DBType dbType = db.getDBType();
+
+		if (dbType == DBType.SQLSERVER) {
+			String lockHandlerClassName = properties.getProperty(
+				"org.quartz.jobStore.lockHandler.class");
+
+			if (Validator.isNull(lockHandlerClassName)) {
+				properties.setProperty(
+					"org.quartz.jobStore.lockHandler.class",
+					UpdateLockRowSemaphore.class.getName());
+			}
+		}
+
+		if (GetterUtil.getBoolean(_props.get(PropsKeys.CLUSTER_LINK_ENABLED))) {
+			if (dbType == DBType.HYPERSONIC) {
+				_log.error("Unable to cluster scheduler on Hypersonic");
+			}
+			else {
+				properties.put(
+					"org.quartz.jobStore.isClustered", Boolean.TRUE.toString());
+			}
+		}
+
+		return _initializeScheduler(properties);
+	}
+
+	private Scheduler _initializeScheduler(Properties properties)
 		throws Exception {
 
 		StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();
-
-		Properties properties = _props.getProperties(propertiesPrefix, true);
-
-		if (useQuartzCluster) {
-			DB db = DBManagerUtil.getDB();
-
-			DBType dbType = db.getDBType();
-
-			if (dbType == DBType.SQLSERVER) {
-				String lockHandlerClassName = properties.getProperty(
-					"org.quartz.jobStore.lockHandler.class");
-
-				if (Validator.isNull(lockHandlerClassName)) {
-					properties.setProperty(
-						"org.quartz.jobStore.lockHandler.class",
-						UpdateLockRowSemaphore.class.getName());
-				}
-			}
-
-			if (GetterUtil.getBoolean(
-					_props.get(PropsKeys.CLUSTER_LINK_ENABLED))) {
-
-				if (dbType == DBType.HYPERSONIC) {
-					_log.error("Unable to cluster scheduler on Hypersonic");
-				}
-				else {
-					properties.put(
-						"org.quartz.jobStore.isClustered",
-						Boolean.TRUE.toString());
-				}
-			}
-		}
 
 		schedulerFactory.initialize(properties);
 
@@ -784,7 +854,8 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 	@Reference
 	private MessageBus _messageBus;
 
-	private Scheduler _persistedScheduler;
+	private final Map<Long, Scheduler> _persistedSchedulers =
+		new ConcurrentHashMap<>();
 
 	@Reference
 	private Props _props;

@@ -712,7 +712,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 
 	private Scheduler _initializeMemoryScheduler() throws Exception {
 		return _initializeScheduler(
-			_props.getProperties("memory.scheduler.", true));
+			_props.getProperties("memory.scheduler.", true), null);
 	}
 
 	private Scheduler _initializePersistedScheduler(long companyId)
@@ -757,10 +757,12 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			}
 		}
 
-		return _initializeScheduler(properties);
+		return _initializeScheduler(
+			properties, () -> _persistedSchedulers.remove(companyId));
 	}
 
-	private Scheduler _initializeScheduler(Properties properties)
+	private Scheduler _initializeScheduler(
+			Properties properties, Runnable shutdownRunnable)
 		throws Exception {
 
 		StdSchedulerFactory schedulerFactory = new StdSchedulerFactory();
@@ -777,7 +779,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		ListenerManager listenerManager = scheduler.getListenerManager();
 
 		listenerManager.addSchedulerListener(
-			new SchedulerListenerImpl(scheduler));
+			new SchedulerListenerImpl(scheduler, shutdownRunnable));
 
 		return scheduler;
 	}
@@ -891,6 +893,13 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 
 		@Override
+		public void schedulerShutdown() {
+			if (_shutdownRunnable != null) {
+				_shutdownRunnable.run();
+			}
+		}
+
+		@Override
 		public void triggerFinalized(Trigger trigger) {
 			JobKey jobKey = trigger.getJobKey();
 
@@ -914,8 +923,11 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 			}
 		}
 
-		private SchedulerListenerImpl(Scheduler scheduler) {
+		private SchedulerListenerImpl(
+			Scheduler scheduler, Runnable shutdownRunnable) {
+
 			_scheduler = scheduler;
+			_shutdownRunnable = shutdownRunnable;
 		}
 
 		private void _audit(JobKey jobKey, TriggerState triggerState) {
@@ -945,6 +957,7 @@ public class QuartzSchedulerEngine implements SchedulerEngine {
 		}
 
 		private final Scheduler _scheduler;
+		private final Runnable _shutdownRunnable;
 
 	}
 

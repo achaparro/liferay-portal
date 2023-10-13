@@ -100,6 +100,8 @@ public class DBPartitionUtil {
 						statement.executeUpdate(
 							_getCreateTableSQL(companyId, tableName));
 
+						// Todo - This fails in PostgreSQL, see https://popsql.com/learn-sql/postgresql/how-to-duplicate-a-table-in-postgresql
+
 						if (dbInspector.isPartitionedControlTable(tableName)) {
 							_copyData(
 								tableName, _defaultSchemaName,
@@ -234,12 +236,17 @@ public class DBPartitionUtil {
 			DBManagerUtil.getDBType(DialectDetector.getDialect(dataSource)),
 			dataSource);
 
-		if (db.getDBType() != DBType.MYSQL) {
-			throw new Error("Database partition requires MySQL");
+		if (db.getDBType() != DBType.MYSQL && db.getDBType() != DBType.POSTGRESQL) {
+			throw new Error("Database partition requires MySQL or PostgreSQL");
 		}
 
 		try (Connection connection = dataSource.getConnection()) {
-			_defaultSchemaName = connection.getCatalog();
+			if (db.getDBType() == DBType.POSTGRESQL) {
+				_defaultSchemaName = connection.getSchema();
+			}
+			else {
+				_defaultSchemaName = connection.getCatalog();
+			}
 		}
 
 		return new DataSourceWrapper(dataSource) {
@@ -501,12 +508,23 @@ public class DBPartitionUtil {
 	}
 
 	private static String _getCreateSchemaSQL(long companyId) {
+		if (DBManagerUtil.getDBType() == DBType.POSTGRESQL) {
+			return "create schema if not exists " + _getSchemaName(companyId);
+		}
+
 		return StringBundler.concat(
 			"create schema if not exists ", _getSchemaName(companyId),
 			" character set ", _getSessionCharsetEncoding());
 	}
 
 	private static String _getCreateTableSQL(long companyId, String tableName) {
+		if (DBManagerUtil.getDBType() == DBType.POSTGRESQL) {
+			return StringBundler.concat(
+				"create table if not exists ", _getSchemaName(companyId),
+				StringPool.PERIOD, tableName, " (like ", _defaultSchemaName,
+				StringPool.PERIOD, tableName, " INCLUDING ALL)");
+		}
+
 		return StringBundler.concat(
 			"create table if not exists ", _getSchemaName(companyId),
 			StringPool.PERIOD, tableName, " like ", _defaultSchemaName,

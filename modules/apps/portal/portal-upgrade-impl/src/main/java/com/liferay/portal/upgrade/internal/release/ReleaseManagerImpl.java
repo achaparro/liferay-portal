@@ -107,7 +107,7 @@ public class ReleaseManagerImpl implements ReleaseManager {
 
 		sb.append(_checkModules(showUpgradeSteps));
 
-		if (!_hasUnsatisfiedUpgradeComponents()) {
+		if (_hasUnsatisfiedUpgradeComponents()) {
 			sb.append("Unsatisfied components prevent upgrade processes to ");
 			sb.append("be registered");
 
@@ -127,7 +127,7 @@ public class ReleaseManagerImpl implements ReleaseManager {
 			}
 		}
 
-		return _hasUnsatisfiedUpgradeComponents();
+		return !_hasUnsatisfiedUpgradeComponents();
 	}
 
 	@Activate
@@ -304,7 +304,7 @@ public class ReleaseManagerImpl implements ReleaseManager {
 	private boolean _hasUnsatisfiedUpgradeComponents() {
 		String result = _systemChecker.check();
 
-		return !result.contains("UpgradeStepRegistrator");
+		return result.contains("UpgradeStepRegistrator");
 	}
 
 	private boolean _isPendingModuleUpgrades() {

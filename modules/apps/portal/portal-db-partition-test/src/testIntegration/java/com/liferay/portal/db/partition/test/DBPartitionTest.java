@@ -14,12 +14,18 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.ResourceAction;
+import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalServiceUtil;
+import com.liferay.portal.kernel.service.persistence.ResourcePermissionPersistence;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
+import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
@@ -439,6 +445,53 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 		Assert.assertArrayEquals(expectedCompanyIds, actualCompanyIds);
 	}
 
+	@Test
+	public void testRourcePerm() throws Exception {
+		TransactionConfig transactionConfig = TransactionConfig.Factory.create(
+			Propagation.REQUIRED, new Class<?>[]{Exception.class});
+		long pk = RandomTestUtil.nextLong();
+		String name = RandomTestUtil.randomString();
+		ResourcePermission resourcePermission = createRP(pk,name);
+		CompanyThreadLocal.setCompanyId(COMPANY_IDS[1]);
+		ResourcePermissionLocalServiceUtil.addResourcePermission(resourcePermission);
+		connection.setAutoCommit(false);
+		try {
+			TransactionInvokerUtil.invoke(
+				transactionConfig,
+				() -> {
+					resourcePermission.setActionIds(RandomTestUtil.nextLong());
+					ResourcePermission test =_resourcePermissionLocalService.updateResourcePermission(resourcePermission);
+					DBPartitionUtil.forEachCompanyId(
+						companyId -> {
+							System.out.println(companyId);
+							_resourcePermissionLocalService.updateResourcePermission(test);
+						});
+					return null;
+				});
+		}
+		catch (Throwable e) {
+			connection.rollback();
+			connection.setAutoCommit(true);
+			System.out.println(e.getMessage());
+		}
+		CompanyThreadLocal.setCompanyId(resourcePermission.getCompanyId());
+	}
+	private ResourcePermission createRP(long pk, String name){
+		ResourcePermission resourcePermissionTest = _resourcePermissionPersistence.create(pk);
+		resourcePermissionTest.setMvccVersion(RandomTestUtil.nextLong());
+		resourcePermissionTest.setCtCollectionId(RandomTestUtil.nextLong());
+		resourcePermissionTest.setCompanyId(CompanyThreadLocal.getCompanyId());
+		resourcePermissionTest.setName(name);
+		resourcePermissionTest.setScope(RandomTestUtil.nextInt());
+		resourcePermissionTest.setPrimKey(RandomTestUtil.randomString());
+		resourcePermissionTest.setPrimKeyId(RandomTestUtil.nextLong());
+		resourcePermissionTest.setRoleId(RandomTestUtil.nextLong());
+		resourcePermissionTest.setOwnerId(RandomTestUtil.nextLong());
+		resourcePermissionTest.setActionIds(RandomTestUtil.nextLong());
+		resourcePermissionTest.setViewActionId(RandomTestUtil.randomBoolean());
+		return resourcePermissionTest;
+	}
+
 	public class DBPartitionUpgradeProcess extends UpgradeProcess {
 
 		public long[] getCompanyIds() {
@@ -475,6 +528,11 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 
 	@Inject
 	private CompanyLocalService _companyLocalService;
+	@Inject
+	private ResourceActionLocalService _resourcePermissionLocalService;
+
+	@Inject
+	private ResourcePermissionPersistence _resourcePermissionPersistence;
 
 	private class ClassNameModelHints extends DefaultModelHintsImpl {
 

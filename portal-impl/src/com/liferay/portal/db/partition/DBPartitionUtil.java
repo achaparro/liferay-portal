@@ -408,8 +408,8 @@ public class DBPartitionUtil {
 
 		if (dbInspector.hasColumn(tableName, "companyId")) {
 			_moveCompanyData(
-				companyId, tableName, _defaultSchemaName,
-				_getSchemaName(companyId), statement);
+				companyId, _defaultSchemaName, _getSchemaName(companyId),
+				tableName, statement);
 		}
 		else {
 			statement.executeUpdate(
@@ -643,8 +643,8 @@ public class DBPartitionUtil {
 	}
 
 	private static void _moveCompanyData(
-			long companyId, String tableName, String fromSchemaName,
-			String toSchemaName, Statement statement)
+			long companyId, String fromSchemaName, String toSchemaName,
+			String tableName, Statement statement)
 		throws Exception {
 
 		String whereClause = " where companyId = " + companyId;
@@ -666,8 +666,8 @@ public class DBPartitionUtil {
 
 		if (dbInspector.hasColumn(tableName, "companyId")) {
 			_moveCompanyData(
-				companyId, tableName, _getSchemaName(companyId),
-				_defaultSchemaName, statement);
+				companyId, _getSchemaName(companyId), _defaultSchemaName,
+				tableName, statement);
 		}
 
 		statement.executeUpdate(

@@ -13,6 +13,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.jdbc.util.ConnectionWrapper;
 import com.liferay.portal.dao.jdbc.util.DataSourceWrapper;
 import com.liferay.portal.dao.jdbc.util.StatementWrapper;
+import com.liferay.portal.db.partition.sql.DBPartitionSQLUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -67,7 +68,8 @@ public class DBPartitionUtil {
 			InfrastructureUtil.getDataSource());
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				_getCreateSchemaSQL(companyId))) {
+				DBPartitionSQLUtil.getCreateSchemaSQL(
+					connection, _getSchemaName(companyId)))) {
 
 			preparedStatement.executeUpdate();
 
@@ -93,17 +95,22 @@ public class DBPartitionUtil {
 							_getCompanyIds(), tableName)) {
 
 						statement.executeUpdate(
-							_getCreateViewSQL(companyId, tableName));
+							DBPartitionSQLUtil.getCreateViewSQL(
+								_defaultSchemaName, _getSchemaName(companyId),
+								tableName));
 					}
 					else {
 						statement.executeUpdate(
-							_getCreateTableSQL(companyId, tableName));
+							DBPartitionSQLUtil.getCreateTableSQL(
+								_defaultSchemaName, _getSchemaName(companyId),
+								tableName));
 
 						if (dbInspector.isPartitionedControlTable(tableName)) {
-							_copyData(
-								tableName, _defaultSchemaName,
-								_getSchemaName(companyId), statement,
-								StringPool.BLANK);
+							statement.executeUpdate(
+								DBPartitionSQLUtil.getCopyDataSQL(
+									_defaultSchemaName,
+									_getSchemaName(companyId), tableName,
+									StringPool.BLANK));
 						}
 					}
 				}
@@ -204,13 +211,18 @@ public class DBPartitionUtil {
 		}
 
 		try (Statement statement = connection.createStatement()) {
-			statement.execute(_getDropViewSQL(companyId, viewName));
+			statement.execute(
+				DBPartitionSQLUtil.getDropViewSQL(
+					_getSchemaName(companyId), viewName));
 
-			statement.execute(_getCreateTableSQL(companyId, viewName));
+			statement.execute(
+				DBPartitionSQLUtil.getCreateTableSQL(
+					_defaultSchemaName, _getSchemaName(companyId), viewName));
 
-			_copyData(
-				viewName, _defaultSchemaName, _getSchemaName(companyId),
-				statement, StringPool.BLANK);
+			statement.executeUpdate(
+				DBPartitionSQLUtil.getCopyDataSQL(
+					_defaultSchemaName, _getSchemaName(companyId), viewName,
+					StringPool.BLANK));
 		}
 	}
 
@@ -274,18 +286,6 @@ public class DBPartitionUtil {
 		};
 	}
 
-	private static void _copyData(
-			String tableName, String fromSchemaName, String toSchemaName,
-			Statement statement, String whereClause)
-		throws Exception {
-
-		statement.executeUpdate(
-			StringBundler.concat(
-				"insert ", toSchemaName, StringPool.PERIOD, tableName,
-				" select * from ", fromSchemaName, StringPool.PERIOD, tableName,
-				whereClause));
-	}
-
 	private static boolean _dropDBPartition(long companyId)
 		throws PortalException {
 
@@ -318,7 +318,8 @@ public class DBPartitionUtil {
 				}
 
 				statement.executeUpdate(
-					"drop schema " + _getSchemaName(companyId));
+					DBPartitionSQLUtil.getDropSchemaSQL(
+						_getSchemaName(companyId)));
 			}
 		}
 		catch (Exception exception) {
@@ -397,9 +398,13 @@ public class DBPartitionUtil {
 			DBInspector dbInspector)
 		throws Exception {
 
-		statement.executeUpdate(_getDropViewSQL(companyId, tableName));
+		statement.executeUpdate(
+			DBPartitionSQLUtil.getDropViewSQL(
+				_getSchemaName(companyId), tableName));
 
-		statement.executeUpdate(_getCreateTableSQL(companyId, tableName));
+		statement.executeUpdate(
+			DBPartitionSQLUtil.getCreateTableSQL(
+				_defaultSchemaName, _getSchemaName(companyId), tableName));
 
 		if (dbInspector.hasColumn(tableName, "companyId")) {
 			_moveCompanyData(
@@ -407,9 +412,10 @@ public class DBPartitionUtil {
 				_getSchemaName(companyId), statement);
 		}
 		else {
-			_copyData(
-				tableName, _defaultSchemaName, _getSchemaName(companyId),
-				statement, StringPool.BLANK);
+			statement.executeUpdate(
+				DBPartitionSQLUtil.getCopyDataSQL(
+					_defaultSchemaName, _getSchemaName(companyId), tableName,
+					StringPool.BLANK));
 		}
 	}
 
@@ -604,38 +610,6 @@ public class DBPartitionUtil {
 		};
 	}
 
-	private static String _getCreateSchemaSQL(long companyId) {
-		return StringBundler.concat(
-			"create schema if not exists ", _getSchemaName(companyId),
-			" character set ", _getSessionCharsetEncoding());
-	}
-
-	private static String _getCreateTableSQL(long companyId, String tableName) {
-		return StringBundler.concat(
-			"create table if not exists ", _getSchemaName(companyId),
-			StringPool.PERIOD, tableName, " like ", _defaultSchemaName,
-			StringPool.PERIOD, tableName);
-	}
-
-	private static String _getCreateViewSQL(long companyId, String viewName) {
-		return StringBundler.concat(
-			"create or replace view ", _getSchemaName(companyId),
-			StringPool.PERIOD, viewName, " as select * from ",
-			_defaultSchemaName, StringPool.PERIOD, viewName);
-	}
-
-	private static String _getDropTableSQL(long companyId, String tableName) {
-		return StringBundler.concat(
-			"drop table if exists ", _getSchemaName(companyId),
-			StringPool.PERIOD, tableName);
-	}
-
-	private static String _getDropViewSQL(long companyId, String viewName) {
-		return StringBundler.concat(
-			"drop view if exists ", _getSchemaName(companyId),
-			StringPool.PERIOD, viewName);
-	}
-
 	private static String _getSchemaName(long companyId) {
 		if ((companyId == CompanyConstants.SYSTEM) ||
 			(companyId == _defaultCompanyId)) {
@@ -644,38 +618,6 @@ public class DBPartitionUtil {
 		}
 
 		return _DATABASE_PARTITION_SCHEMA_NAME_PREFIX + companyId;
-	}
-
-	private static String _getSessionCharsetEncoding() {
-		Connection connection = CurrentConnectionUtil.getConnection(
-			InfrastructureUtil.getDataSource());
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				"select variable_value from " +
-					"performance_schema.session_variables where " +
-						"variable_name = 'character_set_client'");
-			ResultSet resultSet = preparedStatement.executeQuery()) {
-
-			if (resultSet.next()) {
-				String encoding = resultSet.getString("variable_value");
-
-				if (_log.isInfoEnabled()) {
-					_log.info(
-						"Obtained character set encoding from session with " +
-							"value: " + encoding);
-				}
-
-				return encoding;
-			}
-
-			return "utf8";
-		}
-		catch (Exception exception) {
-			_log.error(
-				"Unable to get session character set encoding", exception);
-
-			return "utf8";
-		}
 	}
 
 	private static boolean _isSkip(Connection connection, String tableName)
@@ -707,8 +649,9 @@ public class DBPartitionUtil {
 
 		String whereClause = " where companyId = " + companyId;
 
-		_copyData(
-			tableName, fromSchemaName, toSchemaName, statement, whereClause);
+		statement.executeUpdate(
+			DBPartitionSQLUtil.getCopyDataSQL(
+				_defaultSchemaName, toSchemaName, tableName, whereClause));
 
 		statement.executeUpdate(
 			StringBundler.concat(
@@ -727,9 +670,13 @@ public class DBPartitionUtil {
 				_defaultSchemaName, statement);
 		}
 
-		statement.executeUpdate(_getDropTableSQL(companyId, tableName));
+		statement.executeUpdate(
+			DBPartitionSQLUtil.getDropTableSQL(
+				_getSchemaName(companyId), tableName));
 
-		statement.executeUpdate(_getCreateViewSQL(companyId, tableName));
+		statement.executeUpdate(
+			DBPartitionSQLUtil.getCreateViewSQL(
+				_defaultSchemaName, _getSchemaName(companyId), tableName));
 	}
 
 	private static Statement _wrapStatement(Statement statement) {
@@ -776,7 +723,10 @@ public class DBPartitionUtil {
 							continue;
 						}
 
-						super.execute(_getCreateViewSQL(companyId, tableName));
+						super.execute(
+							DBPartitionSQLUtil.getCreateViewSQL(
+								_defaultSchemaName, _getSchemaName(companyId),
+								tableName));
 					}
 
 					return returnValue;

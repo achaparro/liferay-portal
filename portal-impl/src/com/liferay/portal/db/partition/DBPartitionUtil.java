@@ -588,6 +588,10 @@ public class DBPartitionUtil {
 		}
 	}
 
+	private static boolean _isQuartzTable(String tableName) {
+		return StringUtil.startsWith(tableName, _QUARTZ_TABLE_PREFIX);
+	}
+
 	private static boolean _isSkip(Connection connection, String tableName)
 		throws SQLException {
 
@@ -687,9 +691,26 @@ public class DBPartitionUtil {
 				_getSchemaName(companyId), statement);
 		}
 		else {
-			_copyData(
-				tableName, _defaultSchemaName, _getSchemaName(companyId),
-				statement, StringPool.BLANK);
+			if (_isQuartzTable(tableName)) {
+				String whereClause = StringPool.BLANK;
+
+				if (StringUtil.endsWith(tableName, "JOB_DETAILS")) {
+					whereClause = " where job_name like '%@" + companyId + "'";
+				}
+				else if (StringUtil.endsWith(tableName, "TRIGGERS")) {
+					whereClause =
+						" where trigger_name like '%@" + companyId + "'";
+				}
+
+				_moveData(
+					tableName, _defaultSchemaName, _getSchemaName(companyId),
+					statement, whereClause);
+			}
+			else {
+				_copyData(
+					tableName, _defaultSchemaName, _getSchemaName(companyId),
+					statement, StringPool.BLANK);
+			}
 		}
 	}
 
@@ -698,7 +719,15 @@ public class DBPartitionUtil {
 			String toSchemaName, Statement statement)
 		throws Exception {
 
-		String whereClause = " where companyId = " + companyId;
+		_moveData(
+			tableName, fromSchemaName, toSchemaName, statement,
+			" where companyId = " + companyId);
+	}
+
+	private static void _moveData(
+			String tableName, String fromSchemaName, String toSchemaName,
+			Statement statement, String whereClause)
+		throws Exception {
 
 		_copyData(
 			tableName, fromSchemaName, toSchemaName, statement, whereClause);
@@ -794,6 +823,10 @@ public class DBPartitionUtil {
 	private static final boolean _DATABASE_PARTITION_THREAD_POOL_ENABLED =
 		GetterUtil.getBoolean(
 			PropsUtil.get("database.partition.thread.pool.enabled"), true);
+
+	private static final String _QUARTZ_TABLE_PREFIX = GetterUtil.get(
+		PropsUtil.get("persisted.scheduler.org.quartz.jobStore.tablePrefix"),
+		"QUARTZ_");
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DBPartitionUtil.class);

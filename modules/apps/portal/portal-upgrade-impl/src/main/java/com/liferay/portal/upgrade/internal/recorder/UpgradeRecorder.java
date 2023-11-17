@@ -186,12 +186,14 @@ public class UpgradeRecorder {
 	}
 
 	private String _calculateResult() {
-		String result;
+		if (!_verifyProcessStatus) {
+			return "failure";
+		}
 
 		try {
 			ReleaseManager releaseManager = _serviceTracker.getService();
 
-			result = releaseManager.getStatus();
+			return releaseManager.getStatus();
 		}
 		catch (Exception exception) {
 			_log.error(
@@ -201,12 +203,6 @@ public class UpgradeRecorder {
 
 			return "failure";
 		}
-
-		if (!_verifyProcessStatus) {
-			return "failure";
-		}
-
-		return result;
 	}
 
 	private String _calculateType() {

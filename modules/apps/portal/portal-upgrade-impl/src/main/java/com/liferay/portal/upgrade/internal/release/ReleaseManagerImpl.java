@@ -98,6 +98,23 @@ public class ReleaseManagerImpl implements ReleaseManager {
 	}
 
 	@Override
+	public String getStatus() throws Exception {
+		try (Connection connection = DataAccess.getConnection()) {
+			if (!PortalUpgradeProcess.isInLatestSchemaVersion(connection) ||
+				_isPendingModuleUpgrades()) {
+
+				return "Failed";
+			}
+		}
+
+		if (_hasUnsatisfiedUpgradeComponents()) {
+			return "Unresolved";
+		}
+
+		return "Success";
+	}
+
+	@Override
 	public String getStatusMessage(boolean showUpgradeSteps) {
 		StringBundler sb = new StringBundler(6);
 
@@ -117,27 +134,6 @@ public class ReleaseManagerImpl implements ReleaseManager {
 		}
 
 		return sb.toString();
-	}
-
-
-	@Override
-	public String getStatus() throws Exception {
-		try (Connection connection = DataAccess.getConnection()) {
-			if (!PortalUpgradeProcess.isInLatestSchemaVersion(connection)) {
-
-				return "Failed";
-			}
-
-			if(_isPendingModuleUpgrades()){
-				return "Failed";
-			}
-		}
-
-		if (_hasUnsatisfiedUpgradeComponents()) {
-			return "Unresolved";
-		}
-
-		return "Success";
 	}
 
 	@Activate

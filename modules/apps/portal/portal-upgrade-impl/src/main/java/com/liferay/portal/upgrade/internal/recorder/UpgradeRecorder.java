@@ -218,7 +218,7 @@ public class UpgradeRecorder {
 			SchemaVersions schemaVersions = schemaVersionsEntry.getValue();
 
 			if (schemaVersions._getInitial() == null) {
-				continue;
+				return "major";
 			}
 
 			Version initialVersion = Version.parseVersion(

@@ -103,15 +103,15 @@ public class ReleaseManagerImpl implements ReleaseManager {
 			if (!PortalUpgradeProcess.isInLatestSchemaVersion(connection) ||
 				_isPendingModuleUpgrades()) {
 
-				return "Failed";
+				return "failed";
 			}
 		}
 
 		if (_hasUnsatisfiedUpgradeComponents()) {
-			return "Unresolved";
+			return "unresolved";
 		}
 
-		return "Success";
+		return "success";
 	}
 
 	@Override

@@ -145,7 +145,7 @@ public class UpgradeRecorder {
 
 		if (_log.isInfoEnabled()) {
 			if (_type.equals("no upgrade")) {
-				if (_result.equals("Success")) {
+				if (_result.equals("success")) {
 					_log.info("No pending upgrades to run");
 				}
 				else {
@@ -158,7 +158,7 @@ public class UpgradeRecorder {
 				_log.info(
 					StringBundler.concat(
 						StringUtil.toUpperCase(_type.substring(0, 1)),
-						_type.substring(1), " upgrade finished with result: ",
+						_type.substring(1), " upgrade finished with result ",
 						_result));
 			}
 		}
@@ -199,11 +199,11 @@ public class UpgradeRecorder {
 					"Unable to check the upgrade result due to ",
 					exception.getMessage(), ". Please check manually."));
 
-			return "Failure";
+			return "failure";
 		}
 
 		if (!_verifyProcessStatus) {
-			return "Failure";
+			return "failure";
 		}
 
 		return result;

@@ -38,7 +38,7 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
 public class IndexUpdaterUtil {
 
 	public static void updateAllIndexes() {
-		if (!_UPGRADE_DATABASE_INDEXES_UPDATE_ENABLED &&
+		if (!_DATABASE_INDEXES_UPDATE_ON_UPGRADE &&
 			StartupHelperUtil.isUpgrading()) {
 
 			return;
@@ -62,6 +62,8 @@ public class IndexUpdaterUtil {
 									bundle.getSymbolicName())) {
 
 								updateIndexes(bundle);
+
+								Thread.sleep(200);
 							}
 						}
 						catch (Exception exception) {
@@ -102,7 +104,7 @@ public class IndexUpdaterUtil {
 	}
 
 	public static void updateIndexes(Bundle bundle) throws Exception {
-		if (!_UPGRADE_DATABASE_INDEXES_UPDATE_ENABLED &&
+		if (!_DATABASE_INDEXES_UPDATE_ON_UPGRADE &&
 			StartupHelperUtil.isUpgrading()) {
 
 			return;
@@ -138,7 +140,7 @@ public class IndexUpdaterUtil {
 	}
 
 	public static void updatePortalIndexes() {
-		if (!_UPGRADE_DATABASE_INDEXES_UPDATE_ENABLED &&
+		if (!_DATABASE_INDEXES_UPDATE_ON_UPGRADE &&
 			StartupHelperUtil.isUpgrading()) {
 
 			return;
@@ -185,9 +187,9 @@ public class IndexUpdaterUtil {
 			DBResourceUtil.getPortalIndexesSQL(), true);
 	}
 
-	private static final boolean _UPGRADE_DATABASE_INDEXES_UPDATE_ENABLED =
+	private static final boolean _DATABASE_INDEXES_UPDATE_ON_UPGRADE =
 		GetterUtil.getBoolean(
-			PropsUtil.get("upgrade.update.indexes.enabled"), true);
+			PropsUtil.get("database.indexes.update.on.upgrade"), true);
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		IndexUpdaterUtil.class);

@@ -6,6 +6,7 @@
 package com.liferay.portal.db.index;
 
 import com.liferay.portal.db.DBResourceUtil;
+import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
@@ -14,7 +15,9 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.util.BundleUtil;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.sql.Connection;
@@ -35,6 +38,12 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
 public class IndexUpdaterUtil {
 
 	public static void updateAllIndexes() {
+		if (!_UPGRADE_DATABASE_INDEXES_UPDATE_ENABLED &&
+			StartupHelperUtil.isUpgrading()) {
+
+			return;
+		}
+
 		if (!_updatedBundleSymbolicNames.contains("portal")) {
 			updatePortalIndexes();
 		}
@@ -93,6 +102,12 @@ public class IndexUpdaterUtil {
 	}
 
 	public static void updateIndexes(Bundle bundle) throws Exception {
+		if (!_UPGRADE_DATABASE_INDEXES_UPDATE_ENABLED &&
+			StartupHelperUtil.isUpgrading()) {
+
+			return;
+		}
+
 		String indexesSQL = DBResourceUtil.getModuleIndexesSQL(bundle);
 		String tablesSQL = DBResourceUtil.getModuleTablesSQL(bundle);
 
@@ -123,6 +138,12 @@ public class IndexUpdaterUtil {
 	}
 
 	public static void updatePortalIndexes() {
+		if (!_UPGRADE_DATABASE_INDEXES_UPDATE_ENABLED &&
+			StartupHelperUtil.isUpgrading()) {
+
+			return;
+		}
+
 		DB db = DBManagerUtil.getDB();
 
 		try {
@@ -163,6 +184,10 @@ public class IndexUpdaterUtil {
 			connection, DBResourceUtil.getPortalTablesSQL(),
 			DBResourceUtil.getPortalIndexesSQL(), true);
 	}
+
+	private static final boolean _UPGRADE_DATABASE_INDEXES_UPDATE_ENABLED =
+		GetterUtil.getBoolean(
+			PropsUtil.get("upgrade.update.indexes.enabled"), true);
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		IndexUpdaterUtil.class);

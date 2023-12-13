@@ -45,6 +45,8 @@ public class IndexUpdaterUtil {
 		}
 
 		if (!_updatedBundleSymbolicNames.contains("portal")) {
+			// if property and upgrade on startup, abrir hilo
+
 			updatePortalIndexes();
 		}
 
@@ -61,9 +63,9 @@ public class IndexUpdaterUtil {
 							if (!_updatedBundleSymbolicNames.contains(
 									bundle.getSymbolicName())) {
 
-								updateIndexes(bundle);
+								// if property and upgrade on startup, sólo quedarme con el bundle
 
-								Thread.sleep(200);
+								updateIndexes(bundle);
 							}
 						}
 						catch (Exception exception) {
@@ -101,6 +103,8 @@ public class IndexUpdaterUtil {
 					return null;
 				}),
 			IndexUpdaterUtil.class.getName() + "-BundleTrackerOpener");
+
+		// if property and upgrade on startup, abrir hilo para los bundles
 	}
 
 	public static void updateIndexes(Bundle bundle) throws Exception {

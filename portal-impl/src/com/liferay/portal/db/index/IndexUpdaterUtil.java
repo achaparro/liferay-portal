@@ -134,6 +134,7 @@ public class IndexUpdaterUtil {
 				}
 
 				try (Connection connection = DataAccess.getConnection();
+					// disable logging timer when running on background
 					LoggingTimer loggingTimer = new LoggingTimer(message)) {
 
 					db.updateIndexes(connection, tablesSQL, indexesSQL, true);
@@ -163,6 +164,7 @@ public class IndexUpdaterUtil {
 					}
 
 					try (Connection connection = DataAccess.getConnection();
+						 // disable logging timer when running on background
 						LoggingTimer loggingTimer = new LoggingTimer(message)) {
 
 						_updatePortalIndexes(db, connection);

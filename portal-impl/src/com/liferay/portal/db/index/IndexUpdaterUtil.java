@@ -18,7 +18,6 @@ import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -103,21 +102,9 @@ public class IndexUpdaterUtil {
 		DB db = DBManagerUtil.getDB();
 
 		db.process(
-			companyId -> {
-				String message = new String(
-					"Updating database indexes for " +
-						bundle.getSymbolicName());
-
-				if (Validator.isNotNull(companyId)) {
-					message += " and company " + companyId;
-				}
-
-				try (Connection connection = DataAccess.getConnection();
-					LoggingTimer loggingTimer = new LoggingTimer(message)) {
-
-					db.updateIndexes(connection, tablesSQL, indexesSQL, true);
-				}
-			});
+			companyId -> _updateIndexes(
+				db, companyId, bundle.getSymbolicName(), tablesSQL,
+				indexesSQL));
 
 		_updatedBundleSymbolicNames.add(bundle.getSymbolicName());
 	}
@@ -127,25 +114,9 @@ public class IndexUpdaterUtil {
 
 		try {
 			db.process(
-				companyId -> {
-					String message = new String(
-						"Updating portal database indexes");
-
-					if (Validator.isNotNull(companyId)) {
-						message += " for company " + companyId;
-					}
-
-					try (Connection connection = DataAccess.getConnection();
-						LoggingTimer loggingTimer = new LoggingTimer(message)) {
-
-						_updatePortalIndexes(db, connection);
-					}
-					catch (SQLException sqlException) {
-						if (_log.isWarnEnabled()) {
-							_log.warn(sqlException);
-						}
-					}
-				});
+				companyId -> _updateIndexes(
+					db, companyId, null, DBResourceUtil.getPortalTablesSQL(),
+					DBResourceUtil.getPortalIndexesSQL()));
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
@@ -156,12 +127,27 @@ public class IndexUpdaterUtil {
 		_updatedBundleSymbolicNames.add("portal");
 	}
 
-	private static void _updatePortalIndexes(DB db, Connection connection)
+	private static void _updateIndexes(
+			DB db, Long companyId, String bundleSymbolicName, String tablesSQL,
+			String indexesSQL)
 		throws Exception {
 
-		db.updateIndexes(
-			connection, DBResourceUtil.getPortalTablesSQL(),
-			DBResourceUtil.getPortalIndexesSQL(), true);
+		String message = new String("Updating portal database indexes");
+
+		if (bundleSymbolicName != null) {
+			message = new String(
+				"Updating database indexes for " + bundleSymbolicName);
+		}
+
+		if (Validator.isNotNull(companyId)) {
+			message += " and company " + companyId;
+		}
+
+		try (Connection connection = DataAccess.getConnection();
+			LoggingTimer loggingTimer = new LoggingTimer(message)) {
+
+			db.updateIndexes(connection, tablesSQL, indexesSQL, true);
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

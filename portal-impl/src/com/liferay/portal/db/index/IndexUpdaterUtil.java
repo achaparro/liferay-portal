@@ -6,6 +6,7 @@
 package com.liferay.portal.db.index;
 
 import com.liferay.portal.db.DBResourceUtil;
+import com.liferay.portal.kernel.concurrent.ThreadPoolExecutor;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
@@ -14,14 +15,19 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.util.BundleUtil;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.tools.DBUpgrader;
 
 import java.sql.Connection;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
@@ -83,6 +89,13 @@ public class IndexUpdaterUtil {
 						() -> {
 							bundleTracker.close();
 
+							if (DBUpgrader.isUpgradeClient()) {
+								_threadPoolExecutor.awaitTermination(
+									1, TimeUnit.DAYS);
+
+								_threadPoolExecutor.shutdown();
+							}
+
 							return null;
 						});
 
@@ -102,9 +115,30 @@ public class IndexUpdaterUtil {
 		DB db = DBManagerUtil.getDB();
 
 		db.process(
-			companyId -> _updateIndexes(
-				db, companyId, bundle.getSymbolicName(), tablesSQL,
-				indexesSQL));
+			companyId -> {
+				if (_DATABASE_INDEXES_UPDATE_ON_BACKGROUND) {
+					_threadPoolExecutor.execute(
+						() -> {
+							try {
+								_updateIndexes(
+									db, companyId, bundle.getSymbolicName(),
+									tablesSQL, indexesSQL);
+							}
+							catch (Exception exception) {
+								_log.error(
+									StringBundler.concat(
+										"Unable to update database indexes ",
+										"for ", bundle.getSymbolicName(),
+										" due to ", exception.getMessage()));
+							}
+						});
+				}
+				else {
+					_updateIndexes(
+						db, companyId, bundle.getSymbolicName(), tablesSQL,
+						indexesSQL);
+				}
+			});
 
 		_updatedBundleSymbolicNames.add(bundle.getSymbolicName());
 	}
@@ -114,9 +148,31 @@ public class IndexUpdaterUtil {
 
 		try {
 			db.process(
-				companyId -> _updateIndexes(
-					db, companyId, null, DBResourceUtil.getPortalTablesSQL(),
-					DBResourceUtil.getPortalIndexesSQL()));
+				companyId -> {
+					if (_DATABASE_INDEXES_UPDATE_ON_BACKGROUND) {
+						_threadPoolExecutor.execute(
+							() -> {
+								try {
+									_updateIndexes(
+										db, companyId, null,
+										DBResourceUtil.getPortalTablesSQL(),
+										DBResourceUtil.getPortalIndexesSQL());
+								}
+								catch (Exception exception) {
+									_log.error(
+										"Unable to update portal database " +
+											"indexes due to " +
+												exception.getMessage());
+								}
+							});
+					}
+					else {
+						_updateIndexes(
+							db, companyId, null,
+							DBResourceUtil.getPortalTablesSQL(),
+							DBResourceUtil.getPortalIndexesSQL());
+					}
+				});
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
@@ -150,9 +206,15 @@ public class IndexUpdaterUtil {
 		}
 	}
 
+	private static final boolean _DATABASE_INDEXES_UPDATE_ON_BACKGROUND =
+		GetterUtil.getBoolean(
+			PropsUtil.get("database.indexes.update.on.background"));
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		IndexUpdaterUtil.class);
 
+	private static final ThreadPoolExecutor _threadPoolExecutor =
+		new ThreadPoolExecutor(2, 5);
 	private static final Set<String> _updatedBundleSymbolicNames =
 		new HashSet<>();
 

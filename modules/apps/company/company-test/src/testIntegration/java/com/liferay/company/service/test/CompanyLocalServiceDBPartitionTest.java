@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.db.partition.test.util.BaseDBPartitionTestCase;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.service.CompanyLocalService;
@@ -25,7 +26,6 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
-import com.liferay.portal.util.PortalInstances;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -87,7 +87,7 @@ public class CompanyLocalServiceDBPartitionTest
 			standaloneDBPartition = true;
 
 			Company defaultCompany = _companyLocalService.getCompany(
-				PortalInstances.getDefaultCompanyId());
+				PortalInstancePool.getDefaultCompanyId());
 
 			try {
 				_company = _companyLocalService.addDBPartitionCompany(
@@ -99,10 +99,10 @@ public class CompanyLocalServiceDBPartitionTest
 				Assert.fail("Should fail due to duplicate web ID");
 			}
 			catch (PortalException portalException) {
-				long[] companyIds = PortalInstances.getCompanyIdsBySQL();
-
 				Assert.assertFalse(
-					ArrayUtil.contains(companyIds, _company.getCompanyId()));
+					ArrayUtil.contains(
+						PortalInstancePool.getCompanyIds(),
+						_company.getCompanyId()));
 
 				_checkStandaloneDBPartitionTables(
 					_company.getCompanyId(), "Company", "VirtualHost");
@@ -133,10 +133,10 @@ public class CompanyLocalServiceDBPartitionTest
 
 			standaloneDBPartition = false;
 
-			long[] companyIds = PortalInstances.getCompanyIdsBySQL();
-
 			Assert.assertTrue(
-				ArrayUtil.contains(companyIds, _company.getCompanyId()));
+				ArrayUtil.contains(
+					PortalInstancePool.getCompanyIds(),
+					_company.getCompanyId()));
 
 			Assert.assertEquals(name, _company.getName());
 			Assert.assertEquals(virtualHostName, _company.getVirtualHostname());

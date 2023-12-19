@@ -10,9 +10,9 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.db.partition.test.util.BaseDBPartitionTestCase;
+import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.upgrade.util.UpgradePartitionedControlTable;
-import com.liferay.portal.util.PortalInstances;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -100,7 +100,7 @@ public class UpgradePartitionedControlTableTest
 
 			DBPartitionUtil.forEachCompanyId(
 				companyId -> {
-					if (PortalInstances.getDefaultCompanyId() ==
+					if (PortalInstancePool.getDefaultCompanyId() ==
 							DBPartitionUtil.getCurrentCompanyId()) {
 
 						return;

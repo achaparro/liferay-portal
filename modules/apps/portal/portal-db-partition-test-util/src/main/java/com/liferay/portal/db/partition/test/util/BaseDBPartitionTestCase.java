@@ -46,7 +46,6 @@ import com.liferay.portal.service.impl.ResourceActionLocalServiceImpl;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.util.PropsUtil;
 
 import java.sql.Connection;
@@ -225,7 +224,8 @@ public abstract class BaseDBPartitionTestCase {
 	}
 
 	protected static void enableDBPartition() throws Exception {
-		CompanyThreadLocal.setCompanyId(PortalInstances.getDefaultCompanyId());
+		CompanyThreadLocal.setCompanyId(
+			PortalInstancePool.getDefaultCompanyId());
 
 		_dbPartitionEnabled = DBPartition.isPartitionEnabled();
 

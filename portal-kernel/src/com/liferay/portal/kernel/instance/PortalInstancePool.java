@@ -33,6 +33,12 @@ public class PortalInstancePool {
 		_portalInstances.put(company.getCompanyId(), company.getWebId());
 	}
 
+	public static void add(List<Company> companies) {
+		for (Company company : companies) {
+			_portalInstances.put(company.getCompanyId(), company.getWebId());
+		}
+	}
+
 	public static long getCompanyId(String webId) {
 		if (!_portalInstances.isEmpty()) {
 			for (Map.Entry<Long, String> entry : _portalInstances.entrySet()) {

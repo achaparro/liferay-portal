@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.dependency.manager.DependencyManagerSyncUtil;
 import com.liferay.portal.kernel.deploy.hot.HotDeployUtil;
 import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -108,6 +109,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
@@ -788,6 +790,8 @@ public class MainServlet extends HttpServlet {
 			throw new RuntimeException("Company default web ID is null");
 		}
 
+		List<Company> companies = new CopyOnWriteArrayList<>();
+
 		CompanyLocalServiceUtil.forEachCompany(
 			company -> {
 				if (StartupHelperUtil.isDBNew() &&
@@ -795,12 +799,16 @@ public class MainServlet extends HttpServlet {
 						PropsValues.COMPANY_DEFAULT_WEB_ID,
 						company.getWebId())) {
 
-					PortalInstances.initCompany(company, true);
+					PortalInstances.initCompany(company, true, true);
 				}
 				else {
-					PortalInstances.initCompany(company, false);
+					PortalInstances.initCompany(company, false, true);
 				}
+
+				companies.add(company);
 			});
+
+		PortalInstancePool.add(companies);
 	}
 
 	private void _initLayoutTemplates(PluginPackage pluginPackage) {

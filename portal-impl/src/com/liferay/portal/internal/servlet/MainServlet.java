@@ -109,7 +109,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
@@ -790,7 +789,7 @@ public class MainServlet extends HttpServlet {
 			throw new RuntimeException("Company default web ID is null");
 		}
 
-		List<Company> companies = new CopyOnWriteArrayList<>();
+		List<Company> companies = new ArrayList<>();
 
 		CompanyLocalServiceUtil.forEachCompany(
 			company -> {

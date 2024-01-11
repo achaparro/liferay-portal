@@ -14,12 +14,14 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ClassName;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -40,12 +42,14 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -120,6 +124,31 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 		}
 
 		dropTable(TEST_TABLE_NAME);
+	}
+
+	@Test
+	public void testAddCompanyWhenAddDBPartitionFails() throws Exception {
+		Set<String> schemaNames = _getSchemaNames();
+		List<Company> companies = _companyLocalService.getCompanies();
+
+		String defaultPartitionName = ReflectionTestUtil.getAndSetFieldValue(
+			DBPartitionUtil.class, "_defaultPartitionName",
+			"testDefaultPartitionName");
+
+		try {
+			CompanyTestUtil.addCompany();
+
+			Assert.fail();
+		}
+		catch (Exception exception) {
+			Assert.assertEquals(companies, _companyLocalService.getCompanies());
+			Assert.assertEquals(schemaNames, _getSchemaNames());
+		}
+		finally {
+			ReflectionTestUtil.setFieldValue(
+				DBPartitionUtil.class, "_defaultPartitionName",
+				defaultPartitionName);
+		}
 	}
 
 	@Test
@@ -500,6 +529,30 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 
 	@Inject
 	protected static FinderCache finderCache;
+
+	private Set<String> _getSchemaNames() throws SQLException {
+		Set<String> schemaNames = new TreeSet<>();
+
+		try (Connection connection = DataAccess.getConnection()) {
+			DatabaseMetaData databaseMetaData = connection.getMetaData();
+
+			try (ResultSet resultSet = databaseMetaData.getSchemas()) {
+				while (resultSet.next()) {
+					String schemaName = resultSet.getString("TABLE_SCHEM");
+
+					if (schemaName != null) {
+						schemaNames.add(schemaName);
+
+						continue;
+					}
+
+					schemaNames.add(resultSet.getString("TABLE_CATALOG"));
+				}
+			}
+		}
+
+		return schemaNames;
+	}
 
 	private static final String _CLASS_NAME_VALUE = "class.name.test";
 

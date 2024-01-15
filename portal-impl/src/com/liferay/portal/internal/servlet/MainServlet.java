@@ -807,7 +807,7 @@ public class MainServlet extends HttpServlet {
 				companies.add(company);
 			});
 
-		PortalInstancePool.add(companies);
+		PortalInstancePool.set(companies);
 	}
 
 	private void _initLayoutTemplates(PluginPackage pluginPackage) {

@@ -33,12 +33,6 @@ public class PortalInstancePool {
 		_portalInstances.put(company.getCompanyId(), company.getWebId());
 	}
 
-	public static void add(List<Company> companies) {
-		for (Company company : companies) {
-			_portalInstances.put(company.getCompanyId(), company.getWebId());
-		}
-	}
-
 	public static long getCompanyId(String webId) {
 		if (!_portalInstances.isEmpty()) {
 			for (Map.Entry<Long, String> entry : _portalInstances.entrySet()) {
@@ -138,6 +132,16 @@ public class PortalInstancePool {
 
 	public static void remove(long companyId) {
 		_portalInstances.remove(companyId);
+	}
+
+	public static void set(List<Company> companies) {
+		Map<Long, String> portalInstances = new ConcurrentHashMap<>();
+
+		for (Company company : companies) {
+			portalInstances.put(company.getCompanyId(), company.getWebId());
+		}
+
+		_portalInstances = portalInstances;
 	}
 
 	private static long _getCompanyIdBySQL(String webId) throws SQLException {
@@ -241,7 +245,7 @@ public class PortalInstancePool {
 	private static final Log _log = LogFactoryUtil.getLog(
 		PortalInstancePool.class);
 
-	private static final Map<Long, String> _portalInstances =
+	private static Map<Long, String> _portalInstances =
 		new ConcurrentHashMap<>();
 
 }

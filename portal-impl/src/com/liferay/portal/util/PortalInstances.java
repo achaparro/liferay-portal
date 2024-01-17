@@ -212,11 +212,10 @@ public class PortalInstances {
 	}
 
 	public static long initCompany(Company company) {
-		return initCompany(company, false, false);
+		return initCompany(company, false);
 	}
 
-	public static long initCompany(
-		Company company, boolean skipCheck, boolean skipPool) {
+	public static long initCompany(Company company, boolean skipCheck) {
 
 		// Begin initializing company
 
@@ -318,9 +317,7 @@ public class PortalInstances {
 						company.getCompanyId()));
 			}
 
-			if (!skipPool) {
-				PortalInstancePool.add(company);
-			}
+			PortalInstancePool.add(company);
 		}
 		finally {
 			CompanyThreadLocal.setCompanyId(currentThreadCompanyId);

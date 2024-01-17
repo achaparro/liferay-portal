@@ -798,10 +798,10 @@ public class MainServlet extends HttpServlet {
 						PropsValues.COMPANY_DEFAULT_WEB_ID,
 						company.getWebId())) {
 
-					PortalInstances.initCompany(company, true, true);
+					PortalInstances.initCompany(company, true);
 				}
 				else {
-					PortalInstances.initCompany(company, false, true);
+					PortalInstances.initCompany(company, false);
 				}
 
 				companies.add(company);

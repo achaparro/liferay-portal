@@ -384,8 +384,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 					registerCompany(dbPartitionCompany);
 
-					PortalInstances.initCompany(
-						dbPartitionCompany, true, false);
+					PortalInstances.initCompany(dbPartitionCompany, true);
 
 					return null;
 				});

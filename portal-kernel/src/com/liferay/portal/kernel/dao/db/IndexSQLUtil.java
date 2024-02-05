@@ -14,9 +14,8 @@ import com.liferay.petra.string.StringPool;
 public class IndexSQLUtil {
 
 	public static String getCreateSQL(
-		IndexMetadata indexMetadata, int[] lengths) {
-
-		String[] columnNames = indexMetadata.getColumnNames();
+		String tableName, String indexName, boolean unique,
+		String[] columnNames, int[] lengths) {
 
 		int sbSize = 8 + (columnNames.length * 2);
 
@@ -26,7 +25,7 @@ public class IndexSQLUtil {
 
 		StringBundler sb = new StringBundler(sbSize);
 
-		if (indexMetadata.isUnique()) {
+		if (unique) {
 			sb.append("create unique ");
 		}
 		else {
@@ -34,9 +33,9 @@ public class IndexSQLUtil {
 		}
 
 		sb.append("index ");
-		sb.append(indexMetadata.getIndexName());
+		sb.append(indexName);
 		sb.append(" on ");
-		sb.append(indexMetadata.getTableName());
+		sb.append(tableName);
 
 		sb.append(StringPool.SPACE);
 		sb.append(StringPool.OPEN_PARENTHESIS);

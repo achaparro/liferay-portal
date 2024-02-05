@@ -13,8 +13,6 @@ import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
-import com.liferay.portal.kernel.dao.db.IndexMetadata;
-import com.liferay.portal.kernel.dao.db.IndexMetadataFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
@@ -4091,12 +4089,7 @@ public class ServiceBuilder {
 					indexMetadata.getTableName());
 
 				if (entity != null) {
-					indexMetadata = new IndexMetadata(
-						indexMetadata.getIndexName(),
-						indexMetadata.getTableName(), indexMetadata.isUnique(),
-						indexMetadata.getColumnNames());
-
-					for (String columnName : indexMetadata.getColumnNames()) {
+					for (String columnName : indexMetadata.getDBColumnNames()) {
 						EntityColumn entityColumn =
 							_fetchEntityColumnByColumnDBName(
 								entity, columnName);
@@ -4104,8 +4097,11 @@ public class ServiceBuilder {
 						if (entityColumn == null) {
 							System.out.println(
 								StringBundler.concat(
-									"Removing index ",
-									indexMetadata.getIndexName(),
+									"Removing index from ",
+									indexMetadata.getTableName(),
+									" with columns ",
+									Arrays.toString(
+										indexMetadata.getDBColumnNames()),
 									" because column \"", columnName,
 									"\" does not exist"));
 
@@ -4899,7 +4895,7 @@ public class ServiceBuilder {
 			return null;
 		}
 
-		String[] columnNames = indexMetadata.getColumnNames();
+		String[] columnNames = indexMetadata.getDBColumnNames();
 
 		int[] columnLengths = new int[columnNames.length];
 

@@ -90,9 +90,7 @@ public abstract class BaseDB implements DB {
 					while (resultSet.next()) {
 						int columnType = resultSet.getInt("DATA_TYPE");
 
-						if (!ArrayUtil.contains(
-								SQL_VARCHAR_TYPES, columnType)) {
-
+						if (!isVarchar(columnType)) {
 							continue;
 						}
 
@@ -456,6 +454,11 @@ public abstract class BaseDB implements DB {
 	@Override
 	public boolean isSupportsUpdateWithInnerJoin() {
 		return true;
+	}
+
+	@Override
+	public boolean isVarchar(int sqlType) {
+		return ArrayUtil.contains(SQL_VARCHAR_TYPES, sqlType);
 	}
 
 	@Override

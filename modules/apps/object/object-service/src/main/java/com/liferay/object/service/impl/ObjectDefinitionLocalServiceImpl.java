@@ -1593,7 +1593,7 @@ public class ObjectDefinitionLocalServiceImpl
 			ObjectDBManagerUtil.createIndexMetadata(
 				_currentConnection.getConnection(
 					objectDefinitionPersistence.getDataSource()),
-				dbTableName, false, objectField.getDBColumnName());
+				false, dbTableName, objectField.getDBColumnName());
 		}
 	}
 

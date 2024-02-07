@@ -84,6 +84,27 @@ public class IndexMetadataFactoryUtil {
 			indexName, unique, tableName, columnNames, createSQL);
 	}
 
+	public static IndexMetadata createIndexMetadataWithFieldsOnly(
+		String indexName, boolean unique, String tableName,
+		String... columnNames) {
+
+		return new IndexMetadata(
+			indexName, unique, tableName, columnNames, null) {
+
+			@Override
+			public String getCreateSQL() {
+				throw new UnsupportedOperationException(
+					"IndexMetadata was created with no SQL");
+			}
+
+			@Override
+			public boolean isFieldsOnly() {
+				return true;
+			}
+
+		};
+	}
+
 	public static IndexMetadata createTempIndexMetadata(
 			Connection connection, boolean unique, String tableName,
 			String... columnNames)

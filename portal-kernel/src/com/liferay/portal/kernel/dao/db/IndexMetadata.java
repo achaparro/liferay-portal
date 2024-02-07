@@ -45,6 +45,10 @@ public class IndexMetadata extends Index {
 		return _dropSQL;
 	}
 
+	public boolean isFieldsOnly() {
+		return false;
+	}
+
 	private final String[] _columnNames;
 	private final String _createSQL;
 	private final String _dropSQL;

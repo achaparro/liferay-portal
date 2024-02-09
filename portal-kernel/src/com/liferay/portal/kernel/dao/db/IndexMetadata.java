@@ -17,7 +17,7 @@ public class IndexMetadata extends Index {
 
 	public IndexMetadata(
 		String indexName, String tableName, boolean unique,
-		String... columnNames) {
+		String[] columnNames, String createSQL) {
 
 		super(indexName, tableName, unique);
 
@@ -27,6 +27,8 @@ public class IndexMetadata extends Index {
 
 		_columnNames = columnNames;
 
+		_createSQL = createSQL;
+
 		_dropSQL = StringBundler.concat(
 			"drop index ", indexName, " on ", tableName, StringPool.SEMICOLON);
 	}
@@ -35,48 +37,8 @@ public class IndexMetadata extends Index {
 		return _columnNames;
 	}
 
-	public String getCreateSQL(int[] lengths) {
-		int sbSize = 8 + (_columnNames.length * 2);
-
-		if (lengths != null) {
-			sbSize += _columnNames.length * 3;
-		}
-
-		StringBundler sb = new StringBundler(sbSize);
-
-		if (isUnique()) {
-			sb.append("create unique ");
-		}
-		else {
-			sb.append("create ");
-		}
-
-		sb.append("index ");
-		sb.append(getIndexName());
-		sb.append(" on ");
-		sb.append(getTableName());
-
-		sb.append(StringPool.SPACE);
-		sb.append(StringPool.OPEN_PARENTHESIS);
-
-		for (int i = 0; i < _columnNames.length; i++) {
-			sb.append(_columnNames[i]);
-
-			if ((lengths != null) && (lengths[i] > 0)) {
-				sb.append("[$COLUMN_LENGTH:");
-				sb.append(lengths[i]);
-				sb.append("$]");
-			}
-
-			sb.append(StringPool.COMMA_AND_SPACE);
-		}
-
-		sb.setIndex(sb.index() - 1);
-
-		sb.append(StringPool.CLOSE_PARENTHESIS);
-		sb.append(StringPool.SEMICOLON);
-
-		return sb.toString();
+	public String getCreateSQL() {
+		return _createSQL;
 	}
 
 	public String getDropSQL() {
@@ -84,6 +46,7 @@ public class IndexMetadata extends Index {
 	}
 
 	private final String[] _columnNames;
+	private final String _createSQL;
 	private final String _dropSQL;
 
 }

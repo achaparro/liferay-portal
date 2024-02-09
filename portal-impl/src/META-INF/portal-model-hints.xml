@@ -535,7 +535,7 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
-		<field name="webId" type="String" >
+		<field name="webId" type="String">
 			<hint-collection name="HOSTNAME" />
 		</field>
 		<field name="mx" type="String">

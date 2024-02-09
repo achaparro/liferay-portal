@@ -198,7 +198,7 @@ create table Company (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
-	webId VARCHAR(75) null,
+	webId VARCHAR(200) null,
 	mx VARCHAR(200) null,
 	homeURL STRING null,
 	logoId LONG,

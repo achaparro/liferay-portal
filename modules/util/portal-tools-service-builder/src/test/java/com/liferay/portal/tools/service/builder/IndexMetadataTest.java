@@ -5,6 +5,7 @@
 
 package com.liferay.portal.tools.service.builder;
 
+import com.liferay.portal.kernel.dao.db.IndexSQLUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.IntegerWrapper;
@@ -32,7 +33,10 @@ public class IndexMetadataTest {
 
 		String indexName = (String)ArrayUtil.getValue(
 			StringUtil.split(
-				indexMetadata.getCreateSQL(new int[] {10, 20}), " "),
+				IndexSQLUtil.getCreateSQL(
+					indexMetadata.getTableName(), indexMetadata.isUnique(),
+					indexMetadata.getColumnNames(), new int[] {10, 20}, "IX_"),
+				" "),
 			2);
 
 		indexMetadata.optimizeColumns(
@@ -46,7 +50,11 @@ public class IndexMetadataTest {
 			indexName,
 			(String)ArrayUtil.getValue(
 				StringUtil.split(
-					indexMetadata.getCreateSQL(new int[] {10, 20}), " "),
+					IndexSQLUtil.getCreateSQL(
+						indexMetadata.getTableName(), indexMetadata.isUnique(),
+						indexMetadata.getColumnNames(), new int[] {10, 20},
+						"IX_"),
+					" "),
 				2));
 	}
 

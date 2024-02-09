@@ -14,6 +14,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 
 import java.sql.Connection;
 
+import java.util.Arrays;
+
 /**
  * @author Murilo Stodolni
  */
@@ -29,7 +31,7 @@ public class ObjectDBManagerUtil {
 
 			IndexMetadata indexMetadata =
 				IndexMetadataFactoryUtil.createIndexMetadata(
-					unique, tableName, columnNames);
+					connection, unique, tableName, columnNames);
 
 			if (dbInspector.hasIndex(tableName, indexMetadata.getIndexName())) {
 				return;
@@ -37,7 +39,7 @@ public class ObjectDBManagerUtil {
 
 			DB db = DBManagerUtil.getDB();
 
-			db.runSQL(connection, indexMetadata.getCreateSQL(null));
+			db.addIndexes(connection, Arrays.asList(indexMetadata));
 		}
 		catch (Exception exception) {
 			throw new PortalException(exception);

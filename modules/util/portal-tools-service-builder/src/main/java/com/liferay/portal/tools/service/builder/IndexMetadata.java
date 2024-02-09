@@ -5,7 +5,6 @@
 
 package com.liferay.portal.tools.service.builder;
 
-import com.liferay.portal.kernel.dao.db.IndexMetadataFactoryUtil;
 import com.liferay.portal.kernel.dao.db.IndexSQLUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.IntegerWrapper;
@@ -69,11 +68,9 @@ public class IndexMetadata implements Comparable<IndexMetadata> {
 		return _columnNames;
 	}
 
-	public String getCreateSQL(int[] lengths) {
+	public String getCreateSQL(int[] columnSizes) {
 		return IndexSQLUtil.getCreateSQL(
-			_tableName,
-			IndexMetadataFactoryUtil.createIndexName(_tableName, _columnNames),
-			_unique, _columnNames, lengths);
+			_tableName, _unique, _columnNames, columnSizes, "IX_");
 	}
 
 	public String[] getDBColumnNames() {

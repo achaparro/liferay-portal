@@ -22,7 +22,7 @@ public class IndexMetadataTest {
 	@Test
 	public void testIndexNameChangesWithColumnOrderChange() throws Exception {
 		IndexMetadata indexMetadata = new IndexMetadata(
-			"Table1", false, "column1", "column2");
+			false, "Table1", "column1", "column2");
 
 		indexMetadata.optimizeColumns(
 			HashMapBuilder.<String, IntegerWrapper>put(
@@ -34,7 +34,7 @@ public class IndexMetadataTest {
 		String indexName = (String)ArrayUtil.getValue(
 			StringUtil.split(
 				IndexSQLUtil.getCreateSQL(
-					indexMetadata.getTableName(), indexMetadata.isUnique(),
+					indexMetadata.isUnique(), indexMetadata.getTableName(),
 					indexMetadata.getColumnNames(), new int[] {10, 20}, "IX_"),
 				" "),
 			2);
@@ -51,7 +51,7 @@ public class IndexMetadataTest {
 			(String)ArrayUtil.getValue(
 				StringUtil.split(
 					IndexSQLUtil.getCreateSQL(
-						indexMetadata.getTableName(), indexMetadata.isUnique(),
+						indexMetadata.isUnique(), indexMetadata.getTableName(),
 						indexMetadata.getColumnNames(), new int[] {10, 20},
 						"IX_"),
 					" "),

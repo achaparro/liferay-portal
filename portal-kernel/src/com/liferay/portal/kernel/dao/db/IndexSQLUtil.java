@@ -30,10 +30,12 @@ public class IndexSQLUtil {
 		boolean unique, String tableName, String[] columnNames,
 		int[] columnSizes, String indexPrefix) {
 
+		String[] trimmedColumnNames = trimColumnNames(columnNames.clone());
+
 		int sbSize = 8 + (columnNames.length * 2);
 
 		if (ArrayUtil.isNotEmpty(columnSizes)) {
-			columnNames = trimColumnNames(columnNames);
+			columnNames = trimmedColumnNames;
 		}
 
 		if (columnSizes != null) {
@@ -50,7 +52,7 @@ public class IndexSQLUtil {
 		}
 
 		sb.append("index ");
-		sb.append(_createIndexName(tableName, columnNames, indexPrefix));
+		sb.append(_createIndexName(tableName, trimmedColumnNames, indexPrefix));
 		sb.append(" on ");
 		sb.append(tableName);
 

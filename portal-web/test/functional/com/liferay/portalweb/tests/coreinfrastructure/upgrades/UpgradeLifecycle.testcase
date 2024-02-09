@@ -41,11 +41,11 @@ definition {
 		property database.types = "mysql";
 
 		SQL.dropMySQLIndex(
-			indexName = "IX_B5134427",
+			indexName = "IX_EC00543C",
 			tableName = "Company");
 
 		SQL.dropMySQLIndex(
-			indexName = "IX_1DCC935C",
+			indexName = "IX_D3ACAD4A",
 			tableName = "JournalArticle");
 
 		task ("Restart portal and cleaning the logs") {
@@ -54,16 +54,16 @@ definition {
 			Portlet.startServer(keepOsGiState = "true");
 		}
 
-		var hasCompanyMissingIndex = SQL.hasMySQLIndex(indexName = "IX_B5134427");
+		var hasCompanyMissingIndex = SQL.hasMySQLIndex(indexName = "IX_EC00543C");
 
 		if (${hasCompanyMissingIndex} == "false") {
-			fail("Company index IX_B5134427 wasn't recreated");
+			fail("Company index IX_EC00543C wasn't recreated");
 		}
 
-		var hasJournalArticleMissingIndex = SQL.hasMySQLIndex(indexName = "IX_1DCC935C");
+		var hasJournalArticleMissingIndex = SQL.hasMySQLIndex(indexName = "IX_D3ACAD4A");
 
 		if (${hasJournalArticleMissingIndex} == "false") {
-			fail("JournalArticle index IX_1DCC935C wasn't recreated");
+			fail("JournalArticle index IX_D3ACAD4A wasn't recreated");
 		}
 	}
 

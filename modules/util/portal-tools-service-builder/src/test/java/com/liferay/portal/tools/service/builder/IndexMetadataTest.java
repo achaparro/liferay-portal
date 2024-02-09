@@ -36,7 +36,8 @@ public class IndexMetadataTest {
 			StringUtil.split(
 				IndexSQLUtil.getCreateSQL(
 					indexMetadata.isUnique(), indexMetadata.getTableName(),
-					indexMetadata.getColumnNames(), new int[] {10, 20}, "IX_"),
+					indexMetadata.getColumnNames(), new int[] {10, 20},
+					IndexSQLUtil.INDEX_NAME_PREFIX),
 				StringPool.SPACE),
 			2);
 
@@ -54,7 +55,7 @@ public class IndexMetadataTest {
 					IndexSQLUtil.getCreateSQL(
 						indexMetadata.isUnique(), indexMetadata.getTableName(),
 						indexMetadata.getColumnNames(), new int[] {10, 20},
-						"IX_"),
+						IndexSQLUtil.INDEX_NAME_PREFIX),
 					StringPool.SPACE),
 				2));
 	}

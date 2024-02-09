@@ -4,7 +4,9 @@
 	<model name="com.liferay.adaptive.media.image.model.AMImageEntry">
 		<field name="mvccVersion" type="long" />
 		<field name="ctCollectionId" type="long" />
-		<field name="uuid" type="String" />
+		<field name="uuid" type="String">
+			<hint name="max-length">200</hint>
+		</field>
 		<field name="amImageEntryId" type="long" />
 		<field name="groupId" type="long" />
 		<field name="companyId" type="long" />

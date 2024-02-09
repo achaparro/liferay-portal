@@ -7,6 +7,7 @@ package com.liferay.portal.kernel.dao.db;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
@@ -30,6 +31,10 @@ public class IndexSQLUtil {
 		int[] columnSizes, String indexPrefix) {
 
 		int sbSize = 8 + (columnNames.length * 2);
+
+		if (ArrayUtil.isNotEmpty(columnSizes)) {
+			columnNames = trimColumnNames(columnNames);
+		}
 
 		if (columnSizes != null) {
 			sbSize += columnNames.length * 3;
@@ -80,6 +85,16 @@ public class IndexSQLUtil {
 		return getCreateSQL(
 			unique, tableName, columnNames,
 			_getColumnSizes(connection, tableName, columnNames), indexPrefix);
+	}
+
+	public static String[] trimColumnNames(String[] columnNames) {
+		String[] trimmedColumnNames = columnNames.clone();
+
+		for (int i = 0; i < trimmedColumnNames.length; i++) {
+			trimmedColumnNames[i] = _trimColumnName(trimmedColumnNames[i]);
+		}
+
+		return trimmedColumnNames;
 	}
 
 	private static String _createIndexName(
@@ -149,6 +164,16 @@ public class IndexSQLUtil {
 		}
 
 		return columnSizes;
+	}
+
+	private static String _trimColumnName(String columnName) {
+		int index = columnName.indexOf("[$COLUMN_LENGTH:");
+
+		if (index > 0) {
+			columnName = columnName.substring(0, index);
+		}
+
+		return columnName;
 	}
 
 }

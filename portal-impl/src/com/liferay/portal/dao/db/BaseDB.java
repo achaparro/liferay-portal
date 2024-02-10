@@ -79,8 +79,11 @@ public abstract class BaseDB implements DB {
 			}
 
 			runSQL(
-				_applyMaxStringIndexLengthLimitation(
-					indexMetadata.getCreateSQL()));
+				connection,
+				new String[] {
+					_applyMaxStringIndexLengthLimitation(
+						indexMetadata.getCreateSQL())
+				});
 		}
 	}
 

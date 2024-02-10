@@ -71,6 +71,13 @@ public abstract class BaseDB implements DB {
 		throws IOException, SQLException {
 
 		for (IndexMetadata indexMetadata : indexMetadatas) {
+			if (indexMetadata.isFieldsOnly()) {
+				indexMetadata = IndexMetadataFactoryUtil.createIndexMetadata(
+					connection, indexMetadata.isUnique(),
+					indexMetadata.getTableName(),
+					indexMetadata.getColumnNames());
+			}
+
 			runSQL(
 				_applyMaxStringIndexLengthLimitation(
 					indexMetadata.getCreateSQL()));

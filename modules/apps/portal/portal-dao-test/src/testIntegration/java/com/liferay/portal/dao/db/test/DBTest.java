@@ -311,6 +311,27 @@ public class DBTest {
 	}
 
 	@Test
+	public void testAlterIndexedColumnNameDB2() throws Exception {
+		Assume.assumeTrue(
+			"Skip this test because only DB2 alter process regenerates indexes",
+			db.getDBType() == DBType.DB2);
+
+		_testAlterIndexedColumnName(
+			_getExpectedIndexName(
+				new String[] {"typeVarcharTest", "typeBoolean"}));
+	}
+
+	@Test
+	public void testAlterIndexedColumnNameNotDB2() throws Exception {
+		Assume.assumeFalse(
+			"Skip this test because DB2 alter process does regenerate indexes",
+			db.getDBType() == DBType.DB2);
+
+		_testAlterIndexedColumnName(
+			_getExpectedIndexName(new String[] {"typeVarchar", "typeBoolean"}));
+	}
+
+	@Test
 	public void testAlterIndexedColumnType() throws Exception {
 		String indexName = addIndex(
 			new String[] {"typeVarchar", "typeBoolean"});
@@ -853,6 +874,16 @@ public class DBTest {
 				"default 'testValue' not null);"));
 	}
 
+	private String _getExpectedIndexName(String[] columnNames)
+		throws Exception {
+
+		IndexMetadata indexMetadata =
+			IndexMetadataFactoryUtil.createIndexMetadata(
+				connection, false, TABLE_NAME_1, columnNames);
+
+		return indexMetadata.getIndexName();
+	}
+
 	private List<IndexMetadata> _getIndexes(
 		String tableName, String[] columnNames) {
 
@@ -862,6 +893,26 @@ public class DBTest {
 				Connection.class, String.class, String.class, boolean.class
 			},
 			connection, tableName, columnNames[0], false);
+	}
+
+	private void _testAlterIndexedColumnName(String expectedIndexName)
+		throws Exception {
+
+		addIndex(new String[] {"typeVarchar", "typeBoolean"});
+
+		db.alterColumnName(
+			connection, TABLE_NAME_1, "typeVarchar",
+			"typeVarcharTest VARCHAR(75) null");
+
+		Assert.assertTrue(
+			dbInspector.hasColumn(TABLE_NAME_1, "typeVarcharTest"));
+
+		_validateIndex(
+			expectedIndexName,
+			new String[] {
+				dbInspector.normalizeName("typeVarcharTest"),
+				dbInspector.normalizeName("typeBoolean")
+			});
 	}
 
 	private void _validateIndex(String indexName, String[] columnNames)

@@ -12,6 +12,7 @@ import com.liferay.portal.kernel.dao.db.BaseDBProcess;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.db.IndexMetadata;
 import com.liferay.portal.kernel.dao.db.IndexMetadataFactoryUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
@@ -36,6 +37,7 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -352,22 +354,24 @@ public class BaseDBProcessTest extends BaseDBProcess {
 	}
 
 	@Test
-	public void testAlterIndexedColumnName() throws Exception {
-		String indexName = _addIndex(
-			new String[] {"typeVarchar", "typeBoolean"});
+	public void testAlterIndexedColumnNameDB2() throws Exception {
+		Assume.assumeTrue(
+			"Skip this test because only DB2 alter process regenerates indexes",
+			_db.getDBType() == DBType.DB2);
 
-		alterColumnName(
-			_TABLE_NAME, "typeVarchar", "typeVarcharTest VARCHAR(75) null");
+		_testAlterIndexedColumnName(
+			_getExpectedIndexName(
+				new String[] {"typeVarcharTest", "typeBoolean"}));
+	}
 
-		Assert.assertTrue(
-			_dbInspector.hasColumn(_TABLE_NAME, "typeVarcharTest"));
+	@Test
+	public void testAlterIndexedColumnNameNotDB2() throws Exception {
+		Assume.assumeFalse(
+			"Skip this test because DB2 alter process does regenerate indexes",
+			_db.getDBType() == DBType.DB2);
 
-		_validateIndex(
-			indexName,
-			new String[] {
-				_dbInspector.normalizeName("typeVarcharTest"),
-				_dbInspector.normalizeName("typeBoolean")
-			});
+		_testAlterIndexedColumnName(
+			_getExpectedIndexName(new String[] {"typeVarchar", "typeBoolean"}));
 	}
 
 	@Test
@@ -554,6 +558,16 @@ public class BaseDBProcessTest extends BaseDBProcess {
 		return indexMetadata.getIndexName();
 	}
 
+	private String _getExpectedIndexName(String[] columnNames)
+		throws Exception {
+
+		IndexMetadata indexMetadata =
+			IndexMetadataFactoryUtil.createIndexMetadata(
+				connection, false, _TABLE_NAME, columnNames);
+
+		return indexMetadata.getIndexName();
+	}
+
 	private void _populateTable() throws Exception {
 		for (int i = 1; i <= _PROCESS_CONCURRENTLY_COUNT; i++) {
 			runSQL(
@@ -561,6 +575,25 @@ public class BaseDBProcessTest extends BaseDBProcess {
 					"insert into ", _TABLE_NAME, " (id, notNilColumn) values (",
 					i, ", '1')"));
 		}
+	}
+
+	private void _testAlterIndexedColumnName(String expectedIndexName)
+		throws Exception {
+
+		_addIndex(new String[] {"typeVarchar", "typeBoolean"});
+
+		alterColumnName(
+			_TABLE_NAME, "typeVarchar", "typeVarcharTest VARCHAR(75) null");
+
+		Assert.assertTrue(
+			_dbInspector.hasColumn(_TABLE_NAME, "typeVarcharTest"));
+
+		_validateIndex(
+			expectedIndexName,
+			new String[] {
+				_dbInspector.normalizeName("typeVarcharTest"),
+				_dbInspector.normalizeName("typeBoolean")
+			});
 	}
 
 	private void _validateIndex(String indexName, String[] columnNames)

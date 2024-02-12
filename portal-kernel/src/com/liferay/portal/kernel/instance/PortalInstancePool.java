@@ -33,14 +33,129 @@ public class PortalInstancePool {
 		_portalInstances.put(company.getCompanyId(), company.getWebId());
 	}
 
-	public static long[] getCompanyIds() {
-		return ArrayUtil.toLongArray(_portalInstances.keySet());
+	public static long getCompanyId(String webId) {
+		if (!_portalInstances.isEmpty()) {
+			for (Map.Entry<Long, String> entry : _portalInstances.entrySet()) {
+				if (Objects.equals(entry.getValue(), webId)) {
+					return entry.getKey();
+				}
+			}
+
+			throw new IllegalArgumentException(
+				"Unable to get company ID with web ID" + webId);
+		}
+
+		try {
+			return _getCompanyIdBySQL(webId);
+		}
+		catch (SQLException sqlException) {
+			_log.error(
+				"Unable to get the company ID for webId " + webId + " by SQL",
+				sqlException);
+
+			throw new RuntimeException(sqlException);
+		}
 	}
 
-	public static long[] getCompanyIdsBySQL() throws SQLException {
+	public static long[] getCompanyIds() {
+		if (!_portalInstances.isEmpty()) {
+			return ArrayUtil.toLongArray(_portalInstances.keySet());
+		}
+
+		try {
+			return _getCompanyIdsBySQL();
+		}
+		catch (SQLException sqlException) {
+			_log.error("Unable to get the company IDs by SQL", sqlException);
+
+			throw new RuntimeException(sqlException);
+		}
+	}
+
+	public static long getDefaultCompanyId() {
+		if (!_portalInstances.isEmpty()) {
+			for (Map.Entry<Long, String> entry : _portalInstances.entrySet()) {
+				if (Objects.equals(
+						PropsUtil.get(PropsKeys.COMPANY_DEFAULT_WEB_ID),
+						entry.getValue())) {
+
+					return entry.getKey();
+				}
+			}
+
+			throw new IllegalStateException("Unable to get default company ID");
+		}
+
+		try {
+			return _getDefaultCompanyIdBySQL();
+		}
+		catch (SQLException sqlException) {
+			_log.error(
+				"Unable to get the default company ID by SQL", sqlException);
+
+			throw new RuntimeException(sqlException);
+		}
+	}
+
+	public static String getWebId(long companyId) {
+		if (!_portalInstances.isEmpty()) {
+			return _portalInstances.get(companyId);
+		}
+
+		try {
+			return _getWebIdBySQL(companyId);
+		}
+		catch (SQLException sqlException) {
+			_log.error(
+				"Unable to get the web ID for company with companyID " +
+					companyId + " by SQL",
+				sqlException);
+
+			throw new RuntimeException(sqlException);
+		}
+	}
+
+	public static String[] getWebIds() {
+		if (!_portalInstances.isEmpty()) {
+			return ArrayUtil.toStringArray(_portalInstances.values());
+		}
+
+		try {
+			return _getWebIdsBySQL();
+		}
+		catch (SQLException sqlException) {
+			_log.error("Unable to get the web IDs by SQL", sqlException);
+
+			throw new RuntimeException(sqlException);
+		}
+	}
+
+	public static void remove(long companyId) {
+		_portalInstances.remove(companyId);
+	}
+
+	private static long _getCompanyIdBySQL(String webId) throws SQLException {
+		try (Connection connection = DataAccess.getConnection();
+			PreparedStatement preparedStatement = connection.prepareStatement(
+				"select companyId from Company where webId = ?")) {
+
+			preparedStatement.setString(1, webId);
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				if (resultSet.next()) {
+					return resultSet.getLong(1);
+				}
+			}
+		}
+
+		throw new IllegalArgumentException(
+			"Unable to get company ID with web ID" + webId);
+	}
+
+	private static long[] _getCompanyIdsBySQL() throws SQLException {
 		List<Long> companyIds = new ArrayList<>();
 
-		long defaultCompanyId = getDefaultCompanyIdBySQL();
+		long defaultCompanyId = _getDefaultCompanyIdBySQL();
 
 		if (defaultCompanyId != 0) {
 			companyIds.add(defaultCompanyId);
@@ -48,7 +163,7 @@ public class PortalInstancePool {
 
 		try (Connection connection = DataAccess.getConnection();
 			PreparedStatement preparedStatement = connection.prepareStatement(
-				_GET_COMPANY_IDS);
+				"select companyId from Company");
 			ResultSet resultSet = preparedStatement.executeQuery()) {
 
 			while (resultSet.next()) {
@@ -63,39 +178,11 @@ public class PortalInstancePool {
 		return ArrayUtil.toArray(companyIds.toArray(new Long[0]));
 	}
 
-	public static long getDefaultCompanyId() {
-		long[] companyIds = getCompanyIds();
-
-		if (companyIds.length == 0) {
-			try {
-				return getDefaultCompanyIdBySQL();
-			}
-			catch (SQLException sqlException) {
-				_log.error(
-					"Unable to get the default company ID by SQL",
-					sqlException);
-
-				throw new RuntimeException(sqlException);
-			}
-		}
-
-		for (Map.Entry<Long, String> entry : _portalInstances.entrySet()) {
-			if (Objects.equals(
-					PropsUtil.get(PropsKeys.COMPANY_DEFAULT_WEB_ID),
-					entry.getValue())) {
-
-				return entry.getKey();
-			}
-		}
-
-		throw new IllegalStateException("Unable to get default company ID");
-	}
-
-	public static long getDefaultCompanyIdBySQL() throws SQLException {
+	private static long _getDefaultCompanyIdBySQL() throws SQLException {
 		try (Connection connection = DataAccess.getConnection();
 			PreparedStatement preparedStatement = connection.prepareStatement(
 				"select companyId from Company where webId = '" +
-					PropsUtil.get(PropsKeys.COMPANY_DEFAULT_WEB_ID) + "'");
+					_COMPANY_DEFAULT_WEB_ID + "'");
 			ResultSet resultSet = preparedStatement.executeQuery()) {
 
 			if (resultSet.next()) {
@@ -106,20 +193,44 @@ public class PortalInstancePool {
 		return 0;
 	}
 
-	public static String getWebId(long companyId) {
-		return _portalInstances.get(companyId);
+	private static String _getWebIdBySQL(long companyId) throws SQLException {
+		try (Connection connection = DataAccess.getConnection();
+			PreparedStatement preparedStatement = connection.prepareStatement(
+				"select webId from Company where companyId = ?")) {
+
+			preparedStatement.setLong(1, companyId);
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				if (resultSet.next()) {
+					return resultSet.getString(1);
+				}
+			}
+		}
+
+		throw new IllegalArgumentException(
+			"Unable to get web ID with company ID" + companyId);
 	}
 
-	public static String[] getWebIds() {
-		return ArrayUtil.toStringArray(_portalInstances.values());
+	private static String[] _getWebIdsBySQL() throws SQLException {
+		List<String> webIds = new ArrayList<>();
+
+		try (Connection connection = DataAccess.getConnection();
+			PreparedStatement preparedStatement = connection.prepareStatement(
+				"select webId from Company");
+			ResultSet resultSet = preparedStatement.executeQuery()) {
+
+			while (resultSet.next()) {
+				String webId = resultSet.getString("webId");
+
+				webIds.add(webId);
+			}
+		}
+
+		return webIds.toArray(new String[0]);
 	}
 
-	public static void remove(long companyId) {
-		_portalInstances.remove(companyId);
-	}
-
-	private static final String _GET_COMPANY_IDS =
-		"select companyId from Company";
+	private static final String _COMPANY_DEFAULT_WEB_ID = PropsUtil.get(
+		PropsKeys.COMPANY_DEFAULT_WEB_ID);
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		PortalInstancePool.class);

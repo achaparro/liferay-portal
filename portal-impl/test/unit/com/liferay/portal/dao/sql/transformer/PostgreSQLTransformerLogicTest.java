@@ -64,8 +64,8 @@ public class PostgreSQLTransformerLogicTest
 
 	@Override
 	protected String getCastLongTransformedSQL() {
-		return "select CAST(1 + (CAST(foo AS BIGINT) - (bar x 2)) AS BIGINT), " +
-			"CAST(foo + (bar x 3) AS BIGINT) from Foo";
+		return "select CAST(1 + (CAST(foo AS BIGINT) - (bar x 2)) AS " +
+			"BIGINT), CAST(foo + (bar x 3) AS BIGINT) from Foo";
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.workflow.kaleo.definition.ActionType;
 import com.liferay.portal.workflow.kaleo.definition.ScriptLanguage;
@@ -81,7 +82,16 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 			_serviceTrackerMap.keySet(),
 			key -> {
 				if (key.startsWith("function")) {
-					return key;
+					List<ActionExecutor> actionExecutors =
+						_serviceTrackerMap.getService(key);
+
+					for (ActionExecutor actionExecutor : actionExecutors) {
+						if (actionExecutor.getCompanyId() ==
+								CompanyThreadLocal.getCompanyId()) {
+
+							return key;
+						}
+					}
 				}
 
 				return null;

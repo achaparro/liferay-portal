@@ -76,6 +76,11 @@ public class FunctionActionExecutorImpl implements ActionExecutor {
 		return _actionExecutorKey;
 	}
 
+	@Override
+	public long getCompanyId() {
+		return _companyId;
+	}
+
 	@Activate
 	protected void activate(Map<String, Object> properties) throws Exception {
 		_actionExecutorKey = (String)properties.get(KEY);

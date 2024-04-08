@@ -12,6 +12,7 @@ import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ClassUtil;
 import com.liferay.portal.workflow.kaleo.definition.ActionType;
@@ -40,12 +41,11 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 			KaleoAction kaleoAction, ExecutionContext executionContext)
 		throws PortalException {
 
-		String actionExecutorKey = StringBundler.concat(
-			_getActionExecutorKey(kaleoAction), StringPool.AT,
-			CompanyThreadLocal.getCompanyId());
+		String actionExecutorKey = _getActionExecutorKey(kaleoAction);
+
 		ActionExecutor actionExecutor = null;
 
-		List<ActionExecutor> actionExecutors = _serviceTrackerMap.getService(
+		List<ActionExecutor> actionExecutors = _getActionExecutors(
 			actionExecutorKey);
 
 		if (actionExecutors != null) {
@@ -136,6 +136,19 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 		}
 
 		return kaleoAction.getScriptLanguage();
+	}
+
+	private List<ActionExecutor> _getActionExecutors(String actionExecutorKey) {
+		List<ActionExecutor> actionExecutors = _serviceTrackerMap.getService(
+			actionExecutorKey + StringPool.AT + CompanyConstants.SYSTEM);
+
+		if (actionExecutors != null) {
+			return actionExecutors;
+		}
+
+		return _serviceTrackerMap.getService(
+			actionExecutorKey + StringPool.AT +
+				CompanyThreadLocal.getCompanyId());
 	}
 
 	private ServiceTrackerMap<String, List<ActionExecutor>> _serviceTrackerMap;

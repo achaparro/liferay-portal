@@ -9,6 +9,8 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceReferenceMapperFa
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.ClassUtil;
@@ -38,8 +40,9 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 			KaleoAction kaleoAction, ExecutionContext executionContext)
 		throws PortalException {
 
-		String actionExecutorKey = _getActionExecutorKey(kaleoAction);
-
+		String actionExecutorKey = StringBundler.concat(
+			_getActionExecutorKey(kaleoAction), StringPool.AT,
+			CompanyThreadLocal.getCompanyId());
 		ActionExecutor actionExecutor = null;
 
 		List<ActionExecutor> actionExecutors = _serviceTrackerMap.getService(
@@ -89,6 +92,11 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 						if (actionExecutor.getCompanyId() ==
 								CompanyThreadLocal.getCompanyId()) {
 
+							if (key.indexOf(StringPool.AT) > 0) {
+								key = key.substring(
+									0, key.indexOf(StringPool.AT));
+							}
+
 							return key;
 						}
 					}
@@ -106,12 +114,18 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 			ServiceReferenceMapperFactory.create(
 				bundleContext,
 				(actionExecutor, emitter) -> emitter.emit(
-					actionExecutor.getActionExecutorKey())));
+					_encodeKey(actionExecutor))));
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		_serviceTrackerMap.close();
+	}
+
+	private String _encodeKey(ActionExecutor actionExecutor) {
+		return StringBundler.concat(
+			actionExecutor.getActionExecutorKey(), StringPool.AT,
+			actionExecutor.getCompanyId());
 	}
 
 	private String _getActionExecutorKey(KaleoAction kaleoAction) {

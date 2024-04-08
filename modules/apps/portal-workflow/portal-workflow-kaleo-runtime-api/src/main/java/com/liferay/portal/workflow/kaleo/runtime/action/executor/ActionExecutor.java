@@ -5,6 +5,7 @@
 
 package com.liferay.portal.workflow.kaleo.runtime.action.executor;
 
+import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.workflow.kaleo.model.KaleoAction;
 import com.liferay.portal.workflow.kaleo.runtime.ExecutionContext;
 
@@ -18,5 +19,9 @@ public interface ActionExecutor {
 		throws ActionExecutorException;
 
 	public String getActionExecutorKey();
+
+	public default long getCompanyId() {
+		return CompanyConstants.SYSTEM;
+	}
 
 }

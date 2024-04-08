@@ -10,7 +10,6 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.CharPool;
-import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -108,7 +107,9 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 			ServiceReferenceMapperFactory.create(
 				bundleContext,
 				(actionExecutor, emitter) -> emitter.emit(
-					_encodeKey(actionExecutor))));
+					_encodeKey(
+						actionExecutor.getActionExecutorKey(),
+						actionExecutor.getCompanyId()))));
 	}
 
 	@Deactivate
@@ -116,10 +117,8 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 		_serviceTrackerMap.close();
 	}
 
-	private String _encodeKey(ActionExecutor actionExecutor) {
-		return StringBundler.concat(
-			actionExecutor.getActionExecutorKey(), StringPool.AT,
-			actionExecutor.getCompanyId());
+	private String _encodeKey(String actionExecutorKey, long companyId) {
+		return actionExecutorKey + StringPool.AT + companyId;
 	}
 
 	private String _getActionExecutorKey(KaleoAction kaleoAction) {
@@ -134,15 +133,14 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 
 	private List<ActionExecutor> _getActionExecutors(String actionExecutorKey) {
 		List<ActionExecutor> actionExecutors = _serviceTrackerMap.getService(
-			actionExecutorKey + StringPool.AT + CompanyConstants.SYSTEM);
+			_encodeKey(actionExecutorKey, CompanyConstants.SYSTEM));
 
 		if (actionExecutors != null) {
 			return actionExecutors;
 		}
 
 		return _serviceTrackerMap.getService(
-			actionExecutorKey + StringPool.AT +
-				CompanyThreadLocal.getCompanyId());
+			_encodeKey(actionExecutorKey, CompanyThreadLocal.getCompanyId()));
 	}
 
 	private ServiceTrackerMap<String, List<ActionExecutor>> _serviceTrackerMap;

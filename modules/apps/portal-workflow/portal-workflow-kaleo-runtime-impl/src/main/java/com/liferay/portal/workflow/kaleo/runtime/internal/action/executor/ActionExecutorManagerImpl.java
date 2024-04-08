@@ -9,8 +9,10 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceReferenceMapperFa
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
@@ -85,20 +87,12 @@ public class ActionExecutorManagerImpl implements ActionExecutorManager {
 			_serviceTrackerMap.keySet(),
 			key -> {
 				if (key.startsWith("function")) {
-					List<ActionExecutor> actionExecutors =
-						_serviceTrackerMap.getService(key);
+					List<String> parts = StringUtil.split(key, CharPool.AT);
 
-					for (ActionExecutor actionExecutor : actionExecutors) {
-						if (actionExecutor.getCompanyId() ==
-								CompanyThreadLocal.getCompanyId()) {
+					long companyId = Long.valueOf(parts.get(1));
 
-							if (key.indexOf(StringPool.AT) > 0) {
-								key = key.substring(
-									0, key.indexOf(StringPool.AT));
-							}
-
-							return key;
-						}
+					if (companyId == CompanyThreadLocal.getCompanyId()) {
+						return parts.get(0);
 					}
 				}
 

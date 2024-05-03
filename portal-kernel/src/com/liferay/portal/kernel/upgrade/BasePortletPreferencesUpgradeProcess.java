@@ -40,6 +40,20 @@ public abstract class BasePortletPreferencesUpgradeProcess
 
 	@Override
 	protected void doUpgrade() throws Exception {
+		PortletPreferencesCompanyUpgradeProcess
+			portletPreferencesCompanyUpgradeProcess =
+				new PortletPreferencesCompanyUpgradeProcess();
+
+		portletPreferencesCompanyUpgradeProcess.upgrade();
+
+		if (!hasColumn("PortletPreferences", "preferences")) {
+			PortletPreferenceValueCompanyUpgradeProcess
+				portletPreferenceValueCompanyUpgradeProcess =
+					new PortletPreferenceValueCompanyUpgradeProcess();
+
+			portletPreferenceValueCompanyUpgradeProcess.upgrade();
+		}
+
 		updatePortletPreferences();
 	}
 
@@ -652,6 +666,32 @@ public abstract class BasePortletPreferencesUpgradeProcess
 		private final List<Long> _portletPreferenceValueIds = new ArrayList<>();
 		private boolean _readOnly;
 		private final List<String> _values = new ArrayList<>();
+
+	}
+
+	private class PortletPreferencesCompanyUpgradeProcess
+		extends BaseCompanyIdUpgradeProcess {
+
+		@Override
+		protected TableUpdater[] getTableUpdaters() {
+			return new TableUpdater[] {
+				new PortletPreferencesTableUpdater("PortletPreferences")
+			};
+		}
+
+	}
+
+	private class PortletPreferenceValueCompanyUpgradeProcess
+		extends BaseCompanyIdUpgradeProcess {
+
+		@Override
+		protected TableUpdater[] getTableUpdaters() {
+			return new TableUpdater[] {
+				new TableUpdater(
+					"PortletPreferenceValue", "PortletPreferences",
+					"portletPreferencesId")
+			};
+		}
 
 	}
 

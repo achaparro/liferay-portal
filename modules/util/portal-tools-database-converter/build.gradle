@@ -1,0 +1,9 @@
+dependencies {
+	compileInclude group: "com.liferay", name: "com.liferay.petra.function", version: "5.5.0"
+	compileInclude group: "com.liferay", name: "com.liferay.petra.lang", version: "5.2.0"
+	compileInclude group: "com.liferay", name: "com.liferay.petra.string", version: "5.3.0"
+	compileInclude group: "com.liferay.portal", name: "com.liferay.portal.impl", version: "default"
+	compileInclude group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "default"
+	compileInclude group: "com.mysql", name: "mysql-connector-j", version: "8.3.0"
+	compileInclude group: "org.postgresql", name: "postgresql", version: "42.4.4"
+}

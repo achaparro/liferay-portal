@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.Types;
 
 import java.util.Arrays;
@@ -61,13 +62,16 @@ public class DatabaseConverter {
 		PostgreSQLDB postgreSQLDB = new PostgreSQLDB(0, 0);
 
 		for (String tableName : sourceDBInspector.getTableNames(null)) {
-			System.out.println(
-				postgreSQLDB.buildSQL(
-					_getCreateTableSQL(
-						sourceConnection, sourceDBInspector, targetDBInspector,
-						mySQLDB, tableName)));
+			String createTableSQL = postgreSQLDB.buildSQL(
+				_getCreateTableSQL(
+					sourceConnection, sourceDBInspector, targetDBInspector,
+					mySQLDB, tableName));
 
-			//postgreSQLDB.runSQL(targetConnection, createTableSQL);
+			System.out.println(createTableSQL);
+
+			Statement statement = targetConnection.createStatement();
+
+			statement.execute(createTableSQL);
 		}
 	}
 
@@ -126,7 +130,7 @@ public class DatabaseConverter {
 
 		sb.setIndex(sb.index() - 1);
 
-		sb.append(")");
+		sb.append("))");
 
 		return sb.toString();
 	}

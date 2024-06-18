@@ -55,7 +55,7 @@ public class ConfigurationSchemaCreator implements SchemaCreator {
 
 	@Override
 	public String getSchemaVersion() {
-		return null;
+		return "0.0.0";
 	}
 
 	private final Bundle _bundle;

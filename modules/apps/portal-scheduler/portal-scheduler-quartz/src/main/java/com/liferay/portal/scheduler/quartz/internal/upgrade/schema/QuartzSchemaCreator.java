@@ -15,6 +15,8 @@ import com.liferay.portal.upgrade.release.SchemaCreator;
 import java.sql.Connection;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -22,10 +24,6 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(service = SchemaCreator.class)
 public class QuartzSchemaCreator implements SchemaCreator {
-
-	public QuartzSchemaCreator(Bundle bundle) {
-		_bundle = bundle;
-	}
 
 	@Override
 	public void create() throws UpgradeException {
@@ -54,6 +52,11 @@ public class QuartzSchemaCreator implements SchemaCreator {
 		return "0.0.0";
 	}
 
-	private final Bundle _bundle;
+	@Activate
+	protected void activate(BundleContext bundleContext) {
+		_bundle = bundleContext.getBundle();
+	}
+
+	private Bundle _bundle;
 
 }

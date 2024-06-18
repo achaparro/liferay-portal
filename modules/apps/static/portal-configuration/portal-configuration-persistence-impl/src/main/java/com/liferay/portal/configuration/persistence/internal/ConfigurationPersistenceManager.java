@@ -328,10 +328,10 @@ public class ConfigurationPersistenceManager
 
 	private void _createConfigurationTable() {
 		ConfigurationSchemaCreator configurationSchemaCreator =
-			new ConfigurationSchemaCreator(_bundleContext.getBundle());
+			new ConfigurationSchemaCreator();
 
 		try {
-			configurationSchemaCreator.create();
+			configurationSchemaCreator.create(_bundleContext.getBundle());
 		}
 		catch (Exception exception) {
 			ReflectionUtil.throwException(exception);

@@ -24,10 +24,6 @@ import org.osgi.service.component.annotations.Component;
 @Component(service = SchemaCreator.class)
 public class ConfigurationSchemaCreator implements SchemaCreator {
 
-	public ConfigurationSchemaCreator(Bundle bundle) {
-		_bundle = bundle;
-	}
-
 	@Override
 	public void create() throws UpgradeException {
 		try (Connection connection = DataAccess.getConnection()) {
@@ -48,6 +44,12 @@ public class ConfigurationSchemaCreator implements SchemaCreator {
 		}
 	}
 
+	public void create(Bundle bundle) throws UpgradeException {
+		_bundle = bundle;
+
+		create();
+	}
+
 	@Override
 	public String getBundleSymbolicName() {
 		return _bundle.getSymbolicName();
@@ -58,6 +60,6 @@ public class ConfigurationSchemaCreator implements SchemaCreator {
 		return "0.0.0";
 	}
 
-	private final Bundle _bundle;
+	private Bundle _bundle;
 
 }

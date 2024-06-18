@@ -16,6 +16,8 @@ import com.liferay.portal.upgrade.release.SchemaCreator;
 import java.sql.Connection;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -58,6 +60,11 @@ public class ConfigurationSchemaCreator implements SchemaCreator {
 	@Override
 	public String getSchemaVersion() {
 		return "0.0.0";
+	}
+
+	@Activate
+	protected void activate(BundleContext bundleContext) {
+		_bundle = bundleContext.getBundle();
 	}
 
 	private Bundle _bundle;

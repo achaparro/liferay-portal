@@ -6,6 +6,7 @@
 package com.liferay.portal.scheduler.quartz.internal.upgrade.registry;
 
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.scheduler.quartz.internal.upgrade.v1_0_1.QuartzUpgradeProcess;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
@@ -52,5 +53,10 @@ public class QuartzServiceUpgradeStepRegistrator
 
 	@Reference
 	private JSONFactory _jsonFactory;
+
+	@Reference(
+		target = "(&(release.bundle.symbolic.name=com.liferay.portal.scheduler.quartz)(&(release.schema.version>=0.0.0)))"
+	)
+	private Release _release;
 
 }

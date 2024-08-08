@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -96,9 +97,9 @@ public class DBInspectorUnitTest {
 		DBInspector dbInspector = new DBInspector(_connection);
 
 		Assert.assertTrue(
-				dbInspector.isObjectTable(Arrays.asList(1L), "l_1_tableName"));
+			dbInspector.isObjectTable(Arrays.asList(1L), "l_1_tableName"));
 		Assert.assertTrue(
-				dbInspector.isObjectTable(Arrays.asList(1L), "L_1_tableName"));
+			dbInspector.isObjectTable(Arrays.asList(1L), "L_1_tableName"));
 	}
 
 	private void _mockTableWithColumn(String tableName, String columnName)

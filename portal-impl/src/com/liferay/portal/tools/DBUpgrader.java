@@ -242,7 +242,7 @@ public class DBUpgrader {
 
 		_registerModuleServiceLifecycle("portlets.initialized");
 
-		if (isUpgradeDatabaseAutoRunEnabled()) {
+		if (autoUpgrade) {
 			IndexUpdaterUtil.updateAllIndexes();
 		}
 	}

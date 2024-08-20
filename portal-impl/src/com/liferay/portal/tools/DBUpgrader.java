@@ -157,7 +157,9 @@ public class DBUpgrader {
 
 			InitUtil.registerContext();
 
-			_registerModuleServiceLifecycle("portal.initialized");
+			_registerModuleServiceLifecycle("db.schema.export");
+
+			_registerModuleServiceLifecycle("db.schema.export2");
 		}
 		catch (Exception exception) {
 			_log.error(exception);

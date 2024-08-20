@@ -121,7 +121,7 @@ public class ReleasePublisher {
 
 	private BundleContext _bundleContext;
 
-	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED)
+	@Reference(target = "(|" + ModuleServiceLifecycle.PORTAL_INITIALIZED + "(module.service.lifecycle=db.schema.export))")
 	private ModuleServiceLifecycle _moduleServiceLifecycle;
 
 	@Reference

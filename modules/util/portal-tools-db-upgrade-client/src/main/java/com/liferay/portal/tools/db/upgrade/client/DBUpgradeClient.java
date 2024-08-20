@@ -236,7 +236,7 @@ public class DBUpgradeClient {
 					upgradeFailed = true;
 				}
 
-				if (line.equals("Exiting DBUpgrader#main(String[]).")) {
+				if (line.equals("Exiting migration")) {
 					break;
 				}
 

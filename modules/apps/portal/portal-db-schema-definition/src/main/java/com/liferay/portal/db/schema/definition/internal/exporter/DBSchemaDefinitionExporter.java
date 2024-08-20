@@ -5,6 +5,7 @@
 
 package com.liferay.portal.db.schema.definition.internal.exporter;
 
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
@@ -299,6 +300,9 @@ public class DBSchemaDefinitionExporter {
 
 	@Reference
 	private ConfigurationAdmin _configurationAdmin;
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Reference
 	private ReleaseLocalService _releaseLocalService;

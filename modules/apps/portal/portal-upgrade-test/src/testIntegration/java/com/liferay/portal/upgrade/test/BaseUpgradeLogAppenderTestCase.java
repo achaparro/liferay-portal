@@ -629,27 +629,6 @@ public abstract class BaseUpgradeLogAppenderTestCase {
 	}
 
 	@Test
-	public void testUpgradeReportDisabled() throws Exception {
-		boolean originalUpgradeEnable = ReflectionTestUtil.getAndSetFieldValue(
-			PropsValues.class, "UPGRADE_REPORT_ENABLED", false);
-
-		try {
-			_appender.start();
-
-			_appender.stop();
-
-			File reportFile = _getReportFile("upgrade_report.info", false);
-
-			Assert.assertFalse(reportFile.exists());
-		}
-		finally {
-			ReflectionTestUtil.setFieldValue(
-				PropsValues.class, "UPGRADE_REPORT_ENABLED",
-				originalUpgradeEnable);
-		}
-	}
-
-	@Test
 	public void testRenameUpgradeReport() throws Exception {
 		_appender.start();
 
@@ -808,25 +787,24 @@ public abstract class BaseUpgradeLogAppenderTestCase {
 	}
 
 	@Test
-	public void testUpgradeReportLogging() throws Exception {
-		DB db = DBManagerUtil.getDB();
+	public void testUpgradeReportDisabled() throws Exception {
+		boolean originalUpgradeEnable = ReflectionTestUtil.getAndSetFieldValue(
+			PropsValues.class, "UPGRADE_REPORT_ENABLED", false);
 
-		_appender.start();
+		try {
+			_appender.start();
 
-		_appender.stop();
+			_appender.stop();
 
-		_assertReport("Execution time: 0 seconds");
+			File reportFile = _getReportFile("upgrade_report.info", false);
 
-		_assertReport("Type: major");
-
-		_assertReport("Result: failure");
-
-		_assertReport("Status: There are upgrade processes available");
-
-		_assertReport(
-			StringBundler.concat(
-				"Database version: ", db.getDBType(), StringPool.SPACE,
-				db.getMajorVersion(), StringPool.PERIOD, db.getMinorVersion()));
+			Assert.assertFalse(reportFile.exists());
+		}
+		finally {
+			ReflectionTestUtil.setFieldValue(
+				PropsValues.class, "UPGRADE_REPORT_ENABLED",
+				originalUpgradeEnable);
+		}
 	}
 
 	@Test
@@ -857,6 +835,28 @@ public abstract class BaseUpgradeLogAppenderTestCase {
 				PropsValues.class, "UPGRADE_REPORT_DIR",
 				originalUpgradeReportDir);
 		}
+	}
+
+	@Test
+	public void testUpgradeReportLogging() throws Exception {
+		DB db = DBManagerUtil.getDB();
+
+		_appender.start();
+
+		_appender.stop();
+
+		_assertReport("Execution time: 0 seconds");
+
+		_assertReport("Type: major");
+
+		_assertReport("Result: failure");
+
+		_assertReport("Status: There are upgrade processes available");
+
+		_assertReport(
+			StringBundler.concat(
+				"Database version: ", db.getDBType(), StringPool.SPACE,
+				db.getMajorVersion(), StringPool.PERIOD, db.getMinorVersion()));
 	}
 
 	@Rule
@@ -1008,10 +1008,12 @@ public abstract class BaseUpgradeLogAppenderTestCase {
 	}
 
 	private File _getReportFile(String fileName) throws Exception {
-		return _getReportFile(fileName,true);
+		return _getReportFile(fileName, true);
 	}
 
-	private File _getReportFile(String fileName, boolean validate) throws Exception {
+	private File _getReportFile(String fileName, boolean validate)
+		throws Exception {
+
 		File reportsDir = null;
 
 		if (Validator.isBlank(_upgradeReportDir)) {
@@ -1021,9 +1023,10 @@ public abstract class BaseUpgradeLogAppenderTestCase {
 			reportsDir = new File(_upgradeReportDir);
 		}
 
-		if(validate){
+		if (validate) {
 			Assert.assertTrue(reportsDir.exists());
 		}
+
 		return new File(reportsDir, fileName);
 	}
 

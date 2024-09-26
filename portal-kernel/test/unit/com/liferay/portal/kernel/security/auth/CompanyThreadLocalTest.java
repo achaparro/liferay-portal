@@ -9,6 +9,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.change.tracking.CTCollectionIdSupplier;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Props;
@@ -49,6 +50,22 @@ public class CompanyThreadLocalTest {
 	@Test
 	public void testLockWithSetWithSafeCloseable() {
 		_testLock(CompanyThreadLocal::setWithSafeCloseable);
+	}
+
+	@Test
+	public void testPermissionAndPrincipalThreadLocalsWithSafeCloseable() {
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setWithSafeCloseable(1L)) {
+
+			PermissionThreadLocal.setAddResource(false);
+			PrincipalThreadLocal.setName("userTest");
+		}
+
+		// default value is true
+
+		Assert.assertNotEquals(false, PermissionThreadLocal.isAddResource());
+
+		Assert.assertNotEquals("userTest", PrincipalThreadLocal.getName());
 	}
 
 	@Test

@@ -514,6 +514,17 @@ public class CompanyLocalServiceDBPartitionTest
 			ArrayUtil.contains(_getCompanyIdsBySQL(), company.getCompanyId()));
 		Assert.assertEquals(dbPartitionsCount - 1, _getDBPartitionsCount());
 
+		Bundle bundle = FrameworkUtil.getBundle(getClass());
+
+		Collection<ServiceReference<Portlet>> serviceReferences =
+			bundle.getBundleContext(
+			).getServiceReferences(
+				Portlet.class,
+				"(com.liferay.portlet.company=" + company.getCompanyId() + ")"
+			);
+
+		Assert.assertTrue(serviceReferences.isEmpty());
+
 		BundleListener configurationManager = ReflectionTestUtil.invoke(
 			_configurationAdmin, "getConfigurationManager", new Class<?>[0],
 			null);
@@ -524,25 +535,6 @@ public class CompanyLocalServiceDBPartitionTest
 				new Class<?>[] {String.class}, pid));
 
 		Assert.assertFalse(_persistenceManager.exists(pid));
-	}
-
-	@Test
-	public void testDeleteCompanyServiceReference() throws Exception {
-		Company company = CompanyTestUtil.addCompany();
-
-		long companyId = company.getCompanyId();
-
-		companyLocalService.deleteCompany(company);
-
-		Bundle bundle = FrameworkUtil.getBundle(getClass());
-
-		Collection<ServiceReference<Portlet>> serviceReferences =
-			bundle.getBundleContext(
-			).getServiceReferences(
-				Portlet.class, "(com.liferay.portlet.company=" + companyId + ")"
-			);
-
-		Assert.assertTrue(serviceReferences.isEmpty());
 	}
 
 	@Test
@@ -594,6 +586,18 @@ public class CompanyLocalServiceDBPartitionTest
 
 			_checkStandaloneDBPartitionTables(
 				company.getCompanyId(), "Company", "VirtualHost");
+
+			Bundle bundle = FrameworkUtil.getBundle(getClass());
+
+			Collection<ServiceReference<Portlet>> serviceReferences =
+				bundle.getBundleContext(
+				).getServiceReferences(
+					Portlet.class,
+					"(com.liferay.portlet.company=" + company.getCompanyId() +
+						")"
+				);
+
+			Assert.assertTrue(serviceReferences.isEmpty());
 		}
 		finally {
 			if (standaloneDBPartition) {

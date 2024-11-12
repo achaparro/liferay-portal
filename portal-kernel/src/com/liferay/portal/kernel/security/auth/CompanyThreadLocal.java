@@ -180,9 +180,7 @@ public class CompanyThreadLocal {
 			_companyId.set(CompanyConstants.SYSTEM);
 		}
 
-		_clearCompanyRelatedThreadLocals();
-
-		_clearUserThreadLocals();
+		_clearThreadLocals();
 
 		CTCollectionThreadLocal.removeCTCollectionId();
 	}
@@ -237,14 +235,12 @@ public class CompanyThreadLocal {
 				ServiceContextThreadLocal.setServiceContextWithSafeCloseable(
 					new LinkedList<ServiceContext>()));
 
-			_clearCompanyRelatedThreadLocals();
-
 			safeCloseables.add(
 				LocaleThreadLocal.setDefaultLocaleWithSafeCloseable(null));
 			safeCloseables.add(
 				TimeZoneThreadLocal.setDefaultTimeZoneWithSafeCloseable(null));
 
-			_clearUserThreadLocals();
+			_clearThreadLocals();
 		}
 
 		safeCloseables.add(
@@ -279,19 +275,16 @@ public class CompanyThreadLocal {
 			initializingPortalInstance);
 	}
 
-	private static void _clearCompanyRelatedThreadLocals() {
+	private static void _clearThreadLocals() {
 		CTCollectionPreviewThreadLocal.removeCTCollectionId();
 		DataSampleThreadLocal.clearDataSamples();
 		GroupThreadLocal.removeGroupId();
+		LocaleThreadLocal.removeDefaultLocale();
 		PasswordModificationThreadLocal.removePasswordUnencrypted();
 		PermissionThreadLocal.removePermissionChecker();
 		PrincipalThreadLocal.removeName();
 		PrincipalThreadLocal.removePassword();
 		ServiceContextThreadLocal.clearServiceContext();
-	}
-
-	private static void _clearUserThreadLocals() {
-		LocaleThreadLocal.removeDefaultLocale();
 		TimeZoneThreadLocal.removeDefaultTimeZone();
 	}
 

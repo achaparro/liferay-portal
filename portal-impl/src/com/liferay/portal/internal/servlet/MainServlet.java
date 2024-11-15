@@ -777,8 +777,11 @@ public class MainServlet extends HttpServlet {
 			throw new RuntimeException("Company default web ID is null");
 		}
 
-		CompanyLocalServiceUtil.forEachCompany(
-			company -> {
+		CompanyLocalServiceUtil.forEachCompanyId(
+			companyId -> {
+				Company company = CompanyLocalServiceUtil.getCompanyById(
+					companyId);
+
 				if (StartupHelperUtil.isDBNew() &&
 					Objects.equals(
 						PropsValues.COMPANY_DEFAULT_WEB_ID,
@@ -789,7 +792,8 @@ public class MainServlet extends HttpServlet {
 				else {
 					PortalInstances.initCompany(company, false);
 				}
-			});
+			},
+			PortalInstancePool.getCompanyIds());
 
 		PortalInstancePool.enableCache();
 	}

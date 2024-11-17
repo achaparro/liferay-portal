@@ -698,14 +698,22 @@ public class CompanyLocalServiceDBPartitionTest
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setCompanyIdWithSafeCloseable(0L)) {
 
-				companyLocalService.getCompanies();
+				companyLocalService.forEachCompanyId(
+					companyId -> {
+						if (companyId != TestPropsValues.getCompanyId()) {
+							return;
+						}
+
+						PortletPreferences portletPreferences =
+							portletPreferencesMap.get(
+								TestPropsValues.getCompanyId());
+
+						Assert.assertEquals(
+							"testValue",
+							portletPreferences.getValue("testName", null));
+					},
+					PortalInstancePool.getCompanyIds());
 			}
-
-			PortletPreferences portletPreferences = portletPreferencesMap.get(
-				TestPropsValues.getCompanyId());
-
-			Assert.assertEquals(
-				"testValue", portletPreferences.getValue("testName", null));
 		}
 		finally {
 			companyLocalService.deleteCompany(TestPropsValues.getCompanyId());

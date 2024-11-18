@@ -249,8 +249,12 @@ public class CompanyThreadLocal {
 	}
 
 	private static void _clearUserThreadLocals() {
-		LocaleThreadLocal.removeDefaultLocale();
-		TimeZoneThreadLocal.removeDefaultTimeZone();
+		for (CentralizedCompanyThreadLocal<?> centralizedCompanyThreadLocal :
+				CentralizedCompanyThreadLocal.
+					getCentralizedCompanyThreadLocals()) {
+
+			centralizedCompanyThreadLocal.remove();
+		}
 	}
 
 	private static void _syncLastDBPartitionSessionState() {

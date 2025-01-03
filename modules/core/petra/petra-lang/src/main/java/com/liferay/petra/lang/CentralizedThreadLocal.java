@@ -129,7 +129,7 @@ public class CentralizedThreadLocal<T> extends ThreadLocal<T> {
 
 		Entry entry = threadLocalMap.getEntry(this);
 
-		if (entry == null) {
+		if (entry == null || entry._value == null) {
 			T value = initialValue();
 
 			threadLocalMap.putEntry(this, value);

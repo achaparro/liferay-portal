@@ -451,20 +451,20 @@ public class CompanyLocalServiceDBPartitionTest
 			safeCloseable.close();
 		}
 		finally {
-			if (copiedCompany != null) {
-				companyLocalService.deleteCompany(copiedCompany.getCompanyId());
-			}
-
-			if (configuration != null) {
-				ConfigurationTestUtil.deleteConfiguration(configuration);
-			}
-
 			if (_className1 != null) {
 				_classNameLocalService.deleteClassName(_className1);
 			}
 
 			if (_className2 != null) {
 				_classNameLocalService.deleteClassName(_className2);
+			}
+
+			if (configuration != null) {
+				ConfigurationTestUtil.deleteConfiguration(configuration);
+			}
+
+			if (copiedCompany != null) {
+				companyLocalService.deleteCompany(copiedCompany.getCompanyId());
 			}
 		}
 	}
@@ -742,7 +742,7 @@ public class CompanyLocalServiceDBPartitionTest
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setCompanyIdWithSafeCloseable(companyId)) {
 
-			// reverse order to generate different classNameId
+			// reverse order to generate different classNameIds
 
 			_classNameLocalService.addClassName(_CLASS_NAME_2);
 

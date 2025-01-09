@@ -463,12 +463,12 @@ public class CompanyLocalServiceDBPartitionTest
 				ConfigurationTestUtil.deleteConfiguration(configuration);
 			}
 
-			if (_cleanupClassName1 != null) {
-				_classNameLocalService.deleteClassName(_cleanupClassName1);
+			if (_className1 != null) {
+				_classNameLocalService.deleteClassName(_className1);
 			}
 
-			if (_cleanupClassName2 != null) {
-				_classNameLocalService.deleteClassName(_cleanupClassName2);
+			if (_className2 != null) {
+				_classNameLocalService.deleteClassName(_className2);
 			}
 		}
 	}
@@ -742,10 +742,8 @@ public class CompanyLocalServiceDBPartitionTest
 	private long _addCopyDBPartitionCompanyCache(
 		long companyId, String counterName) {
 
-		_cleanupClassName1 = _classNameLocalService.addClassName(
-			_CLEANUP_CLASS_NAME_VALUE1);
-		_cleanupClassName2 = _classNameLocalService.addClassName(
-			_CLEANUP_CLASS_NAME_VALUE2);
+		_className1 = _classNameLocalService.addClassName(_CLASS_NAME_1);
+		_className2 = _classNameLocalService.addClassName(_CLASS_NAME_2);
 
 		long counter = 0;
 
@@ -754,9 +752,9 @@ public class CompanyLocalServiceDBPartitionTest
 
 			// reverse order to generate different classNameId
 
-			_classNameLocalService.addClassName(_CLEANUP_CLASS_NAME_VALUE2);
+			_classNameLocalService.addClassName(_CLASS_NAME_2);
 
-			_classNameLocalService.addClassName(_CLEANUP_CLASS_NAME_VALUE1);
+			_classNameLocalService.addClassName(_CLASS_NAME_1);
 
 			counter = _counterLocalService.increment(counterName);
 
@@ -878,13 +876,11 @@ public class CompanyLocalServiceDBPartitionTest
 				CompanyThreadLocal.setCompanyIdWithSafeCloseable(companyId)) {
 
 			Assert.assertEquals(
-				_cleanupClassName1,
-				_classNameLocalService.getClassName(
-					_CLEANUP_CLASS_NAME_VALUE1));
+				_className1,
+				_classNameLocalService.getClassName(_CLASS_NAME_1));
 			Assert.assertEquals(
-				_cleanupClassName2,
-				_classNameLocalService.getClassName(
-					_CLEANUP_CLASS_NAME_VALUE2));
+				_className2,
+				_classNameLocalService.getClassName(_CLASS_NAME_2));
 
 			Assert.assertEquals(
 				expectedCounter, _counterLocalService.increment(counterName));
@@ -1133,20 +1129,20 @@ public class CompanyLocalServiceDBPartitionTest
 		return viewNames.size();
 	}
 
-	private static final String _CLEANUP_CLASS_NAME_VALUE1 =
-		"com.liferay.test.testCacheCleanup1";
+	private static final String _CLASS_NAME_1 =
+		CompanyLocalServiceDBPartitionTest.class.getName() + 1;
 
-	private static final String _CLEANUP_CLASS_NAME_VALUE2 =
-		"com.liferay.test.testCacheCleanup2";
+	private static final String _CLASS_NAME_2 =
+		CompanyLocalServiceDBPartitionTest.class.getName() + 2;
 
 	private static final String _REPOSITORY_DEFINER_CLASS_NAME =
 		"TestRepositoryDefiner";
 
+	private static ClassName _className1;
+	private static ClassName _className2;
+
 	@Inject
 	private static ClassNameLocalService _classNameLocalService;
-
-	private static ClassName _cleanupClassName1;
-	private static ClassName _cleanupClassName2;
 
 	@Inject
 	private static CounterLocalService _counterLocalService;

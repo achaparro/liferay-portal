@@ -433,7 +433,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 			String counterName = RandomTestUtil.randomString();
 
-			long expectedCounter = _addCompanyCacheableData(
+			long expectedCounter = _addCopyDBPartitionCompanyCache(
 				copiedCompanyId, counterName);
 
 			companyLocalService.deleteCompany(copiedCompany);
@@ -444,7 +444,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 			Assert.assertEquals(copiedCompanyId, copiedCompany.getCompanyId());
 
-			_assertCompanyCacheableData(
+			_assertCopyDBPartitionCompanyCache(
 				copiedCompanyId, counterName, expectedCounter);
 
 			_assertCopyDBPartitionCompany(
@@ -575,7 +575,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 		String counterName = RandomTestUtil.randomString();
 
-		_addCompanyCacheableData(companyId, counterName);
+		_addCopyDBPartitionCompanyCache(companyId, counterName);
 
 		String pid = configuration.getPid();
 
@@ -739,7 +739,9 @@ public class CompanyLocalServiceDBPartitionTest
 			companyId -> _resourceActionLocalService.checkResourceActions());
 	}
 
-	private long _addCompanyCacheableData(long companyId, String counterName) {
+	private long _addCopyDBPartitionCompanyCache(
+		long companyId, String counterName) {
+
 		long counter = 0;
 
 		try (SafeCloseable safeCloseable =
@@ -804,26 +806,6 @@ public class CompanyLocalServiceDBPartitionTest
 						repositoryClassDefinition, "_repositoriesMap")));
 	}
 
-	private void _assertCompanyCacheableData(
-		long companyId, String counterName, long expectedCounter) {
-
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setCompanyIdWithSafeCloseable(companyId)) {
-
-			Assert.assertEquals(
-				_cleanupClassName1,
-				_classNameLocalService.getClassName(
-					_CLEANUP_CLASS_NAME_VALUE1));
-			Assert.assertEquals(
-				_cleanupClassName2,
-				_classNameLocalService.getClassName(
-					_CLEANUP_CLASS_NAME_VALUE2));
-
-			Assert.assertEquals(
-				expectedCounter, _counterLocalService.increment(counterName));
-		}
-	}
-
 	private void _assertCompanyConfiguration(
 			long companyId, Configuration configuration)
 		throws SQLException {
@@ -880,6 +862,26 @@ public class CompanyLocalServiceDBPartitionTest
 		Assert.assertEquals(webId, company.getWebId());
 
 		_virtualHostLocalService.getVirtualHost(virtualHostname);
+	}
+
+	private void _assertCopyDBPartitionCompanyCache(
+		long companyId, String counterName, long expectedCounter) {
+
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setCompanyIdWithSafeCloseable(companyId)) {
+
+			Assert.assertEquals(
+				_cleanupClassName1,
+				_classNameLocalService.getClassName(
+					_CLEANUP_CLASS_NAME_VALUE1));
+			Assert.assertEquals(
+				_cleanupClassName2,
+				_classNameLocalService.getClassName(
+					_CLEANUP_CLASS_NAME_VALUE2));
+
+			Assert.assertEquals(
+				expectedCounter, _counterLocalService.increment(counterName));
+		}
 	}
 
 	private void _assertCopyDBPartitionCompanyId(

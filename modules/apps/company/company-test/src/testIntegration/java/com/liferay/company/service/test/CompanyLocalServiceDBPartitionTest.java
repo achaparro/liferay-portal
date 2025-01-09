@@ -423,10 +423,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 			_assertCompanyConfiguration(copiedCompanyId, configuration);
 
-			String counterName = RandomTestUtil.randomString();
-
-			long expectedCounter = _addCopyDBPartitionCompanyCache(
-				copiedCompanyId, counterName);
+			_addCopyDBPartitionCompanyCache(copiedCompanyId);
 
 			companyLocalService.deleteCompany(copiedCompany);
 
@@ -436,8 +433,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 			Assert.assertEquals(copiedCompanyId, copiedCompany.getCompanyId());
 
-			_assertCopyDBPartitionCompanyCache(
-				copiedCompanyId, counterName, expectedCounter);
+			_assertCopyDBPartitionCompanyCache(copiedCompanyId);
 
 			_assertCopyDBPartitionCompany(
 				copiedCompany, name, virtualHostname, webId);
@@ -575,7 +571,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 		String counterName = RandomTestUtil.randomString();
 
-		_addCopyDBPartitionCompanyCache(companyId, counterName);
+		_addCopyDBPartitionCompanyCache(companyId);
 
 		String pid = configuration.getPid();
 
@@ -739,13 +735,9 @@ public class CompanyLocalServiceDBPartitionTest
 			companyId -> _resourceActionLocalService.checkResourceActions());
 	}
 
-	private long _addCopyDBPartitionCompanyCache(
-		long companyId, String counterName) {
-
+	private void _addCopyDBPartitionCompanyCache(long companyId) {
 		_className1 = _classNameLocalService.addClassName(_CLASS_NAME_1);
 		_className2 = _classNameLocalService.addClassName(_CLASS_NAME_2);
-
-		long counter = 0;
 
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setCompanyIdWithSafeCloseable(companyId)) {
@@ -756,12 +748,12 @@ public class CompanyLocalServiceDBPartitionTest
 
 			_classNameLocalService.addClassName(_CLASS_NAME_1);
 
-			counter = _counterLocalService.increment(counterName);
+			_counter = _counterLocalService.increment(
+				CompanyLocalServiceDBPartitionTest.class.getName());
 
-			_counterLocalService.reset(counterName, 100000);
+			_counterLocalService.reset(
+				CompanyLocalServiceDBPartitionTest.class.getName(), 100000);
 		}
-
-		return counter;
 	}
 
 	private void _assertCachesCleanup(long companyId, String counterName)
@@ -869,9 +861,7 @@ public class CompanyLocalServiceDBPartitionTest
 		_virtualHostLocalService.getVirtualHost(virtualHostname);
 	}
 
-	private void _assertCopyDBPartitionCompanyCache(
-		long companyId, String counterName, long expectedCounter) {
-
+	private void _assertCopyDBPartitionCompanyCache(long companyId) {
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setCompanyIdWithSafeCloseable(companyId)) {
 
@@ -883,7 +873,9 @@ public class CompanyLocalServiceDBPartitionTest
 				_classNameLocalService.getClassName(_CLASS_NAME_2));
 
 			Assert.assertEquals(
-				expectedCounter, _counterLocalService.increment(counterName));
+				_counter,
+				_counterLocalService.increment(
+					CompanyLocalServiceDBPartitionTest.class.getName()));
 		}
 	}
 
@@ -1143,6 +1135,8 @@ public class CompanyLocalServiceDBPartitionTest
 
 	@Inject
 	private static ClassNameLocalService _classNameLocalService;
+
+	private static long _counter;
 
 	@Inject
 	private static CounterLocalService _counterLocalService;

@@ -116,19 +116,11 @@ public class CompanyLocalServiceDBPartitionTest
 			ResourceActionLocalServiceImpl.class, "_resourceActions");
 
 		_regenerateResourceActions();
-
-		_cleanupClassName1 = _classNameLocalService.addClassName(
-			_CLEANUP_CLASS_NAME_VALUE1);
-		_cleanupClassName2 = _classNameLocalService.addClassName(
-			_CLEANUP_CLASS_NAME_VALUE2);
 	}
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
 		_regenerateResourceActions();
-
-		_classNameLocalService.deleteClassName(_cleanupClassName1);
-		_classNameLocalService.deleteClassName(_cleanupClassName2);
 	}
 
 	@After
@@ -470,6 +462,14 @@ public class CompanyLocalServiceDBPartitionTest
 			if (configuration != null) {
 				ConfigurationTestUtil.deleteConfiguration(configuration);
 			}
+
+			if (_cleanupClassName1 != null) {
+				_classNameLocalService.deleteClassName(_cleanupClassName1);
+			}
+
+			if (_cleanupClassName2 != null) {
+				_classNameLocalService.deleteClassName(_cleanupClassName2);
+			}
 		}
 	}
 
@@ -742,10 +742,17 @@ public class CompanyLocalServiceDBPartitionTest
 	private long _addCopyDBPartitionCompanyCache(
 		long companyId, String counterName) {
 
+		_cleanupClassName1 = _classNameLocalService.addClassName(
+			_CLEANUP_CLASS_NAME_VALUE1);
+		_cleanupClassName2 = _classNameLocalService.addClassName(
+			_CLEANUP_CLASS_NAME_VALUE2);
+
 		long counter = 0;
 
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setCompanyIdWithSafeCloseable(companyId)) {
+
+			// reverse order to generate different classNameId
 
 			_classNameLocalService.addClassName(_CLEANUP_CLASS_NAME_VALUE2);
 

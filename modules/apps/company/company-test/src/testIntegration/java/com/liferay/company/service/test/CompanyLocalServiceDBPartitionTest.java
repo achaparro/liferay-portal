@@ -6,6 +6,7 @@
 package com.liferay.company.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.counter.kernel.model.Counter;
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.counter.kernel.service.persistence.CounterFinder;
 import com.liferay.counter.model.CounterRegister;
@@ -567,9 +568,9 @@ public class CompanyLocalServiceDBPartitionTest
 			MapUtil.singletonDictionary(
 				"companyId", String.valueOf(companyId)));
 
-		Configuration configuration = _createFactoryConfiguration(companyId);
+		_assertCache(companyId, true);
 
-		_addCopyDBPartitionCompanyCache(companyId);
+		Configuration configuration = _createFactoryConfiguration(companyId);
 
 		String pid = configuration.getPid();
 
@@ -588,7 +589,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 		Assert.assertTrue(serviceReferences.isEmpty());
 
-		_assertCachesCleanup(companyId);
+		_assertCache(companyId, false);
 
 		_assertConfiguration(pid, false);
 	}
@@ -754,7 +755,7 @@ public class CompanyLocalServiceDBPartitionTest
 		}
 	}
 
-	private void _assertCachesCleanup(long companyId) throws Exception {
+	private void _assertCache(long companyId, boolean cached) throws Exception {
 		Map<Long, Map<String, Long>> classNameIdsMap =
 			ReflectionTestUtil.getFieldValue(
 				Class.forName(
@@ -762,7 +763,7 @@ public class CompanyLocalServiceDBPartitionTest
 						"$ClassNamePool"),
 				"_classNameIdsMap");
 
-		Assert.assertFalse(classNameIdsMap.containsKey(companyId));
+		Assert.assertEquals(cached, classNameIdsMap.containsKey(companyId));
 
 		Map<Long, Map<Long, ClassName>> classNamesMap =
 			ReflectionTestUtil.getFieldValue(
@@ -771,22 +772,24 @@ public class CompanyLocalServiceDBPartitionTest
 						"$ClassNamePool"),
 				"_classNamesMap");
 
-		Assert.assertFalse(classNamesMap.containsKey(companyId));
+		Assert.assertEquals(cached, classNamesMap.containsKey(companyId));
 
 		Map<String, CounterRegister> counterRegisterMap =
 			ReflectionTestUtil.getFieldValue(
 				_counterFinder, "_counterRegisterMap");
 
-		Assert.assertFalse(
+		Assert.assertEquals(
+			cached,
 			counterRegisterMap.containsKey(
-				CompanyLocalServiceDBPartitionTest.class.getName() +
-					StringPool.AT + companyId));
+				Counter.class.getName() + StringPool.AT + companyId));
 
 		RepositoryClassDefinition repositoryClassDefinition =
 			RepositoryClassDefinitionCatalogUtil.getRepositoryClassDefinition(
-				companyId, _REPOSITORY_DEFINER_CLASS_NAME);
+				companyId, CompanyLocalServiceDBPartitionTest.class.getName());
 
 		Assert.assertNotNull(repositoryClassDefinition);
+
+		// below we should use the cached variable to the record inserted
 
 		Assert.assertTrue(
 			MapUtil.isEmpty(
@@ -1073,7 +1076,7 @@ public class CompanyLocalServiceDBPartitionTest
 			new Class<?>[] {RepositoryDefiner.class},
 			(proxy, method, args) -> {
 				if (Objects.equals(method.getName(), "getClassName")) {
-					return _REPOSITORY_DEFINER_CLASS_NAME;
+					return CompanyLocalServiceDBPartitionTest.class.getName();
 				}
 
 				if (Objects.equals(method.getName(), "isExternalRepository")) {
@@ -1123,9 +1126,6 @@ public class CompanyLocalServiceDBPartitionTest
 
 	private static final String _CLASS_NAME_2 =
 		CompanyLocalServiceDBPartitionTest.class.getName() + 2;
-
-	private static final String _REPOSITORY_DEFINER_CLASS_NAME =
-		"TestRepositoryDefiner";
 
 	private static ClassName _className1;
 	private static ClassName _className2;

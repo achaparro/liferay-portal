@@ -569,8 +569,6 @@ public class CompanyLocalServiceDBPartitionTest
 
 		Configuration configuration = _createFactoryConfiguration(companyId);
 
-		String counterName = RandomTestUtil.randomString();
-
 		_addCopyDBPartitionCompanyCache(companyId);
 
 		String pid = configuration.getPid();
@@ -590,7 +588,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 		Assert.assertTrue(serviceReferences.isEmpty());
 
-		_assertCachesCleanup(companyId, counterName);
+		_assertCachesCleanup(companyId);
 
 		_assertConfiguration(pid, false);
 	}
@@ -756,9 +754,7 @@ public class CompanyLocalServiceDBPartitionTest
 		}
 	}
 
-	private void _assertCachesCleanup(long companyId, String counterName)
-		throws Exception {
-
+	private void _assertCachesCleanup(long companyId) throws Exception {
 		Map<Long, Map<String, Long>> classNameIdsMap =
 			ReflectionTestUtil.getFieldValue(
 				Class.forName(
@@ -783,7 +779,8 @@ public class CompanyLocalServiceDBPartitionTest
 
 		Assert.assertFalse(
 			counterRegisterMap.containsKey(
-				counterName + StringPool.AT + companyId));
+				CompanyLocalServiceDBPartitionTest.class.getName() +
+					StringPool.AT + companyId));
 
 		RepositoryClassDefinition repositoryClassDefinition =
 			RepositoryClassDefinitionCatalogUtil.getRepositoryClassDefinition(

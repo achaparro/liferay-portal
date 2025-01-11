@@ -567,9 +567,9 @@ public class CompanyLocalServiceDBPartitionTest
 
 	@Test
 	public void testDeleteCompany() throws Exception {
-		Company company = CompanyTestUtil.addCompany();
+		_company1 = CompanyTestUtil.addCompany();
 
-		long companyId = company.getCompanyId();
+		long companyId = _company1.getCompanyId();
 
 		_createRepositories(companyId);
 
@@ -581,7 +581,9 @@ public class CompanyLocalServiceDBPartitionTest
 
 		int dbPartitionsCount = _getDBPartitionsCount();
 
-		companyLocalService.deleteCompany(company);
+		companyLocalService.deleteCompany(_company1);
+
+		_company1 = null;
 
 		Assert.assertFalse(
 			ArrayUtil.contains(_getCompanyIdsBySQL(), companyId));

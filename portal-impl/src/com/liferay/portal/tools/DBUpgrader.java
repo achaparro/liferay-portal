@@ -355,9 +355,6 @@ public class DBUpgrader {
 		verifyProcessSuite.verify();
 	}
 
-	private static final String _PORTAL_INITIALIZED = "portal.initialized";
-	private static final String _PORTLETS_INITIALIZED = "portlets.initialized";
-
 	private static void _checkClassNamesAndResourceActions() {
 		if (_log.isDebugEnabled()) {
 			_log.debug("Check class names");
@@ -432,6 +429,10 @@ public class DBUpgrader {
 
 		db.runSQL("update CompanyInfo set key_ = null");
 	}
+
+	private static final String _PORTAL_INITIALIZED = "portal.initialized";
+
+	private static final String _PORTLETS_INITIALIZED = "portlets.initialized";
 
 	private static final Version _VERSION_7010 = new Version(0, 0, 6);
 

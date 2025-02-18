@@ -58,10 +58,10 @@ public class DBUpgraderTest {
 			StartupHelperUtil.class, "_upgrading", true);
 
 		_portalInitialized = ReflectionTestUtil.getAndSetFieldValue(
-			DBUpgrader.class, "portal_initialized", "test");
+			DBUpgrader.class, "_PORTAL_INITIALIZED", "test");
 
 		_portletsInitialized = ReflectionTestUtil.getAndSetFieldValue(
-			DBUpgrader.class, "portlets_initialized", "test");
+			DBUpgrader.class, "_PORTLETS_INITIALIZED", "test");
 	}
 
 	@AfterClass
@@ -72,10 +72,10 @@ public class DBUpgraderTest {
 			StartupHelperUtil.class, "_upgrading", _upgrading);
 
 		ReflectionTestUtil.setFieldValue(
-			DBUpgrader.class, "portal_initialized", _portalInitialized);
+			DBUpgrader.class, "_PORTAL_INITIALIZED", _portalInitialized);
 
 		ReflectionTestUtil.setFieldValue(
-			DBUpgrader.class, "portlets_initialized", _portletsInitialized);
+			DBUpgrader.class, "_PORTLETS_INITIALIZED", _portletsInitialized);
 	}
 
 	@After

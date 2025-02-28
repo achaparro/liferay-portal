@@ -131,6 +131,15 @@ public class UpgradeExecutor {
 					release, _isInitialRelease(upgradeInfos));
 			}
 
+			if (_requiresUpdateIndexes(bundle, upgradeInfos)) {
+				try {
+					IndexUpdaterUtil.updateIndexes(bundle);
+				}
+				catch (Exception exception) {
+					_log.error(exception);
+				}
+			}
+
 			return release;
 		}
 		catch (Exception exception) {
@@ -220,15 +229,6 @@ public class UpgradeExecutor {
 				release.setState(state);
 
 				_releaseLocalService.updateRelease(release);
-			}
-		}
-
-		if (_requiresUpdateIndexes(bundle, upgradeInfos)) {
-			try {
-				IndexUpdaterUtil.updateIndexes(bundle);
-			}
-			catch (Exception exception) {
-				_log.error(exception);
 			}
 		}
 

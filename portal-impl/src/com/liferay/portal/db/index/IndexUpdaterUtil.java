@@ -7,6 +7,7 @@ package com.liferay.portal.db.index;
 
 import com.liferay.petra.concurrent.DCLSingleton;
 import com.liferay.portal.db.DBResourceUtil;
+import com.liferay.portal.db.remover.DuplicateRemover;
 import com.liferay.portal.db.remover.PortalDuplicateRemover;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
@@ -26,6 +27,7 @@ import com.liferay.portal.kernel.util.Validator;
 import java.sql.Connection;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,7 +40,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 
@@ -202,6 +207,28 @@ public class IndexUpdaterUtil {
 		_futures.clear();
 	}
 
+	private static void _deleteDuplicateEntries(
+			String tableName, String indexesSQL)
+		throws InvalidSyntaxException {
+
+		BundleContext bundleContext = SystemBundleUtil.getBundleContext();
+
+		DuplicateRemover duplicateRemover = new PortalDuplicateRemover();
+
+		String filter = "(service.tables=portal)";
+
+		Collection<ServiceReference<DuplicateRemover>> serviceReference =
+			bundleContext.getServiceReferences(DuplicateRemover.class, filter);
+
+		if ((serviceReference != null) && !serviceReference.isEmpty()) {
+			duplicateRemover = bundleContext.getService(
+				serviceReference.iterator(
+				).next());
+		}
+
+		duplicateRemover.removeDuplicates(tableName, indexesSQL);
+	}
+
 	private static ExecutorService _getExecutorService() {
 		return _executorServiceDCLSingleton.getSingleton(
 			() -> {
@@ -251,9 +278,7 @@ public class IndexUpdaterUtil {
 
 		DB db = DBManagerUtil.getDB();
 
-		PortalDuplicateRemover duplicateRemover = new PortalDuplicateRemover();
-
-		duplicateRemover.getDuplicates(tableName, indexesSQL);
+		_deleteDuplicateEntries(tableName, indexesSQL);
 
 		db.process(
 			companyId -> {

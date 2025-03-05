@@ -7,6 +7,7 @@ package com.liferay.portal.db.index;
 
 import com.liferay.petra.concurrent.DCLSingleton;
 import com.liferay.portal.db.DBResourceUtil;
+import com.liferay.portal.db.remover.PortalDuplicateRemover;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
@@ -249,6 +250,10 @@ public class IndexUpdaterUtil {
 		throws Exception {
 
 		DB db = DBManagerUtil.getDB();
+
+		PortalDuplicateRemover duplicateRemover = new PortalDuplicateRemover();
+
+		duplicateRemover.getDuplicates(tableName, indexesSQL);
 
 		db.process(
 			companyId -> {

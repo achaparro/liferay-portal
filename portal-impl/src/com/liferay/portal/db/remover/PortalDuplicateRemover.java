@@ -26,7 +26,7 @@ public class PortalDuplicateRemover implements DuplicateRemover {
 		Map<Long, List<HashMap<String, String>>> duplicatesMap =
 			new LinkedHashMap<>();
 
-		List<String> indexesColumnsList = _getIndexesColumnsList(indexesSQL);
+		List<String> indexesColumnsList = getIndexesColumnsList(indexesSQL);
 
 		for (String indexColumns : indexesColumnsList) {
 			StringBundler sb = new StringBundler(7);
@@ -141,6 +141,21 @@ public class PortalDuplicateRemover implements DuplicateRemover {
 		return duplicatesMap;
 	}
 
+	public List<String> getIndexesColumnsList(String indexesSQL) {
+		List<String> indexesColumns = new ArrayList<>();
+		String[] indexColumnsArray = StringUtil.split(indexesSQL, "\n");
+
+		for (String indexColumns : indexColumnsArray) {
+			String columns = indexColumns.substring(
+				indexColumns.indexOf(" (") + 2, indexColumns.indexOf(");"));
+
+			columns = columns.replaceAll("\\[.*?]", "");
+			indexesColumns.add(columns);
+		}
+
+		return indexesColumns;
+	}
+
 	@Override
 	public void removeDuplicates(String tableName, String indexesSQL) {
 		Map<Long, List<HashMap<String, String>>> duplicatesMap = getDuplicates(
@@ -192,21 +207,6 @@ public class PortalDuplicateRemover implements DuplicateRemover {
 					break;
 			}
 		}
-	}
-
-	private List<String> _getIndexesColumnsList(String indexesSQL) {
-		List<String> indexesColumns = new ArrayList<>();
-		String[] indexColumnsArray = StringUtil.split(indexesSQL, "\n");
-
-		for (String indexColumns : indexColumnsArray) {
-			String columns = indexColumns.substring(
-				indexColumns.indexOf(" (") + 2, indexColumns.indexOf(");"));
-
-			columns = columns.replaceAll("\\[.*?]", "");
-			indexesColumns.add(columns);
-		}
-
-		return indexesColumns;
 	}
 
 }

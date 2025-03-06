@@ -25,14 +25,14 @@ public class AggregateTestRuleTest {
 		LiferayUnitTestRule.INSTANCE;
 
 	@Test
-	public void testDisableTestRule() throws Throwable {
+	public void testSkipTestRule() throws Throwable {
 		TestRule testRule1 = new TestRule();
 		TestRule testRule2 = new TestRule();
 
 		AggregateTestRule aggregateTestRule = new AggregateTestRule(
 			testRule1, testRule2);
 
-		aggregateTestRule.disableTestRule(testRule1);
+		aggregateTestRule.skipTestRule(testRule1);
 
 		Statement statement = aggregateTestRule.apply(
 			new Statement() {
@@ -42,7 +42,7 @@ public class AggregateTestRuleTest {
 				}
 
 			},
-			Description.createTestDescription(getClass(), "testDisableRule"));
+			Description.createTestDescription(getClass(), "testSkipTestRule"));
 
 		statement.evaluate();
 

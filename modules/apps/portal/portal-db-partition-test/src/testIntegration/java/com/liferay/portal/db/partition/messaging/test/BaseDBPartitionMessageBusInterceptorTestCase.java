@@ -70,7 +70,7 @@ public abstract class BaseDBPartitionMessageBusInterceptorTestCase {
 			new AssumeTestRule("assume"),
 			new LiferayIntegrationTestRule() {
 				{
-					disableTestRule(CompanyProviderClassTestRule.INSTANCE);
+					skipTestRule(CompanyProviderClassTestRule.INSTANCE);
 				}
 			},
 			PermissionCheckerMethodTestRule.INSTANCE);

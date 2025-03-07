@@ -16,9 +16,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,95 +29,202 @@ public class PortalDuplicateRemover implements DuplicateRemover {
 
 	@Override
 	public void removeDuplicates(String tableName, String indexesSQL) {
-		Map<String, List<HashMap<String, String>>> duplicatesMap =
-			getDuplicatesSQL(tableName, indexesSQL);
-
-		for (Map.Entry<String, List<HashMap<String, String>>> entry :
-				duplicatesMap.entrySet()) {
-
-			String index = entry.getKey();
-
-			List<HashMap<String, String>> duplicateGroup = entry.getValue();
-
-			int duplicateNumber = duplicateGroup.size();
-
-			int counter = 0;
-
-			for (HashMap<String, String> queryMap : duplicateGroup) {
-				StringBundler sb = new StringBundler();
-
-				sb.append("DELETE FROM ");
-
-				sb.append(tableName);
-
-				sb.append(" WHERE ");
-
-				for (Map.Entry<String, String> querySet : queryMap.entrySet()) {
-					sb.append(querySet.getKey());
-					sb.append(" = '");
-					sb.append(querySet.getValue());
-					sb.append("' ");
-
-					if (counter < (queryMap.size() - 1)) {
-						sb.append("AND ");
-					}
-				}
-
-				sb.append(";");
-
-				String sql = sb.toString();
-
-				try (Connection connection = DataAccess.getConnection()) {
-					PreparedStatement preparedStatement1 =
-						connection.prepareStatement(sql);
-
-					preparedStatement1.execute();
-				}
-				catch (Exception exception) {
-					throw new RuntimeException(exception);
-				}
-				finally {
-					if (_log.isWarnEnabled()) {
-						_log.warn(index);
-					}
-
-					duplicateNumber--;
-				}
-
-				if (duplicateNumber == 1) {
-					break;
-				}
-			}
-		}
-	}
-
-	protected Map<String, List<HashMap<String, String>>> getDuplicatesSQL(
-		String tableName, String indexesSQL) {
-
-		Map<String[], String> indexesDuplicatesMap = new LinkedHashMap<>();
 
 		Map<String, String> indexesColumnsMap = getIndexesColumnsList(
 			indexesSQL);
 
-		for (Map.Entry<String, String> indexColumns :
-				indexesColumnsMap.entrySet()) {
+		for (Map.Entry<String, String> indexSet : indexesColumnsMap.entrySet()) {
+			String index = indexSet.getKey();
+
+			String columns = indexSet.getValue();
+
+			try{
+				List<HashMap<String, String>> duplicatesList = getDuplicatesSQL(columns,tableName,"*",null);
+
+				int duplicateCount = duplicatesList.size();
+
+				for (HashMap<String, String> duplicate : duplicatesList) {
+
+					if (duplicateCount == 1) {
+						break;
+					}
+
+					StringBundler sb = new StringBundler();
+
+					sb.append("DELETE FROM ");
+
+					sb.append(tableName);
+
+					sb.append(" WHERE ");
+					int counter = 0;
+
+					for (Map.Entry<String, String> querySet : duplicate.entrySet()) {
+						sb.append(querySet.getKey());
+						if(querySet.getValue() == null) {
+							sb.append(" IS NULL ");
+						}
+						else {
+							sb.append(" = '");
+							sb.append(_escape(querySet.getValue()));
+							sb.append("' ");
+						}
+
+						if (counter < (duplicate.size() - 1)) {
+							sb.append("AND ");
+						}
+						counter++;
+
+				}
+					sb.append(";");
+
+					String sql = sb.toString();
+
+					try (Connection connection = DataAccess.getConnection()) {
+						PreparedStatement preparedStatement1 =
+							connection.prepareStatement(sql);
+
+						preparedStatement1.execute();
+					}
+					finally {
+						_log.warn(index + " DELETE SQL: " + sql);
+						duplicateCount--;
+					}
+
+				}
+			}
+			catch (Exception e){
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	protected List<HashMap<String, String>> getDuplicatesSQL(String indexColumns, String tableName, String selectColumns,  String orderBy) throws SQLException {
+			List<String[]> indexDuplicateList =
+				getIndexDuplicatesList(tableName, indexColumns);
+
+			List<HashMap<String, String>> queryResult =
+			new ArrayList<>();
+
+			String[] columnsArray = indexColumns.split(", ");
+
+			for (String[] indexDuplicateArray : indexDuplicateList) {
+
+				StringBundler sb = new StringBundler();
+
+				sb.append("SELECT ");
+				sb.append(selectColumns);
+				sb.append(" FROM ");
+				sb.append(tableName);
+				sb.append(" WHERE ");
+
+				for (int i = 0; i < indexDuplicateArray.length; i++) {
+					sb.append(columnsArray[i]);
+					if (indexDuplicateArray[i] == null) {
+						sb.append(" IS NULL ");
+					}
+					else {
+						sb.append(" = '");
+						sb.append(_escape(indexDuplicateArray[i]));
+						sb.append("' ");
+					}
+					if (i < (columnsArray.length - 1)) {
+						sb.append("AND ");
+					}
+				}
+				if(orderBy != null) {
+					sb.append("ORDER BY ");
+
+					sb.append(orderBy);
+				}
+				sb.append(";");
+
+				String sql = sb.toString();
+
+				try (Connection connection = DataAccess.getConnection();
+					 PreparedStatement preparedStatement =
+						 connection.prepareStatement(sql);
+					 ResultSet resultSet = preparedStatement.executeQuery()) {
+
+					ResultSetMetaData metaData = resultSet.getMetaData();
+
+					int columnCount = metaData.getColumnCount();
+
+					String[] columnNames = new String[columnCount];
+
+					for (int i = 1; i <= columnCount; i++) {
+						String columnName = metaData.getColumnName(i);
+
+						columnNames[i - 1] = columnName;
+					}
+
+					while (resultSet.next()) {
+						HashMap<String, String> queryMap = new HashMap<>();
+
+						for (int i = 0; i < columnCount; i++) {
+							String value = resultSet.getString(columnNames[i]);
+
+							queryMap.put(columnNames[i], value);
+						}
+
+						queryResult.add(queryMap);
+
+					}
+				}
+			}
+		return queryResult;
+	}
+
+
+	protected static String _escape(Object object) {
+		return StringUtil.replace(
+			String.valueOf(object), _DB_ESCAPE_STRINGS[0],
+			_DB_ESCAPE_STRINGS[1]);
+	}
+
+	protected Map<String, String> getIndexesColumnsList(String indexesSQL) {
+		Map<String, String> indexesColumns = new HashMap<>();
+
+		String[] indexColumnsArray = StringUtil.split(indexesSQL, "\n");
+
+		for (String indexColumns : indexColumnsArray) {
+
+			if(indexColumns.contains("unique")) {
+				String index = indexColumns.substring(
+					indexColumns.indexOf("index ") + 6,
+					indexColumns.indexOf("on"));
+
+				String columns = indexColumns.substring(
+					indexColumns.indexOf(" (") + 2, indexColumns.indexOf(");"));
+
+				columns = columns.replaceAll("\\[.*?]", "");
+
+				indexesColumns.put(index, columns);
+			}
+		}
+
+		return indexesColumns;
+	}
+
+	protected List<String[]> getIndexDuplicatesList(String tableName, String columns){
+			List<String[]> indexesDuplicatesList = new ArrayList<>();
 
 			StringBundler sb = new StringBundler(7);
 
 			sb.append("SELECT ");
-			sb.append(indexColumns.getKey());
-			sb.append(" FROM");
+			sb.append(columns);
+			sb.append(" FROM ");
 			sb.append(tableName);
 			sb.append(" GROUP BY ");
-			sb.append(indexColumns.getKey());
+			sb.append(columns);
 			sb.append(" HAVING COUNT(*) > 1;");
 
 			String sql = sb.toString();
 
 			try (Connection connection = DataAccess.getConnection();
-				PreparedStatement preparedStatement1 =
-					connection.prepareStatement(sql);
-				ResultSet resultSet = preparedStatement1.executeQuery()) {
+				 PreparedStatement preparedStatement =
+					 connection.prepareStatement(sql);
+
+				 ResultSet resultSet = preparedStatement.executeQuery()) {
 
 				ResultSetMetaData metaData = resultSet.getMetaData();
 
@@ -132,110 +239,23 @@ public class PortalDuplicateRemover implements DuplicateRemover {
 						columnResults[i - 1] = value;
 					}
 
-					indexesDuplicatesMap.put(
-						columnResults, indexColumns.getKey());
+					indexesDuplicatesList.add(
+						columnResults);
 				}
 			}
 			catch (Exception exception) {
 				throw new RuntimeException(exception);
 			}
-		}
 
-		Map<String, List<HashMap<String, String>>> duplicatesMap =
-			new LinkedHashMap<>();
-
-		for (Map.Entry<String[], String> entry :
-				indexesDuplicatesMap.entrySet()) {
-
-			String[] results = entry.getKey();
-
-			String index = indexesColumnsMap.get(entry.getValue());
-
-			String[] columns = entry.getValue(
-			).split(
-				", "
-			);
-
-			StringBundler sb = new StringBundler();
-
-			sb.append("SELECT * FROM");
-			sb.append(tableName);
-			sb.append(" WHERE ");
-
-			for (int i = 0; i < columns.length; i++) {
-				sb.append(columns[i]);
-				sb.append(" = ");
-				sb.append(results[i]);
-
-				if (i < (columns.length - 1)) {
-					sb.append(" AND ");
-				}
-			}
-
-			String sql = sb.toString();
-
-			List<HashMap<String, String>> queryResult = new ArrayList<>();
-
-			try (Connection connection = DataAccess.getConnection();
-				PreparedStatement preparedStatement1 =
-					connection.prepareStatement(sql);
-				ResultSet resultSet = preparedStatement1.executeQuery()) {
-
-				ResultSetMetaData metaData = resultSet.getMetaData();
-
-				int columnCount = metaData.getColumnCount();
-
-				String[] columnNames = new String[columnCount];
-
-				for (int i = 1; i <= columnCount; i++) {
-					String columnName = metaData.getColumnName(i);
-
-					columnNames[i - 1] = columnName;
-				}
-
-				while (resultSet.next()) {
-					HashMap<String, String> queryMap = new HashMap<>();
-
-					for (int i = 0; i < columnCount; i++) {
-						String value = resultSet.getString(columnNames[i]);
-
-						queryMap.put(columnNames[i], value);
-					}
-
-					queryResult.add(queryMap);
-
-					duplicatesMap.put(index, queryResult);
-				}
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		}
-
-		return duplicatesMap;
-	}
-
-	protected Map<String, String> getIndexesColumnsList(String indexesSQL) {
-		Map<String, String> indexesColumns = new HashMap<>();
-
-		String[] indexColumnsArray = StringUtil.split(indexesSQL, "\n");
-
-		for (String indexColumns : indexColumnsArray) {
-			String index = indexColumns.substring(
-				indexColumns.indexOf("index ") + 1, indexColumns.indexOf("on"));
-
-			String columns = indexColumns.substring(
-				indexColumns.indexOf(" (") + 2, indexColumns.indexOf(");"));
-
-			columns = columns.replaceAll("\\[.*?]", "");
-
-			indexesColumns.put(columns, index);
-		}
-
-		return indexesColumns;
+		return indexesDuplicatesList;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		PortalDuplicateRemover.class);
+
+	private static final String[][] _DB_ESCAPE_STRINGS = {
+		{"\\", "'"},
+		{"\\\\", "''"}
+	};
 
 }

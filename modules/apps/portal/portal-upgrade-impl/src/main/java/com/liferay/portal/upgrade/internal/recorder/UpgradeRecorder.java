@@ -44,6 +44,10 @@ import org.osgi.util.tracker.ServiceTracker;
 @Component(service = UpgradeRecorder.class)
 public class UpgradeRecorder {
 
+	public Map<String, Map<String, Integer>> getDeletedDuplicates() {
+		return _deletedDuplicates;
+	}
+
 	public Map<String, Map<String, Integer>> getErrorMessages() {
 		return _errorMessages;
 	}
@@ -261,6 +265,12 @@ public class UpgradeRecorder {
 			messages.remove(filteredClassName);
 		}
 
+		if (messages.containsKey(_DUPLICATE_CLASS_NAME)) {
+			Map<String, Integer> value = messages.get(_DUPLICATE_CLASS_NAME);
+
+			_deletedDuplicates.put(_DUPLICATE_CLASS_NAME, value);
+		}
+
 		return messages;
 	}
 
@@ -305,6 +315,9 @@ public class UpgradeRecorder {
 		}
 	}
 
+	private static final String _DUPLICATE_CLASS_NAME =
+		"com.liferay.portal.db.remover.PortalDuplicateRemover";
+
 	private static final String[] _FILTERED_CLASS_NAMES = {
 		"com.liferay.portal.search.elasticsearch7.internal.sidecar." +
 			"SidecarManager"
@@ -313,6 +326,8 @@ public class UpgradeRecorder {
 	private static final Log _log = LogFactoryUtil.getLog(
 		UpgradeRecorder.class);
 
+	private static final Map<String, Map<String, Integer>> _deletedDuplicates =
+		new ConcurrentHashMap<>();
 	private static final Map<String, Map<String, Integer>> _errorMessages =
 		new ConcurrentHashMap<>();
 	private static String _result;

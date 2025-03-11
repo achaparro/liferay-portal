@@ -638,6 +638,9 @@ public class UpgradeReport {
 		).put(
 			"warnings",
 			_getMessagesPrinters(upgradeRecorder.getWarningMessages())
+		).put(
+			"duplicates",
+			_getMessagesPrinters(upgradeRecorder.getDeletedDuplicates())
 		).build();
 	}
 

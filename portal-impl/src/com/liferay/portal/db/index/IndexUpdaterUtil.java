@@ -43,7 +43,6 @@ import java.util.concurrent.FutureTask;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
@@ -209,7 +208,7 @@ public class IndexUpdaterUtil {
 	}
 
 	private static void _deleteDuplicateEntries(
-		String tableName, String indexesSQL) throws InvalidSyntaxException {
+		String tableName, String indexesSQL) {
 
 		BundleContext bundleContext = SystemBundleUtil.getBundleContext();
 
@@ -218,13 +217,19 @@ public class IndexUpdaterUtil {
 		String filter = StringBundler.concat(
 			"(service.tables=", tableName, ")");
 
-		Collection<ServiceReference<DuplicateRemover>> serviceReference =
-			bundleContext.getServiceReferences(DuplicateRemover.class, filter);
+		try {
+			Collection<ServiceReference<DuplicateRemover>> serviceReference =
+				bundleContext.getServiceReferences(
+					DuplicateRemover.class, filter);
 
-		if ((serviceReference != null) && !serviceReference.isEmpty()) {
-			duplicateRemover = bundleContext.getService(
-				serviceReference.iterator(
-				).next());
+			if ((serviceReference != null) && !serviceReference.isEmpty()) {
+				duplicateRemover = bundleContext.getService(
+					serviceReference.iterator(
+					).next());
+			}
+		}
+		catch (Exception exception) {
+			throw new RuntimeException(exception);
 		}
 
 		duplicateRemover.removeDuplicates(tableName, indexesSQL);

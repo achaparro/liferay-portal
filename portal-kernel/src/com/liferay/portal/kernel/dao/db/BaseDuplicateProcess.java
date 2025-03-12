@@ -12,76 +12,91 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BaseDuplicateProcess extends UpgradeProcess implements DuplicateProcess {
+public class BaseDuplicateProcess
+	extends UpgradeProcess implements DuplicateProcess {
 
 	@Override
-	public void removeDuplicates(String tableName, String index, List<HashMap<String, String>> duplicatesList, boolean deleteAll) {
-				int duplicateCount = duplicatesList.size();
+	public void removeDuplicates(
+		String tableName, String index,
+		List<HashMap<String, String>> duplicatesList, boolean deleteAll) {
 
-				for (HashMap<String, String> duplicate : duplicatesList) {
-					if (duplicateCount == 1 && deleteAll) {
-						break;
-					}
-					StringBundler sb = new StringBundler();
+		int duplicateCount = duplicatesList.size();
 
-					sb.append("DELETE FROM ");
-					sb.append(tableName);
-					sb.append(" WHERE ");
+		for (HashMap<String, String> duplicate : duplicatesList) {
+			if ((duplicateCount == 1) && deleteAll) {
+				break;
+			}
 
-					int counter = 0;
+			StringBundler sb = new StringBundler();
 
-					for (Map.Entry<String, String> querySet :
-						duplicate.entrySet()) {
+			sb.append("DELETE FROM ");
+			sb.append(tableName);
+			sb.append(" WHERE ");
 
-						sb.append(querySet.getKey());
+			int counter = 0;
 
-						if (querySet.getValue() == null) {
-							sb.append(" IS NULL ");
-						}
-						else {
-							sb.append(" = '");
-							sb.append(escape(querySet.getValue()));
-							sb.append("' ");
-						}
+			for (Map.Entry<String, String> querySet : duplicate.entrySet()) {
+				sb.append(querySet.getKey());
 
-						if (counter < (duplicate.size() - 1)) {
-							sb.append("AND ");
-						}
-
-						counter++;
-					}
-
-					sb.append(";");
-
-					String sql = sb.toString();
-
-					try (Connection connection = DataAccess.getConnection()) {
-						PreparedStatement preparedStatement1 =
-							connection.prepareStatement(sql);
-
-						preparedStatement1.execute();
-					}
-					catch (SQLException exception) {
-						throw new RuntimeException(exception);
-					}
-					finally {
-						logDeletedDuplicates(tableName, index, duplicate);
-						duplicateCount--;
-					}
+				if (querySet.getValue() == null) {
+					sb.append(" IS NULL ");
 				}
+				else {
+					sb.append(" = '");
+					sb.append(escape(querySet.getValue()));
+					sb.append("' ");
+				}
+
+				if (counter < (duplicate.size() - 1)) {
+					sb.append("AND ");
+				}
+
+				counter++;
+			}
+
+			sb.append(";");
+
+			String sql = sb.toString();
+
+			try (Connection connection = DataAccess.getConnection()) {
+				PreparedStatement preparedStatement1 =
+					connection.prepareStatement(sql);
+
+				preparedStatement1.execute();
+			}
+			catch (SQLException exception) {
+				throw new RuntimeException(exception);
+			}
+			finally {
+				logDeletedDuplicates(tableName, index, duplicate);
+				duplicateCount--;
+			}
 		}
+	}
+
+	protected static String escape(Object object) {
+		return StringUtil.replace(
+			String.valueOf(object), _DB_ESCAPE_STRINGS[0],
+			_DB_ESCAPE_STRINGS[1]);
+	}
+
+	@Override
+	protected void doUpgrade() throws Exception {
+	}
 
 	protected List<HashMap<String, String>> getDuplicatesSQL(
-		String[] uniqueIndexColumn, String tableName, String orderBy)
+			String[] uniqueIndexColumn, String tableName, String orderBy)
 		throws SQLException {
-			List<HashMap<String, String>> queryResult = new ArrayList<>();
 
-			String[] columns = uniqueIndexColumn[1].split(",");
+		List<HashMap<String, String>> queryResult = new ArrayList<>();
+
+		String[] columns = uniqueIndexColumn[1].split(",");
 
 		List<String[]> indexDuplicatesList = getIndexDuplicatesList(
 			tableName, uniqueIndexColumn[1]);
@@ -120,9 +135,9 @@ public class BaseDuplicateProcess extends UpgradeProcess implements DuplicatePro
 			String sql = sb.toString();
 
 			try (Connection connection = DataAccess.getConnection();
-				 PreparedStatement preparedStatement =
-					 connection.prepareStatement(sql);
-				 ResultSet resultSet = preparedStatement.executeQuery()) {
+				PreparedStatement preparedStatement =
+					connection.prepareStatement(sql);
+				ResultSet resultSet = preparedStatement.executeQuery()) {
 
 				ResultSetMetaData metaData = resultSet.getMetaData();
 
@@ -202,12 +217,6 @@ public class BaseDuplicateProcess extends UpgradeProcess implements DuplicatePro
 		return indexesDuplicatesList;
 	}
 
-	protected static String escape(Object object) {
-		return StringUtil.replace(
-			String.valueOf(object), _DB_ESCAPE_STRINGS[0],
-			_DB_ESCAPE_STRINGS[1]);
-	}
-
 	protected void logDeletedDuplicates(
 		String tableName, String index, Map<String, String> duplicate) {
 
@@ -226,9 +235,4 @@ public class BaseDuplicateProcess extends UpgradeProcess implements DuplicatePro
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseDuplicateProcess.class);
 
-
-	@Override
-	protected void doUpgrade() throws Exception {
-
-	}
 }

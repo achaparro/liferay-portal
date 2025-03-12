@@ -13,7 +13,8 @@ import java.util.List;
  */
 public interface DuplicateProcess {
 
-	public void removeDuplicates(String tableName, String index,
-								 List<HashMap<String, String>> duplicatesList, boolean deleteAll);
+	public void removeDuplicates(
+		String tableName, String index,
+		List<HashMap<String, String>> duplicatesList, boolean deleteAll);
 
 }

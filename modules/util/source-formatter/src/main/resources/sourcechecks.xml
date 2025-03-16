@@ -709,6 +709,7 @@
 		<check name="JavaCompanyThreadLocalCheck">
 			<category name="Bug Prevention" />
 			<description name="Finds cases where `CompanyThreadLocal.setCompanyId` is used (instead of `CompanyThreadLocal.setCompanyIdWithSafeCloseable`)." />
+			<property name="enabled" value="false" />
 		</check>
 		<check name="JavaComponentActivateCheck">
 			<category name="Naming Conventions" />

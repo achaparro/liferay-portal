@@ -11,7 +11,7 @@
 		<suppress checks="GradleMissingDependenciesForUpgradeJava21Check" files="build\.gradle" />
 		<suppress checks="IllegalImportsCheck" files="src/main/java/com/liferay/source/formatter/check/IllegalImportsCheck\.java" />
 		<suppress checks="IllegalImportsCheck" files="src/test/java/com/liferay/source/formatter/processor/JavaSourceProcessorTest\.java" />
-		<suppress checks="JavaCompanyThreadLocalCheck" files="src/main/java/com/liferay/source/formatter/check/JavaCompanyThreadLocalCheck\.java" />
+		<suppress checks="JavaCompanyThreadLocalSetCompanyIdCallCheck" files="src/main/java/com/liferay/source/formatter/check/JavaCompanyThreadLocalSetCompanyIdCallCheck\.java" />
 		<suppress checks="JavaDeprecatedKernelClassesCheck" files="src/main/java/com/liferay/source/formatter/check/JavaDeprecatedKernelClassesCheck\.java" />
 		<suppress checks="JavaHibernateSQLCheck" files="src/main/java/com/liferay/source/formatter/check/JavaHibernateSQLCheck\.java" />
 		<suppress checks="JavaInterfaceCheck" files="src/main/java/com/liferay/source/formatter/check/JavaInterfaceCheck\.java" />

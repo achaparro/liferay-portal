@@ -10,7 +10,7 @@ import com.liferay.petra.string.StringBundler;
 /**
  * @author Alan Huang
  */
-public class JavaCompanyThreadLocalCheck extends BaseFileCheck {
+public class JavaCompanyThreadLocalSetCompanyIdCallCheck extends BaseFileCheck {
 
 	@Override
 	public boolean isLiferaySourceCheck() {

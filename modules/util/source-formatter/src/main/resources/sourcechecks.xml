@@ -706,6 +706,10 @@
 			<description name="Finds cases where company scoped ids are used, see LPD-45118." />
 			<property name="enabled" value="false" />
 		</check>
+		<check name="JavaCompanyThreadLocalCheck">
+			<category name="Bug Prevention" />
+			<description name="Finds cases where `CompanyThreadLocal.setCompanyId` is used (instead of `CompanyThreadLocal.setCompanyIdWithSafeCloseable`)." />
+		</check>
 		<check name="JavaComponentActivateCheck">
 			<category name="Naming Conventions" />
 			<description name="Checks if methods with annotation `@Activate` or `@Deactivate` follow naming conventions." />

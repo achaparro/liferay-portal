@@ -34,8 +34,8 @@ public class JavaCompanyThreadLocalSetCompanyIdCallCheck extends BaseFileCheck {
 				fileName,
 				StringBundler.concat(
 					"Do not use \"CompanyThreadLocal.setCompanyId\", use ",
-					"\"CompanyThreadLocal.setCompanyIdWithSafeCloseable\" ",
-					"instead, see LPD-49356."),
+					"\"CompanyThreadLocal.setCompanyIdWithSafeCloseable\" or ",
+					"\"lock\" instead, see LPD-49356."),
 				getLineNumber(content, x));
 		}
 

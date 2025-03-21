@@ -35,6 +35,7 @@ CompatClassImportsCheck | .java, .jsp, .jspf, .jspx, .tag, .tpl or .vm | Checks 
 ComponentAnnotationCheck | .java | Performs several checks on classes with @Component annotation. |
 [ComponentExposureCheck](check/component_exposure_check.markdown#componentexposurecheck) | .java | Avoid exposing static component. |
 ConsumerTypeAnnotationCheck | .java | Performs several checks on classes with @ConsumerType annotation. |
+[CreatingThreadsForDBAccessCheck](check/creating_threads_for_db_access_check.markdown#creatingthreadsfordbaccesscheck) | .java | Finds cases where `CompanyInheritableThreadLocalCallable` should be used when creating threads for DB access. |
 DTOEnumCreationCheck | .java | Checks the creation of DTO enum. |
 DatabaseMetaDataCheck | .java | Checks usages of `java.sql.DatabaseMetaData`. |
 DeprecatedAPICheck | .java | Finds calls to deprecated classes, constructors, fields or methods. |

@@ -31,6 +31,7 @@ ConstructorGlobalVariableDeclarationCheck | [Performance](performance_checks.mar
 ConsumerTypeAnnotationCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Performs several checks on classes with @ConsumerType annotation. |
 ContractionsCheck | [Styling](styling_checks.markdown#styling-checks) | Finds contractions in Strings (such as `can't` or `you're`). |
 [CopyrightCheck](check/copyright_check.markdown#copyrightcheck) | [Styling](styling_checks.markdown#styling-checks) | Validates `copyright` header. |
+[CreatingThreadsForDBAccessCheck](check/creating_threads_for_db_access_check.markdown#creatingthreadsfordbaccesscheck) | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Finds cases where `CompanyInheritableThreadLocalCallable` should be used when creating threads for DB access. |
 [CreationMenuBuilderCheck](check/builder_check.markdown#buildercheck) | [Miscellaneous](miscellaneous_checks.markdown#miscellaneous-checks) | Checks that `CreationMenuBuilder` is used when possible. |
 DTOEnumCreationCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Checks the creation of DTO enum. |
 DatabaseMetaDataCheck | [Bug Prevention](bug_prevention_checks.markdown#bug-prevention-checks) | Checks usages of `java.sql.DatabaseMetaData`. |

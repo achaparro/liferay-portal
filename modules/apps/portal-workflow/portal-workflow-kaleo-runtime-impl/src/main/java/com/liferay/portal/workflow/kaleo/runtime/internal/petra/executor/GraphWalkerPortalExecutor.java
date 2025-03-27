@@ -15,6 +15,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.auth.CompanyInheritableThreadLocalCallable;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -53,7 +54,9 @@ public class GraphWalkerPortalExecutor {
 
 	public void execute(PathElement pathElement, boolean waitForCompletion) {
 		if (PortalRunMode.isTestMode()) {
-			_walk(pathElement);
+			_walk(
+				CompanyThreadLocal.getCompanyId(),
+				CTCollectionThreadLocal.getCTCollectionId(), pathElement);
 
 			return;
 		}
@@ -69,15 +72,12 @@ public class GraphWalkerPortalExecutor {
 		if (waitForCompletion) {
 			NoticeableFuture<?> noticeableFuture =
 				_noticeableExecutorService.submit(
-					() -> {
-						try (SafeCloseable safeCloseable =
-								CompanyThreadLocal.
-									setCompanyIdWithSafeCloseable(
-										companyId, ctCollectionId)) {
+					new CompanyInheritableThreadLocalCallable<Void>(
+						() -> {
+							_walk(companyId, ctCollectionId, pathElement);
 
-							_walk(pathElement);
-						}
-					});
+							return null;
+						}));
 
 			try {
 				noticeableFuture.get();
@@ -91,14 +91,12 @@ public class GraphWalkerPortalExecutor {
 		}
 		else {
 			_noticeableExecutorService.submit(
-				() -> {
-					try (SafeCloseable safeCloseable =
-							CompanyThreadLocal.setCompanyIdWithSafeCloseable(
-								companyId, ctCollectionId)) {
+				new CompanyInheritableThreadLocalCallable<Void>(
+					() -> {
+						_walk(companyId, ctCollectionId, pathElement);
 
-						_walk(pathElement);
-					}
-				});
+						return null;
+					}));
 		}
 	}
 
@@ -141,12 +139,17 @@ public class GraphWalkerPortalExecutor {
 			PortalExecutorConfig.class, portalExecutorConfig, null);
 	}
 
-	private void _walk(PathElement pathElement) {
+	private void _walk(
+		long companyId, long ctCollectionId, PathElement pathElement) {
+
 		String name = PrincipalThreadLocal.getName();
 		PermissionChecker permissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
 
-		try {
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setCompanyIdWithSafeCloseable(
+					companyId, ctCollectionId)) {
+
 			ExecutionContext executionContext =
 				pathElement.getExecutionContext();
 

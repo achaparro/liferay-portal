@@ -84,20 +84,19 @@ public class DeleteDuplicateUniqueFinderRows extends UpgradeProcess {
 				catch (SQLException sqlException) {
 					_log.error(
 						StringBundler.concat(
-							"Failed to delete duplicate row from table ",
-							_tableName, " for index columns (",
-							StringUtil.merge(_columnNames,", "), "): ",
-							duplicateRow.toString()),
+							"Duplicate finder row in ", _tableName, " table. \n",
+							duplicateRow.toString(),"\n","Review finder columns: ",
+							StringUtil.merge(_columnNames, ", ")),
 						sqlException);
 				}
 				finally {
 					if (_log.isWarnEnabled()) {
 						_log.warn(
 							StringBundler.concat(
-								"Deleted duplicate row from table ", _tableName,
-								" for index columns (",
-								StringUtil.merge(_columnNames,", "), "): ",
-								duplicateRow.toString()));
+								"Deleted duplicate finder row in ", _tableName,
+								" table. \n", duplicateRow.toString(),"\n",
+								"Finder Columns: (",
+								StringUtil.merge(_columnNames, ", "),")"));
 					}
 
 					duplicateRowsCount--;
@@ -204,11 +203,11 @@ public class DeleteDuplicateUniqueFinderRows extends UpgradeProcess {
 		StringBundler sb = new StringBundler(7);
 
 		sb.append("select ");
-		sb.append(StringUtil.merge(_columnNames,", "));
+		sb.append(StringUtil.merge(_columnNames, ", "));
 		sb.append(" from ");
 		sb.append(_tableName);
 		sb.append(" group by ");
-		sb.append(StringUtil.merge(_columnNames,", "));
+		sb.append(StringUtil.merge(_columnNames, ", "));
 		sb.append(" having count(*) > 1");
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(

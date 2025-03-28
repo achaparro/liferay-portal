@@ -84,8 +84,9 @@ public class DeleteDuplicateUniqueFinderRows extends UpgradeProcess {
 				catch (SQLException sqlException) {
 					_log.error(
 						StringBundler.concat(
-							"Duplicate finder row in ", _tableName, " table. \n",
-							duplicateRow.toString(),"\n","Review finder columns: ",
+							"Duplicate finder row in ", _tableName,
+							" table. \n", duplicateRow.toString(), "\n",
+							"Review finder columns: ",
 							StringUtil.merge(_columnNames, ", ")),
 						sqlException);
 				}
@@ -94,9 +95,9 @@ public class DeleteDuplicateUniqueFinderRows extends UpgradeProcess {
 						_log.warn(
 							StringBundler.concat(
 								"Deleted duplicate finder row in ", _tableName,
-								" table. \n", duplicateRow.toString(),"\n",
+								" table. \n", duplicateRow.toString(), "\n",
 								"Finder Columns: (",
-								StringUtil.merge(_columnNames, ", "),")"));
+								StringUtil.merge(_columnNames, ", "), ")"));
 					}
 
 					duplicateRowsCount--;
@@ -170,7 +171,8 @@ public class DeleteDuplicateUniqueFinderRows extends UpgradeProcess {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
-				String[] columnNames = new String[resultSetMetaData.getColumnCount()];
+				String[] columnNames =
+					new String[resultSetMetaData.getColumnCount()];
 
 				for (int i = 0; i < columnNames.length; i++) {
 					columnNames[i] = resultSetMetaData.getColumnName(i + 1);

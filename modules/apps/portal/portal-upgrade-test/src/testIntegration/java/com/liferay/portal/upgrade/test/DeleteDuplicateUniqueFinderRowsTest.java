@@ -137,7 +137,7 @@ public class DeleteDuplicateUniqueFinderRowsTest {
 	}
 
 	private void _assert(
-			boolean duplicateRowsRemoved, Long uniqueRowPrimaryKeyValue)
+			boolean duplicateRowsRemoved, Integer uniqueRowPrimaryKeyValue)
 		throws Exception {
 
 		_companyLocalService.forEachCompany(
@@ -165,10 +165,10 @@ public class DeleteDuplicateUniqueFinderRowsTest {
 							"select primaryKeyColumn from TestTable");
 					ResultSet resultSet = preparedStatement.executeQuery()) {
 
-					List<Long> primaryKeyValues = new ArrayList<>();
+					List<Integer> primaryKeyValues = new ArrayList<>();
 
 					while (resultSet.next()) {
-						primaryKeyValues.add(resultSet.getLong(1));
+						primaryKeyValues.add(resultSet.getInt(1));
 					}
 
 					Assert.assertEquals(
@@ -188,8 +188,8 @@ public class DeleteDuplicateUniqueFinderRowsTest {
 
 	private static Connection _connection;
 	private static DB _db;
-	private static long _newDuplicateRowPrimaryKeyValue;
-	private static long _nonduplicateRowPrimaryKeyValue;
-	private static long _oldDuplicateRowPrimaryKeyValue;
+	private static int _newDuplicateRowPrimaryKeyValue;
+	private static int _nonduplicateRowPrimaryKeyValue;
+	private static int _oldDuplicateRowPrimaryKeyValue;
 
 }

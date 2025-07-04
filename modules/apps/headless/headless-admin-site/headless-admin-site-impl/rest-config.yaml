@@ -10,5 +10,6 @@ compatibilityVersion: 11
 forcePredictableOperationId: true
 generateBatch: true
 generateGraphQL: true
+generatePermissions: true
 javaEEPackage: jakarta
 testDir: ../headless-admin-site-test/src/testIntegration/java

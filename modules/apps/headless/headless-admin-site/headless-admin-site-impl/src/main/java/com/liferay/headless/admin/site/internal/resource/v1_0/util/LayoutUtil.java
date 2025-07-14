@@ -654,7 +654,7 @@ public class LayoutUtil {
 		ClientExtensionEntryRelLocalServiceUtil.deleteClientExtensionEntryRels(
 			PortalUtil.getClassNameId(Layout.class), layout.getPlid(), type);
 
-		if (Validator.isNull(clientExtension.getExternalReferenceCode())) {
+		if (clientExtension == null) {
 			return;
 		}
 

@@ -637,6 +637,10 @@ components:
                     description:
                         The parent display page template folder's external reference code.
                     type: string
+                permissions:
+                    items:
+                        type: permission
+                    type: array
                 uuid:
                     # @review
                     description:

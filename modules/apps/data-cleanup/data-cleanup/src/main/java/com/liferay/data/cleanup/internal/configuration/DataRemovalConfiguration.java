@@ -105,4 +105,10 @@ public interface DataRemovalConfiguration {
 	)
 	public boolean removeWidgetLayoutTypeSettings();
 
+	@Meta.AD(
+		deflt = "false", name = "remove-orphaned-layout-classed-model-usages",
+		required = false
+	)
+	public boolean removeOrphanedLayoutClassedModelUsages();
+
 }

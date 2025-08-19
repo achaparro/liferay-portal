@@ -131,6 +131,19 @@ public abstract class BaseDisplayPageTemplateFolderResourceTestCase {
 		).locale(
 			LocaleUtil.getDefault()
 		).build();
+
+		permissionsDisplayPageTemplateFolderResource =
+			DisplayPageTemplateFolderResource.builder(
+			).authentication(
+				_testCompanyAdminUser.getEmailAddress(),
+				PropsValues.DEFAULT_ADMIN_PASSWORD
+			).endpoint(
+				testCompany.getVirtualHostname(), 8080, "http"
+			).locale(
+				LocaleUtil.getDefault()
+			).parameter(
+				"nestedFields", "permissions"
+			).build();
 	}
 
 	@After
@@ -633,6 +646,24 @@ public abstract class BaseDisplayPageTemplateFolderResourceTestCase {
 			page,
 			testGetSiteDisplayPageTemplateFoldersPage_getExpectedActions(
 				siteExternalReferenceCode));
+
+		for (DisplayPageTemplateFolder displayPageTemplateFolder :
+				page.getItems()) {
+
+			Assert.assertNull(displayPageTemplateFolder.getPermissions());
+		}
+
+		page =
+			permissionsDisplayPageTemplateFolderResource.
+				getSiteDisplayPageTemplateFoldersPage(
+					siteExternalReferenceCode, null, null, null,
+					Pagination.of(1, 10), null);
+
+		for (DisplayPageTemplateFolder displayPageTemplateFolder :
+				page.getItems()) {
+
+			Assert.assertNotNull(displayPageTemplateFolder.getPermissions());
+		}
 	}
 
 	protected Map<String, Map<String, String>>
@@ -1222,10 +1253,39 @@ public abstract class BaseDisplayPageTemplateFolderResourceTestCase {
 		assertEquals(
 			randomDisplayPageTemplateFolder, postDisplayPageTemplateFolder);
 		assertValid(postDisplayPageTemplateFolder);
+
+		DisplayPageTemplateFolder randomPermissionsDisplayPageTemplateFolder1 =
+			randomPermissionsDisplayPageTemplateFolder();
+
+		DisplayPageTemplateFolder postPermissionsDisplayPageTemplateFolder1 =
+			testPostSiteDisplayPageTemplateFolder_addDisplayPageTemplateFolder(
+				randomPermissionsDisplayPageTemplateFolder1);
+
+		Assert.assertNull(
+			postPermissionsDisplayPageTemplateFolder1.getPermissions());
+
+		DisplayPageTemplateFolder randomPermissionsDisplayPageTemplateFolder2 =
+			randomPermissionsDisplayPageTemplateFolder();
+
+		DisplayPageTemplateFolder postPermissionsDisplayPageTemplateFolder2 =
+			testPostSiteDisplayPageTemplateFolder_addPermissionsDisplayPageTemplateFolder(
+				randomPermissionsDisplayPageTemplateFolder2);
+
+		Assert.assertNotNull(
+			postPermissionsDisplayPageTemplateFolder2.getPermissions());
 	}
 
 	protected DisplayPageTemplateFolder
 			testPostSiteDisplayPageTemplateFolder_addDisplayPageTemplateFolder(
+				DisplayPageTemplateFolder displayPageTemplateFolder)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected DisplayPageTemplateFolder
+			testPostSiteDisplayPageTemplateFolder_addPermissionsDisplayPageTemplateFolder(
 				DisplayPageTemplateFolder displayPageTemplateFolder)
 		throws Exception {
 
@@ -1711,6 +1771,14 @@ public abstract class BaseDisplayPageTemplateFolderResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("permissions", additionalAssertFieldName)) {
+				if (displayPageTemplateFolder.getPermissions() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("uuid", additionalAssertFieldName)) {
 				if (displayPageTemplateFolder.getUuid() == null) {
 					valid = false;
@@ -1961,6 +2029,17 @@ public abstract class BaseDisplayPageTemplateFolderResourceTestCase {
 							getParentDisplayPageTemplateFolderExternalReferenceCode(),
 						displayPageTemplateFolder2.
 							getParentDisplayPageTemplateFolderExternalReferenceCode())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("permissions", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						displayPageTemplateFolder1.getPermissions(),
+						displayPageTemplateFolder2.getPermissions())) {
 
 					return false;
 				}
@@ -2442,6 +2521,11 @@ public abstract class BaseDisplayPageTemplateFolderResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("permissions")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("uuid")) {
 			Object object = displayPageTemplateFolder.getUuid();
 
@@ -2568,6 +2652,29 @@ public abstract class BaseDisplayPageTemplateFolderResourceTestCase {
 		return randomDisplayPageTemplateFolder();
 	}
 
+	protected DisplayPageTemplateFolder
+			randomPermissionsDisplayPageTemplateFolder()
+		throws Exception {
+
+		DisplayPageTemplateFolder displayPageTemplateFolder =
+			randomDisplayPageTemplateFolder();
+
+		com.liferay.portal.kernel.model.Role role = RoleTestUtil.addRole(
+			RoleConstants.TYPE_REGULAR);
+
+		displayPageTemplateFolder.setPermissions(
+			new Permission[] {
+				new Permission() {
+					{
+						setActionIds(new String[] {"VIEW"});
+						setRoleName(role.getName());
+					}
+				}
+			});
+
+		return displayPageTemplateFolder;
+	}
+
 	protected final JSONObject waitForFinish(
 			String expectedExecuteStatus, JSONObject jsonObject)
 		throws Exception {
@@ -2594,6 +2701,8 @@ public abstract class BaseDisplayPageTemplateFolderResourceTestCase {
 		displayPageTemplateFolderResource;
 	protected ImportTaskResource importTaskResource;
 	protected com.liferay.portal.kernel.model.Group irrelevantGroup;
+	protected DisplayPageTemplateFolderResource
+		permissionsDisplayPageTemplateFolderResource;
 	protected com.liferay.portal.kernel.model.Company testCompany;
 	protected com.liferay.portal.kernel.model.Group testGroup;
 

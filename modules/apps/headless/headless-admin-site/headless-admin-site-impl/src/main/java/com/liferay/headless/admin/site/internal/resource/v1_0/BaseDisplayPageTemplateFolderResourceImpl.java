@@ -32,6 +32,7 @@ import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
 import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineExportTaskResource;
 import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineImportTaskResource;
+import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.permission.Permission;
@@ -239,6 +240,15 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 			"This method needs to be implemented");
 	}
 
+	protected abstract Page<DisplayPageTemplateFolder>
+			doGetSiteDisplayPageTemplateFoldersPage(
+				String siteExternalReferenceCode, String search,
+				com.liferay.portal.vulcan.aggregation.Aggregation aggregation,
+				com.liferay.portal.kernel.search.filter.Filter filter,
+				Pagination pagination,
+				com.liferay.portal.kernel.search.Sort[] sorts)
+		throws Exception;
+
 	/**
 	 * Invoke this method with the command line:
 	 *
@@ -304,7 +314,7 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 	)
 	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
-	public Page<DisplayPageTemplateFolder>
+	public final Page<DisplayPageTemplateFolder>
 			getSiteDisplayPageTemplateFoldersPage(
 				@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 				@jakarta.validation.constraints.NotNull
@@ -323,13 +333,40 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 					com.liferay.portal.kernel.search.Sort[] sorts)
 		throws Exception {
 
-		return Page.of(Collections.emptyList());
+		Page<DisplayPageTemplateFolder> displayPageTemplateFoldersPage =
+			doGetSiteDisplayPageTemplateFoldersPage(
+				siteExternalReferenceCode, search, aggregation, filter,
+				pagination, sorts);
+
+		for (DisplayPageTemplateFolder displayPageTemplateFolder :
+				displayPageTemplateFoldersPage.getItems()) {
+
+			displayPageTemplateFolder.setPermissions(
+				() -> NestedFieldsSupplier.supply(
+					"permissions",
+					nestedField -> {
+						Page<Permission> permissionsPage =
+							getSiteDisplayPageTemplateFolderPermissionsPage(
+								siteExternalReferenceCode,
+								displayPageTemplateFolder.
+									getExternalReferenceCode(),
+								null);
+
+						Collection<Permission> permissions =
+							permissionsPage.getItems();
+
+						return permissions.toArray(
+							new Permission[permissions.size()]);
+					}));
+		}
+
+		return displayPageTemplateFoldersPage;
 	}
 
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-admin-site/v1.0/sites/{siteExternalReferenceCode}/display-page-template-folders/{displayPageTemplateFolderExternalReferenceCode}' -d $'{"creatorExternalReferenceCode": ___, "dateCreated": ___, "dateModified": ___, "description": ___, "externalReferenceCode": ___, "key": ___, "name": ___, "parentDisplayPageTemplateFolderExternalReferenceCode": ___, "uuid": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-admin-site/v1.0/sites/{siteExternalReferenceCode}/display-page-template-folders/{displayPageTemplateFolderExternalReferenceCode}' -d $'{"creatorExternalReferenceCode": ___, "dateCreated": ___, "dateModified": ___, "description": ___, "externalReferenceCode": ___, "key": ___, "name": ___, "parentDisplayPageTemplateFolder": ___, "parentDisplayPageTemplateFolderExternalReferenceCode": ___, "permissions": ___, "uuid": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
 		description = "Updates only the fields received in the request body, leaving any other fields untouched."
@@ -438,6 +475,11 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 						getParentDisplayPageTemplateFolderExternalReferenceCode());
 		}
 
+		if (displayPageTemplateFolder.getPermissions() != null) {
+			existingDisplayPageTemplateFolder.setPermissions(
+				displayPageTemplateFolder.getPermissions());
+		}
+
 		if (displayPageTemplateFolder.getUuid() != null) {
 			existingDisplayPageTemplateFolder.setUuid(
 				displayPageTemplateFolder.getUuid());
@@ -452,10 +494,16 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 			existingDisplayPageTemplateFolder);
 	}
 
+	protected abstract DisplayPageTemplateFolder
+			doPostSiteDisplayPageTemplateFolder(
+				String siteExternalReferenceCode,
+				DisplayPageTemplateFolder displayPageTemplateFolder)
+		throws Exception;
+
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-site/v1.0/sites/{siteExternalReferenceCode}/display-page-template-folders' -d $'{"creatorExternalReferenceCode": ___, "dateCreated": ___, "dateModified": ___, "description": ___, "externalReferenceCode": ___, "key": ___, "name": ___, "parentDisplayPageTemplateFolderExternalReferenceCode": ___, "uuid": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-site/v1.0/sites/{siteExternalReferenceCode}/display-page-template-folders' -d $'{"creatorExternalReferenceCode": ___, "dateCreated": ___, "dateModified": ___, "description": ___, "externalReferenceCode": ___, "key": ___, "name": ___, "parentDisplayPageTemplateFolder": ___, "parentDisplayPageTemplateFolderExternalReferenceCode": ___, "permissions": ___, "uuid": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
 		description = "Adds a new display page template folder."
@@ -482,7 +530,7 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 	@jakarta.ws.rs.POST
 	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
-	public DisplayPageTemplateFolder postSiteDisplayPageTemplateFolder(
+	public final DisplayPageTemplateFolder postSiteDisplayPageTemplateFolder(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@jakarta.validation.constraints.NotNull
 			@jakarta.ws.rs.PathParam("siteExternalReferenceCode")
@@ -490,7 +538,32 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 			DisplayPageTemplateFolder displayPageTemplateFolder)
 		throws Exception {
 
-		return new DisplayPageTemplateFolder();
+		Permission[] permissions = displayPageTemplateFolder.getPermissions();
+
+		DisplayPageTemplateFolder postDisplayPageTemplateFolder =
+			doPostSiteDisplayPageTemplateFolder(
+				siteExternalReferenceCode, displayPageTemplateFolder);
+
+		if (permissions != null) {
+			Page<Permission> permissionsPage =
+				putSiteDisplayPageTemplateFolderPermissionsPage(
+					siteExternalReferenceCode,
+					postDisplayPageTemplateFolder.getExternalReferenceCode(),
+					permissions);
+
+			postDisplayPageTemplateFolder.setPermissions(
+				() -> NestedFieldsSupplier.supply(
+					"permissions",
+					nestedField -> {
+						Collection<Permission> collection =
+							permissionsPage.getItems();
+
+						return collection.toArray(
+							new Permission[collection.size()]);
+					}));
+		}
+
+		return postDisplayPageTemplateFolder;
 	}
 
 	/**
@@ -649,7 +722,7 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-site/v1.0/sites/{siteExternalReferenceCode}/display-page-template-folders/{displayPageTemplateFolderExternalReferenceCode}' -d $'{"creatorExternalReferenceCode": ___, "dateCreated": ___, "dateModified": ___, "description": ___, "externalReferenceCode": ___, "key": ___, "name": ___, "parentDisplayPageTemplateFolderExternalReferenceCode": ___, "uuid": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-site/v1.0/sites/{siteExternalReferenceCode}/display-page-template-folders/{displayPageTemplateFolderExternalReferenceCode}' -d $'{"creatorExternalReferenceCode": ___, "dateCreated": ___, "dateModified": ___, "description": ___, "externalReferenceCode": ___, "key": ___, "name": ___, "parentDisplayPageTemplateFolder": ___, "parentDisplayPageTemplateFolderExternalReferenceCode": ___, "permissions": ___, "uuid": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Operation(
 		description = "Updates the display page template folder with the given external reference code, or creates it if it does not exist."
@@ -692,22 +765,70 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
 	@jakarta.ws.rs.PUT
 	@Override
-	public DisplayPageTemplateFolder
-			putSiteSiteByExternalReferenceCodeDisplayPageTemplateFolder(
-				@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-				@jakarta.validation.constraints.NotNull
-				@jakarta.ws.rs.PathParam("siteExternalReferenceCode")
-				String siteExternalReferenceCode,
-				@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-				@jakarta.validation.constraints.NotNull
-				@jakarta.ws.rs.PathParam(
-					"displayPageTemplateFolderExternalReferenceCode"
-				)
-				String displayPageTemplateFolderExternalReferenceCode,
-				DisplayPageTemplateFolder displayPageTemplateFolder)
+	public DisplayPageTemplateFolder putSiteDisplayPageTemplateFolder(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam("siteExternalReferenceCode")
+			String siteExternalReferenceCode,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam(
+				"displayPageTemplateFolderExternalReferenceCode"
+			)
+			String displayPageTemplateFolderExternalReferenceCode,
+			DisplayPageTemplateFolder displayPageTemplateFolder)
 		throws Exception {
 
 		return new DisplayPageTemplateFolder();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-site/v1.0/sites/{siteExternalReferenceCode}/display-page-template-folders/{displayPageTemplateFolderExternalReferenceCode}/permissions'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "siteExternalReferenceCode"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "displayPageTemplateFolderExternalReferenceCode"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(
+				name = "DisplayPageTemplateFolder"
+			)
+		}
+	)
+	@jakarta.ws.rs.Consumes({"application/json", "application/xml"})
+	@jakarta.ws.rs.Path(
+		"/sites/{siteExternalReferenceCode}/display-page-template-folders/{displayPageTemplateFolderExternalReferenceCode}/permissions"
+	)
+	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
+	@jakarta.ws.rs.PUT
+	@Override
+	public Page<Permission> putSiteDisplayPageTemplateFolderPermissionsPage(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam("siteExternalReferenceCode")
+			String siteExternalReferenceCode,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam(
+				"displayPageTemplateFolderExternalReferenceCode"
+			)
+			String displayPageTemplateFolderExternalReferenceCode,
+			Permission[] permissions)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	@Override
@@ -717,8 +838,51 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 			Map<String, Serializable> parameters)
 		throws Exception {
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		UnsafeFunction
+			<DisplayPageTemplateFolder, DisplayPageTemplateFolder, Exception>
+				displayPageTemplateFolderUnsafeFunction = null;
+
+		String createStrategy = (String)parameters.getOrDefault(
+			"createStrategy", "INSERT");
+
+		if (StringUtil.equalsIgnoreCase(createStrategy, "INSERT")) {
+			if (parameters.containsKey("siteExternalReferenceCode")) {
+				displayPageTemplateFolderUnsafeFunction =
+					displayPageTemplateFolder ->
+						postSiteDisplayPageTemplateFolder(
+							(String)parameters.get("siteExternalReferenceCode"),
+							displayPageTemplateFolder);
+			}
+			else {
+				throw new NotSupportedException(
+					"One of the following parameters must be specified: [siteExternalReferenceCode]");
+			}
+		}
+
+		if (displayPageTemplateFolderUnsafeFunction == null) {
+			throw new NotSupportedException(
+				"Create strategy \"" + createStrategy +
+					"\" is not supported for DisplayPageTemplateFolder");
+		}
+
+		if (contextBatchUnsafeBiConsumer != null) {
+			contextBatchUnsafeBiConsumer.accept(
+				displayPageTemplateFolders,
+				displayPageTemplateFolderUnsafeFunction);
+		}
+		else if (contextBatchUnsafeConsumer != null) {
+			contextBatchUnsafeConsumer.accept(
+				displayPageTemplateFolders,
+				displayPageTemplateFolderUnsafeFunction::apply);
+		}
+		else {
+			for (DisplayPageTemplateFolder displayPageTemplateFolder :
+					displayPageTemplateFolders) {
+
+				displayPageTemplateFolderUnsafeFunction.apply(
+					displayPageTemplateFolder);
+			}
+		}
 	}
 
 	@Override
@@ -727,12 +891,48 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 			Map<String, Serializable> parameters)
 		throws Exception {
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		UnsafeFunction
+			<DisplayPageTemplateFolder, DisplayPageTemplateFolder, Exception>
+				displayPageTemplateFolderUnsafeFunction =
+					displayPageTemplateFolder -> {
+						if (parameters.containsKey(
+								"siteExternalReferenceCode")) {
+
+							deleteSiteDisplayPageTemplateFolder(
+								(String)parameters.get(
+									"siteExternalReferenceCode"),
+								displayPageTemplateFolder.
+									getExternalReferenceCode());
+
+							return displayPageTemplateFolder;
+						}
+
+						throw new UnsupportedOperationException(
+							"Unable to delete by external reference code or ID");
+					};
+
+		if (contextBatchUnsafeBiConsumer != null) {
+			contextBatchUnsafeBiConsumer.accept(
+				displayPageTemplateFolders,
+				displayPageTemplateFolderUnsafeFunction);
+		}
+		else if (contextBatchUnsafeConsumer != null) {
+			contextBatchUnsafeConsumer.accept(
+				displayPageTemplateFolders,
+				displayPageTemplateFolderUnsafeFunction::apply);
+		}
+		else {
+			for (DisplayPageTemplateFolder displayPageTemplateFolder :
+					displayPageTemplateFolders) {
+
+				displayPageTemplateFolderUnsafeFunction.apply(
+					displayPageTemplateFolder);
+			}
+		}
 	}
 
 	public Set<String> getAvailableCreateStrategies() {
-		return SetUtil.fromArray();
+		return SetUtil.fromArray("INSERT");
 	}
 
 	public Set<String> getAvailableUpdateStrategies() {
@@ -763,8 +963,15 @@ public abstract class BaseDisplayPageTemplateFolderResourceImpl
 			Map<String, Serializable> parameters, String search)
 		throws Exception {
 
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
+		if (parameters.containsKey("siteId")) {
+			return getSiteDisplayPageTemplateFoldersPage(
+				(String)parameters.get("siteExternalReferenceCode"), search,
+				null, filter, pagination, sorts);
+		}
+		else {
+			throw new NotSupportedException(
+				"One of the following parameters must be specified: [siteId]");
+		}
 	}
 
 	@Override

@@ -13,13 +13,23 @@ import com.liferay.layout.page.template.constants.LayoutPageTemplateCollectionTy
 import com.liferay.layout.page.template.model.LayoutPageTemplateCollection;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionService;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.PermissionService;
+import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.permission.Permission;
+import com.liferay.portal.vulcan.permission.PermissionUtil;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
@@ -124,6 +134,53 @@ public class DisplayPageTemplateFolderResourceImpl
 	}
 
 	@Override
+	public Page<Permission> getSiteDisplayPageTemplateFolderPermissionsPage(
+			String siteExternalReferenceCode,
+			String displayPageTemplateFolderExternalReferenceCode,
+			String roleNames)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
+			throw new UnsupportedOperationException();
+		}
+
+		long groupId = GroupUtil.getGroupId(
+			false, contextCompany.getCompanyId(), siteExternalReferenceCode);
+
+		String resourceName = LayoutPageTemplateCollection.class.getName();
+
+		LayoutPageTemplateCollection layoutPageTemplateCollection =
+			_layoutPageTemplateCollectionService.
+				getLayoutPageTemplateCollection(
+					displayPageTemplateFolderExternalReferenceCode, groupId);
+
+		_permissionService.checkPermission(
+			groupId, resourceName,
+			layoutPageTemplateCollection.getLayoutPageTemplateCollectionId());
+
+		return toPermissionPage(
+			HashMapBuilder.put(
+				"get",
+				addAction(
+					ActionKeys.PERMISSIONS,
+					"getSiteDisplayPageTemplateFolderPermissionsPage",
+					resourceName,
+					layoutPageTemplateCollection.
+						getLayoutPageTemplateCollectionId())
+			).put(
+				"replace",
+				addAction(
+					ActionKeys.PERMISSIONS,
+					"putSiteDisplayPageTemplateFolderPermissionsPage",
+					resourceName,
+					layoutPageTemplateCollection.
+						getLayoutPageTemplateCollectionId())
+			).build(),
+			layoutPageTemplateCollection.getLayoutPageTemplateCollectionId(),
+			resourceName, roleNames);
+	}
+
+	@Override
 	public DisplayPageTemplateFolder putSiteDisplayPageTemplateFolder(
 			String siteExternalReferenceCode,
 			String displayPageTemplateFolderExternalReferenceCode,
@@ -175,6 +232,29 @@ public class DisplayPageTemplateFolderResourceImpl
 					displayPageTemplateFolder.getDescription()));
 	}
 
+	protected Page<Permission> toPermissionPage(
+			Map<String, Map<String, String>> actions, long id,
+			String resourceName, String roleNames)
+		throws Exception {
+
+		List<ResourceAction> resourceActions =
+			resourceActionLocalService.getResourceActions(resourceName);
+
+		if (Validator.isNotNull(roleNames)) {
+			return Page.of(
+				actions,
+				PermissionUtil.getPermissions(
+					contextCompany.getCompanyId(), resourceActions, id,
+					resourceName, StringUtil.split(roleNames)));
+		}
+
+		return Page.of(
+			actions,
+			PermissionUtil.getPermissions(
+				contextCompany.getCompanyId(), resourceActions, id,
+				resourceName, null));
+	}
+
 	private DisplayPageTemplateFolder _addDisplayPageTemplateFolder(
 			DisplayPageTemplateFolder displayPageTemplateFolder, long groupId)
 		throws Exception {
@@ -202,5 +282,8 @@ public class DisplayPageTemplateFolderResourceImpl
 	@Reference
 	private LayoutPageTemplateCollectionService
 		_layoutPageTemplateCollectionService;
+
+	@Reference
+	private PermissionService _permissionService;
 
 }

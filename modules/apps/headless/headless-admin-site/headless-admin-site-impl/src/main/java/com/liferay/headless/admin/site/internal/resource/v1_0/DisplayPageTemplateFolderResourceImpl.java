@@ -23,11 +23,13 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
+import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.permission.Permission;
 import com.liferay.portal.vulcan.permission.PermissionUtil;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -124,13 +126,29 @@ public class DisplayPageTemplateFolderResourceImpl
 			throw new UnsupportedOperationException();
 		}
 
-		return _toDisplayPageTemplateFolder(
-			_layoutPageTemplateCollectionService.
-				getLayoutPageTemplateCollection(
-					displayPageTemplateFolderExternalReferenceCode,
-					GroupUtil.getGroupId(
-						true, contextCompany.getCompanyId(),
-						siteExternalReferenceCode)));
+		DisplayPageTemplateFolder displayPageTemplateFolder =
+			doGetSiteDisplayPageTemplateFolder(
+				siteExternalReferenceCode,
+				displayPageTemplateFolderExternalReferenceCode);
+
+		displayPageTemplateFolder.setPermissions(
+			() -> NestedFieldsSupplier.supply(
+				"permissions",
+				nestedField -> {
+					Page<Permission> permissionPage =
+						getSiteDisplayPageTemplateFolderPermissionsPage(
+							siteExternalReferenceCode,
+							displayPageTemplateFolder.
+								getExternalReferenceCode(),
+							null);
+
+					Collection<Permission> permissions =
+						permissionPage.getItems();
+
+					return permissions.toArray(new Permission[0]);
+				}));
+
+		return displayPageTemplateFolder;
 	}
 
 	@Override
@@ -230,6 +248,20 @@ public class DisplayPageTemplateFolderResourceImpl
 						getLayoutPageTemplateCollectionId(),
 					displayPageTemplateFolder.getName(),
 					displayPageTemplateFolder.getDescription()));
+	}
+
+	protected DisplayPageTemplateFolder doGetSiteDisplayPageTemplateFolder(
+			String siteExternalReferenceCode,
+			String displayPageTemplateFolderExternalReferenceCode)
+		throws Exception {
+
+		return _toDisplayPageTemplateFolder(
+			_layoutPageTemplateCollectionService.
+				getLayoutPageTemplateCollection(
+					displayPageTemplateFolderExternalReferenceCode,
+					GroupUtil.getGroupId(
+						true, contextCompany.getCompanyId(),
+						siteExternalReferenceCode)));
 	}
 
 	protected Page<Permission> toPermissionPage(

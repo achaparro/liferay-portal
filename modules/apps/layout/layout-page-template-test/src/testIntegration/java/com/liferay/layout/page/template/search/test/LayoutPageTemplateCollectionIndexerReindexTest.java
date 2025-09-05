@@ -13,9 +13,11 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
-import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.search.model.uid.UIDFactory;
 import com.liferay.portal.search.searcher.SearchRequestBuilderFactory;
 import com.liferay.portal.search.searcher.SearchResponse;
@@ -47,7 +49,7 @@ public class LayoutPageTemplateCollectionIndexerReindexTest {
 
 	@Before
 	public void setUp() throws Exception {
-		_group = GroupTestUtil.addGroup();
+		_group = _groupLocalService.fetchGroup(TestPropsValues.getGroupId());
 
 		_layoutPageTemplateCollectionFixture =
 			new LayoutPageTemplateCollectionFixture(
@@ -65,6 +67,17 @@ public class LayoutPageTemplateCollectionIndexerReindexTest {
 				createLayoutPageTemplateCollection();
 
 		String searchTerm = layoutPageTemplateCollection.getName();
+
+		_assertFieldValue(Field.NAME, searchTerm, searchTerm);
+
+		layoutPageTemplateCollection.setName(RandomTestUtil.randomString());
+
+		layoutPageTemplateCollection =
+			_layoutPageTemplateCollectionFixture.
+				updateLayoutPageTemplateCollection(
+					layoutPageTemplateCollection);
+
+		searchTerm = layoutPageTemplateCollection.getName();
 
 		_assertFieldValue(Field.NAME, searchTerm, searchTerm);
 
@@ -138,8 +151,10 @@ public class LayoutPageTemplateCollectionIndexerReindexTest {
 			).build());
 	}
 
-	@DeleteAfterTestRun
 	private Group _group;
+
+	@Inject
+	private GroupLocalService _groupLocalService;
 
 	private LayoutPageTemplateCollectionFixture
 		_layoutPageTemplateCollectionFixture;

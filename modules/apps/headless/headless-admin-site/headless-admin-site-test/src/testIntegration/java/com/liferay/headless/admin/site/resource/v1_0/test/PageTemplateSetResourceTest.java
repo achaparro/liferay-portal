@@ -144,8 +144,8 @@ public class PageTemplateSetResourceTest
 		PageTemplateSet pageTemplateSet = randomPageTemplateSet();
 
 		pageTemplateSet.setName(
-			RandomTestUtil.randomString() + search +
-				RandomTestUtil.randomString());
+			RandomTestUtil.randomString() + StringPool.SPACE + search +
+			StringPool.SPACE + RandomTestUtil.randomString());
 
 		pageTemplateSetResource.
 			postSiteSiteByExternalReferenceCodePageTemplateSet(

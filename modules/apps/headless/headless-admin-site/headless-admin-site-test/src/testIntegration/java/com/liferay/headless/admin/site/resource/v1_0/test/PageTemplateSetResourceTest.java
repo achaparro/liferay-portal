@@ -18,11 +18,14 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+
+import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -179,6 +182,27 @@ public class PageTemplateSetResourceTest
 					null, null);
 
 		Assert.assertEquals(totalCount + 3, page.getTotalCount());
+
+		pageTemplateSet = randomPageTemplateSet();
+
+		pageTemplateSet.setDateModified(
+			new Date(System.currentTimeMillis() - Time.DAY));
+
+		pageTemplateSetResource.
+			postSiteSiteByExternalReferenceCodePageTemplateSet(
+				testGroup.getExternalReferenceCode(), pageTemplateSet);
+
+		page =
+			pageTemplateSetResource.
+				getSiteSiteByExternalReferenceCodePageTemplateSetsPage(
+					testGroup.getExternalReferenceCode(), null, null,
+					"dateModified le " +
+						new Date(
+							System.currentTimeMillis() - Time.DAY
+						).toInstant(),
+					null, null);
+
+		Assert.assertEquals(1, page.getTotalCount());
 	}
 
 	@Ignore

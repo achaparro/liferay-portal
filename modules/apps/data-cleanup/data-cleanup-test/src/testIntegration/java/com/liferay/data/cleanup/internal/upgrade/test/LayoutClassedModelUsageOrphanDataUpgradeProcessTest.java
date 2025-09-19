@@ -27,7 +27,6 @@ import com.liferay.layout.util.constants.LayoutDataItemTypeConstants;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.ConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -67,18 +66,11 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 
 	@Before
 	public void setUp() throws Exception {
-		Group group = _groupLocalService.fetchGroup(
-			TestPropsValues.getGroupId());
-
 		_layout = LayoutTestUtil.addTypeContentPublishedLayout(
-			group, RandomTestUtil.randomString(),
-			WorkflowConstants.STATUS_APPROVED);
+			_groupLocalService.fetchGroup(TestPropsValues.getGroupId()),
+			RandomTestUtil.randomString(), WorkflowConstants.STATUS_APPROVED);
 
 		_draftLayout = _layout.fetchDraftLayout();
-
-		_segmentsExperienceId =
-			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
-				_draftLayout.getPlid());
 	}
 
 	@Test
@@ -88,6 +80,10 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 
 		JournalArticle journalArticle = JournalTestUtil.addArticle(
 			TestPropsValues.getGroupId(), 0);
+
+		long segmentsExperienceId =
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				_draftLayout.getPlid());
 
 		ContentLayoutTestUtil.addItemToLayout(
 			JSONUtil.put(
@@ -106,7 +102,7 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 					))
 			).toString(),
 			LayoutDataItemTypeConstants.TYPE_CONTAINER, _draftLayout,
-			_layoutStructureProvider, _segmentsExperienceId);
+			_layoutStructureProvider, segmentsExperienceId);
 
 		FragmentCollection fragmentCollection =
 			_fragmentCollectionLocalService.addFragmentCollection(
@@ -146,7 +142,7 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 			fragmentEntry.getCss(), fragmentEntry.getConfiguration(),
 			fragmentEntry.getFragmentEntryId(), fragmentEntry.getHtml(),
 			fragmentEntry.getJs(), _draftLayout,
-			fragmentEntry.getFragmentEntryKey(), _segmentsExperienceId,
+			fragmentEntry.getFragmentEntryKey(), segmentsExperienceId,
 			fragmentEntry.getType());
 
 		ContentLayoutTestUtil.publishLayout(_draftLayout, _layout);
@@ -314,8 +310,6 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 
 	@Inject
 	private Portal _portal;
-
-	private long _segmentsExperienceId;
 
 	@Inject
 	private SegmentsExperienceLocalService _segmentsExperienceLocalService;

@@ -29,16 +29,12 @@ import com.liferay.portal.configuration.test.util.ConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
-import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
-import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.Portal;
@@ -51,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -72,12 +67,11 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 
 	@Before
 	public void setUp() throws Exception {
-		UserTestUtil.setUser(TestPropsValues.getUser());
-
-		_group = GroupTestUtil.addGroup();
+		Group group = _groupLocalService.fetchGroup(
+			TestPropsValues.getGroupId());
 
 		_layout = LayoutTestUtil.addTypeContentPublishedLayout(
-			_group, RandomTestUtil.randomString(),
+			group, RandomTestUtil.randomString(),
 			WorkflowConstants.STATUS_APPROVED);
 
 		_draftLayout = _layout.fetchDraftLayout();
@@ -85,16 +79,6 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 		_segmentsExperienceId =
 			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
 				_draftLayout.getPlid());
-
-		_serviceContext = ServiceContextTestUtil.getServiceContext(
-			_group, TestPropsValues.getUserId());
-
-		ServiceContextThreadLocal.pushServiceContext(_serviceContext);
-	}
-
-	@After
-	public void tearDown() {
-		ServiceContextThreadLocal.popServiceContext();
 	}
 
 	@Test
@@ -103,7 +87,7 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 		throws Exception {
 
 		JournalArticle journalArticle = JournalTestUtil.addArticle(
-			_group.getGroupId(), 0);
+			TestPropsValues.getGroupId(), 0);
 
 		ContentLayoutTestUtil.addItemToLayout(
 			JSONUtil.put(
@@ -126,13 +110,13 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 
 		FragmentCollection fragmentCollection =
 			_fragmentCollectionLocalService.addFragmentCollection(
-				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				null, TestPropsValues.getUserId(), TestPropsValues.getGroupId(),
 				RandomTestUtil.randomString(), StringPool.BLANK,
 				_serviceContext);
 
 		FragmentEntry fragmentEntry =
 			_fragmentEntryLocalService.addFragmentEntry(
-				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				null, TestPropsValues.getUserId(), TestPropsValues.getGroupId(),
 				fragmentCollection.getFragmentCollectionId(),
 				"fragment-entry-key", RandomTestUtil.randomString(),
 				StringPool.BLANK,
@@ -312,8 +296,8 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 	@Inject
 	private FragmentEntryLocalService _fragmentEntryLocalService;
 
-	@DeleteAfterTestRun
-	private Group _group;
+	@Inject
+	private GroupLocalService _groupLocalService;
 
 	private Layout _layout;
 

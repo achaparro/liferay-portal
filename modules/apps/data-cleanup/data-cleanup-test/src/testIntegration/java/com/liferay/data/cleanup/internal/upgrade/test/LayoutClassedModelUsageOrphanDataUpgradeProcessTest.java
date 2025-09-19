@@ -63,7 +63,7 @@ import org.junit.runner.RunWith;
  * @author Georgel Pop
  */
 @RunWith(Arquillian.class)
-public class RemoveOrphanedLayoutClassedModelUsagesUpgradeProcessTest {
+public class LayoutClassedModelUsageOrphanDataUpgradeProcessTest {
 
 	@ClassRule
 	@Rule
@@ -99,7 +99,7 @@ public class RemoveOrphanedLayoutClassedModelUsagesUpgradeProcessTest {
 
 	@Test
 	@TestInfo({"LPD-60259", "LPD-62154"})
-	public void testRemoveOrphanedLayoutClassedModelUsagesUpgradeProcess()
+	public void testLayoutClassedModelUsageOrphanDataUpgradeProcess()
 		throws Exception {
 
 		JournalArticle journalArticle = JournalTestUtil.addArticle(
@@ -291,7 +291,7 @@ public class RemoveOrphanedLayoutClassedModelUsagesUpgradeProcessTest {
 					"com.liferay.data.cleanup.internal.configuration." +
 						"DataRemovalConfiguration",
 					HashMapDictionaryBuilder.<String, Object>put(
-						"removeOrphanedLayoutClassedModelUsages", true
+						"removeLayoutClassedModelUsageOrphanData", true
 					).build())) {
 
 			_assertLayoutClassedModelUsages(

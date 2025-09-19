@@ -13,7 +13,7 @@ import com.liferay.data.cleanup.internal.upgrade.DLPreviewCTSContentDataUpgradeP
 import com.liferay.data.cleanup.internal.upgrade.ExpiredJournalArticleUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.OutdatedPublishedCTCollectionUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.PublishedCTSContentDataUpgradeProcess;
-import com.liferay.data.cleanup.internal.upgrade.RemoveOrphanedLayoutClassedModelUsagesUpgradeProcess;
+import com.liferay.data.cleanup.internal.upgrade.LayoutClassedModelUsageOrphanDataUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.WidgetLayoutTypeSettingsUpgradeProcess;
 import com.liferay.data.cleanup.internal.upgrade.util.ConfigurationUtil;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
@@ -101,9 +101,9 @@ public class DataRemovalExecutor {
 			() -> new WidgetLayoutTypeSettingsUpgradeProcess(
 				_layoutLocalService));
 		_removeModuleData(
-			dataRemovalConfiguration::removeOrphanedLayoutClassedModelUsages,
+			dataRemovalConfiguration::removeLayoutClassedModelUsageOrphanData,
 			"com.liferay.layout.service",
-			() -> new RemoveOrphanedLayoutClassedModelUsagesUpgradeProcess(
+			() -> new LayoutClassedModelUsageOrphanDataUpgradeProcess(
 				_classNameLocalService, _contentManager,
 				_fragmentEntryLinkLocalService,
 				_layoutClassedModelUsageLocalService,

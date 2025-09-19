@@ -34,10 +34,10 @@ import java.util.Set;
 /**
  * @author Georgel Pop
  */
-public class RemoveOrphanedLayoutClassedModelUsagesUpgradeProcess
+public class LayoutClassedModelUsageOrphanDataUpgradeProcess
 	extends BaseUpgradeProcess {
 
-	public RemoveOrphanedLayoutClassedModelUsagesUpgradeProcess(
+	public LayoutClassedModelUsageOrphanDataUpgradeProcess(
 		ClassNameLocalService classNameLocalService,
 		ContentManager contentManager,
 		FragmentEntryLinkLocalService fragmentEntryLinkLocalService,
@@ -265,7 +265,7 @@ public class RemoveOrphanedLayoutClassedModelUsagesUpgradeProcess
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		RemoveOrphanedLayoutClassedModelUsagesUpgradeProcess.class);
+		LayoutClassedModelUsageOrphanDataUpgradeProcess.class);
 
 	private final ClassNameLocalService _classNameLocalService;
 	private final ContentManager _contentManager;

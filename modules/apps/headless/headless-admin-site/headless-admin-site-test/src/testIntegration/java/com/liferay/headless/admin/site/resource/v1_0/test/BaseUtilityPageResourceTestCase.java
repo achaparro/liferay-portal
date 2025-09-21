@@ -187,7 +187,6 @@ public abstract class BaseUtilityPageResourceTestCase {
 
 		UtilityPage utilityPage = randomUtilityPage();
 
-		utilityPage.setCreatorExternalReferenceCode(regex);
 		utilityPage.setExternalReferenceCode(regex);
 		utilityPage.setName(regex);
 		utilityPage.setUuid(regex);
@@ -198,8 +197,6 @@ public abstract class BaseUtilityPageResourceTestCase {
 
 		utilityPage = UtilityPageSerDes.toDTO(json);
 
-		Assert.assertEquals(
-			regex, utilityPage.getCreatorExternalReferenceCode());
 		Assert.assertEquals(regex, utilityPage.getExternalReferenceCode());
 		Assert.assertEquals(regex, utilityPage.getName());
 		Assert.assertEquals(regex, utilityPage.getUuid());
@@ -1008,17 +1005,6 @@ public abstract class BaseUtilityPageResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals(
-					"creatorExternalReferenceCode",
-					additionalAssertFieldName)) {
-
-				if (utilityPage.getCreatorExternalReferenceCode() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
 			if (Objects.equals("datePublished", additionalAssertFieldName)) {
 				if (utilityPage.getDatePublished() == null) {
 					valid = false;
@@ -1283,20 +1269,6 @@ public abstract class BaseUtilityPageResourceTestCase {
 			if (Objects.equals("creator", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						utilityPage1.getCreator(), utilityPage2.getCreator())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals(
-					"creatorExternalReferenceCode",
-					additionalAssertFieldName)) {
-
-				if (!Objects.deepEquals(
-						utilityPage1.getCreatorExternalReferenceCode(),
-						utilityPage2.getCreatorExternalReferenceCode())) {
 
 					return false;
 				}
@@ -1612,52 +1584,6 @@ public abstract class BaseUtilityPageResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
-		if (entityFieldName.equals("creatorExternalReferenceCode")) {
-			Object object = utilityPage.getCreatorExternalReferenceCode();
-
-			String value = String.valueOf(object);
-
-			if (operator.equals("contains")) {
-				sb = new StringBundler();
-
-				sb.append("contains(");
-				sb.append(entityFieldName);
-				sb.append(",'");
-
-				if ((object != null) && (value.length() > 2)) {
-					sb.append(value.substring(1, value.length() - 1));
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append("')");
-			}
-			else if (operator.equals("startswith")) {
-				sb = new StringBundler();
-
-				sb.append("startswith(");
-				sb.append(entityFieldName);
-				sb.append(",'");
-
-				if ((object != null) && (value.length() > 1)) {
-					sb.append(value.substring(0, value.length() - 1));
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append("')");
-			}
-			else {
-				sb.append("'");
-				sb.append(value);
-				sb.append("'");
-			}
-
-			return sb.toString();
-		}
-
 		if (entityFieldName.equals("dateCreated")) {
 			if (operator.equals("between")) {
 				Date date = utilityPage.getDateCreated();
@@ -1963,8 +1889,6 @@ public abstract class BaseUtilityPageResourceTestCase {
 	protected UtilityPage randomUtilityPage() throws Exception {
 		return new UtilityPage() {
 			{
-				creatorExternalReferenceCode = StringUtil.toLowerCase(
-					RandomTestUtil.randomString());
 				dateCreated = RandomTestUtil.nextDate();
 				dateModified = RandomTestUtil.nextDate();
 				datePublished = RandomTestUtil.nextDate();

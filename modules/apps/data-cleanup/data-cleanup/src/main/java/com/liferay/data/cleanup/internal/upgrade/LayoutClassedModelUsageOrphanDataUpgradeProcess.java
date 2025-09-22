@@ -77,26 +77,26 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcess
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				SQLTransformer.transform(
 					StringBundler.concat(
-						"SELECT ctCollectionId, layoutClassedModelUsageId, ",
-						"groupId, containerType, plid FROM ",
-						"LayoutClassedModelUsage WHERE (containerType = ? AND ",
-						"(plid <> (SELECT plid FROM FragmentEntryLink WHERE ",
-						"fragmentEntryLinkId = CAST_LONG(containerKey) AND ",
+						"select ctCollectionId, layoutClassedModelUsageId, ",
+						"groupId, containerType, plid from ",
+						"LayoutClassedModelUsage where (containerType = ? and ",
+						"(plid <> (select plid from FragmentEntryLink where ",
+						"fragmentEntryLinkId = CAST_LONG(containerKey) and ",
 						"LayoutClassedModelUsage.ctCollectionId = ",
-						"FragmentEntryLink.ctCollectionId) OR (NOT EXISTS ",
-						"(SELECT 1 FROM FragmentEntryLink WHERE ",
-						"fragmentEntryLinkId = CAST_LONG(containerKey) AND ",
+						"FragmentEntryLink.ctCollectionId) or (not exists ",
+						"(select 1 from FragmentEntryLink where ",
+						"fragmentEntryLinkId = CAST_LONG(containerKey) and ",
 						"LayoutClassedModelUsage.ctCollectionId = ",
-						"FragmentEntryLink.ctCollectionId)))) OR ",
-						"(containerType = ? AND (plid <> (SELECT plid FROM ",
-						"LayoutPageTemplateStructure WHERE ",
+						"FragmentEntryLink.ctCollectionId)))) or ",
+						"(containerType = ? and (plid <> (select plid from ",
+						"LayoutPageTemplateStructure where ",
 						"layoutPageTemplateStructureId = ",
-						"CAST_LONG(containerKey) AND ",
+						"CAST_LONG(containerKey) and ",
 						"LayoutClassedModelUsage.ctCollectionId = ",
-						"LayoutPageTemplateStructure.ctCollectionId) OR (NOT ",
-						"EXISTS (SELECT 1 FROM LayoutPageTemplateStructure ",
-						"WHERE layoutPageTemplateStructureId = ",
-						"CAST_LONG(containerKey) AND ",
+						"LayoutPageTemplateStructure.ctCollectionId) or (not ",
+						"exists (select 1 from LayoutPageTemplateStructure ",
+						"where layoutPageTemplateStructureId = ",
+						"CAST_LONG(containerKey) and ",
 						"LayoutClassedModelUsage.ctCollectionId = ",
 						"LayoutPageTemplateStructure.ctCollectionId)) ",
 						"))")))) {
@@ -162,7 +162,7 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcess
 
 	private void _processClassedModelUsage(
 		Map<Long, Map<Long, Set<Long>>> plidMap,
-		UnsafeBiConsumer<Long, Long, Exception> action) {
+		UnsafeBiConsumer<Long, Long, Exception> unsafeBiConsumer) {
 
 		for (Map.Entry<Long, Map<Long, Set<Long>>> groupIdEntry :
 				plidMap.entrySet()) {
@@ -182,7 +182,7 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcess
 								setCTCollectionIdWithSafeCloseable(
 									ctCollectionId)) {
 
-						action.accept(groupId, plid);
+						unsafeBiConsumer.accept(groupId, plid);
 					}
 					catch (Exception exception) {
 						if (_log.isWarnEnabled()) {

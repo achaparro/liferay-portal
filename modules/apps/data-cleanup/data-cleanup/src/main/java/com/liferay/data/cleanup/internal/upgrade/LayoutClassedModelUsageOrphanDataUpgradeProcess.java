@@ -108,12 +108,12 @@ public class LayoutClassedModelUsageOrphanDataUpgradeProcess
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			while (resultSet.next()) {
-				long containerType = resultSet.getLong("containerType");
-				long groupId = resultSet.getLong("groupId");
 				long ctCollectionId = resultSet.getLong("ctCollectionId");
-				long plid = resultSet.getLong("plid");
 				long layoutClassedModelUsageId = resultSet.getLong(
 					"layoutClassedModelUsageId");
+				long groupId = resultSet.getLong("groupId");
+				long containerType = resultSet.getLong("containerType");
+				long plid = resultSet.getLong("plid");
 
 				try {
 					Map<Long, Map<Long, Set<Long>>> targetMap;

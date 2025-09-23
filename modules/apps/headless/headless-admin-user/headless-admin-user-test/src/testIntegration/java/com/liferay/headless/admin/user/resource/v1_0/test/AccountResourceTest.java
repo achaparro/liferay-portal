@@ -1504,6 +1504,15 @@ public class AccountResourceTest extends BaseAccountResourceTestCase {
 			ArrayUtil.exists(
 				getAccount.getAccountUserAccounts(),
 				userAccount -> userAccount.getId() == user.getUserId()));
+
+		Creator creator = getAccount.getCreator();
+
+		Assert.assertTrue(creator.getId() == TestPropsValues.getUserId());
+		Assert.assertTrue(
+			Objects.equals(
+				creator.getExternalReferenceCode(),
+				user.getExternalReferenceCode()));
+
 		Assert.assertTrue(
 			ArrayUtil.exists(
 				getAccount.getKeywords(),
@@ -1528,14 +1537,6 @@ public class AccountResourceTest extends BaseAccountResourceTestCase {
 				taxonomyCategoryBrief -> Objects.equals(
 					taxonomyCategoryBrief.getTaxonomyCategoryId(),
 					assetCategory.getCategoryId())));
-
-		Creator creator = getAccount.getCreator();
-
-		Assert.assertTrue(creator.getId() == TestPropsValues.getUserId());
-		Assert.assertTrue(
-			Objects.equals(
-				creator.getExternalReferenceCode(),
-				user.getExternalReferenceCode()));
 	}
 
 	private void _testPatchAccountByExternalReferenceCodeWithMoreExternalReferenceCodes()

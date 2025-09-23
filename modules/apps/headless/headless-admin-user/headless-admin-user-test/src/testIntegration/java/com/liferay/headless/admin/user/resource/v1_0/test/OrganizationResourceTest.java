@@ -1114,7 +1114,6 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 				accountBrief ->
 					accountBrief.getId() == accountEntry2.getAccountEntryId()));
 		Assert.assertNotNull(getOrganization.getCreator());
-
 		Assert.assertNotNull(getOrganization.getImageBase64());
 		Assert.assertNotEquals(
 			0, GetterUtil.getLong(getOrganization.getImageId()));

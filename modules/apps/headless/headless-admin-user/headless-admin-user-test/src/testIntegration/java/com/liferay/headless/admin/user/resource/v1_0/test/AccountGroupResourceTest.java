@@ -540,13 +540,6 @@ public class AccountGroupResourceTest extends BaseAccountGroupResourceTestCase {
 				getAccountGroup.getAccountBriefs(),
 				accountBrief ->
 					accountBrief.getId() == accountEntry3.getAccountEntryId()));
-		Assert.assertTrue(
-			ArrayUtil.exists(
-				getAccountGroup.getPermissions(),
-				permission ->
-					Objects.equals(permission.getRoleName(), role.getName()) &&
-					(permission.getActionIds().length == 1) &&
-					Objects.equals(permission.getActionIds()[0], "DELETE")));
 
 		Creator creator = getAccountGroup.getCreator();
 
@@ -558,6 +551,14 @@ public class AccountGroupResourceTest extends BaseAccountGroupResourceTestCase {
 			Objects.equals(
 				creator.getExternalReferenceCode(),
 				user.getExternalReferenceCode()));
+
+		Assert.assertTrue(
+			ArrayUtil.exists(
+				getAccountGroup.getPermissions(),
+				permission ->
+					Objects.equals(permission.getRoleName(), role.getName()) &&
+					(permission.getActionIds().length == 1) &&
+					Objects.equals(permission.getActionIds()[0], "DELETE")));
 	}
 
 	private void _testPatchAccountGroupByExternalReferenceCodeWithoutName()

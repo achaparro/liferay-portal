@@ -65,7 +65,7 @@ public class SitePageDTOConverter implements DTOConverter<Layout, SitePage> {
 						return new Creator() {
 							{
 								setExternalReferenceCode(
-									user.getExternalReferenceCode());
+									user::getExternalReferenceCode);
 							}
 						};
 					});

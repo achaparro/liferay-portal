@@ -644,8 +644,10 @@ public class RenderLayoutStructureTagTest {
 
 		String content = mockHttpServletResponse.getContentAsString();
 
-		Assert.assertTrue(content, content.contains("row"));
-		Assert.assertTrue(content, content.contains("col-"));
+		String rowContent = StringUtil.extractLast(content, "row ");
+
+		Assert.assertNotNull(rowContent);
+		Assert.assertTrue(rowContent, rowContent.contains("col "));
 	}
 
 	@Test

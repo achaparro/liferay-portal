@@ -22555,7 +22555,8 @@ public class LayoutPersistenceImpl
 		ctMergeColumnNames.add("styleBookEntryERC");
 		ctMergeColumnNames.add("css");
 		ctMergeColumnNames.add("priority");
-		ctMergeColumnNames.add("faviconFileEntryId");
+		ctMergeColumnNames.add("faviconFileEntryERC");
+		ctMergeColumnNames.add("faviconFileEntryScopeERC");
 		ctMergeColumnNames.add("masterLPTEERC");
 		ctMergeColumnNames.add("layoutPrototypeUuid");
 		ctMergeColumnNames.add("layoutPrototypeLinkEnabled");

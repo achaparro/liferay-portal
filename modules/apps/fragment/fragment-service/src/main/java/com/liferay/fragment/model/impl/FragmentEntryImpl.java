@@ -101,18 +101,13 @@ public class FragmentEntryImpl extends FragmentEntryBaseImpl {
 			return null;
 		}
 
-		try {
-			Group companyGroup = GroupLocalServiceUtil.getCompanyGroup(
-				getCompanyId());
+		Group companyGroup = GroupLocalServiceUtil.fetchCompanyGroup(
+			getCompanyId());
 
-			if ((companyGroup != null) &&
-				(getGroupId() == companyGroup.getGroupId())) {
+		if ((companyGroup != null) &&
+			(getGroupId() == companyGroup.getGroupId())) {
 
-				return companyGroup.getExternalReferenceCode();
-			}
-		}
-		catch (PortalException portalException) {
-			throw new RuntimeException(portalException);
+			return companyGroup.getExternalReferenceCode();
 		}
 
 		return null;

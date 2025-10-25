@@ -1849,7 +1849,7 @@ public class LayoutLocalServiceUtil {
 			String masterLayoutPageTemplateEntryERC)
 		throws PortalException {
 
-		return getService().updateMasterLayoutPlid(
+		return getService().updateMasterLayoutPageTemplateEntryERC(
 			groupId, privateLayout, layoutId, masterLayoutPageTemplateEntryERC);
 	}
 

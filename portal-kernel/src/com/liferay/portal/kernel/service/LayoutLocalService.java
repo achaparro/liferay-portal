@@ -1501,7 +1501,7 @@ public interface LayoutLocalService
 	 * @return the updated layout
 	 * @throws PortalException if a portal exception occurred
 	 */
-	public Layout updateMasterLayoutPlid(
+	public Layout updateMasterLayoutPageTemplateEntryERC(
 			long groupId, boolean privateLayout, long layoutId,
 			String masterLayoutPageTemplateEntryERC)
 		throws PortalException;

@@ -1270,7 +1270,7 @@ public class LayoutLocalServiceWrapper
 				_sourceLayout.getThemeId(), _sourceLayout.getColorSchemeId(),
 				_sourceLayout.getStyleBookEntryERC(), _sourceLayout.getCss(),
 				_sourceLayout.getFaviconFileEntryId(),
-				_sourceLayout.getMasterLayoutPlid());
+				_sourceLayout.getMasterLayoutPageTemplateEntryERC());
 		}
 
 		private CopyLayoutCallable(

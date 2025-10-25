@@ -2695,7 +2695,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 				layout.getFriendlyURLMap(), layout.getIconImage(), null,
 				layout.getStyleBookEntryERC(),
 				pageJSONObject.getLong("faviconFileEntryId"),
-				layout.getMasterLayoutPlid(), serviceContext);
+				layout.getMasterLayoutPageTemplateEntryERC(), serviceContext);
 			_layoutLocalService.updateLayout(
 				serviceContext.getScopeGroupId(), layout.isPrivateLayout(),
 				layout.getLayoutId(), unicodeProperties.toString());

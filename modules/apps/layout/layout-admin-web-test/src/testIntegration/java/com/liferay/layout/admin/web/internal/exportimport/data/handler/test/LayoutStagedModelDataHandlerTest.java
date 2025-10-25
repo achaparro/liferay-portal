@@ -860,7 +860,7 @@ public class LayoutStagedModelDataHandlerTest
 
 		layout = _layoutLocalService.updateMasterLayoutPageTemplateEntryERC(
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
-			masterLayoutPageTemplateEntry.getPlid());
+			masterLayoutPageTemplateEntry.getExternalReferenceCode());
 
 		StagedModelDataHandlerUtil.exportStagedModel(
 			portletDataContext, layout);
@@ -1098,7 +1098,8 @@ public class LayoutStagedModelDataHandlerTest
 		stagingLayout =
 			_layoutLocalService.updateMasterLayoutPageTemplateEntryERC(
 				stagingGroup.getGroupId(), false, stagingLayout.getLayoutId(),
-				stagingMasterLayout.getPlid());
+				stagingMasterLayout.getPlid()
+			);
 
 		stagingMasterLayout.setLayoutId(layout.getLayoutId());
 

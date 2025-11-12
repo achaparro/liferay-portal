@@ -267,22 +267,11 @@ public class PageSpecificationDTOConverter
 							return null;
 						}
 
-						LayoutPageTemplateEntry layoutPageTemplateEntry =
-							_layoutPageTemplateEntryLocalService.
-								fetchLayoutPageTemplateEntryByExternalReferenceCode(
-									layout.
-										getMasterLayoutPageTemplateEntryERC(),
-									layout.getGroupId());
-
-						if (layoutPageTemplateEntry == null) {
-							return null;
-						}
-
 						return new ItemExternalReference() {
 							{
 								setExternalReferenceCode(
-									layoutPageTemplateEntry::
-										getExternalReferenceCode);
+									layout::
+										getMasterLayoutPageTemplateEntryERC);
 							}
 						};
 					});

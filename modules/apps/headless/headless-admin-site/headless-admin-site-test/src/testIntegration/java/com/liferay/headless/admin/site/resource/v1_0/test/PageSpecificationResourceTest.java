@@ -795,7 +795,7 @@ public class PageSpecificationResourceTest
 					setMasterPageItemExternalReference(
 						() ->
 							SettingsTestUtil.getMasterPageItemExternalReference(
-								serviceContext));
+								false, serviceContext));
 					setStyleBookItemExternalReference(
 						() ->
 							SettingsTestUtil.getStyleBookItemExternalReference(

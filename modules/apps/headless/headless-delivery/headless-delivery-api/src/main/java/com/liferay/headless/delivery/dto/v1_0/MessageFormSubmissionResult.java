@@ -159,7 +159,7 @@ public class MessageFormSubmissionResult implements Serializable {
 	private Supplier<MessageType> _messageTypeSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "The localized text for the secondary notification pop-up."
+		description = "The localized message form submission result's notification text."
 	)
 	@Valid
 	public FragmentInlineValue getNotificationText() {
@@ -197,7 +197,7 @@ public class MessageFormSubmissionResult implements Serializable {
 	}
 
 	@GraphQLField(
-		description = "The localized text for the secondary notification pop-up."
+		description = "The localized message form submission result's notification text."
 	)
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected FragmentInlineValue notificationText;

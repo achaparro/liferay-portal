@@ -183,8 +183,8 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 
 		for (MasterPage masterPage : page.getItems()) {
 			if (StringUtil.equals(
-					postMasterPage.getExternalReferenceCode(),
-					masterPage.getExternalReferenceCode())) {
+					masterPage.getExternalReferenceCode(),
+					postMasterPage.getExternalReferenceCode())) {
 
 				URLReference thumbnail = masterPage.getThumbnail();
 

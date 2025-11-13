@@ -153,7 +153,7 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 	public void testGetSiteMasterPagesPage() throws Exception {
 		super.testGetSiteMasterPagesPage();
 
-		MasterPage random = randomMasterPage();
+		MasterPage randomMasterPage = randomMasterPage();
 
 		Repository repository = _portletFileRepository.addPortletRepository(
 			testGroup.getGroupId(), RandomTestUtil.randomString(),
@@ -164,7 +164,7 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 
 		String thumbnailURL = RandomTestUtil.randomString();
 
-		random.setThumbnail(
+		randomMasterPage.setThumbnail(
 			() -> new URLReference() {
 				{
 					setExternalReferenceCode(
@@ -174,7 +174,7 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 			});
 
 		MasterPage postMasterPage = testPostSiteMasterPage_addMasterPage(
-			random);
+			randomMasterPage);
 
 		MasterPageResource masterPageResource = _getMasterPageResource();
 
@@ -186,14 +186,13 @@ public class MasterPageResourceTest extends BaseMasterPageResourceTestCase {
 					postMasterPage.getExternalReferenceCode(),
 					masterPage.getExternalReferenceCode())) {
 
+				URLReference thumbnail = masterPage.getThumbnail();
+
 				_assertThumbnailURLReference(
 					false, postMasterPage.getExternalReferenceCode(),
-					masterPage.getThumbnail(
-					).getExternalReferenceCode());
+					thumbnail.getExternalReferenceCode());
 
-				URL url = new URL(
-					masterPage.getThumbnail(
-					).getUrl());
+				URL url = new URL(thumbnail.getUrl());
 
 				URLConnection urlConnection = url.openConnection();
 

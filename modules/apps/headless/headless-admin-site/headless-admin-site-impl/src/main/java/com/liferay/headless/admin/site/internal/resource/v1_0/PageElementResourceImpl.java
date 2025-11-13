@@ -304,7 +304,10 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 			layoutStructure.getLayoutStructureItem(
 				pageElement.getExternalReferenceCode());
 
-		if (layoutStructureItem != null) {
+		if (layoutStructureItem != null &&
+			!layoutStructure.isItemMarkedForDeletion(
+				layoutStructureItem.getItemId())) {
+
 			throw new UnsupportedOperationException();
 		}
 

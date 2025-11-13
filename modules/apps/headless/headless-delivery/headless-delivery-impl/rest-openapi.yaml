@@ -4000,7 +4000,7 @@ components:
                             description:
                                 The definition for the success message of the form.
                             oneOf:
-                                -   $ref: "#/components/schemas/DisplayPageFormSubmissionResult"
+                                -   $ref: "#/components/schemas/DisplayPageTemplateFormSubmissionResult"
                                 -   $ref: "#/components/schemas/MessageFormSubmissionResult"
                                 -   $ref: "#/components/schemas/SitePageFormSubmissionResult"
                                 -   $ref: "#/components/schemas/URLFormSubmissionResult"

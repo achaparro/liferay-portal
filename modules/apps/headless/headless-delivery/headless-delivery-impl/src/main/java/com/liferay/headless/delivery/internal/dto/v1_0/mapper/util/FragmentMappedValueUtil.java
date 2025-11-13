@@ -77,24 +77,24 @@ public class FragmentMappedValueUtil {
 
 	public static ClassFieldsReference
 		toDisplayPageTemplateClassFieldsReference(
-			String displayPageTemplateUniqueId) {
+			String displayPageTemplateId) {
 
 		LayoutPageTemplateEntry layoutPageTemplateEntry;
 
-		long layoutPageTemplateId = _extractLayoutPageTemplateId(
-			displayPageTemplateUniqueId);
-
 		try {
+			Matcher matcher = _pattern.matcher(displayPageTemplateId);
+
 			layoutPageTemplateEntry =
 				LayoutPageTemplateEntryLocalServiceUtil.
-					getLayoutPageTemplateEntry(layoutPageTemplateId);
+					getLayoutPageTemplateEntry(
+						GetterUtil.getLong(matcher.group(1)));
 		}
-		catch (PortalException portalException) {
+		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
 					"Item reference could not be set since no display page " +
-						"could be obtained",
-					portalException);
+						"template could be obtained",
+					exception);
 			}
 
 			return null;
@@ -214,20 +214,6 @@ public class FragmentMappedValueUtil {
 					});
 			}
 		};
-	}
-
-	private static long _extractLayoutPageTemplateId(
-		String layoutPageTemplateUniqueId) {
-
-		Matcher matcher = _pattern.matcher(layoutPageTemplateUniqueId);
-
-		if (matcher.find()) {
-			String numberString = matcher.group(1);
-
-			return GetterUtil.getLong(numberString);
-		}
-
-		return -1;
 	}
 
 	private static String _toItemClassName(JSONObject jsonObject) {

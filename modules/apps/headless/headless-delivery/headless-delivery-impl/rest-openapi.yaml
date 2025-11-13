@@ -1198,12 +1198,12 @@ components:
         DisplayPageTemplateFormSubmissionResult:
             # @review
             description:
-                Represents a definition of an submission result of type display page.
+                Represents a definition of a submission result of type display page template.
             properties:
                 mapping:
                     # @review
                     description:
-                        The mapping of the display page submission result.
+                        The mapping of the display page template submission result.
                     properties:
                         fieldKey:
                             # @review
@@ -1214,7 +1214,7 @@ components:
                 notificationText:
                     $ref: "#/components/schemas/FragmentInlineValue"
                     description:
-                        The localized text for the secondary notification pop-up.
+                        The localized display page template form submission result's notification text.
                 showNotification:
                     type: boolean
             type: object
@@ -3426,7 +3426,7 @@ components:
                 notificationText:
                     $ref: "#/components/schemas/FragmentInlineValue"
                     description:
-                        The localized text for the secondary notification pop-up.
+                        The localized message form submission result's notification text.
                 showNotification:
                     type: boolean
             type: object
@@ -5433,7 +5433,7 @@ components:
                 notificationText:
                     $ref: "#/components/schemas/FragmentInlineValue"
                     description:
-                        The localized text for the secondary notification pop-up.
+                        The localized site page form submission result's notification text.
                 showNotification:
                     type: boolean
             type: object

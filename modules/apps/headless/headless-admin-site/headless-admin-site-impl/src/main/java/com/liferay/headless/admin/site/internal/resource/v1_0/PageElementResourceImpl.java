@@ -304,7 +304,7 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 			layoutStructure.getLayoutStructureItem(
 				pageElement.getExternalReferenceCode());
 
-		if (layoutStructureItem != null &&
+		if ((layoutStructureItem != null) &&
 			!layoutStructure.isItemMarkedForDeletion(
 				layoutStructureItem.getItemId())) {
 
@@ -358,6 +358,16 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 				layoutPageTemplateStructure.getData(
 					segmentsExperience.getSegmentsExperienceId())),
 			pageElement, segmentsExperience.getSegmentsExperienceId());
+	}
+
+	@Override
+	protected void preparePatch(
+		PageElement pageElement, PageElement existingPageElement) {
+
+		if (pageElement.getPageElementDefinition() != null) {
+			existingPageElement.setPageElementDefinition(
+				pageElement::getPageElementDefinition);
+		}
 	}
 
 	private PageElement _addOrUpdatePageElement(

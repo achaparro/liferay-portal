@@ -36,7 +36,7 @@ import java.util.function.Supplier;
  */
 @Generated("")
 @GraphQLName(
-	description = "Represents a definition of a submission result of type display page template.",
+	description = "Represents a definition of a submission result of type display page.",
 	value = "DisplayPageFormSubmissionResult"
 )
 @JsonFilter("Liferay.Vulcan")
@@ -54,7 +54,7 @@ public class DisplayPageFormSubmissionResult implements Serializable {
 	}
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "The mapping of the display page template submission result."
+		description = "The mapping of the display page submission result."
 	)
 	@Valid
 	public Mapping getMapping() {
@@ -91,7 +91,7 @@ public class DisplayPageFormSubmissionResult implements Serializable {
 	}
 
 	@GraphQLField(
-		description = "The mapping of the display page template submission result."
+		description = "The mapping of the display page submission result."
 	)
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Mapping mapping;
@@ -100,7 +100,7 @@ public class DisplayPageFormSubmissionResult implements Serializable {
 	private Supplier<Mapping> _mappingSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "The localized display page template form submission result's notification text."
+		description = "The localized display page form submission result's notification text."
 	)
 	@Valid
 	public FragmentInlineValue getNotificationText() {
@@ -138,7 +138,7 @@ public class DisplayPageFormSubmissionResult implements Serializable {
 	}
 
 	@GraphQLField(
-		description = "The localized display page template form submission result's notification text."
+		description = "The localized display page form submission result's notification text."
 	)
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected FragmentInlineValue notificationText;

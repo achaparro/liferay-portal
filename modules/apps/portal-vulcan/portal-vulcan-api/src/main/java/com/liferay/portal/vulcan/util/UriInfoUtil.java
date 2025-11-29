@@ -214,7 +214,7 @@ public class UriInfoUtil {
 		}
 	}
 
-	private static boolean _isHttpsEnabled() {
+	private static boolean _isSecure() {
 		if (Http.HTTPS.equals(
 				PropsUtil.get(PropsKeys.PORTAL_INSTANCE_PROTOCOL)) ||
 			Http.HTTPS.equals(PropsUtil.get(PropsKeys.WEB_SERVER_PROTOCOL))) {
@@ -236,7 +236,7 @@ public class UriInfoUtil {
 			}
 		}
 
-		if (Validator.isNotNull(_getHost(uriBuilder)) && _isHttpsEnabled()) {
+		if (Validator.isNotNull(_getHost(uriBuilder)) && _isSecure()) {
 			uriBuilder.scheme(Http.HTTPS);
 		}
 

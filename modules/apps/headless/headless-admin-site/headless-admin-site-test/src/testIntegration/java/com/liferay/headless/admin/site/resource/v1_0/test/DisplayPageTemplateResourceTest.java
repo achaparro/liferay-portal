@@ -20,7 +20,7 @@ import com.liferay.headless.admin.site.client.dto.v1_0.FriendlyUrlHistory;
 import com.liferay.headless.admin.site.client.dto.v1_0.ItemExternalReference;
 import com.liferay.headless.admin.site.client.dto.v1_0.PageSpecification;
 import com.liferay.headless.admin.site.client.dto.v1_0.SitemapSettings;
-import com.liferay.headless.admin.site.client.dto.v1_0.URLReference;
+import com.liferay.headless.admin.site.client.dto.v1_0.ThumbnailURLReference;
 import com.liferay.headless.admin.site.client.pagination.Page;
 import com.liferay.headless.admin.site.client.problem.Problem;
 import com.liferay.headless.admin.site.client.resource.v1_0.DisplayPageTemplateResource;
@@ -351,7 +351,7 @@ public class DisplayPageTemplateResourceTest
 		String thumbnailURL = RandomTestUtil.randomString();
 
 		expectedDisplayPageTemplate.setThumbnail(
-			new URLReference() {
+			new ThumbnailURLReference() {
 				{
 					setExternalReferenceCode(
 						fileEntry.getExternalReferenceCode());
@@ -1071,7 +1071,7 @@ public class DisplayPageTemplateResourceTest
 		String thumbnailURL = RandomTestUtil.randomString();
 
 		randomDisplayPageTemplate.setThumbnail(
-			() -> new URLReference() {
+			() -> new ThumbnailURLReference() {
 				{
 					setExternalReferenceCode(
 						fileEntry.getExternalReferenceCode());
@@ -1096,7 +1096,7 @@ public class DisplayPageTemplateResourceTest
 					displayPageTemplate.getExternalReferenceCode(),
 					postDisplayPageTemplate.getExternalReferenceCode())) {
 
-				URLReference thumbnail = displayPageTemplate.getThumbnail();
+				ThumbnailURLReference thumbnail = displayPageTemplate.getThumbnail();
 
 				_assertThumbnailURLReference(
 					false, postDisplayPageTemplate.getExternalReferenceCode(),
@@ -1264,7 +1264,7 @@ public class DisplayPageTemplateResourceTest
 		String thumbnailURL = RandomTestUtil.randomString();
 
 		displayPageTemplate.setThumbnail(
-			() -> new URLReference() {
+			() -> new ThumbnailURLReference() {
 				{
 					setExternalReferenceCode(
 						fileEntry.getExternalReferenceCode());
@@ -1290,7 +1290,7 @@ public class DisplayPageTemplateResourceTest
 			repository.getDlFolderId());
 
 		displayPageTemplate.setThumbnail(
-			() -> new URLReference() {
+			() -> new ThumbnailURLReference() {
 				{
 					setExternalReferenceCode(
 						newFileEntry.getExternalReferenceCode());
@@ -1533,7 +1533,7 @@ public class DisplayPageTemplateResourceTest
 		String thumbnailURL = RandomTestUtil.randomString();
 
 		displayPageTemplate.setThumbnail(
-			() -> new URLReference() {
+			() -> new ThumbnailURLReference() {
 				{
 					setExternalReferenceCode(
 						fileEntry.getExternalReferenceCode());
@@ -1807,7 +1807,7 @@ public class DisplayPageTemplateResourceTest
 		String thumbnailURL = RandomTestUtil.randomString();
 
 		displayPageTemplate.setThumbnail(
-			() -> new URLReference() {
+			() -> new ThumbnailURLReference() {
 				{
 					setExternalReferenceCode(
 						fileEntry1.getExternalReferenceCode());
@@ -1828,7 +1828,7 @@ public class DisplayPageTemplateResourceTest
 		FileEntry fileEntry2 = _addPortletFileEntry(repository.getDlFolderId());
 
 		putDisplayPageTemplate.setThumbnail(
-			() -> new URLReference() {
+			() -> new ThumbnailURLReference() {
 				{
 					setExternalReferenceCode(
 						fileEntry2.getExternalReferenceCode());

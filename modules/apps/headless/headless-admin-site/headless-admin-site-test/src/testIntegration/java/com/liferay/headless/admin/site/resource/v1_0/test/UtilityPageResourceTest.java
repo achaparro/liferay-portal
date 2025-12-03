@@ -336,7 +336,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 		utilityPageError.setThumbnail(thumbnailURLReference);
 
-		String expectedTitle = "Unable to download file from ";
+		String expectedProblemTitle = "Unable to download file from ";
 
 		try {
 			testPostSiteUtilityPage_addUtilityPage(utilityPageError);
@@ -346,7 +346,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedTitle + thumbnailURLReference.getUrl(),
+				expectedProblemTitle + thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 
@@ -370,7 +370,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedTitle + thumbnailURLReference.getUrl(),
+				expectedProblemTitle + thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 
@@ -1000,7 +1000,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 		utilityPageError.setThumbnail(thumbnailURLReference);
 
-		String expectedTitle = "Unable to download file from ";
+		String expectedProblemTitle = "Unable to download file from ";
 
 		try {
 			utilityPageResource.patchSiteUtilityPage(
@@ -1012,7 +1012,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedTitle + thumbnailURLReference.getUrl(),
+				expectedProblemTitle + thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 
@@ -1038,7 +1038,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedTitle + thumbnailURLReference.getUrl(),
+				expectedProblemTitle + thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 	}
@@ -1281,7 +1281,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 		utilityPageError.setThumbnail(thumbnailURLReference);
 
-		String expectedTitle = "Unable to download file from ";
+		String expectedProblemTitle = "Unable to download file from ";
 
 		try {
 			utilityPageResource.putSiteUtilityPage(
@@ -1293,7 +1293,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedTitle + thumbnailURLReference.getUrl(),
+				expectedProblemTitle + thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 
@@ -1319,7 +1319,7 @@ public class UtilityPageResourceTest extends BaseUtilityPageResourceTestCase {
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedTitle + thumbnailURLReference.getUrl(),
+				expectedProblemTitle + thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 	}

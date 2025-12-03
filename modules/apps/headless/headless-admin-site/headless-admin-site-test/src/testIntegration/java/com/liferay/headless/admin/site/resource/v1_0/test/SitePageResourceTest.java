@@ -56,11 +56,17 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -368,6 +374,67 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 				serviceContext));
 	}
 
+	@Test
+	public void testWithoutPermissions() throws Exception {
+		SitePage sitePage = sitePageResource.postSiteSitePage(
+			testGroup.getExternalReferenceCode(), randomSitePage());
+
+		Layout layout = _layoutLocalService.getLayoutByExternalReferenceCode(
+			sitePage.getExternalReferenceCode(), testGroup.getGroupId());
+
+		Role guestRole = _roleLocalService.getRole(
+			layout.getCompanyId(), RoleConstants.GUEST);
+		Role siteMemberRole = _roleLocalService.getRole(
+			layout.getCompanyId(), RoleConstants.SITE_MEMBER);
+
+		long[] roleIds = {guestRole.getRoleId(), siteMemberRole.getRoleId()};
+
+		for (long roleId : roleIds) {
+			_resourcePermissionLocalService.removeResourcePermission(
+				layout.getCompanyId(), Layout.class.getName(),
+				ResourceConstants.SCOPE_INDIVIDUAL,
+				String.valueOf(layout.getPlid()), roleId, ActionKeys.VIEW);
+		}
+
+		User user = UserTestUtil.addUser(testCompany);
+
+		SitePageResource nopermissionsSitePageResource =
+			SitePageResource.builder(
+			).authentication(
+				user.getEmailAddress(), user.getPasswordUnencrypted()
+			).endpoint(
+				testCompany.getVirtualHostname(), 8080, "http"
+			).locale(
+				LocaleUtil.getDefault()
+			).build();
+
+		_assertForbidden(
+			() -> nopermissionsSitePageResource.deleteSiteSitePage(
+				testGroup.getExternalReferenceCode(),
+				sitePage.getExternalReferenceCode()));
+		_assertForbidden(
+			() -> nopermissionsSitePageResource.getSiteSitePage(
+				testGroup.getExternalReferenceCode(),
+				sitePage.getExternalReferenceCode()));
+		_assertForbidden(
+			() -> nopermissionsSitePageResource.getSiteSitePagesPage(
+				testGroup.getExternalReferenceCode(), null, null,
+				"externalReferenceCode eq '" +
+					sitePage.getExternalReferenceCode() + "'",
+				Pagination.of(1, 10), null));
+		_assertForbidden(
+			() -> nopermissionsSitePageResource.patchSiteSitePage(
+				testGroup.getExternalReferenceCode(),
+				sitePage.getExternalReferenceCode(), sitePage));
+		_assertForbidden(
+			() -> nopermissionsSitePageResource.postSiteSitePage(
+				testGroup.getExternalReferenceCode(), randomSitePage()));
+		_assertForbidden(
+			() -> nopermissionsSitePageResource.putSiteSitePage(
+				testGroup.getExternalReferenceCode(),
+				sitePage.getExternalReferenceCode(), sitePage));
+	}
+
 	@Override
 	protected boolean equals(SitePage sitePage1, SitePage sitePage2) {
 		super.equals(sitePage1, sitePage2);
@@ -477,6 +544,25 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 				() -> sitePageResource.deleteSiteSitePage(
 					testGroup.getExternalReferenceCode(),
 					layout.getExternalReferenceCode()));
+		}
+	}
+
+	private void _assertForbidden(UnsafeRunnable<Exception> unsafeRunnable)
+		throws Exception {
+
+		try {
+			unsafeRunnable.run();
+		}
+		catch (Exception exception) {
+			if (!(exception instanceof
+					Problem.ProblemException problemException)) {
+
+				throw exception;
+			}
+
+			Problem problem = problemException.getProblem();
+
+			Assert.assertEquals("403", problem.getStatus());
 		}
 	}
 
@@ -2464,5 +2550,11 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	private LayoutLocalService _layoutLocalService;
 
 	private final Map<String, Integer> _priorities = new HashMap<>();
+
+	@Inject
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Inject
+	private RoleLocalService _roleLocalService;
 
 }

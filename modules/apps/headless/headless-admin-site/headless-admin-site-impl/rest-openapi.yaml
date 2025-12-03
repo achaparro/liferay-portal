@@ -3720,6 +3720,18 @@ components:
             description:
                 A mapped value of a fragment text element.
             type: object
+        ThumbnailURLReference:
+            # @review
+            description:
+                A unique reference to a URL which remains constant across environments.
+            properties:
+                externalReferenceCode:
+                    type: string
+                url:
+                    type: string
+            required:
+                -   url
+            type: object
         URLActionExecutionResult:
             # @review
             description:
@@ -3763,18 +3775,6 @@ components:
             # @review
             description:
                 The value of a fragment configuration field of type URL.
-            type: object
-        ThumbnailURLReference:
-            # @review
-            description:
-                A unique reference to a URL which remains constant across environments.
-            properties:
-                externalReferenceCode:
-                    type: string
-                url:
-                    type: string
-            required:
-                -   url
             type: object
         URLValue:
             # @review

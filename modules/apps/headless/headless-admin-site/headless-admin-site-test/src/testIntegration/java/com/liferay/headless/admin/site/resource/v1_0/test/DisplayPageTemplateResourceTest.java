@@ -1313,8 +1313,6 @@ public class DisplayPageTemplateResourceTest
 		DisplayPageTemplate displayPageTemplateError =
 			randomDisplayPageTemplate();
 
-		String expectedProblemTitle = "Unable to download file from ";
-
 		ThumbnailURLReference thumbnailURLReference =
 			new ThumbnailURLReference() {
 				{
@@ -1339,7 +1337,8 @@ public class DisplayPageTemplateResourceTest
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedProblemTitle + thumbnailURLReference.getUrl(),
+				"Unable to download file from " +
+					thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 	}
@@ -1588,8 +1587,6 @@ public class DisplayPageTemplateResourceTest
 		DisplayPageTemplate displayPageTemplateError =
 			randomDisplayPageTemplate();
 
-		String expectedProblemTitle = "Unable to download file from ";
-
 		ThumbnailURLReference thumbnailURLReference =
 			new ThumbnailURLReference() {
 				{
@@ -1612,7 +1609,8 @@ public class DisplayPageTemplateResourceTest
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedProblemTitle + thumbnailURLReference.getUrl(),
+				"Unable to download file from " +
+					thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 	}
@@ -1927,8 +1925,6 @@ public class DisplayPageTemplateResourceTest
 		DisplayPageTemplate displayPageTemplateError =
 			randomDisplayPageTemplate();
 
-		String expectedProblemTitle = "Unable to download file from ";
-
 		ThumbnailURLReference thumbnailURLReference =
 			new ThumbnailURLReference() {
 				{
@@ -1953,7 +1949,8 @@ public class DisplayPageTemplateResourceTest
 
 			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
 			Assert.assertEquals(
-				expectedProblemTitle + thumbnailURLReference.getUrl(),
+				"Unable to download file from " +
+					thumbnailURLReference.getUrl(),
 				problem.getTitle());
 		}
 	}

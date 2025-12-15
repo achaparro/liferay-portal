@@ -81,7 +81,6 @@ import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
 import com.liferay.portal.kernel.workflow.WorkflowTransition;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.manager.WorkflowLogManager;
-import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.model.SegmentsExperienceModel;
@@ -1040,24 +1039,23 @@ public class GetEntryRenderDataMVCResourceCommand
 				).put(
 					"id", segmentsExperience.getSegmentsExperienceId()
 				).put(
-					"isDefault",
-					Objects.equals(
-						segmentsExperience.getSegmentsExperienceKey(),
-						SegmentsExperienceConstants.KEY_DEFAULT) &&
-					(segmentsExperience.getSegmentsEntryId() == 0)
+					"isDefault", segmentsExperience.isDefault()
 				).put(
 					"name",
 					segmentsExperience.getName(httpServletRequest.getLocale())
 				).put(
 					"segmentName",
 					() -> {
-						if (segmentsExperience.getSegmentsEntryId() == 0) {
+						if (segmentsExperience.hasDefaultSegmentsEntry()) {
 							return _language.get(httpServletRequest, "anyone");
 						}
 
 						SegmentsEntry segmentsEntry =
-							_segmentsEntryLocalService.getSegmentsEntry(
-								segmentsExperience.getSegmentsEntryId());
+							_segmentsEntryLocalService.
+								getSegmentsEntryByExternalReferenceCode(
+									segmentsExperience.getSegmentsEntryERC(),
+									segmentsExperience.
+										getSegmentsEntryGroupId());
 
 						return segmentsEntry.getName(
 							httpServletRequest.getLocale());

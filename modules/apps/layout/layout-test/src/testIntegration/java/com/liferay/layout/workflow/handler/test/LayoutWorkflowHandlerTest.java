@@ -52,6 +52,7 @@ import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsValues;
+import com.liferay.portal.kernel.util.ScopeUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -282,7 +283,10 @@ public class LayoutWorkflowHandlerTest {
 
 		SegmentsExperience segmentsExperience1 =
 			SegmentsTestUtil.addSegmentsExperience(
-				_group.getGroupId(), SegmentsEntryConstants.ID_DEFAULT,
+				_group.getGroupId(), SegmentsEntryConstants.KEY_DEFAULT,
+				ScopeUtil.getItemScopeExternalReferenceCode(
+					SegmentsEntryConstants.ID_DEFAULT,
+					SegmentsEntryConstants.ID_DEFAULT),
 				draftLayout.getPlid());
 
 		String experience1HeadingText = RandomTestUtil.randomString();
@@ -294,7 +298,10 @@ public class LayoutWorkflowHandlerTest {
 
 		SegmentsExperience segmentsExperience2 =
 			SegmentsTestUtil.addSegmentsExperience(
-				_group.getGroupId(), SegmentsEntryConstants.ID_DEFAULT,
+				_group.getGroupId(), SegmentsEntryConstants.KEY_DEFAULT,
+				ScopeUtil.getItemScopeExternalReferenceCode(
+					SegmentsEntryConstants.ID_DEFAULT,
+					SegmentsEntryConstants.ID_DEFAULT),
 				draftLayout.getPlid());
 
 		String experience2HeadingText = RandomTestUtil.randomString();
@@ -373,7 +380,10 @@ public class LayoutWorkflowHandlerTest {
 
 		SegmentsExperience segmentsExperience1 =
 			SegmentsTestUtil.addSegmentsExperience(
-				_group.getGroupId(), SegmentsEntryConstants.ID_DEFAULT,
+				_group.getGroupId(), SegmentsEntryConstants.KEY_DEFAULT,
+				ScopeUtil.getItemScopeExternalReferenceCode(
+					SegmentsEntryConstants.ID_DEFAULT,
+					SegmentsEntryConstants.ID_DEFAULT),
 				draftLayout.getPlid());
 
 		String experience1HeadingText = RandomTestUtil.randomString();
@@ -385,7 +395,10 @@ public class LayoutWorkflowHandlerTest {
 
 		SegmentsExperience segmentsExperience2 =
 			SegmentsTestUtil.addSegmentsExperience(
-				_group.getGroupId(), SegmentsEntryConstants.ID_DEFAULT,
+				_group.getGroupId(), SegmentsEntryConstants.KEY_DEFAULT,
+				ScopeUtil.getItemScopeExternalReferenceCode(
+					SegmentsEntryConstants.ID_DEFAULT,
+					SegmentsEntryConstants.ID_DEFAULT),
 				draftLayout.getPlid());
 
 		String experience2HeadingText = RandomTestUtil.randomString();

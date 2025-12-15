@@ -122,6 +122,10 @@ public class FaviconServlet extends HttpServlet {
 
 		int pos = path.indexOf(groupFriendlyURLDomain);
 
+		if (pos == -1) {
+			return layoutSet;
+		}
+
 		if (pos > 0) {
 			pos = path.indexOf(
 				CharPool.SLASH, pos + groupFriendlyURLDomain.length());

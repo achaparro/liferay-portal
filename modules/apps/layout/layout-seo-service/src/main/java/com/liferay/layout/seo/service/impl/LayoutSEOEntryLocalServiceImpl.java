@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.DateUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -357,7 +358,8 @@ public class LayoutSEOEntryLocalServiceImpl
 			layoutSEOEntryCustomMetaTag.setCompanyId(companyId);
 			layoutSEOEntryCustomMetaTag.setLayoutSEOEntryId(layoutSEOEntryId);
 			layoutSEOEntryCustomMetaTag.setContentMap(
-				layoutSEOEntryCustomMetaTagProperty.getContentMap());
+				layoutSEOEntryCustomMetaTagProperty.getContentMap(),
+				LocaleUtil.getSiteDefault());
 			layoutSEOEntryCustomMetaTag.setProperty(
 				layoutSEOEntryCustomMetaTagProperty.getProperty());
 

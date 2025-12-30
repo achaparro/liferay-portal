@@ -15,13 +15,13 @@ import com.liferay.layout.seo.model.LayoutSEOEntry;
 import com.liferay.layout.seo.model.LayoutSEOEntryCustomMetaTag;
 import com.liferay.layout.seo.service.LayoutSEOEntryLocalService;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -39,7 +39,8 @@ public class PageSettingsUtil {
 			{
 				setCustomMetaTags(
 					() -> _getCustomMetaTags(
-						layout, layoutSEOEntryLocalService));
+						layout, layoutSEOEntryLocalService,
+						dtoConverterContext.getLocale()));
 				setHiddenFromNavigation(layout::isHidden);
 				setOpenGraphSettings(
 					() -> OpenGraphSettingsUtil.getOpenGraphSettings(
@@ -57,7 +58,8 @@ public class PageSettingsUtil {
 	}
 
 	private static CustomMetaTag[] _getCustomMetaTags(
-		Layout layout, LayoutSEOEntryLocalService layoutSEOEntryLocalService) {
+		Layout layout, LayoutSEOEntryLocalService layoutSEOEntryLocalService,
+		Locale locale) {
 
 		LayoutSEOEntry layoutSEOEntry =
 			layoutSEOEntryLocalService.fetchLayoutSEOEntry(
@@ -84,7 +86,7 @@ public class PageSettingsUtil {
 						setKey(layoutSEOEntryCustomMetaTag::getProperty);
 						setValue(
 							() -> layoutSEOEntryCustomMetaTag.getContent(
-								LocaleUtil.ROOT));
+								locale));
 						setValue_i18n(
 							() -> LocalizedMapUtil.getI18nMap(
 								layoutSEOEntryCustomMetaTag.getContentMap()));

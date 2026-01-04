@@ -1280,8 +1280,8 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public boolean isLayoutPrototypeLinkActive() {
-		if (isLayoutPrototypeLinkEnabled() &&
-			Validator.isNotNull(getLayoutPrototypeUuid())) {
+		if (isPortletLayoutPageTemplateEntryLinkEnabled() &&
+			Validator.isNotNull(getPortletLayoutPageTemplateEntryERC())) {
 
 			return true;
 		}
@@ -1297,7 +1297,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 	@Override
 	public boolean isLayoutUpdateable() {
 		try {
-			if (Validator.isNull(getLayoutPrototypeUuid()) &&
+			if (Validator.isNull(getPortletLayoutPageTemplateEntryERC()) &&
 				Validator.isNull(getLayoutSetPrototypeLayoutERC())) {
 
 				return true;

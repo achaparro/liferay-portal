@@ -386,7 +386,7 @@ public interface Layout extends LayoutModel, PersistedModel {
 	 template and still maintains an active connection to it;
 	 <code>false</code> otherwise
 	 */
-	public boolean isLayoutPrototypeLinkActive();
+	public boolean isPortletLayoutPageTemplateEntryLinkActive();
 
 	public boolean isLayoutSortable();
 

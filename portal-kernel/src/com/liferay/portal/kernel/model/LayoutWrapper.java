@@ -1796,19 +1796,6 @@ public class LayoutWrapper
 		return model.isLayoutDeleteable();
 	}
 
-	/**
-	 * Returns <code>true</code> if the current layout is built from a layout
-	 * template and still maintains an active connection to it.
-	 *
-	 * @return <code>true</code> if the current layout is built from a layout
-	 template and still maintains an active connection to it;
-	 <code>false</code> otherwise
-	 */
-	@Override
-	public boolean isLayoutPrototypeLinkActive() {
-		return model.isLayoutPrototypeLinkActive();
-	}
-
 	@Override
 	public boolean isLayoutSortable() {
 		return model.isLayoutSortable();
@@ -1832,6 +1819,19 @@ public class LayoutWrapper
 	@Override
 	public boolean isPortletEmbedded(String portletId, long groupId) {
 		return model.isPortletEmbedded(portletId, groupId);
+	}
+
+	/**
+	 * Returns <code>true</code> if the current layout is built from a layout
+	 * template and still maintains an active connection to it.
+	 *
+	 * @return <code>true</code> if the current layout is built from a layout
+	 template and still maintains an active connection to it;
+	 <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isPortletLayoutPageTemplateEntryLinkActive() {
+		return model.isPortletLayoutPageTemplateEntryLinkActive();
 	}
 
 	/**

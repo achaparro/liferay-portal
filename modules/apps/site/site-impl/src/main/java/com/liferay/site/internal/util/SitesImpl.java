@@ -54,7 +54,6 @@ import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ImageLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
-import com.liferay.portal.kernel.service.LayoutPrototypeLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
 import com.liferay.portal.kernel.service.LayoutSetService;
@@ -75,6 +74,7 @@ import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PropsValues;
+import com.liferay.portal.kernel.util.ScopeUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -645,11 +645,22 @@ public class SitesImpl implements Sites {
 			}
 		}
 
-		LayoutPrototype layoutPrototype =
-			_layoutPrototypeLocalService.getLayoutPrototypeByUuidAndCompanyId(
-				layout.getLayoutPrototypeUuid(), layout.getCompanyId());
+		Long groupId = ScopeUtil.getItemGroupId(
+			layout.getCompanyId(),
+			layout.getPortletLayoutPageTemplateEntryScopeERC(),
+			layout.getGroupId());
 
-		Layout layoutPrototypeLayout = layoutPrototype.getLayout();
+		if (Validator.isNull(groupId)) {
+			return;
+		}
+
+		LayoutPageTemplateEntry layoutPrototypeLayoutPageTemplateEntry =
+			_layoutPageTemplateEntryLocalService.
+				fetchLayoutPageTemplateEntryByExternalReferenceCode(
+					layout.getPortletLayoutPageTemplateEntryERC(), groupId);
+
+		Layout layoutPrototypeLayout = _layoutLocalService.getLayout(
+			layoutPrototypeLayoutPageTemplateEntry.getPlid());
 
 		Date modifiedDate = layoutPrototypeLayout.getModifiedDate();
 
@@ -671,9 +682,8 @@ public class SitesImpl implements Sites {
 				_log.warn(
 					StringBundler.concat(
 						"Merge not performed because the fail threshold was ",
-						"reached for layoutPrototypeId ",
-						layoutPrototype.getLayoutPrototypeId(),
-						" and layoutId ", layoutPrototypeLayout.getLayoutId(),
+						"reached for layoutId ",
+						layoutPrototypeLayout.getLayoutId(),
 						". Update the count in the database to try again."));
 			}
 
@@ -1444,9 +1454,6 @@ public class SitesImpl implements Sites {
 	@Reference
 	private LayoutPageTemplateEntryLocalService
 		_layoutPageTemplateEntryLocalService;
-
-	@Reference
-	private LayoutPrototypeLocalService _layoutPrototypeLocalService;
 
 	@Reference
 	private LayoutSetLocalService _layoutSetLocalService;

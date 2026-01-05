@@ -1279,7 +1279,7 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 *         <code>false</code> otherwise
 	 */
 	@Override
-	public boolean isLayoutPrototypeLinkActive() {
+	public boolean isPortletLayoutPageTemplateEntryLinkActive() {
 		if (isPortletLayoutPageTemplateEntryLinkEnabled() &&
 			Validator.isNotNull(getPortletLayoutPageTemplateEntryERC())) {
 

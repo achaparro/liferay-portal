@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutFriendlyURL;
+import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.LayoutType;
@@ -68,6 +69,7 @@ import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.PropsValues;
+import com.liferay.portal.kernel.util.ScopeUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -774,6 +776,24 @@ public class LayoutImpl extends LayoutBaseImpl {
 		return false;
 	}
 
+	@Override
+	public String getLayoutPrototypeUuid() {
+		LayoutPrototype layoutPrototype =
+			LayoutPageTemplateEntryLayoutProviderUtil.
+				getLayoutPageTemplateEntryLayoutPrototype(
+					ScopeUtil.getItemGroupId(
+						getCompanyId(),
+						getPortletLayoutPageTemplateEntryScopeERC(),
+						getGroupId()),
+					getPortletLayoutPageTemplateEntryERC());
+
+		if (layoutPrototype == null) {
+			return null;
+		}
+
+		return layoutPrototype.getUuid();
+	}
+
 	/**
 	 * Returns the current layout's {@link LayoutSet}.
 	 *
@@ -1280,13 +1300,12 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public boolean isLayoutPrototypeLinkActive() {
-		if (isPortletLayoutPageTemplateEntryLinkEnabled() &&
-			Validator.isNotNull(getPortletLayoutPageTemplateEntryERC())) {
+		return isPortletLayoutPageTemplateEntryLinkActive();
+	}
 
-			return true;
-		}
-
-		return false;
+	@Override
+	public boolean isLayoutPrototypeLinkEnabled() {
+		return isPortletLayoutPageTemplateEntryLinkEnabled();
 	}
 
 	@Override
@@ -1387,6 +1406,17 @@ public class LayoutImpl extends LayoutBaseImpl {
 		}
 
 		return true;
+	}
+
+	@Override
+	public boolean isPortletLayoutPageTemplateEntryLinkActive() {
+		if (isPortletLayoutPageTemplateEntryLinkEnabled() &&
+			Validator.isNotNull(getPortletLayoutPageTemplateEntryERC())) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

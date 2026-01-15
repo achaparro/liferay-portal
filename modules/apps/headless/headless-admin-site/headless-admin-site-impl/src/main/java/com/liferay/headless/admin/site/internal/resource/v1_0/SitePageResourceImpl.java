@@ -23,12 +23,14 @@ import com.liferay.headless.admin.site.dto.v1_0.SitePage;
 import com.liferay.headless.admin.site.dto.v1_0.SitePageNavigationSettings;
 import com.liferay.headless.admin.site.dto.v1_0.SitemapSettings;
 import com.liferay.headless.admin.site.dto.v1_0.WidgetPageSettings;
+import com.liferay.headless.admin.site.internal.dto.v1_0.util.ItemScopeUtil;
 import com.liferay.headless.admin.site.internal.dto.v1_0.util.SitePageTypeUtil;
 import com.liferay.headless.admin.site.internal.odata.entity.v1_0.SitePageEntityModel;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.GroupUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.LayoutUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.PageSpecificationUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.ServiceContextUtil;
+import com.liferay.headless.admin.site.internal.util.LogUtil;
 import com.liferay.headless.admin.site.resource.v1_0.SitePageResource;
 import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
@@ -463,12 +465,7 @@ public class SitePageResourceImpl
 			throw new UnsupportedOperationException();
 		}
 
-		ServiceContext serviceContext = ServiceContextUtil.createServiceContext(
-			sitePage.getTaxonomyCategoryItemExternalReferences(),
-			contextCompany.getCompanyId(), sitePage.getDateCreated(), groupId,
-			contextHttpServletRequest, sitePage.getKeywords(),
-			sitePage.getDateModified(), contextUser.getUserId(),
-			sitePage.getUuid(), sitePage.getPageSettings());
+		ServiceContext serviceContext = _getServiceContext(groupId, sitePage);
 
 		_validatePageSpecificationExternalReferenceCode(
 			serviceContext, sitePage);
@@ -597,6 +594,64 @@ public class SitePageResourceImpl
 			parentSitePageExternalReferenceCode, groupId, serviceContext);
 
 		return layout.getLayoutId();
+	}
+
+	private ServiceContext _getServiceContext(long groupId, SitePage sitePage)
+		throws Exception {
+
+		ServiceContext serviceContext = ServiceContextUtil.createServiceContext(
+			sitePage.getTaxonomyCategoryItemExternalReferences(),
+			contextCompany.getCompanyId(), sitePage.getDateCreated(), groupId,
+			contextHttpServletRequest, sitePage.getKeywords(),
+			sitePage.getDateModified(), contextUser.getUserId(),
+			sitePage.getUuid());
+
+		if (sitePage.getPageSettings() instanceof WidgetPageSettings) {
+			WidgetPageSettings widgetPageSettings =
+				(WidgetPageSettings)sitePage.getPageSettings();
+
+			ItemExternalReference itemExternalReference =
+				widgetPageSettings.getWidgetPageTemplateReference();
+
+			if (itemExternalReference != null) {
+				Long itemGroupId = ItemScopeUtil.getItemGroupId(
+					contextCompany.getCompanyId(),
+					itemExternalReference.getScope(), groupId);
+
+				LayoutPageTemplateEntry layoutPageTemplateEntry = null;
+
+				if (itemGroupId != null) {
+					layoutPageTemplateEntry =
+						_layoutPageTemplateEntryLocalService.
+							fetchLayoutPageTemplateEntryByExternalReferenceCode(
+								itemExternalReference.
+									getExternalReferenceCode(),
+								itemGroupId);
+				}
+
+				if (layoutPageTemplateEntry == null) {
+					LogUtil.logOptionalReference(
+						LayoutPageTemplateEntry.class.getName(),
+						itemExternalReference.getExternalReferenceCode(),
+						itemExternalReference.getScope(), groupId);
+				}
+
+				serviceContext.setAttribute(
+					"portletLayoutPageTemplateEntryERC",
+					itemExternalReference.getExternalReferenceCode());
+
+				serviceContext.setAttribute(
+					"portletLayoutPageTemplateEntryLinkEnabled",
+					widgetPageSettings.getInheritChanges());
+
+				serviceContext.setAttribute(
+					"portletLayoutPageTemplateEntryScopeERC",
+					ItemScopeUtil.getItemScopeExternalReferenceCode(
+						itemExternalReference.getScope(), groupId));
+			}
+		}
+
+		return serviceContext;
 	}
 
 	private UnicodeProperties _getTypeSettingsUnicodeProperties(
@@ -792,13 +847,8 @@ public class SitePageResourceImpl
 				sitePage.getFriendlyUrlPath_i18n());
 		}
 
-		ServiceContext serviceContext = ServiceContextUtil.createServiceContext(
-			sitePage.getTaxonomyCategoryItemExternalReferences(),
-			contextCompany.getCompanyId(), sitePage.getDateCreated(),
-			layout.getGroupId(), contextHttpServletRequest,
-			sitePage.getKeywords(), sitePage.getDateModified(),
-			contextUser.getUserId(), sitePage.getUuid(),
-			sitePage.getPageSettings());
+		ServiceContext serviceContext = _getServiceContext(
+			layout.getGroupId(), sitePage);
 
 		serviceContext.setAttribute(
 			"hidden",

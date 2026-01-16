@@ -361,20 +361,21 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 
 		String portletLayoutPageTemplateEntryERC = ParamUtil.getString(
 			serviceContext, "portletLayoutPageTemplateEntryERC");
+		String portletLayoutPageTemplateEntryScopeERC = ParamUtil.getString(
+			serviceContext, "portletLayoutPageTemplateEntryScopeERC");
+		boolean portletLayoutPageTemplateEntryLinkEnabled =
+			ParamUtil.getBoolean(
+				serviceContext, "portletLayoutPageTemplateEntryLinkEnabled",
+				PropsValues.LAYOUT_PROTOTYPE_LINK_ENABLED_DEFAULT);
 
 		if (Validator.isNotNull(portletLayoutPageTemplateEntryERC)) {
 			layout.setPortletLayoutPageTemplateEntryERC(
 				portletLayoutPageTemplateEntryERC);
 			layout.setPortletLayoutPageTemplateEntryScopeERC(
 				ScopeUtil.getItemScopeExternalReferenceCode(
-					ParamUtil.getString(
-						serviceContext,
-						"portletLayoutPageTemplateEntryScopeERC"),
-					groupId));
+					portletLayoutPageTemplateEntryScopeERC, groupId));
 			layout.setPortletLayoutPageTemplateEntryLinkEnabled(
-				ParamUtil.getBoolean(
-					serviceContext, "portletLayoutPageTemplateEntryLinkEnabled",
-					PropsValues.LAYOUT_PROTOTYPE_LINK_ENABLED_DEFAULT));
+				portletLayoutPageTemplateEntryLinkEnabled);
 		}
 
 		String layoutSetPrototypeLayoutERC = ParamUtil.getString(

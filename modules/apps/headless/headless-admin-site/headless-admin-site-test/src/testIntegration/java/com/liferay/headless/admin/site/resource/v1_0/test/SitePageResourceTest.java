@@ -119,6 +119,7 @@ import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
@@ -420,7 +421,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 	@Override
 	@Test
-	@TestInfo({"LPD-74331", "LPD-75450", "LPD-77124"})
+	@TestInfo({"LPD-72013", "LPD-74331", "LPD-75450", "LPD-77124"})
 	public void testPutSiteSitePage() throws Exception {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -430,6 +431,9 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 		_testPutSiteSitePage(serviceContext, SitePage.Type.LINK_TO_URL_PAGE);
 		_testPutSiteSitePage(serviceContext, SitePage.Type.PAGE_SET_PAGE);
 		_testPutSiteSitePage(serviceContext, SitePage.Type.WIDGET_PAGE);
+
+		_testPutSiteSitePageWithEmptyLayoutToContentLayout(serviceContext);
+		_testPutSiteSitePageWithEmptyLayoutToPortletLayout(serviceContext);
 
 		_testPutSiteSitePageWithExportedSitePage();
 		_testPutSiteSitePageWithExportedSitePageWithLayoutIdFriendlyURL();
@@ -2628,6 +2632,100 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 			putSitePage);
 
 		return putSitePage;
+	}
+
+	private void _testPutSiteSitePageWithEmptyLayoutToContentLayout(
+			ServiceContext serviceContext)
+		throws Exception {
+
+		PageElement[] pageElements = PageElementsTestUtil.getPageElements(
+			testGroup.getGroupId());
+
+		SitePage sitePage = _getSitePageWithPageElements(pageElements);
+
+		SitePageResource sitePageResource = _getSitePageResource(
+			"pageSpecifications");
+
+		Layout layout;
+
+		try (SafeCloseable safeCloseable =
+				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+
+			layout = _layoutLocalService.getOrAddEmptyLayout(
+				sitePage.getExternalReferenceCode(),
+				TestPropsValues.getUserId(), testGroup.getGroupId(),
+				serviceContext);
+		}
+
+		Assert.assertEquals(WorkflowConstants.STATUS_EMPTY, layout.getStatus());
+
+		sitePageResource.putSiteSitePage(
+			testGroup.getExternalReferenceCode(),
+			sitePage.getExternalReferenceCode(), sitePage);
+
+		layout = _layoutLocalService.getLayoutByExternalReferenceCode(
+			sitePage.getExternalReferenceCode(), testGroup.getGroupId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, layout.getStatus());
+
+		Assert.assertEquals(LayoutConstants.TYPE_CONTENT, layout.getType());
+
+		_assertPageElements(
+			pageElements,
+			sitePageResource.getSiteSitePage(
+				testGroup.getExternalReferenceCode(),
+				sitePage.getExternalReferenceCode()));
+	}
+
+	private void _testPutSiteSitePageWithEmptyLayoutToPortletLayout(
+			ServiceContext serviceContext)
+		throws Exception {
+
+		SitePage sitePage = _getRandomSitePage(SitePage.Type.WIDGET_PAGE);
+
+		WidgetPageSettings widgetPageSettings =
+			(WidgetPageSettings)sitePage.getPageSettings();
+
+		sitePage.setPageSpecifications(
+			PageSpecificationsTestUtil.getWidgetPageSpecifications(
+				null, widgetPageSettings.getLayoutTemplateId(),
+				sitePage.getExternalReferenceCode()));
+
+		SitePageResource sitePageResource = _getSitePageResource(
+			"pageSpecifications");
+
+		Layout layout;
+
+		try (SafeCloseable safeCloseable =
+				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+
+			layout = _layoutLocalService.getOrAddEmptyLayout(
+				sitePage.getExternalReferenceCode(),
+				TestPropsValues.getUserId(), testGroup.getGroupId(),
+				serviceContext);
+		}
+
+		Assert.assertEquals(WorkflowConstants.STATUS_EMPTY, layout.getStatus());
+
+		sitePageResource.putSiteSitePage(
+			testGroup.getExternalReferenceCode(),
+			sitePage.getExternalReferenceCode(), sitePage);
+
+		layout = _layoutLocalService.getLayoutByExternalReferenceCode(
+			sitePage.getExternalReferenceCode(), testGroup.getGroupId());
+
+		Assert.assertEquals(
+			WorkflowConstants.STATUS_APPROVED, layout.getStatus());
+
+		Assert.assertEquals(LayoutConstants.TYPE_PORTLET, layout.getType());
+
+		PageSpecificationsTestUtil.assertWidgetPageSpecifications(
+			sitePage.getPageSpecifications(),
+			sitePageResource.getSiteSitePage(
+				testGroup.getExternalReferenceCode(),
+				sitePage.getExternalReferenceCode()
+			).getPageSpecifications());
 	}
 
 	private void _testPutSiteSitePageWithExportedSitePage() throws Exception {

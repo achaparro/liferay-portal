@@ -83,6 +83,7 @@ import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -439,6 +440,22 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 			_testPutSiteSitePageWithMissingTaxonomyCategories();
 		}
+
+		_assertProblemException(
+			"NOT_FOUND", null,
+			() -> {
+				String externalReferenceCode = StringUtil.randomString();
+
+				sitePageResource.putSiteSitePage(
+					testGroup.getExternalReferenceCode(), externalReferenceCode,
+					_getRandomSitePage(
+						externalReferenceCode, null,
+						ServiceContextTestUtil.getServiceContext(
+							testGroup, TestPropsValues.getUserId()),
+						_getTaxonomyCategoryItemExternalReferences(),
+						SitePage.Type.WIDGET_PAGE,
+						RandomTestUtil.randomString()));
+			});
 
 		_testPutSiteSitePageWithPageElements();
 		_testPutSiteSitePageWithPageExperiences();
@@ -884,7 +901,8 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	}
 
 	private void _assertProblemException(
-			String expectedTitle, UnsafeRunnable<Exception> unsafeRunnable)
+			String expectedStatus, String expectedTitle,
+			UnsafeRunnable<Exception> unsafeRunnable)
 		throws Exception {
 
 		try {
@@ -894,9 +912,16 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 		catch (Problem.ProblemException problemException) {
 			Problem problem = problemException.getProblem();
 
-			Assert.assertEquals("BAD_REQUEST", problem.getStatus());
+			Assert.assertEquals(expectedStatus, problem.getStatus());
 			Assert.assertEquals(expectedTitle, problem.getTitle());
 		}
+	}
+
+	private void _assertProblemException(
+			String expectedTitle, UnsafeRunnable<Exception> unsafeRunnable)
+		throws Exception {
+
+		_assertProblemException("BAD_REQUEST", expectedTitle, unsafeRunnable);
 	}
 
 	private void _assertPutSiteSitePageProblemException(
@@ -1561,6 +1586,37 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 			});
 
 		return sitePage;
+	}
+
+	private ItemExternalReference[] _getTaxonomyCategoryItemExternalReferences()
+		throws PortalException {
+
+		return new ItemExternalReference[] {
+			new ItemExternalReference() {
+				{
+					setClassName(AssetCategory.class::getName);
+					setExternalReferenceCode(RandomTestUtil::randomString);
+
+					Group group = _groupLocalService.getGroup(
+						testCompany.getGroupId());
+
+					setScope(
+						() -> new Scope() {
+							{
+								setExternalReferenceCode(
+									group::getExternalReferenceCode);
+								setType(() -> Type.SITE);
+							}
+						});
+				}
+			},
+			new ItemExternalReference() {
+				{
+					setClassName(AssetCategory.class::getName);
+					setExternalReferenceCode(RandomTestUtil::randomString);
+				}
+			}
+		};
 	}
 
 	private SitePage _postSiteSitePageWithPageSpecificationsWithCustomFields(
@@ -2765,32 +2821,8 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	private void _testPutSiteSitePageWithMissingTaxonomyCategories()
 		throws Exception {
 
-		ItemExternalReference[] taxonomyCategoryItemExternalReferences = {
-			new ItemExternalReference() {
-				{
-					setClassName(AssetCategory.class::getName);
-					setExternalReferenceCode(RandomTestUtil::randomString);
-
-					Group group = _groupLocalService.getGroup(
-						testCompany.getGroupId());
-
-					setScope(
-						() -> new Scope() {
-							{
-								setExternalReferenceCode(
-									group::getExternalReferenceCode);
-								setType(() -> Type.SITE);
-							}
-						});
-				}
-			},
-			new ItemExternalReference() {
-				{
-					setClassName(AssetCategory.class::getName);
-					setExternalReferenceCode(RandomTestUtil::randomString);
-				}
-			}
-		};
+		ItemExternalReference[] taxonomyCategoryItemExternalReferences =
+			_getTaxonomyCategoryItemExternalReferences();
 
 		com.liferay.headless.admin.site.dto.v1_0.SitePage randomSitePage =
 			_toSitePage(

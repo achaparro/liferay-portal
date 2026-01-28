@@ -57,7 +57,6 @@ import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -409,8 +408,7 @@ public class SitePageResourceImpl
 			layout.getGroupId(), sitePage);
 
 		if (layout.isTypeEmpty()) {
-			String type =
-				SitePageTypeUtil.toInternalType(sitePage.getType());
+			String type = SitePageTypeUtil.toInternalType(sitePage.getType());
 
 			if (Objects.equals(type, LayoutConstants.TYPE_EMBEDDED) ||
 				Objects.equals(type, LayoutConstants.TYPE_LINK_TO_LAYOUT)) {
@@ -419,8 +417,7 @@ public class SitePageResourceImpl
 			}
 
 			layout = _layoutService.convertEmptyLayout(
-				layout.getPlid(), layout.getNameMap(),
-				type,
+				layout.getPlid(), layout.getNameMap(), type,
 				layout.getClassNameId(), layout.getClassPK(),
 				layout.getMasterLayoutPageTemplateEntryERC(), serviceContext);
 		}

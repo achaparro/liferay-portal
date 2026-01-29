@@ -686,7 +686,7 @@ definition {
 					key_fieldFieldLabel = ${webContentRichTextFieldLabel},
 					locator1 = "WCEditWebContent#SOURCE_BUTTON");
 
-				Type.typeCodeMirrorEditorNoError(
+				Type(
 					locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
 					value1 = ${webContentRichText});
 
@@ -1062,8 +1062,6 @@ definition {
 		WebContent.addCP(webContentTitle = ${webContentTitleEdit});
 
 		if (isSet(webContentContentEdit)) {
-			SelectFrame.selectFrameNoLoading(locator1 = "CKEditor#BODY_FIELD_IFRAME_2");
-
 			Type(
 				key_fieldLabel = "Content",
 				locator1 = "CKEditor#BODY",

@@ -130,7 +130,7 @@ definition {
 			}
 
 			if (IsElementPresent(locator1 = "CKEditor#BODY_FIELD_SOURCE_ON")) {
-				Type.typeCodeMirrorEditorNoError(
+				Type(
 					locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
 					value1 = ${threadBody});
 			}

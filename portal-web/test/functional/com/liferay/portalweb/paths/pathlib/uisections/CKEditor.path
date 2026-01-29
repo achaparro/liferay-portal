@@ -32,7 +32,7 @@
 </tr>
 <tr>
 	<td>BODY_FIELD_SOURCE_ON</td>
-	<td>//div[contains(@class,'cke_contents')]/div[contains(@class,'CodeMirror cm-s-default')]</td>
+	<td>//div[contains(@class,'cke_contents')]/div[contains(@class,'CodeMirror cm-s-default')] | //div[contains(@class,'ck-source-editing-area') and not(contains(@style,'display: none'))]//textarea</td>
 	<td></td>
 </tr>
 <tr>
@@ -52,12 +52,12 @@
 </tr>
 <tr>
 	<td>BODY_FIELD_IFRAME_WEB_CONTENT_ARTICLE</td>
-	<td>//label[contains(.,'${key_fieldLabel}')]//following-sibling::div//div[contains(@id,'cke')]/iframe</td>
+	<td>//label[contains(.,'${key_fieldLabel}')]//following-sibling::div//div[contains(@class,'ck-content')] | //label[contains(.,'${key_fieldLabel}')]//following-sibling::div//div[contains(@id,'cke')]/iframe</td>
 	<td></td>
 </tr>
 <tr>
 	<td>BODY</td>
-	<td>//body[contains(@class,'cke_editable')]</td>
+	<td>//body[contains(@class,'cke_editable')] | //label[contains(.,'Content')]//following-sibling::div//div[contains(@class,'ck-content')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -271,7 +271,7 @@
 </tr>
 <tr>
 	<td>TOOLBAR_SOURCE_BUTTON</td>
-	<td>//a[contains(@class,'cke_button') and contains(@class,'source')]</td>
+	<td>//a[contains(@class,'cke_button') and contains(@class,'source')] | //button[contains(@class,'ck-source-editing-button')]</td>
 	<td></td>
 </tr>
 <tr>

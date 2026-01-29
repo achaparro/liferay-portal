@@ -9,7 +9,7 @@ definition {
 	macro addSourceContentonRichText(content = null) {
 		Click(locator1 = "CKEditor#TOOLBAR_SOURCE_BUTTON");
 
-		Type.typeCodeMirrorEditorNoError(
+		Type(
 			locator1 = "CKEditor#BODY_FIELD_SOURCE_ON",
 			value1 = ${content});
 	}

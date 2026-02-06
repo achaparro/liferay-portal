@@ -9127,6 +9127,11 @@ paths:
                     schema:
                         type: integer
                 -   in: query
+                    name: privatePages
+                    schema:
+                        default: false
+                        type: boolean
+                -   in: query
                     name: restrictFields
                     schema:
                         type: string

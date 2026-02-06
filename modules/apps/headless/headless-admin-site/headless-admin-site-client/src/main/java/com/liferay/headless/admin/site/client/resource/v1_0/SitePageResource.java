@@ -70,14 +70,14 @@ public interface SitePageResource {
 		throws Exception;
 
 	public Page<SitePage> getSiteSitePagesPage(
-			String siteExternalReferenceCode, String search,
-			List<String> aggregations, String filterString,
+			String siteExternalReferenceCode, Boolean privatePages,
+			String search, List<String> aggregations, String filterString,
 			Pagination pagination, String sortString)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getSiteSitePagesPageHttpResponse(
-			String siteExternalReferenceCode, String search,
-			List<String> aggregations, String filterString,
+			String siteExternalReferenceCode, Boolean privatePages,
+			String search, List<String> aggregations, String filterString,
 			Pagination pagination, String sortString)
 		throws Exception;
 
@@ -121,16 +121,16 @@ public interface SitePageResource {
 		throws Exception;
 
 	public void postSiteSitePagesPageExportBatch(
-			String siteExternalReferenceCode, String search,
-			String filterString, String sortString, String callbackURL,
-			String contentType, String fieldNames)
+			String siteExternalReferenceCode, Boolean privatePages,
+			String search, String filterString, String sortString,
+			String callbackURL, String contentType, String fieldNames)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
 			postSiteSitePagesPageExportBatchHttpResponse(
-				String siteExternalReferenceCode, String search,
-				String filterString, String sortString, String callbackURL,
-				String contentType, String fieldNames)
+				String siteExternalReferenceCode, Boolean privatePages,
+				String search, String filterString, String sortString,
+				String callbackURL, String contentType, String fieldNames)
 		throws Exception;
 
 	public SitePage putSiteSitePage(
@@ -603,15 +603,15 @@ public interface SitePageResource {
 		}
 
 		public Page<SitePage> getSiteSitePagesPage(
-				String siteExternalReferenceCode, String search,
-				List<String> aggregations, String filterString,
+				String siteExternalReferenceCode, Boolean privatePages,
+				String search, List<String> aggregations, String filterString,
 				Pagination pagination, String sortString)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				getSiteSitePagesPageHttpResponse(
-					siteExternalReferenceCode, search, aggregations,
-					filterString, pagination, sortString);
+					siteExternalReferenceCode, privatePages, search,
+					aggregations, filterString, pagination, sortString);
 
 			String content = httpResponse.getContent();
 
@@ -673,8 +673,8 @@ public interface SitePageResource {
 		}
 
 		public HttpInvoker.HttpResponse getSiteSitePagesPageHttpResponse(
-				String siteExternalReferenceCode, String search,
-				List<String> aggregations, String filterString,
+				String siteExternalReferenceCode, Boolean privatePages,
+				String search, List<String> aggregations, String filterString,
 				Pagination pagination, String sortString)
 			throws Exception {
 
@@ -698,6 +698,11 @@ public interface SitePageResource {
 			}
 
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
+
+			if (privatePages != null) {
+				httpInvoker.parameter(
+					"privatePages", String.valueOf(privatePages));
+			}
 
 			if (search != null) {
 				httpInvoker.parameter("search", String.valueOf(search));
@@ -1185,15 +1190,16 @@ public interface SitePageResource {
 		}
 
 		public void postSiteSitePagesPageExportBatch(
-				String siteExternalReferenceCode, String search,
-				String filterString, String sortString, String callbackURL,
-				String contentType, String fieldNames)
+				String siteExternalReferenceCode, Boolean privatePages,
+				String search, String filterString, String sortString,
+				String callbackURL, String contentType, String fieldNames)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
 				postSiteSitePagesPageExportBatchHttpResponse(
-					siteExternalReferenceCode, search, filterString, sortString,
-					callbackURL, contentType, fieldNames);
+					siteExternalReferenceCode, privatePages, search,
+					filterString, sortString, callbackURL, contentType,
+					fieldNames);
 
 			String content = httpResponse.getContent();
 
@@ -1245,9 +1251,9 @@ public interface SitePageResource {
 
 		public HttpInvoker.HttpResponse
 				postSiteSitePagesPageExportBatchHttpResponse(
-					String siteExternalReferenceCode, String search,
-					String filterString, String sortString, String callbackURL,
-					String contentType, String fieldNames)
+					String siteExternalReferenceCode, Boolean privatePages,
+					String search, String filterString, String sortString,
+					String callbackURL, String contentType, String fieldNames)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -1272,6 +1278,11 @@ public interface SitePageResource {
 			}
 
 			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			if (privatePages != null) {
+				httpInvoker.parameter(
+					"privatePages", String.valueOf(privatePages));
+			}
 
 			if (search != null) {
 				httpInvoker.parameter("search", String.valueOf(search));

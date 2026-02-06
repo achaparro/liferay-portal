@@ -256,6 +256,16 @@ public class SitePageSerDes {
 			sb.append("]");
 		}
 
+		if (sitePage.getPrivatePage() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"privatePage\": ");
+
+			sb.append(sitePage.getPrivatePage());
+		}
+
 		if (sitePage.getTaxonomyCategoryItemExternalReferences() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -462,6 +472,13 @@ public class SitePageSerDes {
 			map.put("permissions", String.valueOf(sitePage.getPermissions()));
 		}
 
+		if (sitePage.getPrivatePage() == null) {
+			map.put("privatePage", null);
+		}
+		else {
+			map.put("privatePage", String.valueOf(sitePage.getPrivatePage()));
+		}
+
 		if (sitePage.getTaxonomyCategoryItemExternalReferences() == null) {
 			map.put("taxonomyCategoryItemExternalReferences", null);
 		}
@@ -561,6 +578,9 @@ public class SitePageSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "permissions")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "privatePage")) {
 				return false;
 			}
 			else if (Objects.equals(
@@ -706,6 +726,11 @@ public class SitePageSerDes {
 					}
 
 					sitePage.setPermissions(permissionsArray);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "privatePage")) {
+				if (jsonParserFieldValue != null) {
+					sitePage.setPrivatePage((Boolean)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(

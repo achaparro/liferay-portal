@@ -699,6 +699,49 @@ public class SitePage implements Serializable {
 		_permissionsSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "Whether the Page is private."
+	)
+	public Boolean getPrivatePage() {
+		if (_privatePageSupplier != null) {
+			privatePage = _privatePageSupplier.get();
+
+			_privatePageSupplier = null;
+		}
+
+		return privatePage;
+	}
+
+	public void setPrivatePage(Boolean privatePage) {
+		this.privatePage = privatePage;
+
+		_privatePageSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setPrivatePage(
+		UnsafeSupplier<Boolean, Exception> privatePageUnsafeSupplier) {
+
+		_privatePageSupplier = () -> {
+			try {
+				return privatePageUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(description = "Whether the Page is private.")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean privatePage;
+
+	@JsonIgnore
+	private Supplier<Boolean> _privatePageSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "The external references to the associated categories."
 	)
 	@Valid
@@ -1170,6 +1213,18 @@ public class SitePage implements Serializable {
 			}
 
 			sb.append("]");
+		}
+
+		Boolean privatePage = getPrivatePage();
+
+		if (privatePage != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"privatePage\": ");
+
+			sb.append(privatePage);
 		}
 
 		ItemExternalReference[] taxonomyCategoryItemExternalReferences =

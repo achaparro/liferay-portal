@@ -1138,6 +1138,14 @@ public abstract class BaseSitePageResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("privatePage", additionalAssertFieldName)) {
+				if (sitePage.getPrivatePage() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals(
 					"taxonomyCategoryItemExternalReferences",
 					additionalAssertFieldName)) {
@@ -1514,6 +1522,17 @@ public abstract class BaseSitePageResourceTestCase {
 				if (!Objects.deepEquals(
 						sitePage1.getPermissions(),
 						sitePage2.getPermissions())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("privatePage", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						sitePage1.getPrivatePage(),
+						sitePage2.getPrivatePage())) {
 
 					return false;
 				}
@@ -1970,6 +1989,11 @@ public abstract class BaseSitePageResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("privatePage")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("taxonomyCategoryItemExternalReferences")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -2083,6 +2107,7 @@ public abstract class BaseSitePageResourceTestCase {
 					RandomTestUtil.randomString());
 				parentSitePageExternalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
+				privatePage = RandomTestUtil.randomBoolean();
 				uuid = StringUtil.toLowerCase(RandomTestUtil.randomString());
 			}
 		};

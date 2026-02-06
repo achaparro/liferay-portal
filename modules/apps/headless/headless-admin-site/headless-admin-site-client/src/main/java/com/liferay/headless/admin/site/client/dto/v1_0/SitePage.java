@@ -340,6 +340,27 @@ public class SitePage implements Cloneable, Serializable {
 	protected com.liferay.headless.admin.site.client.permission.Permission[]
 		permissions;
 
+	public Boolean getPrivatePage() {
+		return privatePage;
+	}
+
+	public void setPrivatePage(Boolean privatePage) {
+		this.privatePage = privatePage;
+	}
+
+	public void setPrivatePage(
+		UnsafeSupplier<Boolean, Exception> privatePageUnsafeSupplier) {
+
+		try {
+			privatePage = privatePageUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean privatePage;
+
 	public ItemExternalReference[] getTaxonomyCategoryItemExternalReferences() {
 		return taxonomyCategoryItemExternalReferences;
 	}

@@ -312,9 +312,9 @@ public class SitePageResourceImpl
 
 	@Override
 	protected Page<SitePage> doGetSiteSitePagesPage(
-			String siteExternalReferenceCode, String search,
-			Aggregation aggregation, Filter filter, Pagination pagination,
-			Sort[] sorts)
+			String siteExternalReferenceCode, Boolean privatePages,
+			String search, Aggregation aggregation, Filter filter,
+			Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
@@ -349,7 +349,7 @@ public class SitePageResourceImpl
 						LayoutConstants.TYPE_URL
 					});
 				searchContext.setAttribute(
-					"privateLayout", Boolean.FALSE.toString());
+					"privateLayout", privatePages.toString());
 				searchContext.setAttribute(
 					"status", WorkflowConstants.STATUS_ANY);
 				searchContext.setAttribute(

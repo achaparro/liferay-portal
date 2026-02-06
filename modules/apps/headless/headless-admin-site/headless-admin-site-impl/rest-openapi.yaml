@@ -3654,6 +3654,10 @@ components:
                     items:
                         type: permission
                     type: array
+                privatePage:
+                    description:
+                        Whether the Page is private.
+                    type: boolean
                 taxonomyCategoryItemExternalReferences:
                     # @review
                     description:

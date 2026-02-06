@@ -293,7 +293,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 				StringUtil.toLowerCase(RandomTestUtil.randomString())));
 
 		Page<SitePage> page = sitePageResource.getSiteSitePagesPage(
-			siteExternalReferenceCode, null, null,
+			siteExternalReferenceCode, false, null, null,
 			"externalReferenceCode eq '" + sitePage.getExternalReferenceCode() +
 				"'",
 			Pagination.of(1, 10), null);
@@ -3640,7 +3640,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 		throws Exception {
 
 		Page<SitePage> page = sitePageResource.getSiteSitePagesPage(
-			testGroup.getExternalReferenceCode(), null, null, null,
+			testGroup.getExternalReferenceCode(), false, null, null, null,
 			Pagination.of(0, 0), null);
 
 		for (SitePage sitePage : page.getItems()) {

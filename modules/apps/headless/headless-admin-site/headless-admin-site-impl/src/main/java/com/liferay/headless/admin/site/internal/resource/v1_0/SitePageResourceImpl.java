@@ -518,7 +518,7 @@ public class SitePageResourceImpl
 				_getParentLayoutId(
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, groupId,
 					sitePage.getParentSitePageExternalReferenceCode(),
-					serviceContext),
+					sitePage.getPrivatePage(), serviceContext),
 				sitePage.getPrivatePage(), nameMap, titleMap, descriptionMap,
 				keywordsMap, robotsMap,
 				SitePageTypeUtil.toInternalType(sitePage.getType()),
@@ -541,7 +541,7 @@ public class SitePageResourceImpl
 				_getParentLayoutId(
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, groupId,
 					sitePage.getParentSitePageExternalReferenceCode(),
-					serviceContext),
+					sitePage.getPrivatePage(), serviceContext),
 				sitePage.getPrivatePage(), nameMap,
 				SitePageTypeUtil.toInternalType(sitePage.getType()),
 				typeSettingsUnicodeProperties,
@@ -559,7 +559,7 @@ public class SitePageResourceImpl
 				_getParentLayoutId(
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, groupId,
 					sitePage.getParentSitePageExternalReferenceCode(),
-					serviceContext),
+					sitePage.getPrivatePage(), serviceContext),
 				sitePage.getPrivatePage(), nameMap, titleMap, descriptionMap,
 				keywordsMap, robotsMap, typeSettingsUnicodeProperties,
 				_isHiddenFromNavigation(false, sitePage.getPageSettings()),
@@ -630,7 +630,7 @@ public class SitePageResourceImpl
 
 	private long _getParentLayoutId(
 			long defaultParentLayoutId, long groupId,
-			String parentSitePageExternalReferenceCode,
+			String parentSitePageExternalReferenceCode, boolean privateLayout,
 			ServiceContext serviceContext)
 		throws Exception {
 
@@ -643,7 +643,12 @@ public class SitePageResourceImpl
 		}
 
 		Layout layout = _layoutService.getOrAddEmptyLayout(
-			parentSitePageExternalReferenceCode, groupId, serviceContext);
+			parentSitePageExternalReferenceCode, groupId, privateLayout,
+			serviceContext);
+
+		if (layout.isPrivateLayout() != privateLayout) {
+			throw new UnsupportedOperationException();
+		}
 
 		return layout.getLayoutId();
 	}
@@ -1011,7 +1016,7 @@ public class SitePageResourceImpl
 			_getParentLayoutId(
 				layout.getParentLayoutId(), layout.getGroupId(),
 				sitePage.getParentSitePageExternalReferenceCode(),
-				serviceContext));
+				sitePage.getPrivatePage(), serviceContext));
 
 		if (Objects.equals(sitePage.getType(), SitePage.Type.CONTENT_PAGE)) {
 			layout = LayoutUtil.updateContentLayout(

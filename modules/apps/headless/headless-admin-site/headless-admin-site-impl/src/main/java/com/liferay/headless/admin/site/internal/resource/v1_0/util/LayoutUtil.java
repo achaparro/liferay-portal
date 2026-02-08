@@ -286,8 +286,8 @@ public class LayoutUtil {
 	}
 
 	public static Layout addLayout(
-			String externalReferenceCode, long groupId, long parentLayoutId,
-			boolean privateLayout, Map<Locale, String> nameMap, String type,
+			String externalReferenceCode, long groupId, boolean privateLayout,
+			long parentLayoutId, Map<Locale, String> nameMap, String type,
 			UnicodeProperties typeSettingsUnicodeProperties,
 			boolean hiddenFromNavigation, Map<Locale, String> friendlyURLMap,
 			PageSpecification pageSpecification, ServiceContext serviceContext)
@@ -310,7 +310,7 @@ public class LayoutUtil {
 	public static Layout addPortletLayout(
 			CETManager cetManager, String externalReferenceCode,
 			InfoItemServiceRegistry infoItemServiceRegistry, long groupId,
-			long parentLayoutId, boolean privateLayout,
+			boolean privateLayout, long parentLayoutId,
 			Map<Locale, String> nameMap, Map<Locale, String> titleMap,
 			Map<Locale, String> descriptionMap, Map<Locale, String> keywordsMap,
 			Map<Locale, String> robotsMap,

@@ -538,12 +538,12 @@ public class SitePageResourceImpl
 
 			layout = LayoutUtil.addLayout(
 				sitePage.getExternalReferenceCode(), groupId,
+				sitePage.getPrivatePage(),
 				_getParentLayoutId(
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, groupId,
 					sitePage.getParentSitePageExternalReferenceCode(),
 					sitePage.getPrivatePage(), serviceContext),
-				sitePage.getPrivatePage(), nameMap,
-				SitePageTypeUtil.toInternalType(sitePage.getType()),
+				nameMap, SitePageTypeUtil.toInternalType(sitePage.getType()),
 				typeSettingsUnicodeProperties,
 				_isHiddenFromNavigation(false, sitePage.getPageSettings()),
 				LocalizedMapUtil.getLocalizedMap(
@@ -555,13 +555,13 @@ public class SitePageResourceImpl
 		else {
 			layout = LayoutUtil.addPortletLayout(
 				_cetManager, sitePage.getExternalReferenceCode(),
-				_infoItemServiceRegistry, groupId,
+				_infoItemServiceRegistry, groupId, sitePage.getPrivatePage(),
 				_getParentLayoutId(
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, groupId,
 					sitePage.getParentSitePageExternalReferenceCode(),
 					sitePage.getPrivatePage(), serviceContext),
-				sitePage.getPrivatePage(), nameMap, titleMap, descriptionMap,
-				keywordsMap, robotsMap, typeSettingsUnicodeProperties,
+				nameMap, titleMap, descriptionMap, keywordsMap, robotsMap,
+				typeSettingsUnicodeProperties,
 				_isHiddenFromNavigation(false, sitePage.getPageSettings()),
 				LocalizedMapUtil.getLocalizedMap(
 					sitePage.getFriendlyUrlPath_i18n()),

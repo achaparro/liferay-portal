@@ -559,7 +559,7 @@ public class SitePageResourceImpl
 
 		_updateSEOEntry(
 			layout.getGroupId(), layout.getLayoutId(), pageSettings,
-			serviceContext);
+			layout.isPrivateLayout(), serviceContext);
 
 		if ((pageSettings != null) && (pageSettings.getPriority() != null)) {
 			layout = _layoutService.updatePriority(
@@ -1111,7 +1111,7 @@ public class SitePageResourceImpl
 			_getParentLayoutId(
 				layout.getParentLayoutId(), layout.getGroupId(),
 				sitePage.getParentSitePageExternalReferenceCode(),
-				sitePage.getPrivatePage(), serviceContext));
+				layout.isPrivateLayout(), serviceContext));
 
 		if (Objects.equals(sitePage.getType(), SitePage.Type.CONTENT_PAGE)) {
 			layout = LayoutUtil.updateContentLayout(
@@ -1154,7 +1154,7 @@ public class SitePageResourceImpl
 
 		_updateSEOEntry(
 			layout.getGroupId(), layout.getLayoutId(), pageSettings,
-			serviceContext);
+			layout.isPrivateLayout(), serviceContext);
 
 		int priority = Integer.MAX_VALUE;
 
@@ -1171,7 +1171,7 @@ public class SitePageResourceImpl
 
 	private void _updateSEOEntry(
 			long groupId, long layoutId, PageSettings pageSettings,
-			ServiceContext serviceContext)
+			boolean privateLayout, ServiceContext serviceContext)
 		throws Exception {
 
 		boolean canonicalURLEnabled = false;
@@ -1238,14 +1238,14 @@ public class SitePageResourceImpl
 		}
 
 		_layoutSEOEntryService.updateLayoutSEOEntry(
-			groupId, false, layoutId, canonicalURLEnabled, canonicalURLMap,
-			openGraphDescriptionEnabled, openGraphDescriptionMap,
-			openGraphImageAltMap, openGraphImageFileEntryERC,
-			openGraphImageFileEntryScopeERC, openGraphTitleEnabled,
-			openGraphTitleMap, serviceContext);
+			groupId, privateLayout, layoutId, canonicalURLEnabled,
+			canonicalURLMap, openGraphDescriptionEnabled,
+			openGraphDescriptionMap, openGraphImageAltMap,
+			openGraphImageFileEntryERC, openGraphImageFileEntryScopeERC,
+			openGraphTitleEnabled, openGraphTitleMap, serviceContext);
 
 		_layoutSEOEntryService.updateCustomMetaTags(
-			groupId, false, layoutId,
+			groupId, privateLayout, layoutId,
 			transformToList(
 				_getCustomMetaTags(pageSettings),
 				customMetaTag -> new LayoutSEOEntryCustomMetaTagProperty(

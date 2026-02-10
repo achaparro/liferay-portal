@@ -236,6 +236,38 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 	@Override
 	@Test
+	public void testGetSitePrivateSitePagesPage() throws Exception {
+		super.testGetSitePrivateSitePagesPage();
+
+		String siteExternalReferenceCode =
+			testGetSiteSitePagesPage_getSiteExternalReferenceCode();
+
+		SitePage sitePage =
+			sitePageResource.
+				putSitePrivateSitePageSitePageExternalReferenceCode(
+					siteExternalReferenceCode, null,
+					_getRandomSitePage(
+						testGroup.getExternalReferenceCode(), null,
+						ServiceContextTestUtil.getServiceContext(
+							testGroup, TestPropsValues.getUserId()),
+						SitePage.Type.CONTENT_PAGE,
+						StringUtil.toLowerCase(RandomTestUtil.randomString())));
+
+		Page<SitePage> page = sitePageResource.getSitePrivateSitePagesPage(
+			siteExternalReferenceCode, null, null,
+			"externalReferenceCode eq '" + sitePage.getExternalReferenceCode() +
+				"'",
+			Pagination.of(1, 10), null);
+
+		Assert.assertEquals(1, page.getTotalCount());
+
+		List<SitePage> pages = new ArrayList<>(page.getItems());
+
+		Assert.assertEquals(sitePage, pages.get(0));
+	}
+
+	@Override
+	@Test
 	public void testGetSiteSitePage() throws Exception {
 		SitePage postSitePage = testGetSiteSitePagesPage_addSitePage(
 			testGroup.getExternalReferenceCode(), randomSitePage());

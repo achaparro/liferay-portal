@@ -128,7 +128,7 @@ public class SitePageResourceImpl
 				false, contextCompany.getCompanyId(),
 				siteExternalReferenceCode));
 
-		_validateSitePageLayout(layout);
+		_validateSitePageLayout(layout, false);
 
 		_layoutService.deleteLayout(
 			layout.getPlid(),
@@ -354,7 +354,7 @@ public class SitePageResourceImpl
 				true, contextCompany.getCompanyId(),
 				siteExternalReferenceCode));
 
-		_validateSitePageLayout(layout);
+		_validateSitePageLayout(layout, false);
 
 		return _toSitePage(layout);
 	}
@@ -639,7 +639,7 @@ public class SitePageResourceImpl
 					sitePage));
 		}
 
-		_validateSitePageLayout(layout);
+		_validateSitePageLayout(layout, privatePage);
 
 		ServiceContext serviceContext = _getServiceContext(
 			layout.getGroupId(), sitePage);
@@ -1310,9 +1310,10 @@ public class SitePageResourceImpl
 			sitePage::getExternalReferenceCode);
 	}
 
-	private void _validateSitePageLayout(Layout layout) {
-		if (layout.isDraftLayout() || layout.isTypeAssetDisplay() ||
-			layout.isTypeUtility()) {
+	private void _validateSitePageLayout(Layout layout, boolean privateLayout) {
+		if (layout.isDraftLayout() ||
+			(layout.isPrivateLayout() != privateLayout) ||
+			layout.isTypeAssetDisplay() || layout.isTypeUtility()) {
 
 			throw new UnsupportedOperationException();
 		}

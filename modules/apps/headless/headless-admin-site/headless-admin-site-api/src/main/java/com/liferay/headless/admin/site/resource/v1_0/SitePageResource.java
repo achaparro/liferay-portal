@@ -52,6 +52,14 @@ public interface SitePageResource {
 			String sitePageExternalReferenceCode)
 		throws Exception;
 
+	public Page<SitePage> getSitePrivateSitePagesPage(
+			String siteExternalReferenceCode, String search,
+			com.liferay.portal.vulcan.aggregation.Aggregation aggregation,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			Pagination pagination,
+			com.liferay.portal.kernel.search.Sort[] sorts)
+		throws Exception;
+
 	public SitePage getSiteSitePage(
 			String siteExternalReferenceCode,
 			String sitePageExternalReferenceCode)
@@ -95,6 +103,11 @@ public interface SitePageResource {
 			com.liferay.portal.kernel.search.filter.Filter filter,
 			com.liferay.portal.kernel.search.Sort[] sorts, String callbackURL,
 			String contentType, String fieldNames)
+		throws Exception;
+
+	public SitePage putSitePrivateSitePageSitePageExternalReferenceCode(
+			String siteExternalReferenceCode,
+			String sitePageExternalReferenceCode, SitePage sitePage)
 		throws Exception;
 
 	public SitePage putSiteSitePage(

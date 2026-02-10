@@ -9179,7 +9179,7 @@ paths:
             description:
                 Updates the private site page with the given external reference code, or creates it if it does not
                 exist.
-            operationId: putSitePrivateSitePage
+            operationId: putSitePrivateSitePageSitePageExternalReferenceCode
             parameters:
                 -   in: path
                     name: siteExternalReferenceCode

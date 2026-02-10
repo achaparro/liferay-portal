@@ -440,6 +440,49 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 	@Override
 	@Test
+	public void testPutSitePrivateSitePageSitePageExternalReferenceCode()
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				testGroup.getGroupId(), TestPropsValues.getUserId());
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			testGroup, true, false);
+
+		SitePage sitePage = _getRandomSitePage(
+			StringUtil.toLowerCase(RandomTestUtil.randomString()),
+			layout.getExternalReferenceCode(), serviceContext,
+			SitePage.Type.CONTENT_PAGE,
+			StringUtil.toLowerCase(RandomTestUtil.randomString()));
+
+		SitePage putSitePage =
+			sitePageResource.
+				putSitePrivateSitePageSitePageExternalReferenceCode(
+					testGroup.getExternalReferenceCode(),
+					sitePage.getExternalReferenceCode(), sitePage);
+
+		layout = _layoutLocalService.getLayoutByExternalReferenceCode(
+			sitePage.getExternalReferenceCode(), testGroup.getGroupId());
+
+		Assert.assertTrue(layout.isPrivateLayout());
+
+		assertEquals(sitePage, putSitePage);
+		assertValid(putSitePage);
+
+		_assertSitePage(layout, putSitePage);
+
+		_assertProblemException(
+			null,
+			() ->
+				sitePageResource.
+					putSitePrivateSitePageSitePageExternalReferenceCode(
+						testGroup.getExternalReferenceCode(), null,
+						randomSitePage()));
+	}
+
+	@Override
+	@Test
 	@TestInfo(
 		{
 			"LPD-72013", "LPD-74331", "LPD-75450", "LPD-77124", "LPD-77505",

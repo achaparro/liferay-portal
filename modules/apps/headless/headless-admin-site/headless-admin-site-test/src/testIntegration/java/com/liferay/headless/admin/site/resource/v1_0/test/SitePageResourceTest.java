@@ -263,7 +263,14 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 		List<SitePage> pages = new ArrayList<>(page.getItems());
 
+		sitePage = pages.get(0);
+
 		Assert.assertEquals(sitePage, pages.get(0));
+
+		Layout layout = _layoutLocalService.getLayoutByExternalReferenceCode(
+			sitePage.getExternalReferenceCode(), testGroup.getGroupId());
+
+		Assert.assertTrue(layout.isPrivateLayout());
 	}
 
 	@Override

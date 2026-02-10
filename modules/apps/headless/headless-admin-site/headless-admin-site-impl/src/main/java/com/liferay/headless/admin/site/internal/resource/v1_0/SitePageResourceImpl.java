@@ -268,6 +268,26 @@ public class SitePageResourceImpl
 	}
 
 	@Override
+	public SitePage postSitePrivateSitePage(
+			String siteExternalReferenceCode, SitePage sitePage)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPD-35443")) {
+
+			throw new UnsupportedOperationException();
+		}
+
+		return _toSitePage(
+			_addLayout(
+				sitePage.getExternalReferenceCode(),
+				GroupUtil.getGroupId(
+					false, contextCompany.getCompanyId(),
+					siteExternalReferenceCode),
+				true, sitePage));
+	}
+
+	@Override
 	public ContentPageSpecification postSiteSitePagePageSpecification(
 			String siteExternalReferenceCode,
 			String sitePageExternalReferenceCode,

@@ -2777,13 +2777,15 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 			testGroup.getExternalReferenceCode(),
 			sitePage.getExternalReferenceCode(), sitePage);
 
+		layout = _layoutLocalService.getLayoutByExternalReferenceCode(
+			sitePage.getExternalReferenceCode(), testGroup.getGroupId());
+
+		Assert.assertTrue(layout.isPublicLayout());
+
 		assertEquals(sitePage, putSitePage);
 		assertValid(putSitePage);
 
-		_assertSitePage(
-			_layoutLocalService.getLayoutByExternalReferenceCode(
-				sitePage.getExternalReferenceCode(), testGroup.getGroupId()),
-			putSitePage);
+		_assertSitePage(layout, putSitePage);
 
 		_assertPutSiteSitePageProblemException(
 			_getRandomSitePage(
@@ -2889,7 +2891,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 			layout = _layoutLocalService.getOrAddEmptyLayout(
 				sitePage.getExternalReferenceCode(),
-				TestPropsValues.getUserId(), testGroup.getGroupId(),
+				TestPropsValues.getUserId(), testGroup.getGroupId(), false,
 				serviceContext);
 		}
 

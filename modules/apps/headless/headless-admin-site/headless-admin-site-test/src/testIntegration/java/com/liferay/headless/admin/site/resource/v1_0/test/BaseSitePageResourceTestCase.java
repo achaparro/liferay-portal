@@ -637,7 +637,7 @@ public abstract class BaseSitePageResourceTestCase {
 			String siteExternalReferenceCode, SitePage sitePage)
 		throws Exception {
 
-		return sitePageResource.postSiteSitePage(
+		return sitePageResource.postSitePrivateSitePage(
 			siteExternalReferenceCode, sitePage);
 	}
 

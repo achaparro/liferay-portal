@@ -9173,6 +9173,35 @@ paths:
                                     $ref: "#/components/schemas/SitePage"
                                 type: array
             tags: ["SitePage"]
+        post:
+            # @review
+            description:
+                Adds a new private site page
+            operationId: postSiteSitePage
+            parameters:
+                -   in: path
+                    name: siteExternalReferenceCode
+                    required: true
+                    schema:
+                        type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/SitePage"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/SitePage"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/SitePage"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/SitePage"
+            tags: ["SitePage"]
     "/sites/{siteExternalReferenceCode}/private-site-pages/{sitePageExternalReferenceCode}":
         put:
             # @review

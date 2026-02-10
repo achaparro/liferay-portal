@@ -377,7 +377,7 @@ public class SitePageResourceImpl
 				GroupUtil.getGroupId(
 					false, contextCompany.getCompanyId(),
 					siteExternalReferenceCode),
-				sitePage));
+				false, sitePage));
 	}
 
 	@Override
@@ -433,7 +433,8 @@ public class SitePageResourceImpl
 	}
 
 	private Layout _addLayout(
-			String externalReferenceCode, long groupId, SitePage sitePage)
+			String externalReferenceCode, long groupId, boolean privateLayout,
+			SitePage sitePage)
 		throws Exception {
 
 		if (sitePage.getExternalReferenceCode() == null) {
@@ -485,7 +486,7 @@ public class SitePageResourceImpl
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, groupId,
 					sitePage.getParentSitePageExternalReferenceCode(),
 					serviceContext),
-				false, nameMap, titleMap, descriptionMap, keywordsMap,
+				privateLayout, nameMap, titleMap, descriptionMap, keywordsMap,
 				robotsMap, SitePageTypeUtil.toInternalType(sitePage.getType()),
 				typeSettingsUnicodeProperties,
 				_isHiddenFromNavigation(false, sitePage.getPageSettings()),
@@ -495,16 +496,14 @@ public class SitePageResourceImpl
 				WorkflowConstants.STATUS_APPROVED, serviceContext);
 		}
 		else if (Objects.equals(
-					sitePage.getType(), SitePage.Type.EMBEDDED_PAGE) ||
-				 Objects.equals(
-					 sitePage.getType(), SitePage.Type.LINK_TO_PAGE_PAGE) ||
+					sitePage.getType(), SitePage.Type.LINK_TO_PAGE_PAGE) ||
 				 Objects.equals(
 					 sitePage.getType(), SitePage.Type.LINK_TO_URL_PAGE) ||
 				 Objects.equals(
 					 sitePage.getType(), SitePage.Type.PAGE_SET_PAGE)) {
 
 			layout = LayoutUtil.addLayout(
-				sitePage.getExternalReferenceCode(), groupId,
+				sitePage.getExternalReferenceCode(), groupId, privateLayout,
 				_getParentLayoutId(
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, groupId,
 					sitePage.getParentSitePageExternalReferenceCode(),
@@ -521,7 +520,7 @@ public class SitePageResourceImpl
 		else {
 			layout = LayoutUtil.addPortletLayout(
 				_cetManager, sitePage.getExternalReferenceCode(),
-				_infoItemServiceRegistry, groupId,
+				_infoItemServiceRegistry, groupId, privateLayout,
 				_getParentLayoutId(
 					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, groupId,
 					sitePage.getParentSitePageExternalReferenceCode(),
@@ -616,7 +615,9 @@ public class SitePageResourceImpl
 
 		if (layout == null) {
 			return _toSitePage(
-				_addLayout(sitePageExternalReferenceCode, groupId, sitePage));
+				_addLayout(
+					sitePageExternalReferenceCode, groupId, privatePage,
+					sitePage));
 		}
 
 		_validateSitePageLayout(layout);

@@ -84,6 +84,10 @@ public interface SitePageResource {
 			String sitePageExternalReferenceCode, SitePage sitePage)
 		throws Exception;
 
+	public SitePage postSitePrivateSitePage(
+			String siteExternalReferenceCode, SitePage sitePage)
+		throws Exception;
+
 	public SitePage postSiteSitePage(
 			String siteExternalReferenceCode, SitePage sitePage)
 		throws Exception;

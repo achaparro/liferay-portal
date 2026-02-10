@@ -9177,7 +9177,7 @@ paths:
             # @review
             description:
                 Adds a new private site page
-            operationId: postSiteSitePage
+            operationId: postSitePrivateSitePage
             parameters:
                 -   in: path
                     name: siteExternalReferenceCode

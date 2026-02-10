@@ -1145,6 +1145,25 @@ public abstract class BaseSitePageResourceTestCase {
 	}
 
 	@Test
+	public void testPostSitePrivateSitePage() throws Exception {
+		SitePage randomSitePage = randomSitePage();
+
+		SitePage postSitePage = testPostSitePrivateSitePage_addSitePage(
+			randomSitePage);
+
+		assertEquals(randomSitePage, postSitePage);
+		assertValid(postSitePage);
+	}
+
+	protected SitePage testPostSitePrivateSitePage_addSitePage(
+			SitePage sitePage)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testPostSiteSitePage() throws Exception {
 		SitePage randomSitePage = randomSitePage();
 

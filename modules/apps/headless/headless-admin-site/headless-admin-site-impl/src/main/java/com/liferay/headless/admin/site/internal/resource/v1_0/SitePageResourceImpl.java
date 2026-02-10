@@ -128,7 +128,7 @@ public class SitePageResourceImpl
 				false, contextCompany.getCompanyId(),
 				siteExternalReferenceCode));
 
-		_validateSitePageLayout(layout, false);
+		_validateSitePageLayout(layout, layout.isPrivateLayout());
 
 		_layoutService.deleteLayout(
 			layout.getPlid(),
@@ -354,7 +354,7 @@ public class SitePageResourceImpl
 				true, contextCompany.getCompanyId(),
 				siteExternalReferenceCode));
 
-		_validateSitePageLayout(layout, false);
+		_validateSitePageLayout(layout, layout.isPrivateLayout());
 
 		return _toSitePage(layout);
 	}

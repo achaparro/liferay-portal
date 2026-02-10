@@ -247,6 +247,22 @@ public class SitePageResourceImpl
 	}
 
 	@Override
+	public Page<SitePage> getSitePrivateSitePagesPage(
+			String siteExternalReferenceCode, String search,
+			Aggregation aggregation, Filter filter, Pagination pagination,
+			Sort[] sorts)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
+			throw new UnsupportedOperationException();
+		}
+
+		return _doGetSiteSitePagesPage(
+			true, siteExternalReferenceCode, search, aggregation, filter,
+			pagination, sorts);
+	}
+
+	@Override
 	public ContentPageSpecification postSiteSitePagePageSpecification(
 			String siteExternalReferenceCode,
 			String sitePageExternalReferenceCode,
@@ -279,6 +295,21 @@ public class SitePageResourceImpl
 				ServiceContextUtil.createServiceContext(
 					layout.getGroupId(), contextHttpServletRequest,
 					contextUser.getUserId())));
+	}
+
+	@Override
+	public SitePage putSitePrivateSitePageSitePageExternalReferenceCode(
+			String siteExternalReferenceCode,
+			String sitePageExternalReferenceCode, SitePage sitePage)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
+			throw new UnsupportedOperationException();
+		}
+
+		return _doPutSiteSitePage(
+			true, siteExternalReferenceCode, sitePageExternalReferenceCode,
+			sitePage);
 	}
 
 	@Override
@@ -326,51 +357,9 @@ public class SitePageResourceImpl
 			throw new UnsupportedOperationException();
 		}
 
-		long groupId = GroupUtil.getGroupId(
-			true, contextCompany.getCompanyId(), siteExternalReferenceCode);
-
-		return SearchUtil.search(
-			null,
-			booleanQuery -> {
-				BooleanFilter booleanFilter =
-					booleanQuery.getPreBooleanFilter();
-
-				booleanFilter.add(
-					new TermFilter(Field.GROUP_ID, String.valueOf(groupId)),
-					BooleanClauseOccur.MUST);
-			},
-			filter, Layout.class.getName(), search, pagination,
-			queryConfig -> queryConfig.setSelectedFieldNames(
-				Field.ENTRY_CLASS_PK),
-			searchContext -> {
-				searchContext.addVulcanAggregation(aggregation);
-				searchContext.setAttribute(Field.TITLE, search);
-				searchContext.setAttribute(
-					Field.TYPE,
-					new String[] {
-						LayoutConstants.TYPE_CONTENT,
-						LayoutConstants.TYPE_EMBEDDED,
-						LayoutConstants.TYPE_LINK_TO_LAYOUT,
-						LayoutConstants.TYPE_NODE, LayoutConstants.TYPE_PORTLET,
-						LayoutConstants.TYPE_URL
-					});
-				searchContext.setAttribute(
-					"privateLayout", Boolean.FALSE.toString());
-				searchContext.setAttribute(
-					"status", WorkflowConstants.STATUS_ANY);
-				searchContext.setAttribute(
-					"systemLayout", Boolean.FALSE.toString());
-				searchContext.setCompanyId(contextCompany.getCompanyId());
-				searchContext.setGroupIds(new long[] {groupId});
-				searchContext.setKeywords(search);
-			},
-			sorts,
-			document -> {
-				long plid = GetterUtil.getLong(
-					document.get(Field.ENTRY_CLASS_PK));
-
-				return _toSitePage(_layoutService.getLayout(plid));
-			});
+		return _doGetSiteSitePagesPage(
+			false, siteExternalReferenceCode, search, aggregation, filter,
+			pagination, sorts);
 	}
 
 	@Override
@@ -401,38 +390,9 @@ public class SitePageResourceImpl
 			throw new UnsupportedOperationException();
 		}
 
-		long groupId = GroupUtil.getGroupId(
-			false, contextCompany.getCompanyId(), siteExternalReferenceCode);
-
-		Layout layout = _layoutService.fetchLayoutByExternalReferenceCode(
-			sitePageExternalReferenceCode, groupId);
-
-		if (layout == null) {
-			return _toSitePage(
-				_addLayout(sitePageExternalReferenceCode, groupId, sitePage));
-		}
-
-		_validateSitePageLayout(layout);
-
-		ServiceContext serviceContext = _getServiceContext(
-			layout.getGroupId(), sitePage);
-
-		if (layout.isTypeEmpty()) {
-			layout = _layoutService.convertEmptyLayout(
-				layout.getPlid(), layout.getNameMap(),
-				SitePageTypeUtil.toInternalType(sitePage.getType()),
-				layout.getClassNameId(), layout.getClassPK(),
-				layout.getMasterLayoutPageTemplateEntryERC(), serviceContext);
-		}
-		else if ((sitePage.getType() != null) &&
-				 !Objects.equals(
-					 layout.getType(),
-					 SitePageTypeUtil.toInternalType(sitePage.getType()))) {
-
-			throw new UnsupportedOperationException();
-		}
-
-		return _toSitePage(_updateLayout(layout, serviceContext, sitePage));
+		return _doPutSiteSitePage(
+			false, siteExternalReferenceCode, sitePageExternalReferenceCode,
+			sitePage);
 	}
 
 	@Override
@@ -588,6 +548,98 @@ public class SitePageResourceImpl
 		}
 
 		return layout;
+	}
+
+	private Page<SitePage> _doGetSiteSitePagesPage(
+			boolean privatePages, String siteExternalReferenceCode,
+			String search, Aggregation aggregation, Filter filter,
+			Pagination pagination, Sort[] sorts)
+		throws Exception {
+
+		long groupId = GroupUtil.getGroupId(
+			true, contextCompany.getCompanyId(), siteExternalReferenceCode);
+
+		return SearchUtil.search(
+			null,
+			booleanQuery -> {
+				BooleanFilter booleanFilter =
+					booleanQuery.getPreBooleanFilter();
+
+				booleanFilter.add(
+					new TermFilter(Field.GROUP_ID, String.valueOf(groupId)),
+					BooleanClauseOccur.MUST);
+			},
+			filter, Layout.class.getName(), search, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				searchContext.addVulcanAggregation(aggregation);
+				searchContext.setAttribute(Field.TITLE, search);
+				searchContext.setAttribute(
+					Field.TYPE,
+					new String[] {
+						LayoutConstants.TYPE_CONTENT,
+						LayoutConstants.TYPE_EMBEDDED,
+						LayoutConstants.TYPE_LINK_TO_LAYOUT,
+						LayoutConstants.TYPE_NODE, LayoutConstants.TYPE_PORTLET,
+						LayoutConstants.TYPE_URL
+					});
+				searchContext.setAttribute(
+					"privateLayout", String.valueOf(privatePages));
+				searchContext.setAttribute(
+					"status", WorkflowConstants.STATUS_ANY);
+				searchContext.setAttribute(
+					"systemLayout", Boolean.FALSE.toString());
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+				searchContext.setGroupIds(new long[] {groupId});
+				searchContext.setKeywords(search);
+			},
+			sorts,
+			document -> {
+				long plid = GetterUtil.getLong(
+					document.get(Field.ENTRY_CLASS_PK));
+
+				return _toSitePage(_layoutService.getLayout(plid));
+			});
+	}
+
+	private SitePage _doPutSiteSitePage(
+			boolean privatePage, String siteExternalReferenceCode,
+			String sitePageExternalReferenceCode, SitePage sitePage)
+		throws Exception {
+
+		long groupId = GroupUtil.getGroupId(
+			false, contextCompany.getCompanyId(), siteExternalReferenceCode);
+
+		Layout layout = _layoutService.fetchLayoutByExternalReferenceCode(
+			sitePageExternalReferenceCode, groupId);
+
+		if (layout == null) {
+			return _toSitePage(
+				_addLayout(sitePageExternalReferenceCode, groupId, sitePage));
+		}
+
+		_validateSitePageLayout(layout);
+
+		ServiceContext serviceContext = _getServiceContext(
+			layout.getGroupId(), sitePage);
+
+		if (layout.isTypeEmpty()) {
+			layout = _layoutService.convertEmptyLayout(
+				layout.getPlid(), layout.getNameMap(),
+				SitePageTypeUtil.toInternalType(sitePage.getType()),
+				layout.getClassNameId(), layout.getClassPK(),
+				layout.getMasterLayoutPageTemplateEntryERC(), serviceContext);
+		}
+		else if ((sitePage.getType() != null) &&
+				 !Objects.equals(
+					 layout.getType(),
+					 SitePageTypeUtil.toInternalType(sitePage.getType()))) {
+
+			throw new UnsupportedOperationException();
+		}
+
+		return _toSitePage(_updateLayout(layout, serviceContext, sitePage));
 	}
 
 	private CustomMetaTag[] _getCustomMetaTags(PageSettings pageSettings) {

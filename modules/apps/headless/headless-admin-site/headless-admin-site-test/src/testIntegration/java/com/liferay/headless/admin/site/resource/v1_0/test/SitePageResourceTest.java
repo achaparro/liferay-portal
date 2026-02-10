@@ -613,6 +613,15 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	}
 
 	@Override
+	protected SitePage testPostSitePrivateSitePage_addSitePage(
+			SitePage sitePage)
+		throws Exception {
+
+		return sitePageResource.postSitePrivateSitePage(
+			testGroup.getExternalReferenceCode(), sitePage);
+	}
+
+	@Override
 	protected SitePage testPostSiteSitePage_addSitePage(SitePage sitePage)
 		throws Exception {
 

@@ -9,6 +9,7 @@ import ClayIcon from '@clayui/icon';
 import ClayLayout from '@clayui/layout';
 import ClayLink from '@clayui/link';
 import {ReactPortal, useIsMounted} from '@liferay/frontend-js-react-web';
+import {EnterpriseFeatureIndicator} from '@liferay/site-cms-site-initializer';
 import classNames from 'classnames';
 import {openConfirmModal, openToast} from 'frontend-js-components-web';
 import {fetch} from 'frontend-js-web';
@@ -83,6 +84,9 @@ function ToolbarBody({className}) {
 		}
 	};
 
+	const isCMSFreeTier =
+		Liferay.FeatureFlags['LPD-74377'] && config.isCMS && config.isFreeTier;
+
 	let publishButtonLabel = Liferay.Language.get('publish');
 
 	if (config.layoutType === LAYOUT_TYPES.master) {
@@ -137,6 +141,13 @@ function ToolbarBody({className}) {
 						</ClayLink>
 					</li>
 				) : null}
+
+				{isCMSFreeTier && (
+					<EnterpriseFeatureIndicator
+						alignPosition="bottom-left"
+						showTooltip
+					/>
+				)}
 
 				<li className="nav-item">
 					<ExperienceToolbarSection />

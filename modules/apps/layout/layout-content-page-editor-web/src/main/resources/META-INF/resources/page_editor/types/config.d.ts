@@ -176,6 +176,7 @@ export interface Config {
 	infoItemSelectorURL: string;
 	isCMS: boolean;
 	isConversionDraft: boolean;
+	isFreeTier: boolean;
 	isPrivateLayoutsEnabled: boolean;
 	layoutConversionWarningMessages: string[] | null;
 	layoutItemSelectorURL: String;

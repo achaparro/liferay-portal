@@ -150,7 +150,7 @@ public class DefaultLicenseManagerImpl implements LicenseManager {
 
 	@Override
 	public boolean isFreeTier() {
-		return false;
+		return true;
 	}
 
 	@Override

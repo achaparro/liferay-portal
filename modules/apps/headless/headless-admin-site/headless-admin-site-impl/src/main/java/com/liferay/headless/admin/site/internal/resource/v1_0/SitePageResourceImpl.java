@@ -187,7 +187,7 @@ public class SitePageResourceImpl
 									portletDataContext.isPrivateLayout(),
 									layoutId);
 
-								if (layout != null) {
+								if ((layout != null) && !layout.isTypeEmpty()) {
 									externalReferenceCodes.add(
 										layout.getExternalReferenceCode());
 								}

@@ -8,8 +8,6 @@ package com.liferay.asset.display.page.internal.exportimport.data.handler.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.display.page.model.AssetDisplayPageEntry;
 import com.liferay.asset.display.page.service.AssetDisplayPageEntryLocalService;
-import com.liferay.dynamic.data.mapping.model.DDMStructure;
-import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.test.util.lar.BaseStagedModelDataHandlerTestCase;
@@ -70,16 +68,11 @@ public class AssetDisplayPageStagedModelDataHandlerTest
 		Group group = GroupLocalServiceUtil.getCompanyGroup(
 			TestPropsValues.getCompanyId());
 
-		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
-			group.getGroupId(), JournalArticle.class.getName());
-
 		JournalArticle journalArticle = JournalTestUtil.addArticle(
 			group.getGroupId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
 
 		_classPK = journalArticle.getResourcePrimKey();
-
-		_classTypeId = ddmStructure.getStructureId();
 	}
 
 	@Test
@@ -126,7 +119,7 @@ public class AssetDisplayPageStagedModelDataHandlerTest
 		_layoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
 				externalReferenceCode, TestPropsValues.getUserId(),
-				liveGroup.getGroupId(), 0, null, _classNameId, _classTypeId,
+				liveGroup.getGroupId(), 0, null, _classNameId, null,
 				RandomTestUtil.randomString(),
 				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, 0, true, 0,
 				0, 0, WorkflowConstants.STATUS_APPROVED,
@@ -178,7 +171,7 @@ public class AssetDisplayPageStagedModelDataHandlerTest
 		_layoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
 				externalReferenceCode, TestPropsValues.getUserId(),
-				liveGroup.getGroupId(), 0, null, _classNameId, _classTypeId,
+				liveGroup.getGroupId(), 0, null, _classNameId, null,
 				RandomTestUtil.randomString(),
 				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, 0, true, 0,
 				0, 0, WorkflowConstants.STATUS_APPROVED,
@@ -253,7 +246,7 @@ public class AssetDisplayPageStagedModelDataHandlerTest
 		LayoutPageTemplateEntry layoutPageTemplateEntry =
 			_layoutPageTemplateEntryLocalService.addLayoutPageTemplateEntry(
 				externalReferenceCode, TestPropsValues.getUserId(),
-				group.getGroupId(), 0, null, _classNameId, _classTypeId,
+				group.getGroupId(), 0, null, _classNameId, null,
 				RandomTestUtil.randomString(),
 				LayoutPageTemplateEntryTypeConstants.DISPLAY_PAGE, 0, true, 0,
 				0, 0, WorkflowConstants.STATUS_APPROVED,
@@ -272,7 +265,6 @@ public class AssetDisplayPageStagedModelDataHandlerTest
 
 	private long _classNameId;
 	private long _classPK;
-	private long _classTypeId;
 	private LayoutPageTemplateEntry _layoutPageTemplateEntry;
 
 	@Inject

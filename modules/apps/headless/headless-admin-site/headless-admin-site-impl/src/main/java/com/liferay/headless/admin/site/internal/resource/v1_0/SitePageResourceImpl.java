@@ -338,6 +338,7 @@ public class SitePageResourceImpl
 					new String[] {
 						LayoutConstants.TYPE_CONTENT,
 						LayoutConstants.TYPE_EMBEDDED,
+						LayoutConstants.TYPE_EMPTY,
 						LayoutConstants.TYPE_LINK_TO_LAYOUT,
 						LayoutConstants.TYPE_NODE, LayoutConstants.TYPE_PORTLET,
 						LayoutConstants.TYPE_URL

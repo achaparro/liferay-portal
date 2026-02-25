@@ -288,6 +288,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 	@Override
 	@Test
+	@TestInfo("LPD-67894")
 	public void testGetSiteSitePagesPage() throws Exception {
 		super.testGetSiteSitePagesPage();
 
@@ -1817,6 +1818,14 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	private void _testGetSitePageSitePagesPage(boolean privateLayout)
 		throws Exception {
 
+		try (SafeCloseable safeCloseable =
+				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+
+			_layoutLocalService.getOrAddEmptyLayout(
+				RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+				testGroup.getGroupId(), privateLayout, new ServiceContext());
+		}
+
 		String siteExternalReferenceCode =
 			testGetSiteSitePagesPage_getSiteExternalReferenceCode();
 
@@ -1838,16 +1847,29 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 				"'",
 			Pagination.of(1, 10), null);
 
-		Assert.assertEquals(1, page.getTotalCount());
+		Assert.assertEquals(2, page.getTotalCount());
 
-		List<SitePage> pages = new ArrayList<>(page.getItems());
+		try (SafeCloseable safeCloseable =
+				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
 
-		Assert.assertEquals(sitePage, pages.get(0));
+			page = sitePageResource.getSiteSitePagesPage(
+				siteExternalReferenceCode, privateLayout, null, null,
+				"externalReferenceCode eq '" +
+					sitePage.getExternalReferenceCode() + "'",
+				Pagination.of(1, 10), null);
 
-		Layout layout = _layoutLocalService.getLayoutByExternalReferenceCode(
-			sitePageExternalReferenceCode, testGroup.getGroupId());
+			Assert.assertEquals(1, page.getTotalCount());
 
-		Assert.assertEquals(privateLayout, layout.isPrivateLayout());
+			List<SitePage> pages = new ArrayList<>(page.getItems());
+
+			Assert.assertEquals(sitePage, pages.get(0));
+
+			Layout layout =
+				_layoutLocalService.getLayoutByExternalReferenceCode(
+					sitePageExternalReferenceCode, testGroup.getGroupId());
+
+			Assert.assertEquals(privateLayout, layout.isPrivateLayout());
+		}
 	}
 
 	private void _testGetSiteSitePage(Layout layout) throws Exception {

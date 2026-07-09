@@ -11,7 +11,6 @@ import com.liferay.fragment.model.FragmentEntryVersion;
 import com.liferay.fragment.model.FragmentEntryVersionTable;
 import com.liferay.fragment.service.FragmentEntryLocalService;
 import com.liferay.petra.function.UnsafeRunnable;
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.sql.dsl.DSLFunctionFactoryUtil;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
@@ -23,7 +22,6 @@ import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.scheduler.TriggerConfiguration;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
@@ -53,17 +51,29 @@ public class CleanUpFragmentEntryVersionsSchedulerJobConfiguration
 
 	private void _cleanUpFragmentEntryVersions(long companyId) {
 		try {
+			FragmentEntryVersionConfiguration
+				fragmentEntryVersionConfiguration =
+					_configurationProvider.getCompanyConfiguration(
+						FragmentEntryVersionConfiguration.class, companyId);
+
+			int maximumVersionsPerEntry =
+				fragmentEntryVersionConfiguration.maximumVersionsPerEntry();
+
+			if (maximumVersionsPerEntry <= 0) {
+				return;
+			}
+
 			List<long[]> fragmentEntryVersionCounts =
-				_getFragmentEntryVersionCounts(companyId);
+				_getFragmentEntryVersionCounts(
+					companyId, maximumVersionsPerEntry);
 
 			for (long[] fragmentEntryVersionCount :
 					fragmentEntryVersionCounts) {
 
-				long fragmentEntryId = fragmentEntryVersionCount[0];
-				int versionsToDeleteCount = (int)fragmentEntryVersionCount[1];
-
 				_deleteFragmentEntryVersions(
-					companyId, fragmentEntryId, versionsToDeleteCount);
+					companyId, fragmentEntryVersionCount[0],
+					(int)fragmentEntryVersionCount[1] -
+						maximumVersionsPerEntry);
 			}
 		}
 		catch (Exception exception) {
@@ -106,21 +116,10 @@ public class CleanUpFragmentEntryVersionsSchedulerJobConfiguration
 		}
 	}
 
-	private List<long[]> _getFragmentEntryVersionCounts(long companyId)
-		throws Exception {
+	private List<long[]> _getFragmentEntryVersionCounts(
+		long companyId, int maximumVersionsPerEntry) {
 
-		FragmentEntryVersionConfiguration fragmentEntryVersionConfiguration =
-			_configurationProvider.getCompanyConfiguration(
-				FragmentEntryVersionConfiguration.class, companyId);
-
-		int maximumVersionsPerEntry =
-			fragmentEntryVersionConfiguration.maximumVersionsPerEntry();
-
-		if (maximumVersionsPerEntry <= 0) {
-			return Collections.emptyList();
-		}
-
-		List<Object[]> results = _fragmentEntryLocalService.dslQuery(
+		return _fragmentEntryLocalService.dslQuery(
 			DSLQueryFactoryUtil.select(
 				FragmentEntryVersionTable.INSTANCE.fragmentEntryId,
 				DSLFunctionFactoryUtil.count(
@@ -146,16 +145,6 @@ public class CleanUpFragmentEntryVersionsSchedulerJobConfiguration
 					(long)maximumVersionsPerEntry
 				)
 			));
-
-		return TransformUtil.transform(
-			results,
-			result -> {
-				Number count = (Number)result[1];
-
-				return new long[] {
-					(Long)result[0], count.intValue() - maximumVersionsPerEntry
-				};
-			});
 	}
 
 	private List<Integer> _getVersions(

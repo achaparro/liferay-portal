@@ -63,17 +63,12 @@ public class CleanUpFragmentEntryVersionsSchedulerJobConfiguration
 				return;
 			}
 
-			List<long[]> fragmentEntryVersionCounts =
-				_getFragmentEntryVersionCounts(
-					companyId, maximumVersionsPerEntry);
+			List<Long> fragmentEntryIds = _getFragmentEntryIds(
+				companyId, maximumVersionsPerEntry);
 
-			for (long[] fragmentEntryVersionCount :
-					fragmentEntryVersionCounts) {
-
+			for (long fragmentEntryId : fragmentEntryIds) {
 				_deleteFragmentEntryVersions(
-					companyId, fragmentEntryVersionCount[0],
-					(int)fragmentEntryVersionCount[1] -
-						maximumVersionsPerEntry);
+					companyId, fragmentEntryId, maximumVersionsPerEntry);
 			}
 		}
 		catch (Exception exception) {
@@ -84,20 +79,19 @@ public class CleanUpFragmentEntryVersionsSchedulerJobConfiguration
 	}
 
 	private void _deleteFragmentEntryVersions(
-		long companyId, long fragmentEntryId, int versionsToDeleteCount) {
+		long companyId, long fragmentEntryId, int maximumVersionsPerEntry) {
 
 		try {
 			FragmentEntry fragmentEntry =
 				_fragmentEntryLocalService.getFragmentEntry(fragmentEntryId);
 
-			List<Integer> versions = _getVersions(
-				companyId, fragmentEntryId, versionsToDeleteCount);
+			List<Integer> versions = _getVersions(companyId, fragmentEntryId);
 
-			for (int version : versions) {
+			for (int i = maximumVersionsPerEntry; i < versions.size(); i++) {
 				try {
 					FragmentEntryVersion fragmentEntryVersion =
 						_fragmentEntryLocalService.getVersion(
-							fragmentEntry, version);
+							fragmentEntry, versions.get(i));
 
 					_fragmentEntryLocalService.deleteVersion(
 						fragmentEntryVersion);
@@ -116,17 +110,12 @@ public class CleanUpFragmentEntryVersionsSchedulerJobConfiguration
 		}
 	}
 
-	private List<long[]> _getFragmentEntryVersionCounts(
+	private List<Long> _getFragmentEntryIds(
 		long companyId, int maximumVersionsPerEntry) {
 
 		return _fragmentEntryLocalService.dslQuery(
 			DSLQueryFactoryUtil.select(
-				FragmentEntryVersionTable.INSTANCE.fragmentEntryId,
-				DSLFunctionFactoryUtil.count(
-					FragmentEntryVersionTable.INSTANCE.fragmentEntryVersionId
-				).as(
-					"versionsCount"
-				)
+				FragmentEntryVersionTable.INSTANCE.fragmentEntryId
 			).from(
 				FragmentEntryVersionTable.INSTANCE
 			).where(
@@ -147,9 +136,7 @@ public class CleanUpFragmentEntryVersionsSchedulerJobConfiguration
 			));
 	}
 
-	private List<Integer> _getVersions(
-		long companyId, long fragmentEntryId, int versionsToDeleteCount) {
-
+	private List<Integer> _getVersions(long companyId, long fragmentEntryId) {
 		return _fragmentEntryLocalService.dslQuery(
 			DSLQueryFactoryUtil.select(
 				FragmentEntryVersionTable.INSTANCE.version
@@ -166,9 +153,7 @@ public class CleanUpFragmentEntryVersionsSchedulerJobConfiguration
 						CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION)
 				)
 			).orderBy(
-				FragmentEntryVersionTable.INSTANCE.version.ascending()
-			).limit(
-				0, versionsToDeleteCount
+				FragmentEntryVersionTable.INSTANCE.version.descending()
 			));
 	}
 

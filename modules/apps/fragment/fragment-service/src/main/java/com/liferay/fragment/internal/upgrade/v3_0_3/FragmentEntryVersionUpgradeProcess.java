@@ -11,6 +11,12 @@ import com.liferay.portal.configuration.module.configuration.ConfigurationProvid
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Georgel Pop
  */
@@ -44,20 +50,79 @@ public class FragmentEntryVersionUpgradeProcess extends UpgradeProcess {
 			return;
 		}
 
-		String sql = StringBundler.concat(
-			"delete from FragmentEntryVersion where fragmentEntryVersionId in ",
-			"(select fragmentEntryVersionId from (select ",
-			"fragmentEntryVersionId from FragmentEntryVersion ",
-			"FragmentEntryVersion1 where FragmentEntryVersion1.companyId = ",
-			companyId, " and (select count(*) from FragmentEntryVersion ",
-			"FragmentEntryVersion2 where FragmentEntryVersion2.ctCollectionId ",
-			"= FragmentEntryVersion1.ctCollectionId and ",
-			"FragmentEntryVersion2.fragmentEntryId = ",
-			"FragmentEntryVersion1.fragmentEntryId and ",
-			"FragmentEntryVersion2.version >= FragmentEntryVersion1.version) ",
-			"> ", maximumVersionsPerEntry, ") tempFragmentEntryVersion)");
+		List<long[]> fragmentEntryPrimaryKeysList = new ArrayList<>();
 
-		runSQL(sql);
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				StringBundler.concat(
+					"select ctCollectionId, fragmentEntryId from ",
+					"FragmentEntryVersion where companyId = ? group by ",
+					"ctCollectionId, fragmentEntryId having count(*) > ?"))) {
+
+			preparedStatement.setLong(1, companyId);
+			preparedStatement.setInt(2, maximumVersionsPerEntry);
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				while (resultSet.next()) {
+					fragmentEntryPrimaryKeysList.add(
+						new long[] {
+							resultSet.getLong("ctCollectionId"),
+							resultSet.getLong("fragmentEntryId")
+						});
+				}
+			}
+		}
+
+		for (long[] fragmentEntryPrimaryKeys : fragmentEntryPrimaryKeysList) {
+			long ctCollectionId = fragmentEntryPrimaryKeys[0];
+			long fragmentEntryId = fragmentEntryPrimaryKeys[1];
+
+			try (PreparedStatement preparedStatement =
+					connection.prepareStatement(
+						"delete from FragmentEntryVersion where " +
+							"ctCollectionId = ? and fragmentEntryId = ? and " +
+								"version < ?")) {
+
+				preparedStatement.setLong(1, ctCollectionId);
+				preparedStatement.setLong(2, fragmentEntryId);
+				preparedStatement.setInt(
+					3,
+					_getMinimumVersion(
+						ctCollectionId, fragmentEntryId,
+						maximumVersionsPerEntry));
+
+				preparedStatement.executeUpdate();
+			}
+		}
+	}
+
+	private int _getMinimumVersion(
+			long ctCollectionId, long fragmentEntryId,
+			int maximumVersionsPerEntry)
+		throws Exception {
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				StringBundler.concat(
+					"select version from FragmentEntryVersion where ",
+					"ctCollectionId = ? and fragmentEntryId = ? order by ",
+					"version desc"))) {
+
+			preparedStatement.setLong(1, ctCollectionId);
+			preparedStatement.setLong(2, fragmentEntryId);
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				int count = 0;
+
+				while (resultSet.next()) {
+					count++;
+
+					if (count == maximumVersionsPerEntry) {
+						return resultSet.getInt("version");
+					}
+				}
+			}
+		}
+
+		return 0;
 	}
 
 	private final CompanyLocalService _companyLocalService;

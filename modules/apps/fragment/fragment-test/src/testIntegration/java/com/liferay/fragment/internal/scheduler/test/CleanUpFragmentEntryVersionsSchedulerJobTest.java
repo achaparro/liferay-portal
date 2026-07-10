@@ -11,9 +11,12 @@ import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
 import com.liferay.change.tracking.service.CTCollectionServiceUtil;
 import com.liferay.fragment.configuration.FragmentEntryVersionConfiguration;
+import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.service.FragmentEntryLocalService;
+import com.liferay.fragment.test.util.FragmentEntryTestUtil;
 import com.liferay.fragment.test.util.FragmentEntryVersionTestUtil;
+import com.liferay.fragment.test.util.FragmentTestUtil;
 import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
@@ -61,6 +64,9 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 	@Before
 	public void setUp() throws Exception {
 		_group = GroupTestUtil.addGroup();
+
+		_fragmentCollection = FragmentTestUtil.addFragmentCollection(
+			_group.getGroupId());
 	}
 
 	@Test
@@ -77,8 +83,8 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 						).build())) {
 
 			FragmentEntry fragmentEntry1 =
-				FragmentEntryVersionTestUtil.addFragmentEntry(
-					_group.getGroupId());
+				FragmentEntryTestUtil.addFragmentEntry(
+					_fragmentCollection.getFragmentCollectionId());
 
 			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
 				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY + 1,
@@ -86,8 +92,8 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 				fragmentEntry1);
 
 			FragmentEntry fragmentEntry2 =
-				FragmentEntryVersionTestUtil.addFragmentEntry(
-					_group.getGroupId());
+				FragmentEntryTestUtil.addFragmentEntry(
+					_fragmentCollection.getFragmentCollectionId());
 
 			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
 				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY - 1,
@@ -140,8 +146,8 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 						).build())) {
 
 			FragmentEntry fragmentEntry =
-				FragmentEntryVersionTestUtil.addFragmentEntry(
-					_group.getGroupId());
+				FragmentEntryTestUtil.addFragmentEntry(
+					_fragmentCollection.getFragmentCollectionId());
 
 			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
 				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY + 1,
@@ -215,6 +221,8 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 
 	@Inject
 	private CTCollectionLocalService _ctCollectionLocalService;
+
+	private FragmentCollection _fragmentCollection;
 
 	@Inject
 	private FragmentEntryLocalService _fragmentEntryLocalService;

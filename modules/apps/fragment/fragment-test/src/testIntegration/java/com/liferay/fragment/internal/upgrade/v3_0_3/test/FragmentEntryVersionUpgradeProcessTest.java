@@ -7,8 +7,11 @@ package com.liferay.fragment.internal.upgrade.v3_0_3.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.change.tracking.constants.CTConstants;
+import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.fragment.test.util.FragmentEntryTestUtil;
 import com.liferay.fragment.test.util.FragmentEntryVersionTestUtil;
+import com.liferay.fragment.test.util.FragmentTestUtil;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.model.Group;
@@ -81,8 +84,11 @@ public class FragmentEntryVersionUpgradeProcessTest {
 			int ctCollectionVersionsCount, int productionVersionsCount)
 		throws Exception {
 
-		FragmentEntry fragmentEntry =
-			FragmentEntryVersionTestUtil.addFragmentEntry(_group.getGroupId());
+		FragmentCollection fragmentCollection =
+			FragmentTestUtil.addFragmentCollection(_group.getGroupId());
+
+		FragmentEntry fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
+			fragmentCollection.getFragmentCollectionId());
 
 		List<Integer> productionVersions = new ArrayList<>(
 			FragmentEntryVersionTestUtil.getVersions(

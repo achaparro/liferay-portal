@@ -6,21 +6,15 @@
 package com.liferay.fragment.test.util;
 
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
-import com.liferay.fragment.constants.FragmentConstants;
-import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryVersion;
-import com.liferay.fragment.service.FragmentEntryLocalServiceUtil;
 import com.liferay.fragment.service.persistence.FragmentEntryVersionUtil;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
-import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
@@ -41,24 +35,6 @@ import java.util.List;
 public class FragmentEntryVersionTestUtil {
 
 	public static final int MAX_VERSIONS_PER_ENTRY = 10;
-
-	public static FragmentEntry addFragmentEntry(long groupId)
-		throws Exception {
-
-		FragmentCollection fragmentCollection =
-			FragmentTestUtil.addFragmentCollection(groupId);
-
-		return FragmentEntryLocalServiceUtil.addFragmentEntry(
-			RandomTestUtil.randomString(), TestPropsValues.getUserId(), groupId,
-			fragmentCollection.getFragmentCollectionId(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), false, StringPool.BLANK, null, 0,
-			false, false, FragmentConstants.TYPE_COMPONENT, null,
-			WorkflowConstants.STATUS_APPROVED,
-			ServiceContextTestUtil.getServiceContext(
-				groupId, TestPropsValues.getUserId()));
-	}
 
 	public static int getFragmentEntryVersionsCount(
 			long ctCollectionId, FragmentEntry fragmentEntry)

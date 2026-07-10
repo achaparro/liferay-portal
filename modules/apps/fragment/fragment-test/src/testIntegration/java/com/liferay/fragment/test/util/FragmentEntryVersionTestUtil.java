@@ -9,16 +9,10 @@ import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryVersion;
 import com.liferay.fragment.service.persistence.FragmentEntryVersionUtil;
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.transaction.Propagation;
-import com.liferay.portal.kernel.transaction.TransactionConfig;
-import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
-import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.sql.Connection;
@@ -57,20 +51,6 @@ public class FragmentEntryVersionTestUtil {
 				return 0;
 			}
 		}
-	}
-
-	public static List<Integer> getVersions(FragmentEntry fragmentEntry)
-		throws Throwable {
-
-		return TransactionInvokerUtil.invoke(
-			_transactionConfig,
-			() -> TransformUtil.transform(
-				FragmentEntryVersionUtil.findByFragmentEntryId(
-					fragmentEntry.getFragmentEntryId(), QueryUtil.ALL_POS,
-					QueryUtil.ALL_POS,
-					OrderByComparatorFactoryUtil.create(
-						"FragmentEntryVersion", "version", true)),
-				FragmentEntryVersion::getVersion));
 	}
 
 	public static List<Integer> getVersions(
@@ -172,9 +152,5 @@ public class FragmentEntryVersionTestUtil {
 			}
 		}
 	}
-
-	private static final TransactionConfig _transactionConfig =
-		TransactionConfig.Factory.create(
-			Propagation.REQUIRED, new Class<?>[] {Exception.class});
 
 }

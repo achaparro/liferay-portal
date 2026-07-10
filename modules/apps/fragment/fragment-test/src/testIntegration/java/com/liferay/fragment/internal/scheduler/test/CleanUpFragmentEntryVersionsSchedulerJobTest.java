@@ -13,6 +13,7 @@ import com.liferay.change.tracking.service.CTCollectionServiceUtil;
 import com.liferay.fragment.configuration.FragmentEntryVersionConfiguration;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
+import com.liferay.fragment.model.FragmentEntryVersion;
 import com.liferay.fragment.service.FragmentEntryLocalService;
 import com.liferay.fragment.test.util.FragmentEntryTestUtil;
 import com.liferay.fragment.test.util.FragmentEntryVersionTestUtil;
@@ -100,8 +101,8 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 				CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
 				fragmentEntry2);
 
-			List<Integer> versions = FragmentEntryVersionTestUtil.getVersions(
-				fragmentEntry1);
+			List<FragmentEntryVersion> fragmentEntryVersions =
+				_fragmentEntryLocalService.getVersions(fragmentEntry1);
 
 			UnsafeRunnable<Exception> jobExecutorUnsafeRunnable =
 				_schedulerJobConfiguration.getJobExecutorUnsafeRunnable();
@@ -109,11 +110,9 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 			jobExecutorUnsafeRunnable.run();
 
 			Assert.assertEquals(
-				versions.subList(
-					versions.size() -
-						FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY,
-					versions.size()),
-				FragmentEntryVersionTestUtil.getVersions(fragmentEntry1));
+				fragmentEntryVersions.subList(
+					0, FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY),
+				_fragmentEntryLocalService.getVersions(fragmentEntry1));
 			Assert.assertEquals(
 				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY,
 				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(

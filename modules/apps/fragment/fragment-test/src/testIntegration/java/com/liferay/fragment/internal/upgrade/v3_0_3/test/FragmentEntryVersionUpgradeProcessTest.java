@@ -103,8 +103,9 @@ public class FragmentEntryVersionUpgradeProcessTest {
 	}
 
 	private void _testUpgrade(
-			int maximumVersionsPerEntry, int ctCollectionVersionsCount,
-			int productionVersionsCount)
+			int maximumVersionsPerEntry,
+			int ctCollectionFragmenEntryVersionsCount,
+			int fragmentEntryVersionsCount)
 		throws Exception {
 
 		try (CompanyConfigurationTemporarySwapper
@@ -130,16 +131,16 @@ public class FragmentEntryVersionUpgradeProcessTest {
 			long ctCollectionId = RandomTestUtil.randomLong();
 			List<Integer> ctCollectionVersions = new ArrayList<>();
 
-			if (ctCollectionVersionsCount > 0) {
+			if (ctCollectionFragmenEntryVersionsCount > 0) {
 				ctCollectionVersions =
 					FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-						ctCollectionVersionsCount, ctCollectionId,
+						ctCollectionFragmenEntryVersionsCount, ctCollectionId,
 						fragmentEntry);
 			}
 
 			productionVersions.addAll(
 				FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-					productionVersionsCount - 1,
+					fragmentEntryVersionsCount - 1,
 					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
 
 			_runUpgrade();
@@ -152,7 +153,7 @@ public class FragmentEntryVersionUpgradeProcessTest {
 				FragmentEntryVersionTestUtil.getVersions(
 					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
 
-			if (ctCollectionVersionsCount > 0) {
+			if (ctCollectionFragmenEntryVersionsCount > 0) {
 				Assert.assertEquals(
 					ctCollectionVersions.subList(
 						_getFromIndex(

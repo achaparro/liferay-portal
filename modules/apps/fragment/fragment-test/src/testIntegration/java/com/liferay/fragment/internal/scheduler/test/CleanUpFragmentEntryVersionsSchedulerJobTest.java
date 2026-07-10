@@ -133,11 +133,11 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 					StringPool.BLANK, WorkflowConstants.STATUS_APPROVED);
 			}
 
-			int productionCount =
+			int fragmentEntryVersionsCount =
 				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
 					CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
 					fragmentEntry);
-			int publicationCount =
+			int ctCollectionFragmentEntryVersionsCount =
 				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
 					ctCollection.getCtCollectionId(), fragmentEntry);
 
@@ -146,7 +146,8 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 
 			jobExecutorUnsafeRunnable.run();
 
-			Assert.assertTrue(productionCount > _maximumVersionsPerEntry);
+			Assert.assertTrue(
+				fragmentEntryVersionsCount > _maximumVersionsPerEntry);
 
 			Assert.assertEquals(
 				_maximumVersionsPerEntry,
@@ -154,7 +155,7 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 					CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
 					fragmentEntry));
 			Assert.assertEquals(
-				publicationCount,
+				ctCollectionFragmentEntryVersionsCount,
 				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
 					ctCollection.getCtCollectionId(), fragmentEntry));
 
@@ -176,7 +177,7 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 	}
 
 	private void _testCleanUpFragmentEntryVersions(
-			int maximumVersionsPerEntry, int productionVersionsCount)
+			int maximumVersionsPerEntry, int fragmentEntryVersionsCount)
 		throws Exception {
 
 		try (CompanyConfigurationTemporarySwapper
@@ -193,7 +194,7 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 					_fragmentCollection.getFragmentCollectionId());
 
 			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-				productionVersionsCount - 1,
+				fragmentEntryVersionsCount - 1,
 				CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
 				fragmentEntry);
 

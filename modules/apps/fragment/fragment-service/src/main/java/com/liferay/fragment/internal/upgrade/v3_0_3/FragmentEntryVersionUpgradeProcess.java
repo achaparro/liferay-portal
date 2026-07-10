@@ -101,10 +101,9 @@ public class FragmentEntryVersionUpgradeProcess extends UpgradeProcess {
 		throws Exception {
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				StringBundler.concat(
-					"select version from FragmentEntryVersion where ",
-					"ctCollectionId = ? and fragmentEntryId = ? order by ",
-					"version desc"))) {
+				"select version from FragmentEntryVersion where " +
+					"ctCollectionId = ? and fragmentEntryId = ? order by " +
+						"version desc")) {
 
 			preparedStatement.setLong(1, ctCollectionId);
 			preparedStatement.setLong(2, fragmentEntryId);

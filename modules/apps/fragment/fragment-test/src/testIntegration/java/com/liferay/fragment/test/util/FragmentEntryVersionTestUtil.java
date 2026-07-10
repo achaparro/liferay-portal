@@ -28,56 +28,7 @@ import java.util.List;
  */
 public class FragmentEntryVersionTestUtil {
 
-	public static int getFragmentEntryVersionsCount(
-			long ctCollectionId, FragmentEntry fragmentEntry)
-		throws Exception {
-
-		try (Connection connection = DataAccess.getConnection();
-
-			PreparedStatement preparedStatement = connection.prepareStatement(
-				"select count(*) as count from FragmentEntryVersion where " +
-					"ctCollectionId = ? and fragmentEntryId = ?")) {
-
-			preparedStatement.setLong(1, ctCollectionId);
-			preparedStatement.setLong(2, fragmentEntry.getFragmentEntryId());
-
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				if (resultSet.next()) {
-					return (int)resultSet.getLong("count");
-				}
-
-				return 0;
-			}
-		}
-	}
-
-	public static List<Integer> getVersions(
-			long ctCollectionId, FragmentEntry fragmentEntry)
-		throws Exception {
-
-		List<Integer> versions = new ArrayList<>();
-
-		try (Connection connection = DataAccess.getConnection();
-
-			PreparedStatement preparedStatement = connection.prepareStatement(
-				"select version from FragmentEntryVersion where " +
-					"ctCollectionId = ? and fragmentEntryId = ? order by " +
-						"version")) {
-
-			preparedStatement.setLong(1, ctCollectionId);
-			preparedStatement.setLong(2, fragmentEntry.getFragmentEntryId());
-
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				while (resultSet.next()) {
-					versions.add(resultSet.getInt("version"));
-				}
-			}
-		}
-
-		return versions;
-	}
-
-	public static List<Integer> insertFragmentEntryVersions(
+	public static List<Integer> addFragmentEntryVersions(
 			int count, long ctCollectionId, FragmentEntry fragmentEntry)
 		throws Exception {
 
@@ -86,10 +37,8 @@ public class FragmentEntryVersionTestUtil {
 		try (Connection connection = DataAccess.getConnection();
 
 			PreparedStatement preparedStatement1 = connection.prepareStatement(
-				StringBundler.concat(
-					"select max(version) as maxVersion from ",
-					"FragmentEntryVersion where ctCollectionId = ? and ",
-					"fragmentEntryId = ?"));
+				"select max(version) as maxVersion from FragmentEntryVersion " +
+					"where ctCollectionId = ? and fragmentEntryId = ?");
 			PreparedStatement preparedStatement2 =
 				AutoBatchPreparedStatementUtil.autoBatch(
 					connection,
@@ -142,6 +91,55 @@ public class FragmentEntryVersionTestUtil {
 		}
 
 		FragmentEntryVersionUtil.clearCache();
+
+		return versions;
+	}
+
+	public static int getFragmentEntryVersionsCount(
+			long ctCollectionId, FragmentEntry fragmentEntry)
+		throws Exception {
+
+		try (Connection connection = DataAccess.getConnection();
+
+			PreparedStatement preparedStatement = connection.prepareStatement(
+				"select count(*) as count from FragmentEntryVersion where " +
+					"ctCollectionId = ? and fragmentEntryId = ?")) {
+
+			preparedStatement.setLong(1, ctCollectionId);
+			preparedStatement.setLong(2, fragmentEntry.getFragmentEntryId());
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				if (resultSet.next()) {
+					return (int)resultSet.getLong("count");
+				}
+
+				return 0;
+			}
+		}
+	}
+
+	public static List<Integer> getVersions(
+			long ctCollectionId, FragmentEntry fragmentEntry)
+		throws Exception {
+
+		List<Integer> versions = new ArrayList<>();
+
+		try (Connection connection = DataAccess.getConnection();
+
+			PreparedStatement preparedStatement = connection.prepareStatement(
+				"select version from FragmentEntryVersion where " +
+					"ctCollectionId = ? and fragmentEntryId = ? order by " +
+						"version")) {
+
+			preparedStatement.setLong(1, ctCollectionId);
+			preparedStatement.setLong(2, fragmentEntry.getFragmentEntryId());
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				while (resultSet.next()) {
+					versions.add(resultSet.getInt("version"));
+				}
+			}
+		}
 
 		return versions;
 	}

@@ -104,7 +104,7 @@ public class FragmentEntryVersionUpgradeProcessTest {
 
 	private void _testUpgrade(
 			int maximumVersionsPerEntry,
-			int ctCollectionFragmenEntryVersionsCount,
+			int ctCollectionFragmentEntryVersionsCount,
 			int fragmentEntryVersionsCount)
 		throws Exception {
 
@@ -124,36 +124,35 @@ public class FragmentEntryVersionUpgradeProcessTest {
 				FragmentEntryTestUtil.addFragmentEntry(
 					fragmentCollection.getFragmentCollectionId());
 
-			List<Integer> productionVersions = new ArrayList<>(
+			List<Integer> versions = new ArrayList<>(
 				FragmentEntryVersionTestUtil.getVersions(
 					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
 
 			long ctCollectionId = RandomTestUtil.randomLong();
 			List<Integer> ctCollectionVersions = new ArrayList<>();
 
-			if (ctCollectionFragmenEntryVersionsCount > 0) {
+			if (ctCollectionFragmentEntryVersionsCount > 0) {
 				ctCollectionVersions =
-					FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-						ctCollectionFragmenEntryVersionsCount, ctCollectionId,
+					FragmentEntryVersionTestUtil.addFragmentEntryVersions(
+						ctCollectionFragmentEntryVersionsCount, ctCollectionId,
 						fragmentEntry);
 			}
 
-			productionVersions.addAll(
-				FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
+			versions.addAll(
+				FragmentEntryVersionTestUtil.addFragmentEntryVersions(
 					fragmentEntryVersionsCount - 1,
 					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
 
 			_runUpgrade();
 
 			Assert.assertEquals(
-				productionVersions.subList(
-					_getFromIndex(
-						maximumVersionsPerEntry, productionVersions.size()),
-					productionVersions.size()),
+				versions.subList(
+					_getFromIndex(maximumVersionsPerEntry, versions.size()),
+					versions.size()),
 				FragmentEntryVersionTestUtil.getVersions(
 					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
 
-			if (ctCollectionFragmenEntryVersionsCount > 0) {
+			if (ctCollectionFragmentEntryVersionsCount > 0) {
 				Assert.assertEquals(
 					ctCollectionVersions.subList(
 						_getFromIndex(

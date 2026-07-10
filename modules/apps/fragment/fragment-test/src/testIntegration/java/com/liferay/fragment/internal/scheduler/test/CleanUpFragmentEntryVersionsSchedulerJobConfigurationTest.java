@@ -7,6 +7,7 @@ package com.liferay.fragment.internal.scheduler.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.change.tracking.configuration.CTSettingsConfiguration;
+import com.liferay.change.tracking.constants.CTConstants;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.service.CTCollectionLocalService;
 import com.liferay.change.tracking.service.CTCollectionServiceUtil;
@@ -54,7 +55,7 @@ import org.junit.runner.RunWith;
  * @author Georgel Pop
  */
 @RunWith(Arquillian.class)
-public class CleanUpFragmentEntryVersionsSchedulerJobTest {
+public class CleanUpFragmentEntryVersionsSchedulerJobConfigurationTest {
 
 	@ClassRule
 	@Rule
@@ -107,10 +108,9 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 				FragmentEntryTestUtil.addFragmentEntry(
 					_fragmentCollection.getFragmentCollectionId());
 
-			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
+			FragmentEntryVersionTestUtil.addFragmentEntryVersions(
 				_maximumVersionsPerEntry + 1,
-				CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
-				fragmentEntry);
+				CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry);
 
 			CTCollection ctCollection =
 				_ctCollectionLocalService.addCTCollection(
@@ -133,13 +133,12 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 					StringPool.BLANK, WorkflowConstants.STATUS_APPROVED);
 			}
 
-			int fragmentEntryVersionsCount =
-				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
-					CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
-					fragmentEntry);
 			int ctCollectionFragmentEntryVersionsCount =
 				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
 					ctCollection.getCtCollectionId(), fragmentEntry);
+			int fragmentEntryVersionsCount =
+				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
+					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry);
 
 			UnsafeRunnable<Exception> jobExecutorUnsafeRunnable =
 				_schedulerJobConfiguration.getJobExecutorUnsafeRunnable();
@@ -152,8 +151,7 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 			Assert.assertEquals(
 				_maximumVersionsPerEntry,
 				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
-					CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
-					fragmentEntry));
+					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
 			Assert.assertEquals(
 				ctCollectionFragmentEntryVersionsCount,
 				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
@@ -193,10 +191,9 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 				FragmentEntryTestUtil.addFragmentEntry(
 					_fragmentCollection.getFragmentCollectionId());
 
-			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
+			FragmentEntryVersionTestUtil.addFragmentEntryVersions(
 				fragmentEntryVersionsCount - 1,
-				CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
-				fragmentEntry);
+				CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry);
 
 			List<FragmentEntryVersion> fragmentEntryVersions =
 				_fragmentEntryLocalService.getVersions(fragmentEntry);
@@ -206,15 +203,16 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 
 			jobExecutorUnsafeRunnable.run();
 
-			int retainedCount = fragmentEntryVersions.size();
+			int expectedFragmentEntryVersionsCount = 0;
 
 			if (maximumVersionsPerEntry > 0) {
-				retainedCount = Math.min(
-					maximumVersionsPerEntry, retainedCount);
+				expectedFragmentEntryVersionsCount = Math.min(
+					maximumVersionsPerEntry, fragmentEntryVersions.size());
 			}
 
 			Assert.assertEquals(
-				fragmentEntryVersions.subList(0, retainedCount),
+				fragmentEntryVersions.subList(
+					0, expectedFragmentEntryVersionsCount),
 				_fragmentEntryLocalService.getVersions(fragmentEntry));
 		}
 	}

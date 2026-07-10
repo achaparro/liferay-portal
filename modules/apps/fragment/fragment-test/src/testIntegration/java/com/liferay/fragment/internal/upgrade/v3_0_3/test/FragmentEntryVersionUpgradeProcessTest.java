@@ -91,9 +91,6 @@ public class FragmentEntryVersionUpgradeProcessTest {
 	}
 
 	private void _runUpgrade() throws Exception {
-		_entityCache.clearCache();
-		_multiVMPool.clear();
-
 		for (UpgradeProcess upgradeProcess :
 				UpgradeTestUtil.getUpgradeSteps(
 					_upgradeStepRegistrator, new Version(3, 0, 3))) {

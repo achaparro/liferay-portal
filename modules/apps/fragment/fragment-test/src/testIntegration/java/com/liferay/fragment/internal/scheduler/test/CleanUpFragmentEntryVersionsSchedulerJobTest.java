@@ -21,6 +21,7 @@ import com.liferay.fragment.test.util.FragmentTestUtil;
 import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.model.Group;
@@ -68,57 +69,24 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 
 		_fragmentCollection = FragmentTestUtil.addFragmentCollection(
 			_group.getGroupId());
+
+		FragmentEntryVersionConfiguration fragmentEntryVersionConfiguration =
+			_configurationProvider.getCompanyConfiguration(
+				FragmentEntryVersionConfiguration.class,
+				TestPropsValues.getCompanyId());
+
+		_maximumVersionsPerEntry =
+			fragmentEntryVersionConfiguration.maximumVersionsPerEntry();
 	}
 
 	@Test
 	@TestInfo("LPD-75909")
-	public void testCleanUpFragmentEntryVersions() throws Throwable {
-		try (CompanyConfigurationTemporarySwapper
-				companyConfigurationTemporarySwapper =
-					new CompanyConfigurationTemporarySwapper(
-						TestPropsValues.getCompanyId(),
-						FragmentEntryVersionConfiguration.class.getName(),
-						HashMapDictionaryBuilder.<String, Object>put(
-							"maximumVersionsPerEntry",
-							FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY
-						).build())) {
-
-			FragmentEntry fragmentEntry1 =
-				FragmentEntryTestUtil.addFragmentEntry(
-					_fragmentCollection.getFragmentCollectionId());
-
-			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY + 1,
-				CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
-				fragmentEntry1);
-
-			FragmentEntry fragmentEntry2 =
-				FragmentEntryTestUtil.addFragmentEntry(
-					_fragmentCollection.getFragmentCollectionId());
-
-			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY - 1,
-				CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
-				fragmentEntry2);
-
-			List<FragmentEntryVersion> fragmentEntryVersions =
-				_fragmentEntryLocalService.getVersions(fragmentEntry1);
-
-			UnsafeRunnable<Exception> jobExecutorUnsafeRunnable =
-				_schedulerJobConfiguration.getJobExecutorUnsafeRunnable();
-
-			jobExecutorUnsafeRunnable.run();
-
-			Assert.assertEquals(
-				fragmentEntryVersions.subList(
-					0, FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY),
-				_fragmentEntryLocalService.getVersions(fragmentEntry1));
-			Assert.assertEquals(
-				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY,
-				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
-					CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
-					fragmentEntry2));
-		}
+	public void testCleanUpFragmentEntryVersions() throws Exception {
+		_testCleanUpFragmentEntryVersions(0, _maximumVersionsPerEntry + 1);
+		_testCleanUpFragmentEntryVersions(
+			_maximumVersionsPerEntry, _maximumVersionsPerEntry);
+		_testCleanUpFragmentEntryVersions(
+			_maximumVersionsPerEntry, _maximumVersionsPerEntry + 1);
 	}
 
 	@Test
@@ -133,15 +101,6 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 						CTSettingsConfiguration.class.getName(),
 						HashMapDictionaryBuilder.<String, Object>put(
 							"enabled", true
-						).build());
-			CompanyConfigurationTemporarySwapper
-				fragmentEntryVersionConfigurationTemporarySwapper =
-					new CompanyConfigurationTemporarySwapper(
-						TestPropsValues.getCompanyId(),
-						FragmentEntryVersionConfiguration.class.getName(),
-						HashMapDictionaryBuilder.<String, Object>put(
-							"maximumVersionsPerEntry",
-							FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY
 						).build())) {
 
 			FragmentEntry fragmentEntry =
@@ -149,7 +108,7 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 					_fragmentCollection.getFragmentCollectionId());
 
 			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY + 1,
+				_maximumVersionsPerEntry + 1,
 				CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
 				fragmentEntry);
 
@@ -187,12 +146,10 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 
 			jobExecutorUnsafeRunnable.run();
 
-			Assert.assertTrue(
-				productionCount >
-					FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY);
+			Assert.assertTrue(productionCount > _maximumVersionsPerEntry);
 
 			Assert.assertEquals(
-				FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY,
+				_maximumVersionsPerEntry,
 				FragmentEntryVersionTestUtil.getFragmentEntryVersionsCount(
 					CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
 					fragmentEntry));
@@ -218,6 +175,52 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 		}
 	}
 
+	private void _testCleanUpFragmentEntryVersions(
+			int maximumVersionsPerEntry, int productionVersionsCount)
+		throws Exception {
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						FragmentEntryVersionConfiguration.class.getName(),
+						HashMapDictionaryBuilder.<String, Object>put(
+							"maximumVersionsPerEntry", maximumVersionsPerEntry
+						).build())) {
+
+			FragmentEntry fragmentEntry =
+				FragmentEntryTestUtil.addFragmentEntry(
+					_fragmentCollection.getFragmentCollectionId());
+
+			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
+				productionVersionsCount - 1,
+				CTCollectionThreadLocal.CT_COLLECTION_ID_PRODUCTION,
+				fragmentEntry);
+
+			List<FragmentEntryVersion> fragmentEntryVersions =
+				_fragmentEntryLocalService.getVersions(fragmentEntry);
+
+			UnsafeRunnable<Exception> jobExecutorUnsafeRunnable =
+				_schedulerJobConfiguration.getJobExecutorUnsafeRunnable();
+
+			jobExecutorUnsafeRunnable.run();
+
+			int retainedCount = fragmentEntryVersions.size();
+
+			if (maximumVersionsPerEntry > 0) {
+				retainedCount = Math.min(
+					maximumVersionsPerEntry, retainedCount);
+			}
+
+			Assert.assertEquals(
+				fragmentEntryVersions.subList(0, retainedCount),
+				_fragmentEntryLocalService.getVersions(fragmentEntry));
+		}
+	}
+
+	@Inject
+	private ConfigurationProvider _configurationProvider;
+
 	@Inject
 	private CTCollectionLocalService _ctCollectionLocalService;
 
@@ -228,6 +231,8 @@ public class CleanUpFragmentEntryVersionsSchedulerJobTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
+
+	private int _maximumVersionsPerEntry;
 
 	@Inject(
 		filter = "component.name=com.liferay.fragment.internal.scheduler.CleanUpFragmentEntryVersionsSchedulerJobConfiguration"

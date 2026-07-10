@@ -85,7 +85,12 @@ public class FragmentEntryVersionTestUtil {
 
 		try (Connection connection = DataAccess.getConnection();
 
-			PreparedStatement preparedStatement =
+			PreparedStatement preparedStatement1 = connection.prepareStatement(
+				StringBundler.concat(
+					"select max(version) as maxVersion from ",
+					"FragmentEntryVersion where ctCollectionId = ? and ",
+					"fragmentEntryId = ?"));
+			PreparedStatement preparedStatement2 =
 				AutoBatchPreparedStatementUtil.autoBatch(
 					connection,
 					StringBundler.concat(
@@ -95,58 +100,50 @@ public class FragmentEntryVersionTestUtil {
 						"createDate, modifiedDate, name, status) values (0, ",
 						"?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"))) {
 
-			int startVersion = _getStartVersion(connection, fragmentEntry);
+			preparedStatement1.setLong(1, ctCollectionId);
+			preparedStatement1.setLong(2, fragmentEntry.getFragmentEntryId());
+
+			int maxVersion = 0;
+
+			try (ResultSet resultSet = preparedStatement1.executeQuery()) {
+				if (resultSet.next()) {
+					maxVersion = resultSet.getInt("maxVersion");
+				}
+			}
 
 			for (int i = 0; i < count; i++) {
 				Timestamp now = new Timestamp(System.currentTimeMillis());
 
-				int version = startVersion + i;
+				int version = maxVersion + i + 1;
 
 				versions.add(version);
 
-				preparedStatement.setLong(1, ctCollectionId);
-				preparedStatement.setLong(
+				preparedStatement2.setLong(1, ctCollectionId);
+				preparedStatement2.setLong(
 					2,
 					CounterLocalServiceUtil.increment(
 						FragmentEntryVersion.class.getName()));
-				preparedStatement.setInt(3, version);
-				preparedStatement.setLong(
+				preparedStatement2.setInt(3, version);
+				preparedStatement2.setLong(
 					4, fragmentEntry.getFragmentEntryId());
-				preparedStatement.setLong(5, fragmentEntry.getGroupId());
-				preparedStatement.setLong(6, fragmentEntry.getCompanyId());
-				preparedStatement.setLong(7, fragmentEntry.getUserId());
-				preparedStatement.setTimestamp(8, now);
-				preparedStatement.setTimestamp(9, now);
-				preparedStatement.setString(10, RandomTestUtil.randomString());
-				preparedStatement.setInt(11, WorkflowConstants.STATUS_APPROVED);
+				preparedStatement2.setLong(5, fragmentEntry.getGroupId());
+				preparedStatement2.setLong(6, fragmentEntry.getCompanyId());
+				preparedStatement2.setLong(7, fragmentEntry.getUserId());
+				preparedStatement2.setTimestamp(8, now);
+				preparedStatement2.setTimestamp(9, now);
+				preparedStatement2.setString(10, RandomTestUtil.randomString());
+				preparedStatement2.setInt(
+					11, WorkflowConstants.STATUS_APPROVED);
 
-				preparedStatement.addBatch();
+				preparedStatement2.addBatch();
 			}
 
-			preparedStatement.executeBatch();
+			preparedStatement2.executeBatch();
 		}
 
 		FragmentEntryVersionUtil.clearCache();
 
 		return versions;
-	}
-
-	private static int _getStartVersion(
-			Connection connection, FragmentEntry fragmentEntry)
-		throws Exception {
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				"select max(version) as maxVersion from FragmentEntryVersion " +
-					"where fragmentEntryId = ?")) {
-
-			preparedStatement.setLong(1, fragmentEntry.getFragmentEntryId());
-
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				resultSet.next();
-
-				return resultSet.getInt("maxVersion") + 1;
-			}
-		}
 	}
 
 }

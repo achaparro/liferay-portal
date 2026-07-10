@@ -111,12 +111,12 @@ public class FragmentEntryVersionTestUtil {
 				}
 			}
 
-			for (int i = 0; i < count; i++) {
-				Timestamp now = new Timestamp(System.currentTimeMillis());
-
-				int version = maxVersion + i + 1;
+			for (int i = 1; i <= count; i++) {
+				int version = maxVersion + i;
 
 				versions.add(version);
+
+				Timestamp now = new Timestamp(System.currentTimeMillis());
 
 				preparedStatement2.setLong(1, ctCollectionId);
 				preparedStatement2.setLong(

@@ -28,8 +28,6 @@ import java.util.List;
  */
 public class FragmentEntryVersionTestUtil {
 
-	public static final int MAX_VERSIONS_PER_ENTRY = 10;
-
 	public static int getFragmentEntryVersionsCount(
 			long ctCollectionId, FragmentEntry fragmentEntry)
 		throws Exception {

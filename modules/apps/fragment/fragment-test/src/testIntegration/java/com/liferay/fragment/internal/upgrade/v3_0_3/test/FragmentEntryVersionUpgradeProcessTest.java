@@ -7,11 +7,14 @@ package com.liferay.fragment.internal.upgrade.v3_0_3.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.change.tracking.constants.CTConstants;
+import com.liferay.fragment.configuration.FragmentEntryVersionConfiguration;
 import com.liferay.fragment.model.FragmentCollection;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.test.util.FragmentEntryTestUtil;
 import com.liferay.fragment.test.util.FragmentEntryVersionTestUtil;
 import com.liferay.fragment.test.util.FragmentTestUtil;
+import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
+import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.model.Group;
@@ -20,7 +23,9 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.version.Version;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -59,10 +64,30 @@ public class FragmentEntryVersionUpgradeProcessTest {
 	@Test
 	@TestInfo("LPD-75909")
 	public void testUpgrade() throws Exception {
-		for (int count : new int[] {1, 10, 11, 20}) {
-			_testUpgrade(0, count);
-			_testUpgrade(count, 1);
+		FragmentEntryVersionConfiguration fragmentEntryVersionConfiguration =
+			_configurationProvider.getCompanyConfiguration(
+				FragmentEntryVersionConfiguration.class,
+				TestPropsValues.getCompanyId());
+
+		int maximumVersionsPerEntry =
+			fragmentEntryVersionConfiguration.maximumVersionsPerEntry();
+
+		_testUpgrade(
+			0, maximumVersionsPerEntry + 1, maximumVersionsPerEntry + 1);
+		_testUpgrade(
+			maximumVersionsPerEntry, maximumVersionsPerEntry,
+			maximumVersionsPerEntry + 1);
+		_testUpgrade(
+			maximumVersionsPerEntry, maximumVersionsPerEntry + 1,
+			maximumVersionsPerEntry);
+	}
+
+	private int _getStartIndex(int maximumVersionsPerEntry, int size) {
+		if (maximumVersionsPerEntry <= 0) {
+			return 0;
 		}
+
+		return Math.max(0, size - maximumVersionsPerEntry);
 	}
 
 	private void _runUpgrade() throws Exception {
@@ -81,58 +106,70 @@ public class FragmentEntryVersionUpgradeProcessTest {
 	}
 
 	private void _testUpgrade(
-			int ctCollectionVersionsCount, int productionVersionsCount)
+			int maximumVersionsPerEntry, int ctCollectionVersionsCount,
+			int productionVersionsCount)
 		throws Exception {
 
-		FragmentCollection fragmentCollection =
-			FragmentTestUtil.addFragmentCollection(_group.getGroupId());
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						FragmentEntryVersionConfiguration.class.getName(),
+						HashMapDictionaryBuilder.<String, Object>put(
+							"maximumVersionsPerEntry", maximumVersionsPerEntry
+						).build())) {
 
-		FragmentEntry fragmentEntry = FragmentEntryTestUtil.addFragmentEntry(
-			fragmentCollection.getFragmentCollectionId());
+			FragmentCollection fragmentCollection =
+				FragmentTestUtil.addFragmentCollection(_group.getGroupId());
 
-		List<Integer> productionVersions = new ArrayList<>(
-			FragmentEntryVersionTestUtil.getVersions(
-				CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
+			FragmentEntry fragmentEntry =
+				FragmentEntryTestUtil.addFragmentEntry(
+					fragmentCollection.getFragmentCollectionId());
 
-		long ctCollectionId = RandomTestUtil.randomLong();
-		List<Integer> ctCollectionVersions = new ArrayList<>();
-
-		if (ctCollectionVersionsCount > 0) {
-			ctCollectionVersions =
-				FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-					ctCollectionVersionsCount, ctCollectionId, fragmentEntry);
-		}
-
-		productionVersions.addAll(
-			FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
-				productionVersionsCount - 1,
-				CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
-
-		_runUpgrade();
-
-		Assert.assertEquals(
-			productionVersions.subList(
-				Math.max(
-					0,
-					productionVersions.size() -
-						FragmentEntryVersionTestUtil.MAX_VERSIONS_PER_ENTRY),
-				productionVersions.size()),
-			FragmentEntryVersionTestUtil.getVersions(
-				CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
-
-		if (ctCollectionVersionsCount > 0) {
-			Assert.assertEquals(
-				ctCollectionVersions.subList(
-					Math.max(
-						0,
-						ctCollectionVersions.size() -
-							FragmentEntryVersionTestUtil.
-								MAX_VERSIONS_PER_ENTRY),
-					ctCollectionVersions.size()),
+			List<Integer> productionVersions = new ArrayList<>(
 				FragmentEntryVersionTestUtil.getVersions(
-					ctCollectionId, fragmentEntry));
+					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
+
+			long ctCollectionId = RandomTestUtil.randomLong();
+			List<Integer> ctCollectionVersions = new ArrayList<>();
+
+			if (ctCollectionVersionsCount > 0) {
+				ctCollectionVersions =
+					FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
+						ctCollectionVersionsCount, ctCollectionId,
+						fragmentEntry);
+			}
+
+			productionVersions.addAll(
+				FragmentEntryVersionTestUtil.insertFragmentEntryVersions(
+					productionVersionsCount - 1,
+					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
+
+			_runUpgrade();
+
+			Assert.assertEquals(
+				productionVersions.subList(
+					_getStartIndex(
+						maximumVersionsPerEntry, productionVersions.size()),
+					productionVersions.size()),
+				FragmentEntryVersionTestUtil.getVersions(
+					CTConstants.CT_COLLECTION_ID_PRODUCTION, fragmentEntry));
+
+			if (ctCollectionVersionsCount > 0) {
+				Assert.assertEquals(
+					ctCollectionVersions.subList(
+						_getStartIndex(
+							maximumVersionsPerEntry,
+							ctCollectionVersions.size()),
+						ctCollectionVersions.size()),
+					FragmentEntryVersionTestUtil.getVersions(
+						ctCollectionId, fragmentEntry));
+			}
 		}
 	}
+
+	@Inject
+	private ConfigurationProvider _configurationProvider;
 
 	@Inject
 	private EntityCache _entityCache;

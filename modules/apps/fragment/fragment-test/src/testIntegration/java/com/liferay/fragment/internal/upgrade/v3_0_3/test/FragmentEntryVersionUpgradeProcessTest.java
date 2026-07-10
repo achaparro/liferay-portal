@@ -82,7 +82,7 @@ public class FragmentEntryVersionUpgradeProcessTest {
 			maximumVersionsPerEntry);
 	}
 
-	private int _getStartIndex(int maximumVersionsPerEntry, int size) {
+	private int _getFromIndex(int maximumVersionsPerEntry, int size) {
 		if (maximumVersionsPerEntry <= 0) {
 			return 0;
 		}
@@ -146,7 +146,7 @@ public class FragmentEntryVersionUpgradeProcessTest {
 
 			Assert.assertEquals(
 				productionVersions.subList(
-					_getStartIndex(
+					_getFromIndex(
 						maximumVersionsPerEntry, productionVersions.size()),
 					productionVersions.size()),
 				FragmentEntryVersionTestUtil.getVersions(
@@ -155,7 +155,7 @@ public class FragmentEntryVersionUpgradeProcessTest {
 			if (ctCollectionVersionsCount > 0) {
 				Assert.assertEquals(
 					ctCollectionVersions.subList(
-						_getStartIndex(
+						_getFromIndex(
 							maximumVersionsPerEntry,
 							ctCollectionVersions.size()),
 						ctCollectionVersions.size()),

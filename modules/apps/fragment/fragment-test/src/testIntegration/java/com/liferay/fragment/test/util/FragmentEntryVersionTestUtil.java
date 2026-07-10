@@ -83,10 +83,6 @@ public class FragmentEntryVersionTestUtil {
 
 		List<Integer> versions = new ArrayList<>(count);
 
-		long now = System.currentTimeMillis();
-
-		Timestamp timestamp = new Timestamp(now);
-
 		try (Connection connection = DataAccess.getConnection();
 
 			PreparedStatement preparedStatement =
@@ -102,6 +98,8 @@ public class FragmentEntryVersionTestUtil {
 			int startVersion = _getStartVersion(connection, fragmentEntry);
 
 			for (int i = 0; i < count; i++) {
+				Timestamp now = new Timestamp(System.currentTimeMillis());
+
 				int version = startVersion + i;
 
 				versions.add(version);
@@ -117,8 +115,8 @@ public class FragmentEntryVersionTestUtil {
 				preparedStatement.setLong(5, fragmentEntry.getGroupId());
 				preparedStatement.setLong(6, fragmentEntry.getCompanyId());
 				preparedStatement.setLong(7, fragmentEntry.getUserId());
-				preparedStatement.setTimestamp(8, timestamp);
-				preparedStatement.setTimestamp(9, new Timestamp(now + i));
+				preparedStatement.setTimestamp(8, now);
+				preparedStatement.setTimestamp(9, now);
 				preparedStatement.setString(10, RandomTestUtil.randomString());
 				preparedStatement.setInt(11, WorkflowConstants.STATUS_APPROVED);
 

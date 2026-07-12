@@ -7707,6 +7707,12 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/PageElement"
                                 type: array
+                400:
+                    description:
+                        "The request is invalid. For example, the page experience does not belong to the page specification."
+                404:
+                    description:
+                        "The requested page specification or page experience could not be found."
             # @review
             tags: ["PageElement"]
         post:
@@ -7759,6 +7765,15 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/PageElement"
+                400:
+                    description:
+                        "The request is invalid. For example, the page experience does not belong to the page specification, or the page element definition is invalid."
+                404:
+                    description:
+                        "The requested page specification or page experience could not be found."
+                409:
+                    description:
+                        "A page element with the same external reference code already exists."
             # @review
             tags: ["PageElement"]
     "/sites/{siteExternalReferenceCode}/page-specifications/{pageSpecificationExternalReferenceCode}/page-experiences/{pageExperienceExternalReferenceCode}/page-elements/{pageElementExternalReferenceCode}":
@@ -7793,6 +7808,12 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
+                400:
+                    description:
+                        "The request is invalid. For example, the page experience does not belong to the page specification."
+                404:
+                    description:
+                        "The requested page specification, page experience, or page element could not be found."
             tags: ["PageElement"]
         get:
             # @review
@@ -7841,6 +7862,12 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/PageElement"
+                400:
+                    description:
+                        "The request is invalid. For example, the page experience does not belong to the page specification."
+                404:
+                    description:
+                        "The requested page specification, page experience, or page element could not be found."
             tags: ["PageElement"]
         patch:
             # @review
@@ -7897,6 +7924,12 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/PageElement"
+                400:
+                    description:
+                        "The request is invalid. For example, the page experience does not belong to the page specification, or the page element definition is invalid."
+                404:
+                    description:
+                        "The requested page specification, page experience, or page element could not be found."
             tags: ["PageElement"]
         put:
             # @review
@@ -7953,6 +7986,12 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/PageElement"
+                400:
+                    description:
+                        "The request is invalid. For example, the page experience does not belong to the page specification, or the page element definition is invalid."
+                404:
+                    description:
+                        "The requested page specification or page experience could not be found."
             tags: ["PageElement"]
     "/sites/{siteExternalReferenceCode}/page-specifications/{pageSpecificationExternalReferenceCode}/page-experiences/{pageExperienceExternalReferenceCode}/page-elements/{pageElementExternalReferenceCode}/page-elements":
         get:
@@ -8010,6 +8049,12 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/PageElement"
                                 type: array
+                400:
+                    description:
+                        "The request is invalid. For example, the page experience does not belong to the page specification."
+                404:
+                    description:
+                        "The requested page specification, page experience, or page element could not be found."
             # @review
             tags: ["PageElement"]
     "/sites/{siteExternalReferenceCode}/page-specifications/{pageSpecificationExternalReferenceCode}/publish":

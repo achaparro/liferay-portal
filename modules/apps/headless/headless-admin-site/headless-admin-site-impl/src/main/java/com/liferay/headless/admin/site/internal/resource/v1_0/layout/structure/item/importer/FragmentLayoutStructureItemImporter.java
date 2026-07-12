@@ -391,7 +391,9 @@ public class FragmentLayoutStructureItemImporter
 			(fragmentEntryLink.getSegmentsExperienceId() !=
 				layoutStructureItemImporterContext.getSegmentsExperienceId())) {
 
-			throw new UnsupportedOperationException();
+			throw new IllegalArgumentException(
+				"The fragment entry link does not belong to this page " +
+					"experience");
 		}
 
 		FragmentEntryReference fragmentEntryReference =

@@ -16,6 +16,7 @@ import React, {useEffect, useState} from 'react';
 import {Config, initializeConfig} from '../config';
 import PageVersionService from '../services/PageVersionService';
 import {PageVersion} from '../types/PageVersion';
+import PagePreview from './PagePreview';
 import ResponsivePanel from './ResponsivePanel';
 import Toolbar from './Toolbar';
 import VersionList from './VersionList';
@@ -38,6 +39,13 @@ export default function VersionHistory({config}: Props) {
 	const [selectedKey, setSelectedKey] = useState<string>();
 
 	const [versions, setVersions] = useState<PageVersion[] | null>(null);
+
+	const [selectedExperienceERC, setSelectedExperienceERC] = useState<string>(
+		config.availableSegmentsExperiences[0]?.segmentsExperienceERC ?? ''
+	);
+	const [selectedLocaleId, setSelectedLocaleId] = useState<string>(
+		config.defaultLanguageId
+	);
 
 	const isScreenLarge = useMediaQuery(LARGE_MEDIA_QUERY);
 
@@ -149,6 +157,46 @@ export default function VersionHistory({config}: Props) {
 		window.location.reload();
 	};
 
+	const handleSelect = (key: string) => {
+		setSelectedKey(key);
+
+		const version = versions?.find(
+			({externalReferenceCode}) => externalReferenceCode === key
+		);
+
+		const previews = version?.pageSpecificationVersionPreviews ?? [];
+
+		const preview =
+			previews.find(
+				({pageExperienceExternalReferenceCode}) =>
+					pageExperienceExternalReferenceCode ===
+					selectedExperienceERC
+			) ??
+			previews.find(({pageExperienceExternalReferenceCode}) =>
+				config.availableSegmentsExperiences.some(
+					({segmentsExperienceERC}) =>
+						segmentsExperienceERC ===
+						pageExperienceExternalReferenceCode
+				)
+			) ??
+			previews[0];
+
+		if (!preview) {
+			return;
+		}
+
+		setSelectedExperienceERC(preview.pageExperienceExternalReferenceCode);
+
+		if (!preview.availableLanguageIds.includes(selectedLocaleId)) {
+			setSelectedLocaleId(
+				preview.availableLanguageIds.includes(config.defaultLanguageId)
+					? config.defaultLanguageId
+					: preview.availableLanguageIds[0] ??
+							config.defaultLanguageId
+			);
+		}
+	};
+
 	const keywords = search.trim().toLowerCase();
 
 	const matches = (...names: Array<string | undefined>) =>
@@ -170,6 +218,19 @@ export default function VersionHistory({config}: Props) {
 			})),
 	];
 
+	const selectedVersion =
+		selectedKey && selectedKey !== CURRENT_KEY
+			? versions?.find(
+					({externalReferenceCode}) =>
+						externalReferenceCode === selectedKey
+				)
+			: undefined;
+
+	const selectedExperience = config.availableSegmentsExperiences.find(
+		({segmentsExperienceERC}) =>
+			segmentsExperienceERC === selectedExperienceERC
+	);
+
 	return (
 		<>
 			<Toolbar
@@ -187,7 +248,7 @@ export default function VersionHistory({config}: Props) {
 						items={items}
 						onDelete={handleDelete}
 						onRestore={handleRestore}
-						onSelect={setSelectedKey}
+						onSelect={handleSelect}
 						searching={Boolean(keywords)}
 						selectedKey={selectedKey}
 					/>
@@ -199,6 +260,13 @@ export default function VersionHistory({config}: Props) {
 					/>
 				)}
 			</ResponsivePanel>
+
+			<PagePreview
+				languageId={selectedLocaleId}
+				segmentsExperienceERC={selectedExperienceERC}
+				segmentsExperienceId={selectedExperience?.segmentsExperienceId}
+				version={selectedVersion}
+			/>
 		</>
 	);
 }

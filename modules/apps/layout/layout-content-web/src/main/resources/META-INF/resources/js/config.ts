@@ -24,6 +24,8 @@ export type Config = {
 	availableSegmentsExperiences: SegmentExperience[];
 	defaultLanguageId: Liferay.Language.Locale;
 	defaultUserImageSrc: string;
+	getPagePreviewURL: string;
+	getPageVersionPreviewURL: string;
 	layout: Layout;
 	pageSpecificationVersionsURL: string;
 };

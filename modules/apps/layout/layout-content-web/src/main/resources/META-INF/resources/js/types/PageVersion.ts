@@ -10,6 +10,13 @@ type Action = {
 	method: string;
 };
 
+export type PageSpecificationVersionPreview = {
+	availableLanguageIds: string[];
+	pageExperienceExternalReferenceCode: string;
+	pageExperienceName_i18n: Record<string, string>;
+	pageExperiencePriority: number;
+};
+
 export type PageVersion = {
 	actions?: Partial<Record<'delete' | 'restore', Action>>;
 	creator?: {
@@ -21,6 +28,7 @@ export type PageVersion = {
 	dateModified: string;
 	externalReferenceCode: string;
 	name: string;
+	pageSpecificationVersionPreviews: PageSpecificationVersionPreview[];
 	status: Status;
 	statusDate: string;
 	version: number;

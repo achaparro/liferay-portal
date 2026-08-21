@@ -20,6 +20,20 @@ $version-history-side-panel-width: 320px;
 		}
 	}
 
+	&__preview {
+		border: 0;
+		height: calc(
+			100vh - var(--control-menu-container-height, 0) - #{$version-history-toolbar-height}
+		);
+		margin-left: 0;
+		width: 100%;
+
+		@include media-breakpoint-up(lg) {
+			margin-left: $version-history-side-panel-width;
+			width: calc(100% - #{$version-history-side-panel-width});
+		}
+	}
+
 	&__side-panel {
 		border-right-style: solid;
 		border-right-width: 1px;

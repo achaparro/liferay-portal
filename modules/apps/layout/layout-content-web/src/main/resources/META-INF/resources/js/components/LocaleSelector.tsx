@@ -4,15 +4,20 @@
  */
 
 import {LanguagePicker, Provider} from '@clayui/core';
-import React, {useState} from 'react';
+import React from 'react';
 
 import {config} from '../config';
 
-export default function LocaleSelector() {
-	const {availableLanguages, defaultLanguageId} = config;
+interface Props {
+	onChangeLocale: (localeId: string) => void;
+	selectedLocaleId: string;
+}
 
-	const [selectedLocaleId, setSelectedLocaleId] =
-		useState<React.Key>(defaultLanguageId);
+export default function LocaleSelector({
+	onChangeLocale,
+	selectedLocaleId,
+}: Props) {
+	const {availableLanguages, defaultLanguageId} = config;
 
 	const locales = Object.entries(availableLanguages).map(
 		([id, language]) => ({
@@ -34,7 +39,7 @@ export default function LocaleSelector() {
 				defaultLocaleId={defaultLanguageId}
 				hideTriggerText
 				locales={locales}
-				onSelectedLocaleChange={(key) => setSelectedLocaleId(key)}
+				onSelectedLocaleChange={(key) => onChangeLocale(String(key))}
 				selectedLocaleId={selectedLocaleId}
 				small
 				spritemap={spritemap}

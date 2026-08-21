@@ -5,6 +5,7 @@
 
 export default interface SegmentExperience {
 	active: boolean;
+	priority?: number;
 	segmentsEntryName?: string;
 	segmentsExperienceERC?: string;
 	segmentsExperienceId?: string;

@@ -5,13 +5,14 @@
 
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import {
+	SegmentExperience,
 	hideProductMenuIfPresent,
 	openConfirmModal,
 	useMediaQuery,
 } from '@liferay/layout-js-components-web';
 import {openToast} from 'frontend-js-components-web';
 import {sub} from 'frontend-js-web';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 
 import {Config, initializeConfig} from '../config';
 import PageVersionService from '../services/PageVersionService';
@@ -171,28 +172,11 @@ export default function VersionHistory({config}: Props) {
 				({pageExperienceExternalReferenceCode}) =>
 					pageExperienceExternalReferenceCode ===
 					selectedExperienceERC
-			) ??
-			previews.find(({pageExperienceExternalReferenceCode}) =>
-				config.availableSegmentsExperiences.some(
-					({segmentsExperienceERC}) =>
-						segmentsExperienceERC ===
-						pageExperienceExternalReferenceCode
-				)
-			) ??
-			previews[0];
+			) ?? previews[0];
 
-		if (!preview) {
-			return;
-		}
-
-		setSelectedExperienceERC(preview.pageExperienceExternalReferenceCode);
-
-		if (!preview.availableLanguageIds.includes(selectedLocaleId)) {
-			setSelectedLocaleId(
-				preview.availableLanguageIds.includes(config.defaultLanguageId)
-					? config.defaultLanguageId
-					: preview.availableLanguageIds[0] ??
-							config.defaultLanguageId
+		if (preview) {
+			setSelectedExperienceERC(
+				preview.pageExperienceExternalReferenceCode
 			);
 		}
 	};
@@ -226,7 +210,52 @@ export default function VersionHistory({config}: Props) {
 				)
 			: undefined;
 
-	const selectedExperience = config.availableSegmentsExperiences.find(
+	const segmentsExperiences = useMemo<SegmentExperience[]>(() => {
+		const currentLanguageId = Liferay.ThemeDisplay.getLanguageId();
+
+		const scopedSegmentsExperiences: SegmentExperience[] = selectedVersion
+			? (selectedVersion.pageSpecificationVersionPreviews ?? []).map(
+					(preview) => {
+						const name_i18n = preview.pageExperienceName_i18n ?? {};
+
+						return {
+							active: false,
+							priority: preview.pageExperiencePriority,
+							segmentsExperienceERC:
+								preview.pageExperienceExternalReferenceCode,
+							segmentsExperienceName:
+								name_i18n[currentLanguageId] ??
+								Object.values(name_i18n)[0] ??
+								preview.pageExperienceExternalReferenceCode,
+							statusLabel: '',
+						};
+					}
+				)
+			: [...config.availableSegmentsExperiences];
+
+		return scopedSegmentsExperiences
+			.map((segmentsExperience) => {
+				const priority = segmentsExperience.priority ?? 0;
+
+				let statusLabel = Liferay.Language.get('default');
+
+				if (priority > 0) {
+					statusLabel = Liferay.Language.get('active');
+				}
+				else if (priority < 0) {
+					statusLabel = Liferay.Language.get('inactive');
+				}
+
+				return {
+					...segmentsExperience,
+					active: priority >= 0,
+					statusLabel,
+				};
+			})
+			.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+	}, [config.availableSegmentsExperiences, selectedVersion]);
+
+	const selectedExperience = segmentsExperiences.find(
 		({segmentsExperienceERC}) =>
 			segmentsExperienceERC === selectedExperienceERC
 	);
@@ -235,7 +264,12 @@ export default function VersionHistory({config}: Props) {
 		<>
 			<Toolbar
 				isSidePanelOpen={isPanelOpen || isScreenLarge}
+				onChangeExperience={setSelectedExperienceERC}
+				onChangeLocale={setSelectedLocaleId}
 				openSidePanel={() => setIsPanelOpen(true)}
+				segmentsExperiences={segmentsExperiences}
+				selectedExperienceERC={selectedExperienceERC}
+				selectedLocaleId={selectedLocaleId}
 			/>
 
 			<ResponsivePanel

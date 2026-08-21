@@ -5,25 +5,34 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayToolbar from '@clayui/toolbar';
-import {ExperienceSelector} from '@liferay/layout-js-components-web';
-import React, {useState} from 'react';
+import {
+	ExperienceSelector,
+	SegmentExperience,
+} from '@liferay/layout-js-components-web';
+import React from 'react';
 
-import {config} from '../config';
 import LocaleSelector from './LocaleSelector';
 
 interface Props {
 	isSidePanelOpen: boolean;
+	onChangeExperience: (segmentsExperienceERC: string) => void;
+	onChangeLocale: (localeId: string) => void;
 	openSidePanel: () => void;
+	segmentsExperiences: SegmentExperience[];
+	selectedExperienceERC: string;
+	selectedLocaleId: string;
 }
 
-export default function Toolbar({isSidePanelOpen, openSidePanel}: Props) {
-	const {availableSegmentsExperiences} = config;
-
-	const [selectedExperienceERC, setSelectedExperienceERC] = useState<
-		React.Key | undefined
-	>(availableSegmentsExperiences[0]?.segmentsExperienceERC);
-
-	const selectedExperience = availableSegmentsExperiences.find(
+export default function Toolbar({
+	isSidePanelOpen,
+	onChangeExperience,
+	onChangeLocale,
+	openSidePanel,
+	segmentsExperiences,
+	selectedExperienceERC,
+	selectedLocaleId,
+}: Props) {
+	const selectedExperience = segmentsExperiences.find(
 		({segmentsExperienceERC}) =>
 			segmentsExperienceERC === selectedExperienceERC
 	);
@@ -53,15 +62,20 @@ export default function Toolbar({isSidePanelOpen, openSidePanel}: Props) {
 
 						<ExperienceSelector
 							className="mb-0"
-							onChangeExperience={setSelectedExperienceERC}
-							segmentsExperiences={availableSegmentsExperiences}
+							onChangeExperience={(key) =>
+								onChangeExperience(String(key))
+							}
+							segmentsExperiences={segmentsExperiences}
 							selectedSegmentsExperience={selectedExperience}
 						/>
 					</ClayToolbar.Item>
 				) : null}
 
 				<ClayToolbar.Item className="align-items-center d-flex">
-					<LocaleSelector />
+					<LocaleSelector
+						onChangeLocale={onChangeLocale}
+						selectedLocaleId={selectedLocaleId}
+					/>
 				</ClayToolbar.Item>
 			</ClayToolbar.Nav>
 		</ClayToolbar>

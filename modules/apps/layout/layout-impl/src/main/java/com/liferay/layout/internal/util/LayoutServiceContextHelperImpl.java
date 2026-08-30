@@ -34,11 +34,12 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
 import com.liferay.portal.kernel.servlet.DummyHttpServletResponse;
 import com.liferay.portal.kernel.servlet.HttpMethods;
+import com.liferay.portal.kernel.servlet.PersistentHttpServletRequestWrapper;
+import com.liferay.portal.kernel.servlet.RequestDispatcherAttributeNames;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ConcurrentHashMapBuilder;
 import com.liferay.portal.kernel.util.FriendlyURLNormalizer;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -62,6 +63,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -104,6 +106,58 @@ public class LayoutServiceContextHelperImpl
 		return new ServiceContextTemporarySwapper(
 			_companyLocalService.getCompany(layout.getCompanyId()), layout,
 			user);
+	}
+
+	private HttpServletRequest _getIsolatedHttpServletRequest(
+		HttpServletRequest httpServletRequest) {
+
+		Map<String, Object> attributes = new ConcurrentHashMap<>();
+
+		Enumeration<String> enumeration =
+			httpServletRequest.getAttributeNames();
+
+		while (enumeration.hasMoreElements()) {
+			String name = enumeration.nextElement();
+
+			if (RequestDispatcherAttributeNames.contains(name)) {
+				continue;
+			}
+
+			Object value = httpServletRequest.getAttribute(name);
+
+			if (value != null) {
+				attributes.put(name, value);
+			}
+		}
+
+		return new PersistentHttpServletRequestWrapper(httpServletRequest) {
+
+			@Override
+			public Object getAttribute(String name) {
+				return attributes.get(name);
+			}
+
+			@Override
+			public Enumeration<String> getAttributeNames() {
+				return Collections.enumeration(attributes.keySet());
+			}
+
+			@Override
+			public void removeAttribute(String name) {
+				attributes.remove(name);
+			}
+
+			@Override
+			public void setAttribute(String name, Object value) {
+				if (value == null) {
+					attributes.remove(name);
+				}
+				else {
+					attributes.put(name, value);
+				}
+			}
+
+		};
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -165,26 +219,23 @@ public class LayoutServiceContextHelperImpl
 			if (originalServiceContext == null) {
 				_httpServletRequest = _createMockHttpServletRequest();
 				_httpServletResponse = new DummyHttpServletResponse();
-				_originalHttpServletRequest = null;
 			}
 			else {
 				ThemeDisplay themeDisplay =
 					originalServiceContext.getThemeDisplay();
 
 				if (originalServiceContext.getRequest() != null) {
-					_httpServletRequest = originalServiceContext.getRequest();
-					_originalHttpServletRequest =
-						originalServiceContext.getRequest();
+					_httpServletRequest = _getIsolatedHttpServletRequest(
+						originalServiceContext.getRequest());
 				}
 				else if ((themeDisplay != null) &&
 						 (themeDisplay.getRequest() != null)) {
 
-					_httpServletRequest = themeDisplay.getRequest();
-					_originalHttpServletRequest = themeDisplay.getRequest();
+					_httpServletRequest = _getIsolatedHttpServletRequest(
+						themeDisplay.getRequest());
 				}
 				else {
 					_httpServletRequest = _createMockHttpServletRequest();
-					_originalHttpServletRequest = null;
 				}
 
 				if (originalServiceContext.getResponse() != null) {
@@ -239,8 +290,7 @@ public class LayoutServiceContextHelperImpl
 
 			_permissionChecker = PermissionCheckerFactoryUtil.create(_user);
 
-			_originalHttpServletRequestAttributesMap =
-				_setHttpServletRequestAttributes(_permissionChecker, _user);
+			_setHttpServletRequestAttributes(_permissionChecker, _user);
 
 			_setCompanyServiceContext();
 		}
@@ -257,17 +307,6 @@ public class LayoutServiceContextHelperImpl
 				_originalPermissionChecker);
 			PrincipalThreadLocal.setName(_originalName, false);
 			ServiceContextThreadLocal.popServiceContext();
-
-			if (_originalHttpServletRequest == null) {
-				return;
-			}
-
-			for (Map.Entry<String, Object> entry :
-					_originalHttpServletRequestAttributesMap.entrySet()) {
-
-				_originalHttpServletRequest.setAttribute(
-					entry.getKey(), entry.getValue());
-			}
 		}
 
 		private HttpServletRequest _createMockHttpServletRequest() {
@@ -485,28 +524,9 @@ public class LayoutServiceContextHelperImpl
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 		}
 
-		private Map<String, Object> _setHttpServletRequestAttributes(
+		private void _setHttpServletRequestAttributes(
 				PermissionChecker permissionChecker, User user)
 			throws PortalException {
-
-			Map<String, Object> attributes = HashMapBuilder.<String, Object>put(
-				WebKeys.COMPANY_ID,
-				_httpServletRequest.getAttribute(WebKeys.COMPANY_ID)
-			).put(
-				WebKeys.CTX, _httpServletRequest.getAttribute(WebKeys.CTX)
-			).put(
-				WebKeys.LAYOUT, _httpServletRequest.getAttribute(WebKeys.LAYOUT)
-			).put(
-				WebKeys.LOCALE, _httpServletRequest.getAttribute(WebKeys.LOCALE)
-			).put(
-				WebKeys.THEME_DISPLAY,
-				_httpServletRequest.getAttribute(WebKeys.THEME_DISPLAY)
-			).put(
-				WebKeys.USER, _httpServletRequest.getAttribute(WebKeys.USER)
-			).put(
-				WebKeys.USER_ID,
-				_httpServletRequest.getAttribute(WebKeys.USER_ID)
-			).build();
 
 			_httpServletRequest.setAttribute(
 				WebKeys.COMPANY_ID, _company.getCompanyId());
@@ -531,8 +551,6 @@ public class LayoutServiceContextHelperImpl
 			themeDisplay.setRequest(_httpServletRequest);
 
 			themeDisplay.setResponse(_httpServletResponse);
-
-			return attributes;
 		}
 
 		private final Map<String, Object> _attributes;
@@ -570,9 +588,6 @@ public class LayoutServiceContextHelperImpl
 				ProxyFactory.newDummyInstance(HttpSession.class));
 
 		private final Layout _layout;
-		private final HttpServletRequest _originalHttpServletRequest;
-		private final Map<String, Object>
-			_originalHttpServletRequestAttributesMap;
 		private final String _originalName;
 		private final PermissionChecker _originalPermissionChecker;
 		private final PermissionChecker _permissionChecker;

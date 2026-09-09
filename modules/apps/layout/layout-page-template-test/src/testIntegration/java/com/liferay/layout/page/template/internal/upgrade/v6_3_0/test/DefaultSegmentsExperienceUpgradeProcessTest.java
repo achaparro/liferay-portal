@@ -278,6 +278,59 @@ public class DefaultSegmentsExperienceUpgradeProcessTest {
 
 	@Test
 	@TestInfo("LPD-103969")
+	public void testUpgradeKeepsPublishedFragmentEntryLinkWhenRepointingDraft()
+		throws Exception {
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
+
+		SegmentsExperience segmentsExperience =
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperience(
+				layout.getPlid());
+
+		FragmentEntryLink publishedFragmentEntryLink = _addFragmentEntryLink(
+			layout, segmentsExperience.getSegmentsExperienceId());
+
+		Layout draftLayout = layout.fetchDraftLayout();
+
+		_deleteDefaultSegmentsExperience(draftLayout);
+
+		_updateLayoutPageTemplateStructureRel(
+			draftLayout.getPlid(),
+			segmentsExperience.getSegmentsExperienceId());
+
+		FragmentEntryLink draftFragmentEntryLink = _addFragmentEntryLink(
+			draftLayout, segmentsExperience.getSegmentsExperienceId());
+
+		_runUpgrade();
+
+		long defaultSegmentsExperienceId = _getDefaultSegmentsExperienceId(
+			draftLayout.getPlid());
+
+		Assert.assertNotEquals(
+			segmentsExperience.getSegmentsExperienceId(),
+			defaultSegmentsExperienceId);
+
+		Assert.assertEquals(
+			defaultSegmentsExperienceId,
+			_getFragmentEntryLinkSegmentsExperienceId(
+				draftFragmentEntryLink.getFragmentEntryLinkId()));
+		Assert.assertEquals(
+			defaultSegmentsExperienceId,
+			_getLayoutPageTemplateStructureRelSegmentsExperienceId(
+				0, draftLayout.getPlid()));
+
+		Assert.assertEquals(
+			segmentsExperience.getSegmentsExperienceId(),
+			_getFragmentEntryLinkSegmentsExperienceId(
+				publishedFragmentEntryLink.getFragmentEntryLinkId()));
+		Assert.assertEquals(
+			segmentsExperience.getSegmentsExperienceId(),
+			_getLayoutPageTemplateStructureRelSegmentsExperienceId(
+				0, layout.getPlid()));
+	}
+
+	@Test
+	@TestInfo("LPD-103969")
 	public void testUpgradeRepointsMisScopedDefaultSegmentsExperience()
 		throws Exception {
 

@@ -19,14 +19,15 @@ import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
-import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -113,7 +114,7 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		}
 	}
 
-	private void _deleteLayoutPageTemplateStructureRels(
+	private void _deleteLayoutPageTemplateStructureRel(
 			long ctCollectionId, long layoutPageTemplateStructureId,
 			long orphanedSegmentsExperienceId)
 		throws Exception {
@@ -132,57 +133,54 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		}
 	}
 
-	private Set<Long> _getFragmentEntryLinkSegmentsExperienceIds(
-			long ctCollectionId, long groupId, long plid)
-		throws Exception {
+	private Set<Long> _getAmbiguousPlids() throws Exception {
+		Set<Long> ambiguousPlids = new HashSet<>();
 
-		Set<Long> segmentsExperienceIds = new HashSet<>();
+		Map<Long, Set<Long>> orphanedSegmentsExperienceIdsMap =
+			_getOrphanedSegmentsExperienceIdsMap();
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				StringBundler.concat(
-					"select distinct FragmentEntryLink.segmentsExperienceId ",
-					"from FragmentEntryLink where FragmentEntryLink.groupId = ",
-					"? and FragmentEntryLink.plid = ? and ",
-					"FragmentEntryLink.ctCollectionId = ? and ",
-					"FragmentEntryLink.segmentsExperienceId > 0 and not ",
-					"exists (select 1 from SegmentsExperience where ",
-					"SegmentsExperience.segmentsExperienceId = ",
-					"FragmentEntryLink.segmentsExperienceId and ",
-					"SegmentsExperience.plid = FragmentEntryLink.plid and ",
-					"SegmentsExperience.ctCollectionId in (0, ?))"))) {
+		for (Map.Entry<Long, Set<Long>> entry :
+				orphanedSegmentsExperienceIdsMap.entrySet()) {
 
-			preparedStatement.setLong(1, groupId);
-			preparedStatement.setLong(2, plid);
-			preparedStatement.setLong(3, ctCollectionId);
-			preparedStatement.setLong(4, ctCollectionId);
+			Set<Long> orphanedSegmentsExperienceIds = entry.getValue();
 
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				while (resultSet.next()) {
-					segmentsExperienceIds.add(
-						resultSet.getLong("segmentsExperienceId"));
-				}
+			if (orphanedSegmentsExperienceIds.size() < 2) {
+				continue;
+			}
+
+			ambiguousPlids.add(entry.getKey());
+
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					StringBundler.concat(
+						"Unable to repoint layout ", entry.getKey(),
+						" because it references the orphaned segments ",
+						"experiences ",
+						StringUtil.merge(orphanedSegmentsExperienceIds, ", "),
+						" and the correct mapping is ambiguous"));
 			}
 		}
 
-		return segmentsExperienceIds;
+		return ambiguousPlids;
 	}
 
-	private long _getLayoutPageTemplateStructureId(
-			long ctCollectionId, long plid)
+	private long _getDefaultSegmentsExperienceId(long ctCollectionId, long plid)
 		throws Exception {
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				StringBundler.concat(
-					"select distinct layoutPageTemplateStructureId from ",
-					"LayoutPageTemplateStructure where ctCollectionId in (0, ",
-					"?) and plid = ?"))) {
+					"select segmentsExperienceId from SegmentsExperience ",
+					"where plid = ? and segmentsExperienceKey = ? and ",
+					"ctCollectionId in (0, ?)"))) {
 
-			preparedStatement.setLong(1, ctCollectionId);
-			preparedStatement.setLong(2, plid);
+			preparedStatement.setLong(1, plid);
+			preparedStatement.setString(
+				2, SegmentsExperienceConstants.KEY_DEFAULT);
+			preparedStatement.setLong(3, ctCollectionId);
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				if (resultSet.next()) {
-					return resultSet.getLong("layoutPageTemplateStructureId");
+					return resultSet.getLong("segmentsExperienceId");
 				}
 			}
 		}
@@ -190,41 +188,53 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		return 0;
 	}
 
-	private Set<Long> _getLayoutPageTemplateStructureRelSegmentsExperienceIds(
-			long ctCollectionId, long layoutPageTemplateStructureId, long plid)
+	private Map<Long, Set<Long>> _getOrphanedSegmentsExperienceIdsMap()
 		throws Exception {
 
-		Set<Long> segmentsExperienceIds = new HashSet<>();
+		Map<Long, Set<Long>> orphanedSegmentsExperienceIdsMap = new HashMap<>();
 
-		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				StringBundler.concat(
-					"select distinct ",
-					"LayoutPageTemplateStructureRel.segmentsExperienceId from ",
-					"LayoutPageTemplateStructureRel where ",
-					"LayoutPageTemplateStructureRel.ctCollectionId = ? and ",
-					"LayoutPageTemplateStructureRel.",
-					"layoutPageTemplateStructureId = ? and ",
-					"LayoutPageTemplateStructureRel.segmentsExperienceId > 0 ",
-					"and not exists (select 1 from SegmentsExperience where ",
-					"SegmentsExperience.segmentsExperienceId = ",
-					"LayoutPageTemplateStructureRel.segmentsExperienceId and ",
-					"SegmentsExperience.plid = ? and ",
-					"SegmentsExperience.ctCollectionId in (0, ?))"))) {
+		_putOrphanedSegmentsExperienceIds(
+			orphanedSegmentsExperienceIdsMap,
+			StringBundler.concat(
+				"select distinct FragmentEntryLink.plid, ",
+				"FragmentEntryLink.segmentsExperienceId from ",
+				"FragmentEntryLink where ",
+				"FragmentEntryLink.segmentsExperienceId > 0 and not exists ",
+				"(select 1 from SegmentsExperience where ",
+				"SegmentsExperience.segmentsExperienceId = ",
+				"FragmentEntryLink.segmentsExperienceId and ",
+				"SegmentsExperience.plid = FragmentEntryLink.plid and ",
+				"SegmentsExperience.ctCollectionId in (0, ",
+				"FragmentEntryLink.ctCollectionId)) and not exists (select 1 ",
+				"from SegmentsExperience where ",
+				"SegmentsExperience.segmentsExperienceId = ",
+				"FragmentEntryLink.segmentsExperienceId and ",
+				"SegmentsExperience.segmentsExperienceKey = ?)"));
 
-			preparedStatement.setLong(1, ctCollectionId);
-			preparedStatement.setLong(2, layoutPageTemplateStructureId);
-			preparedStatement.setLong(3, plid);
-			preparedStatement.setLong(4, ctCollectionId);
+		_putOrphanedSegmentsExperienceIds(
+			orphanedSegmentsExperienceIdsMap,
+			StringBundler.concat(
+				"select distinct LayoutPageTemplateStructure.plid, ",
+				"LayoutPageTemplateStructureRel.segmentsExperienceId from ",
+				"LayoutPageTemplateStructureRel inner join ",
+				"LayoutPageTemplateStructure on ",
+				"LayoutPageTemplateStructure.layoutPageTemplateStructureId = ",
+				"LayoutPageTemplateStructureRel.layoutPageTemplateStructureId ",
+				"and LayoutPageTemplateStructure.ctCollectionId in (0, ",
+				"LayoutPageTemplateStructureRel.ctCollectionId) where ",
+				"LayoutPageTemplateStructureRel.segmentsExperienceId > 0 and ",
+				"not exists (select 1 from SegmentsExperience where ",
+				"SegmentsExperience.segmentsExperienceId = ",
+				"LayoutPageTemplateStructureRel.segmentsExperienceId and ",
+				"SegmentsExperience.plid = LayoutPageTemplateStructure.plid ",
+				"and SegmentsExperience.ctCollectionId in (0, ",
+				"LayoutPageTemplateStructureRel.ctCollectionId)) and not ",
+				"exists (select 1 from SegmentsExperience where ",
+				"SegmentsExperience.segmentsExperienceId = ",
+				"LayoutPageTemplateStructureRel.segmentsExperienceId and ",
+				"SegmentsExperience.segmentsExperienceKey = ?)"));
 
-			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				while (resultSet.next()) {
-					segmentsExperienceIds.add(
-						resultSet.getLong("segmentsExperienceId"));
-				}
-			}
-		}
-
-		return segmentsExperienceIds;
+		return orphanedSegmentsExperienceIdsMap;
 	}
 
 	private long _getUserId(long companyId, long userId) throws Exception {
@@ -258,51 +268,39 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		}
 	}
 
-	private boolean _hasMultipleNondefaultSegmentsExperiences(
-			long ctCollectionId, Set<Long> segmentsExperienceIds)
-		throws Exception {
-
-		int count = 0;
-
-		for (long segmentsExperienceId : segmentsExperienceIds) {
-			if (_isDefaultSegmentsExperience(
-					ctCollectionId, segmentsExperienceId)) {
-
-				continue;
-			}
-
-			count++;
-
-			if (count > 1) {
-				return true;
-			}
+	private void _logMissingDefaultSegmentsExperience(long plid) {
+		if (_log.isWarnEnabled()) {
+			_log.warn(
+				StringBundler.concat(
+					"Unable to repoint layout ", plid,
+					" because it has no default segments experience"));
 		}
-
-		return false;
 	}
 
-	private boolean _isDefaultSegmentsExperience(
-			long ctCollectionId, long segmentsExperienceId)
+	private void _putOrphanedSegmentsExperienceIds(
+			Map<Long, Set<Long>> orphanedSegmentsExperienceIdsMap, String sql)
 		throws Exception {
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				StringBundler.concat(
-					"select 1 from SegmentsExperience where ",
-					"segmentsExperienceId = ? and segmentsExperienceKey = ? ",
-					"and ctCollectionId in (0, ?)"))) {
+				sql)) {
 
-			preparedStatement.setLong(1, segmentsExperienceId);
 			preparedStatement.setString(
-				2, SegmentsExperienceConstants.KEY_DEFAULT);
-			preparedStatement.setLong(3, ctCollectionId);
+				1, SegmentsExperienceConstants.KEY_DEFAULT);
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
-				return resultSet.next();
+				while (resultSet.next()) {
+					Set<Long> orphanedSegmentsExperienceIds =
+						orphanedSegmentsExperienceIdsMap.computeIfAbsent(
+							resultSet.getLong("plid"), plid -> new HashSet<>());
+
+					orphanedSegmentsExperienceIds.add(
+						resultSet.getLong("segmentsExperienceId"));
+				}
 			}
 		}
 	}
 
-	private void _updateFragmentEntryLinks(
+	private void _updateFragmentEntryLink(
 			long ctCollectionId, long defaultSegmentsExperienceId, long groupId,
 			long orphanedSegmentsExperienceId, long plid)
 		throws Exception {
@@ -323,7 +321,58 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		}
 	}
 
-	private void _updateLayoutPageTemplateStructureRels(
+	private void _updateFragmentEntryLinks(Set<Long> ambiguousPlids)
+		throws Exception {
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				StringBundler.concat(
+					"select distinct FragmentEntryLink.ctCollectionId, ",
+					"FragmentEntryLink.groupId, FragmentEntryLink.plid, ",
+					"FragmentEntryLink.segmentsExperienceId from ",
+					"FragmentEntryLink inner join Layout on Layout.plid = ",
+					"FragmentEntryLink.plid and Layout.ctCollectionId in (0, ",
+					"FragmentEntryLink.ctCollectionId) where Layout.type_ in ",
+					"(?, ?, ?) and FragmentEntryLink.segmentsExperienceId > 0 ",
+					"and not exists (select 1 from SegmentsExperience where ",
+					"SegmentsExperience.segmentsExperienceId = ",
+					"FragmentEntryLink.segmentsExperienceId and ",
+					"SegmentsExperience.plid = FragmentEntryLink.plid and ",
+					"SegmentsExperience.ctCollectionId in (0, ",
+					"FragmentEntryLink.ctCollectionId))"))) {
+
+			preparedStatement.setString(1, LayoutConstants.TYPE_CONTENT);
+			preparedStatement.setString(2, LayoutConstants.TYPE_ASSET_DISPLAY);
+			preparedStatement.setString(3, LayoutConstants.TYPE_UTILITY);
+
+			try (ResultSet resultSet = preparedStatement.executeQuery()) {
+				while (resultSet.next()) {
+					long plid = resultSet.getLong("plid");
+
+					if (ambiguousPlids.contains(plid)) {
+						continue;
+					}
+
+					long ctCollectionId = resultSet.getLong("ctCollectionId");
+
+					long defaultSegmentsExperienceId =
+						_getDefaultSegmentsExperienceId(ctCollectionId, plid);
+
+					if (defaultSegmentsExperienceId == 0) {
+						_logMissingDefaultSegmentsExperience(plid);
+
+						continue;
+					}
+
+					_updateFragmentEntryLink(
+						ctCollectionId, defaultSegmentsExperienceId,
+						resultSet.getLong("groupId"),
+						resultSet.getLong("segmentsExperienceId"), plid);
+				}
+			}
+		}
+	}
+
+	private void _updateLayoutPageTemplateStructureRel(
 			long ctCollectionId, long defaultSegmentsExperienceId,
 			long layoutPageTemplateStructureId,
 			long orphanedSegmentsExperienceId)
@@ -345,41 +394,39 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		}
 	}
 
-	private void _updateOrphanedSegmentsExperienceIds() throws Exception {
+	private void _updateLayoutPageTemplateStructureRels(
+			Set<Long> ambiguousPlids)
+		throws Exception {
+
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				StringBundler.concat(
-					"select Layout.ctCollectionId, Layout.groupId, ",
-					"Layout.plid from Layout where Layout.type_ in (?, ?, ?) ",
-					"and (exists (select 1 from FragmentEntryLink where ",
-					"FragmentEntryLink.groupId = Layout.groupId and ",
-					"FragmentEntryLink.plid = Layout.plid and ",
-					"FragmentEntryLink.ctCollectionId = Layout.ctCollectionId ",
-					"and FragmentEntryLink.segmentsExperienceId > 0 and not ",
-					"exists (select 1 from SegmentsExperience where ",
-					"SegmentsExperience.segmentsExperienceId = ",
-					"FragmentEntryLink.segmentsExperienceId and ",
-					"SegmentsExperience.plid = FragmentEntryLink.plid and ",
-					"SegmentsExperience.ctCollectionId in (0, ",
-					"Layout.ctCollectionId))) or exists (select 1 from ",
+					"select distinct ",
+					"LayoutPageTemplateStructureRel.ctCollectionId, ",
+					"LayoutPageTemplateStructureRel.",
+					"layoutPageTemplateStructureId, ",
+					"LayoutPageTemplateStructureRel.segmentsExperienceId, ",
+					"LayoutPageTemplateStructure.plid from ",
 					"LayoutPageTemplateStructureRel inner join ",
 					"LayoutPageTemplateStructure on ",
 					"LayoutPageTemplateStructure.",
 					"layoutPageTemplateStructureId = ",
 					"LayoutPageTemplateStructureRel.",
-					"layoutPageTemplateStructureId where ",
-					"LayoutPageTemplateStructure.plid = Layout.plid and ",
+					"layoutPageTemplateStructureId and ",
 					"LayoutPageTemplateStructure.ctCollectionId in (0, ",
-					"Layout.ctCollectionId) and ",
-					"LayoutPageTemplateStructureRel.ctCollectionId = ",
-					"Layout.ctCollectionId and ",
+					"LayoutPageTemplateStructureRel.ctCollectionId) inner ",
+					"join Layout on Layout.plid = ",
+					"LayoutPageTemplateStructure.plid and ",
+					"Layout.ctCollectionId in (0, ",
+					"LayoutPageTemplateStructureRel.ctCollectionId) where ",
+					"Layout.type_ in (?, ?, ?) and ",
 					"LayoutPageTemplateStructureRel.segmentsExperienceId > 0 ",
 					"and not exists (select 1 from SegmentsExperience where ",
 					"SegmentsExperience.segmentsExperienceId = ",
 					"LayoutPageTemplateStructureRel.segmentsExperienceId and ",
-					"SegmentsExperience.plid = Layout.plid and ",
+					"SegmentsExperience.plid = ",
+					"LayoutPageTemplateStructure.plid and ",
 					"SegmentsExperience.ctCollectionId in (0, ",
-					"Layout.ctCollectionId)))) order by ",
-					"Layout.ctCollectionId"))) {
+					"LayoutPageTemplateStructureRel.ctCollectionId))"))) {
 
 			preparedStatement.setString(1, LayoutConstants.TYPE_CONTENT);
 			preparedStatement.setString(2, LayoutConstants.TYPE_ASSET_DISPLAY);
@@ -387,101 +434,53 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				while (resultSet.next()) {
+					long plid = resultSet.getLong("plid");
+
+					if (ambiguousPlids.contains(plid)) {
+						continue;
+					}
+
 					long ctCollectionId = resultSet.getLong("ctCollectionId");
 
-					try (SafeCloseable safeCloseable =
-							CTCollectionThreadLocal.
-								setCTCollectionIdWithSafeCloseable(
-									ctCollectionId)) {
+					long defaultSegmentsExperienceId =
+						_getDefaultSegmentsExperienceId(ctCollectionId, plid);
 
-						_updateOrphanedSegmentsExperienceIds(
-							ctCollectionId, resultSet.getLong("groupId"),
-							resultSet.getLong("plid"));
+					if (defaultSegmentsExperienceId == 0) {
+						_logMissingDefaultSegmentsExperience(plid);
+
+						continue;
+					}
+
+					long layoutPageTemplateStructureId = resultSet.getLong(
+						"layoutPageTemplateStructureId");
+					long orphanedSegmentsExperienceId = resultSet.getLong(
+						"segmentsExperienceId");
+
+					if (_hasLayoutPageTemplateStructureRel(
+							ctCollectionId, layoutPageTemplateStructureId,
+							defaultSegmentsExperienceId)) {
+
+						_deleteLayoutPageTemplateStructureRel(
+							ctCollectionId, layoutPageTemplateStructureId,
+							orphanedSegmentsExperienceId);
+					}
+					else {
+						_updateLayoutPageTemplateStructureRel(
+							ctCollectionId, defaultSegmentsExperienceId,
+							layoutPageTemplateStructureId,
+							orphanedSegmentsExperienceId);
 					}
 				}
 			}
 		}
 	}
 
-	private void _updateOrphanedSegmentsExperienceIds(
-			long ctCollectionId, long groupId, long plid)
-		throws Exception {
+	private void _updateOrphanedSegmentsExperienceIds() throws Exception {
+		Set<Long> ambiguousPlids = _getAmbiguousPlids();
 
-		SegmentsExperience segmentsExperience =
-			_segmentsExperienceLocalService.fetchDefaultSegmentsExperience(
-				plid);
+		_updateFragmentEntryLinks(ambiguousPlids);
 
-		if (segmentsExperience == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					StringBundler.concat(
-						"Unable to repoint layout ", plid,
-						" because it has no default segments experience"));
-			}
-
-			return;
-		}
-
-		long layoutPageTemplateStructureId = _getLayoutPageTemplateStructureId(
-			ctCollectionId, plid);
-
-		Set<Long> orphanedSegmentsExperienceIds =
-			_getFragmentEntryLinkSegmentsExperienceIds(
-				ctCollectionId, groupId, plid);
-
-		if (layoutPageTemplateStructureId > 0) {
-			orphanedSegmentsExperienceIds.addAll(
-				_getLayoutPageTemplateStructureRelSegmentsExperienceIds(
-					ctCollectionId, layoutPageTemplateStructureId, plid));
-		}
-
-		if (orphanedSegmentsExperienceIds.isEmpty()) {
-			return;
-		}
-
-		if (_hasMultipleNondefaultSegmentsExperiences(
-				ctCollectionId, orphanedSegmentsExperienceIds)) {
-
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					StringBundler.concat(
-						"Unable to repoint layout ", plid,
-						" because it references the orphaned segments ",
-						"experiences ",
-						StringUtil.merge(orphanedSegmentsExperienceIds, ", "),
-						" and the correct mapping is ambiguous"));
-			}
-
-			return;
-		}
-
-		long defaultSegmentsExperienceId =
-			segmentsExperience.getSegmentsExperienceId();
-
-		for (long orphanedSegmentsExperienceId :
-				orphanedSegmentsExperienceIds) {
-
-			_updateFragmentEntryLinks(
-				ctCollectionId, defaultSegmentsExperienceId, groupId,
-				orphanedSegmentsExperienceId, plid);
-
-			if (layoutPageTemplateStructureId > 0) {
-				if (_hasLayoutPageTemplateStructureRel(
-						ctCollectionId, layoutPageTemplateStructureId,
-						defaultSegmentsExperienceId)) {
-
-					_deleteLayoutPageTemplateStructureRels(
-						ctCollectionId, layoutPageTemplateStructureId,
-						orphanedSegmentsExperienceId);
-				}
-				else {
-					_updateLayoutPageTemplateStructureRels(
-						ctCollectionId, defaultSegmentsExperienceId,
-						layoutPageTemplateStructureId,
-						orphanedSegmentsExperienceId);
-				}
-			}
-		}
+		_updateLayoutPageTemplateStructureRels(ambiguousPlids);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

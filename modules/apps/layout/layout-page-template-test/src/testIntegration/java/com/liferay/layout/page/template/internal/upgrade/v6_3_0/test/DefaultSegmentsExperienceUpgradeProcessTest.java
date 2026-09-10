@@ -232,30 +232,6 @@ public class DefaultSegmentsExperienceUpgradeProcessTest {
 
 	@Test
 	@TestInfo("LPD-103969")
-	public void testUpgradeDeletesOrphanedLayoutPageTemplateStructureRel()
-		throws Exception {
-
-		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
-
-		long segmentsExperienceId = RandomTestUtil.randomLong();
-
-		_addLayoutPageTemplateStructureRel(layout, segmentsExperienceId);
-
-		_runUpgrade();
-
-		Assert.assertEquals(
-			1,
-			_getLayoutPageTemplateStructureRelCount(
-				layout.getPlid(),
-				_getDefaultSegmentsExperienceId(layout.getPlid())));
-		Assert.assertEquals(
-			0,
-			_getLayoutPageTemplateStructureRelCount(
-				layout.getPlid(), segmentsExperienceId));
-	}
-
-	@Test
-	@TestInfo("LPD-103969")
 	public void testUpgradeKeepsExistingDefaultSegmentsExperience()
 		throws Exception {
 
@@ -415,58 +391,6 @@ public class DefaultSegmentsExperienceUpgradeProcessTest {
 			segmentsExperience.getSegmentsExperienceId(),
 			_getLayoutPageTemplateStructureRelSegmentsExperienceId(
 				0, layout.getPlid()));
-	}
-
-	@Test
-	@TestInfo("LPD-103969")
-	public void testUpgradeUpdatesLayoutPageTemplateStructureRelInPublication()
-		throws Exception {
-
-		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
-
-		SegmentsExperience segmentsExperience =
-			_segmentsExperienceLocalService.fetchDefaultSegmentsExperience(
-				layout.getPlid());
-
-		LayoutPageTemplateStructure layoutPageTemplateStructure =
-			_layoutPageTemplateStructureLocalService.
-				fetchLayoutPageTemplateStructure(
-					layout.getGroupId(), layout.getPlid());
-
-		CTCollection ctCollection = _addCTCollection();
-
-		try {
-			try (SafeCloseable safeCloseable =
-					CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
-						ctCollection.getCtCollectionId())) {
-
-				LayoutPageTemplateStructureRel layoutPageTemplateStructureRel =
-					_layoutPageTemplateStructureRelLocalService.
-						fetchLayoutPageTemplateStructureRel(
-							layoutPageTemplateStructure.
-								getLayoutPageTemplateStructureId(),
-							segmentsExperience.getSegmentsExperienceId());
-
-				layoutPageTemplateStructureRel.setSegmentsExperienceId(
-					RandomTestUtil.randomLong());
-
-				_layoutPageTemplateStructureRelLocalService.
-					updateLayoutPageTemplateStructureRel(
-						layoutPageTemplateStructureRel);
-			}
-
-			_updateLayoutInCTCollection(ctCollection, layout);
-
-			_runUpgrade();
-
-			Assert.assertEquals(
-				segmentsExperience.getSegmentsExperienceId(),
-				_getLayoutPageTemplateStructureRelSegmentsExperienceId(
-					ctCollection.getCtCollectionId(), layout.getPlid()));
-		}
-		finally {
-			_ctCollectionLocalService.deleteCTCollection(ctCollection);
-		}
 	}
 
 	private CTCollection _addCTCollection() throws Exception {

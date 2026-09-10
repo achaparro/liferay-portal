@@ -343,16 +343,6 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 				ctCollectionId, layoutPageTemplateStructureId,
 				defaultSegmentsExperienceId)) {
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					StringBundler.concat(
-						"Deleting the layout page template structure rel of ",
-						"layout ", plid, " for the orphaned segments ",
-						"experience ", orphanedSegmentsExperienceId,
-						" because the default segments experience already has ",
-						"one"));
-			}
-
 			_deleteLayoutPageTemplateStructureRel(
 				ctCollectionId, layoutPageTemplateStructureId,
 				orphanedSegmentsExperienceId);

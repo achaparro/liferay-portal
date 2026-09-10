@@ -356,28 +356,23 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					"FragmentEntryLink.groupId, FragmentEntryLink.plid, ",
 					"FragmentEntryLink.segmentsExperienceId, ",
 					"SegmentsExperience.segmentsExperienceKey from ",
-					"FragmentEntryLink inner join Layout on Layout.plid = ",
-					"FragmentEntryLink.plid and Layout.ctCollectionId in (0, ",
-					"FragmentEntryLink.ctCollectionId) inner join ",
-					"SegmentsExperience on ",
+					"FragmentEntryLink inner join SegmentsExperience on ",
 					"SegmentsExperience.segmentsExperienceId = ",
 					"FragmentEntryLink.segmentsExperienceId and ",
 					"SegmentsExperience.ctCollectionId in (0, ",
-					"FragmentEntryLink.ctCollectionId) where Layout.type_ in ",
-					"(?, ?, ?) and FragmentEntryLink.segmentsExperienceId > 0 ",
-					"and SegmentsExperience.plid != FragmentEntryLink.plid"))) {
-
-			preparedStatement.setString(1, LayoutConstants.TYPE_CONTENT);
-			preparedStatement.setString(2, LayoutConstants.TYPE_ASSET_DISPLAY);
-			preparedStatement.setString(3, LayoutConstants.TYPE_UTILITY);
+					"FragmentEntryLink.ctCollectionId) where ",
+					"FragmentEntryLink.segmentsExperienceId > 0 and ",
+					"SegmentsExperience.plid != FragmentEntryLink.plid"))) {
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				while (resultSet.next()) {
 					long plid = resultSet.getLong("plid");
 
+					String segmentsExperienceKey = resultSet.getString(
+						"segmentsExperienceKey");
+
 					if (!_isDefaultSegmentsExperienceKey(
-							resultSet.getString("segmentsExperienceKey"),
-							plid)) {
+							segmentsExperienceKey, plid)) {
 
 						continue;
 					}
@@ -422,31 +417,24 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					"layoutPageTemplateStructureId and ",
 					"LayoutPageTemplateStructure.ctCollectionId in (0, ",
 					"LayoutPageTemplateStructureRel.ctCollectionId) inner ",
-					"join Layout on Layout.plid = ",
-					"LayoutPageTemplateStructure.plid and ",
-					"Layout.ctCollectionId in (0, ",
-					"LayoutPageTemplateStructureRel.ctCollectionId) inner ",
 					"join SegmentsExperience on ",
 					"SegmentsExperience.segmentsExperienceId = ",
 					"LayoutPageTemplateStructureRel.segmentsExperienceId and ",
 					"SegmentsExperience.ctCollectionId in (0, ",
 					"LayoutPageTemplateStructureRel.ctCollectionId) where ",
-					"Layout.type_ in (?, ?, ?) and ",
 					"LayoutPageTemplateStructureRel.segmentsExperienceId > 0 ",
 					"and SegmentsExperience.plid != ",
 					"LayoutPageTemplateStructure.plid"))) {
-
-			preparedStatement.setString(1, LayoutConstants.TYPE_CONTENT);
-			preparedStatement.setString(2, LayoutConstants.TYPE_ASSET_DISPLAY);
-			preparedStatement.setString(3, LayoutConstants.TYPE_UTILITY);
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				while (resultSet.next()) {
 					long plid = resultSet.getLong("plid");
 
+					String segmentsExperienceKey = resultSet.getString(
+						"segmentsExperienceKey");
+
 					if (!_isDefaultSegmentsExperienceKey(
-							resultSet.getString("segmentsExperienceKey"),
-							plid)) {
+							segmentsExperienceKey, plid)) {
 
 						continue;
 					}
@@ -485,17 +473,11 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					"select distinct FragmentEntryLink.ctCollectionId, ",
 					"FragmentEntryLink.groupId, FragmentEntryLink.plid, ",
 					"FragmentEntryLink.segmentsExperienceId from ",
-					"FragmentEntryLink inner join Layout on Layout.plid = ",
-					"FragmentEntryLink.plid and Layout.ctCollectionId in (0, ",
-					"FragmentEntryLink.ctCollectionId) where Layout.type_ in ",
-					"(?, ?, ?) and FragmentEntryLink.segmentsExperienceId > 0 ",
-					"and not exists (select 1 from SegmentsExperience where ",
+					"FragmentEntryLink where ",
+					"FragmentEntryLink.segmentsExperienceId > 0 and not ",
+					"exists (select 1 from SegmentsExperience where ",
 					"SegmentsExperience.segmentsExperienceId = ",
 					"FragmentEntryLink.segmentsExperienceId)"))) {
-
-			preparedStatement.setString(1, LayoutConstants.TYPE_CONTENT);
-			preparedStatement.setString(2, LayoutConstants.TYPE_ASSET_DISPLAY);
-			preparedStatement.setString(3, LayoutConstants.TYPE_UTILITY);
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				while (resultSet.next()) {
@@ -544,20 +526,11 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					"LayoutPageTemplateStructure.",
 					"layoutPageTemplateStructureId and ",
 					"LayoutPageTemplateStructure.ctCollectionId in (0, ",
-					"LayoutPageTemplateStructureRel.ctCollectionId) inner ",
-					"join Layout on Layout.plid = ",
-					"LayoutPageTemplateStructure.plid and ",
-					"Layout.ctCollectionId in (0, ",
 					"LayoutPageTemplateStructureRel.ctCollectionId) where ",
-					"Layout.type_ in (?, ?, ?) and ",
 					"LayoutPageTemplateStructureRel.segmentsExperienceId > 0 ",
 					"and not exists (select 1 from SegmentsExperience where ",
 					"SegmentsExperience.segmentsExperienceId = ",
 					"LayoutPageTemplateStructureRel.segmentsExperienceId)"))) {
-
-			preparedStatement.setString(1, LayoutConstants.TYPE_CONTENT);
-			preparedStatement.setString(2, LayoutConstants.TYPE_ASSET_DISPLAY);
-			preparedStatement.setString(3, LayoutConstants.TYPE_UTILITY);
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				while (resultSet.next()) {

@@ -250,6 +250,15 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 	private void _logMissingSegmentsExperience(
 		long plid, String segmentsExperienceKey) {
 
+		// TODO Consider creating the missing segments experience
+		// instead of leaving the reference in place. A missing default
+		// means the layout type is not covered by
+		// _addDefaultSegmentsExperiences, while a missing variation
+		// means the referenced experience has no counterpart on this
+		// layout. Either would have to mirror the name, priority,
+		// active flag and segments entry external reference codes of
+		// the referenced experience.
+
 		if (_log.isWarnEnabled()) {
 			_log.warn(
 				StringBundler.concat(

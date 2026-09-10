@@ -192,7 +192,8 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		return ambiguousPlids;
 	}
 
-	private long _getDefaultSegmentsExperienceId(long ctCollectionId, long plid)
+	private long _getSegmentsExperienceId(
+			long ctCollectionId, long plid, String segmentsExperienceKey)
 		throws Exception {
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
@@ -202,8 +203,7 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					"ctCollectionId in (0, ?)"))) {
 
 			preparedStatement.setLong(1, plid);
-			preparedStatement.setString(
-				2, SegmentsExperienceConstants.KEY_DEFAULT);
+			preparedStatement.setString(2, segmentsExperienceKey);
 			preparedStatement.setLong(3, ctCollectionId);
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -247,32 +247,15 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		}
 	}
 
-	private boolean _isDefaultSegmentsExperienceKey(
-		String segmentsExperienceKey, long plid) {
-
-		if (SegmentsExperienceConstants.KEY_DEFAULT.equals(
-				segmentsExperienceKey)) {
-
-			return true;
-		}
+	private void _logMissingSegmentsExperience(
+		long plid, String segmentsExperienceKey) {
 
 		if (_log.isWarnEnabled()) {
 			_log.warn(
 				StringBundler.concat(
 					"Unable to repoint layout ", plid,
-					" because it references the segments experience ",
-					segmentsExperienceKey, " of another layout"));
-		}
-
-		return false;
-	}
-
-	private void _logMissingDefaultSegmentsExperience(long plid) {
-		if (_log.isWarnEnabled()) {
-			_log.warn(
-				StringBundler.concat(
-					"Unable to repoint layout ", plid,
-					" because it has no default segments experience"));
+					" because it has no segments experience with the key ",
+					segmentsExperienceKey));
 		}
 	}
 
@@ -297,8 +280,8 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 	}
 
 	private void _updateFragmentEntryLink(
-			long ctCollectionId, long defaultSegmentsExperienceId, long groupId,
-			long plid, long segmentsExperienceId)
+			long ctCollectionId, long groupId, long newSegmentsExperienceId,
+			long oldSegmentsExperienceId, long plid)
 		throws Exception {
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
@@ -307,28 +290,28 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					"where groupId = ? and plid = ? and ctCollectionId = ? ",
 					"and segmentsExperienceId = ?"))) {
 
-			preparedStatement.setLong(1, defaultSegmentsExperienceId);
+			preparedStatement.setLong(1, newSegmentsExperienceId);
 			preparedStatement.setLong(2, groupId);
 			preparedStatement.setLong(3, plid);
 			preparedStatement.setLong(4, ctCollectionId);
-			preparedStatement.setLong(5, segmentsExperienceId);
+			preparedStatement.setLong(5, oldSegmentsExperienceId);
 
 			preparedStatement.executeUpdate();
 		}
 	}
 
 	private void _updateLayoutPageTemplateStructureRel(
-			long ctCollectionId, long defaultSegmentsExperienceId,
-			long layoutPageTemplateStructureId, long segmentsExperienceId)
+			long ctCollectionId, long layoutPageTemplateStructureId,
+			long newSegmentsExperienceId, long oldSegmentsExperienceId)
 		throws Exception {
 
 		if (_hasLayoutPageTemplateStructureRel(
 				ctCollectionId, layoutPageTemplateStructureId,
-				defaultSegmentsExperienceId)) {
+				newSegmentsExperienceId)) {
 
 			_deleteLayoutPageTemplateStructureRel(
 				ctCollectionId, layoutPageTemplateStructureId,
-				segmentsExperienceId);
+				oldSegmentsExperienceId);
 
 			return;
 		}
@@ -340,10 +323,10 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					"layoutPageTemplateStructureId = ? and ",
 					"segmentsExperienceId = ?"))) {
 
-			preparedStatement.setLong(1, defaultSegmentsExperienceId);
+			preparedStatement.setLong(1, newSegmentsExperienceId);
 			preparedStatement.setLong(2, ctCollectionId);
 			preparedStatement.setLong(3, layoutPageTemplateStructureId);
-			preparedStatement.setLong(4, segmentsExperienceId);
+			preparedStatement.setLong(4, oldSegmentsExperienceId);
 
 			preparedStatement.executeUpdate();
 		}
@@ -371,27 +354,22 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					String segmentsExperienceKey = resultSet.getString(
 						"segmentsExperienceKey");
 
-					if (!_isDefaultSegmentsExperienceKey(
-							segmentsExperienceKey, plid)) {
-
-						continue;
-					}
-
 					long ctCollectionId = resultSet.getLong("ctCollectionId");
 
-					long defaultSegmentsExperienceId =
-						_getDefaultSegmentsExperienceId(ctCollectionId, plid);
+					long segmentsExperienceId = _getSegmentsExperienceId(
+						ctCollectionId, plid, segmentsExperienceKey);
 
-					if (defaultSegmentsExperienceId == 0) {
-						_logMissingDefaultSegmentsExperience(plid);
+					if (segmentsExperienceId == 0) {
+						_logMissingSegmentsExperience(
+							plid, segmentsExperienceKey);
 
 						continue;
 					}
 
 					_updateFragmentEntryLink(
-						ctCollectionId, defaultSegmentsExperienceId,
-						resultSet.getLong("groupId"), plid,
-						resultSet.getLong("segmentsExperienceId"));
+						ctCollectionId, resultSet.getLong("groupId"),
+						segmentsExperienceId,
+						resultSet.getLong("segmentsExperienceId"), plid);
 				}
 			}
 		}
@@ -433,26 +411,22 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 					String segmentsExperienceKey = resultSet.getString(
 						"segmentsExperienceKey");
 
-					if (!_isDefaultSegmentsExperienceKey(
-							segmentsExperienceKey, plid)) {
-
-						continue;
-					}
-
 					long ctCollectionId = resultSet.getLong("ctCollectionId");
 
-					long defaultSegmentsExperienceId =
-						_getDefaultSegmentsExperienceId(ctCollectionId, plid);
+					long segmentsExperienceId = _getSegmentsExperienceId(
+						ctCollectionId, plid, segmentsExperienceKey);
 
-					if (defaultSegmentsExperienceId == 0) {
-						_logMissingDefaultSegmentsExperience(plid);
+					if (segmentsExperienceId == 0) {
+						_logMissingSegmentsExperience(
+							plid, segmentsExperienceKey);
 
 						continue;
 					}
 
 					_updateLayoutPageTemplateStructureRel(
-						ctCollectionId, defaultSegmentsExperienceId,
+						ctCollectionId,
 						resultSet.getLong("layoutPageTemplateStructureId"),
+						segmentsExperienceId,
 						resultSet.getLong("segmentsExperienceId"));
 				}
 			}
@@ -487,21 +461,25 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 						continue;
 					}
 
+					String segmentsExperienceKey =
+						SegmentsExperienceConstants.KEY_DEFAULT;
+
 					long ctCollectionId = resultSet.getLong("ctCollectionId");
 
-					long defaultSegmentsExperienceId =
-						_getDefaultSegmentsExperienceId(ctCollectionId, plid);
+					long segmentsExperienceId = _getSegmentsExperienceId(
+						ctCollectionId, plid, segmentsExperienceKey);
 
-					if (defaultSegmentsExperienceId == 0) {
-						_logMissingDefaultSegmentsExperience(plid);
+					if (segmentsExperienceId == 0) {
+						_logMissingSegmentsExperience(
+							plid, segmentsExperienceKey);
 
 						continue;
 					}
 
 					_updateFragmentEntryLink(
-						ctCollectionId, defaultSegmentsExperienceId,
-						resultSet.getLong("groupId"), plid,
-						resultSet.getLong("segmentsExperienceId"));
+						ctCollectionId, resultSet.getLong("groupId"),
+						segmentsExperienceId,
+						resultSet.getLong("segmentsExperienceId"), plid);
 				}
 			}
 		}
@@ -540,20 +518,25 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 						continue;
 					}
 
+					String segmentsExperienceKey =
+						SegmentsExperienceConstants.KEY_DEFAULT;
+
 					long ctCollectionId = resultSet.getLong("ctCollectionId");
 
-					long defaultSegmentsExperienceId =
-						_getDefaultSegmentsExperienceId(ctCollectionId, plid);
+					long segmentsExperienceId = _getSegmentsExperienceId(
+						ctCollectionId, plid, segmentsExperienceKey);
 
-					if (defaultSegmentsExperienceId == 0) {
-						_logMissingDefaultSegmentsExperience(plid);
+					if (segmentsExperienceId == 0) {
+						_logMissingSegmentsExperience(
+							plid, segmentsExperienceKey);
 
 						continue;
 					}
 
 					_updateLayoutPageTemplateStructureRel(
-						ctCollectionId, defaultSegmentsExperienceId,
+						ctCollectionId,
 						resultSet.getLong("layoutPageTemplateStructureId"),
+						segmentsExperienceId,
 						resultSet.getLong("segmentsExperienceId"));
 				}
 			}

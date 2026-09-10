@@ -374,28 +374,38 @@ public class DefaultSegmentsExperienceUpgradeProcess extends UpgradeProcess {
 		long defaultSegmentsExperienceId = _getDefaultSegmentsExperienceId(
 			companyId, externalReferenceCode, groupId, plid, userId);
 
-		long layoutPageTemplateStructureId = _getLayoutPageTemplateStructureId(
-			ctCollectionId, groupId, plid);
-
-		Set<Long> segmentsExperienceIds =
+		Set<Long> fragmentEntryLinkSegmentsExperienceIds =
 			_getFragmentEntryLinkSegmentsExperienceIds(
 				ctCollectionId, groupId, plid);
 
-		if (layoutPageTemplateStructureId > 0) {
-			segmentsExperienceIds.addAll(
-				_getLayoutPageTemplateStructureRelSegmentsExperienceIds(
-					ctCollectionId, layoutPageTemplateStructureId));
-		}
+		long layoutPageTemplateStructureId = _getLayoutPageTemplateStructureId(
+			ctCollectionId, groupId, plid);
+
+		Set<Long> layoutPageTemplateStructureRelSegmentsExperienceIds =
+			_getLayoutPageTemplateStructureRelSegmentsExperienceIds(
+				ctCollectionId, layoutPageTemplateStructureId);
+
+		Set<Long> segmentsExperienceIds = new TreeSet<>(
+			fragmentEntryLinkSegmentsExperienceIds);
+
+		segmentsExperienceIds.addAll(
+			layoutPageTemplateStructureRelSegmentsExperienceIds);
 
 		for (long orphanedSegmentsExperienceId :
 				_getOrphanedSegmentsExperienceIds(
 					defaultSegmentsExperienceId, plid, segmentsExperienceIds)) {
 
-			_updateFragmentEntryLinks(
-				ctCollectionId, defaultSegmentsExperienceId, groupId,
-				orphanedSegmentsExperienceId, plid);
+			if (fragmentEntryLinkSegmentsExperienceIds.contains(
+					orphanedSegmentsExperienceId)) {
 
-			if (layoutPageTemplateStructureId > 0) {
+				_updateFragmentEntryLinks(
+					ctCollectionId, defaultSegmentsExperienceId, groupId,
+					orphanedSegmentsExperienceId, plid);
+			}
+
+			if (layoutPageTemplateStructureRelSegmentsExperienceIds.contains(
+					orphanedSegmentsExperienceId)) {
+
 				_updateLayoutPageTemplateStructureRel(
 					ctCollectionId, defaultSegmentsExperienceId,
 					layoutPageTemplateStructureId, orphanedSegmentsExperienceId,

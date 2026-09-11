@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.constants.DepotRolesConstants;
 import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryGroupRelLocalService;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactoryUtil;
 import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
@@ -196,13 +197,10 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 		_testGetSitesPageWithoutAuthentication();
 		_testGetSitesPageWithoutSiteMembership();
 		_testGetSitesPageWithSearch();
-		_testGetSitesPageWithUser(
-			_addUserWithDepotRole(
-				_addDepotEntry(),
-				DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR));
-		_testGetSitesPageWithUser(
-			_addUserWithDepotRole(
-				_addDepotEntry(), DepotRolesConstants.ASSET_LIBRARY_OWNER));
+		_testGetSitesPageWithDepotRoleUser(
+			DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR);
+		_testGetSitesPageWithDepotRoleUser(
+			DepotRolesConstants.ASSET_LIBRARY_OWNER);
 		_testGetSitesPageWithUser(
 			_addUserWithRegularRole(RoleConstants.CMS_ADMINISTRATOR));
 	}
@@ -645,6 +643,35 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 		List<Site> existingItems = (List<Site>)sitesPage.getItems();
 
 		Assert.assertEquals(originalItems, existingItems);
+	}
+
+	private void _testGetSitesPageWithDepotRoleUser(String roleName)
+		throws Exception {
+
+		DepotEntry depotEntry = _addDepotEntry();
+
+		Site connectedSite = _testPostSite_addSite(randomSite());
+
+		_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
+			depotEntry.getDepotEntryId(), connectedSite.getId());
+
+		Site unconnectedSite = _testPostSite_addSite(randomSite());
+
+		SiteResource siteResource = _getSiteResource(
+			_addUserWithDepotRole(depotEntry, roleName));
+
+		Page<Site> sitesPage = siteResource.getSitesPage(
+			null, null, null, null, Pagination.of(1, 500));
+
+		List<Site> sites = (List<Site>)sitesPage.getItems();
+
+		assertContains(connectedSite, sites);
+
+		for (Site site : sites) {
+			Assert.assertNotEquals(
+				unconnectedSite.getExternalReferenceCode(),
+				site.getExternalReferenceCode());
+		}
 	}
 
 	private void _testGetSitesPageWithExcludedExternalReferenceCodes()
@@ -1964,6 +1991,9 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 
 	@DeleteAfterTestRun
 	private DepotEntry _depotEntry;
+
+	@Inject
+	private DepotEntryGroupRelLocalService _depotEntryGroupRelLocalService;
 
 	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;

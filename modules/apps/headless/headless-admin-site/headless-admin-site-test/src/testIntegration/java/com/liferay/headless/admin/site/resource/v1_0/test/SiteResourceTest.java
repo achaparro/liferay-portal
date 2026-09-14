@@ -650,12 +650,12 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 
 		DepotEntry depotEntry = _addDepotEntry();
 
-		Site connectedSite = _testPostSite_addSite(randomSite());
+		Site depotSite = _testPostSite_addSite(randomSite());
 
 		_depotEntryGroupRelLocalService.addDepotEntryGroupRel(
-			depotEntry.getDepotEntryId(), connectedSite.getId());
+			depotEntry.getDepotEntryId(), depotSite.getId());
 
-		Site unconnectedSite = _testPostSite_addSite(randomSite());
+		Site nondepotSite = _testPostSite_addSite(randomSite());
 
 		SiteResource siteResource = _getSiteResource(
 			_addUserWithDepotRole(depotEntry, roleName));
@@ -665,11 +665,11 @@ public class SiteResourceTest extends BaseSiteResourceTestCase {
 
 		List<Site> sites = (List<Site>)sitesPage.getItems();
 
-		assertContains(connectedSite, sites);
+		assertContains(depotSite, sites);
 
 		for (Site site : sites) {
 			Assert.assertNotEquals(
-				unconnectedSite.getExternalReferenceCode(),
+				nondepotSite.getExternalReferenceCode(),
 				site.getExternalReferenceCode());
 		}
 	}

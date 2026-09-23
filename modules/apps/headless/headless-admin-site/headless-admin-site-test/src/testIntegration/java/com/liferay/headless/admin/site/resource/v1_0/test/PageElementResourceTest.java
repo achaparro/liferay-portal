@@ -265,10 +265,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 				pageElement.getExternalReferenceCode()));
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND",
-			"No page element with the external reference code \"" +
-				pageElement.getExternalReferenceCode() +
-					"\" exists in this page experience",
+			"NOT_FOUND", null,
 			() ->
 				pageElementResource.
 					deleteSitePageSpecificationPageExperiencePageElement(
@@ -332,10 +329,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 		String pageElementExternalReferenceCode = RandomTestUtil.randomString();
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND",
-			"No page element with the external reference code \"" +
-				pageElementExternalReferenceCode +
-					"\" exists in this page experience",
+			"NOT_FOUND", null,
 			() ->
 				pageElementResource.
 					patchSitePageSpecificationPageExperiencePageElement(
@@ -2310,10 +2304,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 		String pageElementExternalReferenceCode = RandomTestUtil.randomString();
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND",
-			"No page element with the external reference code \"" +
-				pageElementExternalReferenceCode +
-					"\" exists in this page experience",
+			"NOT_FOUND", null,
 			() ->
 				pageElementResource.
 					getSitePageSpecificationPageExperiencePageElement(
@@ -2334,10 +2325,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 		String pageElementExternalReferenceCode = RandomTestUtil.randomString();
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND",
-			"No page element with the external reference code \"" +
-				pageElementExternalReferenceCode +
-					"\" exists in this page experience",
+			"NOT_FOUND", null,
 			() ->
 				pageElementResource.
 					getSitePageSpecificationPageExperiencePageElementPageElementsPage(
@@ -2376,9 +2364,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 			RandomTestUtil.randomString();
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND",
-			"No page experience exists with the external reference code \"" +
-				pageExperienceExternalReferenceCode + "\"",
+			"NOT_FOUND", null,
 			() ->
 				pageElementResource.
 					getSitePageSpecificationPageExperiencePageElement(
@@ -2417,10 +2403,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 					testGroup.getGroupId()));
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND",
-			"No page element with the external reference code \"" +
-				pageElement.getExternalReferenceCode() +
-					"\" exists in this page experience",
+			"NOT_FOUND", null,
 			() ->
 				pageElementResource.
 					getSitePageSpecificationPageExperiencePageElement(
@@ -2443,9 +2426,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 		String mainItemId = layoutStructure.getMainItemId();
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND",
-			"No page element with the external reference code \"" + mainItemId +
-				"\" exists in this page experience",
+			"NOT_FOUND", null,
 			() ->
 				pageElementResource.
 					getSitePageSpecificationPageExperiencePageElement(

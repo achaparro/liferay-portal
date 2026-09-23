@@ -9,7 +9,6 @@ import com.liferay.fragment.processor.FragmentEntryProcessorRegistry;
 import com.liferay.headless.admin.site.dto.v1_0.PageElement;
 import com.liferay.headless.admin.site.internal.dto.v1_0.util.DTOConverterContextUtil;
 import com.liferay.headless.admin.site.internal.dto.v1_0.util.InfoFormUtil;
-import com.liferay.headless.admin.site.internal.exception.NoSuchEntityException;
 import com.liferay.headless.admin.site.internal.resource.v1_0.layout.structure.item.importer.context.LayoutStructureItemImporterContext;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.LayoutStructureUtil;
 import com.liferay.headless.admin.site.resource.v1_0.PageElementResource;
@@ -23,6 +22,7 @@ import com.liferay.layout.util.structure.CollectionStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructureItemUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -40,6 +40,8 @@ import com.liferay.segments.service.SegmentsExperienceService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+
+import jakarta.ws.rs.NotFoundException;
 
 import java.util.Objects;
 
@@ -149,9 +151,11 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 			layoutStructureItem);
 
 		if (pageElement == null) {
-			throw new NoSuchEntityException(
-				"page element", pageElementExternalReferenceCode,
-				"page experience");
+			throw new NotFoundException(
+				StringBundler.concat(
+					"No page element with the external reference code \"",
+					pageElementExternalReferenceCode,
+					"\" exists in this page experience"));
 		}
 
 		return pageElement;
@@ -457,9 +461,11 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 				pageElementExternalReferenceCode);
 
 		if (layoutStructureItem == null) {
-			throw new NoSuchEntityException(
-				"page element", pageElementExternalReferenceCode,
-				"page experience");
+			throw new NotFoundException(
+				StringBundler.concat(
+					"No page element with the external reference code \"",
+					pageElementExternalReferenceCode,
+					"\" exists in this page experience"));
 		}
 
 		return layoutStructureItem;
@@ -477,9 +483,11 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 				layoutStructure.getMainItemId(),
 				layoutStructureItem.getItemId())) {
 
-			throw new NoSuchEntityException(
-				"page element", pageElementExternalReferenceCode,
-				"page experience");
+			throw new NotFoundException(
+				StringBundler.concat(
+					"No page element with the external reference code \"",
+					pageElementExternalReferenceCode,
+					"\" exists in this page experience"));
 		}
 
 		return layoutStructureItem;
@@ -495,8 +503,10 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 					pageExperienceExternalReferenceCode, groupId);
 
 		if (segmentsExperience == null) {
-			throw new NoSuchEntityException(
-				"page experience", pageExperienceExternalReferenceCode);
+			throw new NotFoundException(
+				StringBundler.concat(
+					"No page experience exists with the external reference ",
+					"code \"", pageExperienceExternalReferenceCode, "\""));
 		}
 
 		if (plid != segmentsExperience.getPlid()) {

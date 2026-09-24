@@ -9,7 +9,6 @@ import com.liferay.fragment.processor.FragmentEntryProcessorRegistry;
 import com.liferay.headless.admin.site.dto.v1_0.PageElement;
 import com.liferay.headless.admin.site.internal.dto.v1_0.util.DTOConverterContextUtil;
 import com.liferay.headless.admin.site.internal.dto.v1_0.util.InfoFormUtil;
-import com.liferay.headless.admin.site.internal.exception.DuplicatePageElementException;
 import com.liferay.headless.admin.site.internal.exception.NoSuchEntityException;
 import com.liferay.headless.admin.site.internal.resource.v1_0.layout.structure.item.importer.context.LayoutStructureItemImporterContext;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.LayoutStructureUtil;
@@ -297,8 +296,10 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 				pageElement.getExternalReferenceCode());
 
 		if (layoutStructureItem != null) {
-			throw new DuplicatePageElementException(
-				pageElement.getExternalReferenceCode());
+			throw new IllegalArgumentException(
+				"A page element with the external reference code \"" +
+					pageElement.getExternalReferenceCode() +
+						"\" already exists");
 		}
 
 		return _addOrUpdatePageElement(

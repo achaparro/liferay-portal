@@ -2563,7 +2563,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 			pageElements[0].getExternalReferenceCode());
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"CONFLICT",
+			"BAD_REQUEST",
 			"A page element with the external reference code \"" +
 				collectionItemPageElement.getExternalReferenceCode() +
 					"\" already exists",

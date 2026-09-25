@@ -5,11 +5,13 @@
 
 package com.liferay.portal.vulcan.internal.jaxrs.exception.mapper;
 
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.HttpMethods;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.jaxrs.exception.mapper.BaseExceptionMapper;
 import com.liferay.portal.vulcan.jaxrs.exception.mapper.Problem;
 
@@ -22,8 +24,12 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Providers;
 
 /**
- * Converts any {@code PrincipalException} to a {@code 404} error in case it is
- * a GET request, otherwise return a {@code 403}
+ * Converts any {@code PrincipalException} that carries an external reference
+ * code to the same {@code 404} error a {@code NoSuchModelException} with that
+ * code produces, so that an entity the caller may not view is
+ * indistinguishable from a missing one. Otherwise, converts it to a {@code
+ * 404} error in case it is a GET request, or a {@code 403} error for any
+ * other request.
  *
  * @author Brian Wing Shun Chan
  * @review
@@ -33,6 +39,22 @@ public class PrincipalExceptionMapper
 
 	@Override
 	public Response toResponse(PrincipalException principalException) {
+		String externalReferenceCode =
+			principalException.getExternalReferenceCode();
+
+		if (Validator.isNotNull(externalReferenceCode)) {
+			NoSuchModelException noSuchModelException =
+				new NoSuchModelException(principalException);
+
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			ExceptionMapper<NoSuchModelException> exceptionMapper =
+				_providers.getExceptionMapper(NoSuchModelException.class);
+
+			return exceptionMapper.toResponse(noSuchModelException);
+		}
+
 		String method = _httpServletRequest.getMethod();
 
 		if (method.equals(HttpMethods.GET)) {

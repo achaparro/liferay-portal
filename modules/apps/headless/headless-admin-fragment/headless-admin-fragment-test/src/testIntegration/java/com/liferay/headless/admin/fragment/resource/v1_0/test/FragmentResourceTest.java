@@ -2767,19 +2767,15 @@ public class FragmentResourceTest extends BaseFragmentResourceTestCase {
 
 		fragment.setFragmentSet((FragmentSet)null);
 
-		try {
-			fragmentResource.postSiteFragmentSetFragment(
+		String fragmentSetExternalReferenceCode = RandomTestUtil.randomString();
+
+		_assertProblemException(
+			"NOT_FOUND",
+			"no-entity-with-the-external-reference-code-x-could-be-found",
+			() -> fragmentResource.postSiteFragmentSetFragment(
 				testGroup.getExternalReferenceCode(),
-				RandomTestUtil.randomString(), fragment);
-
-			Assert.fail();
-		}
-		catch (Problem.ProblemException problemException) {
-			Problem problem = problemException.getProblem();
-
-			Assert.assertEquals("NOT_FOUND", problem.getStatus());
-			Assert.assertNull(problem.getTitle());
-		}
+				fragmentSetExternalReferenceCode, fragment),
+			fragmentSetExternalReferenceCode);
 	}
 
 	private void _testPostSiteFragmentSetFragmentFragmentSetNonexisting()

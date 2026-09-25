@@ -382,7 +382,9 @@ public class PageExperienceResourceTest
 			RandomTestUtil.randomString();
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND", null,
+			"NOT_FOUND",
+			"No entity with the external reference code " +
+				pageExperienceExternalReferenceCode + " could be found.",
 			() -> pageExperienceResource.getSitePageExperience(
 				testGroup.getExternalReferenceCode(),
 				pageExperienceExternalReferenceCode));
@@ -427,7 +429,9 @@ public class PageExperienceResourceTest
 			RandomTestUtil.randomString();
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"NOT_FOUND", null,
+			"NOT_FOUND",
+			"No entity with the external reference code " +
+				pageExperienceExternalReferenceCode + " could be found.",
 			() -> pageExperienceResource.patchSitePageExperience(
 				testGroup.getExternalReferenceCode(),
 				pageExperienceExternalReferenceCode, randomPageExperience()));

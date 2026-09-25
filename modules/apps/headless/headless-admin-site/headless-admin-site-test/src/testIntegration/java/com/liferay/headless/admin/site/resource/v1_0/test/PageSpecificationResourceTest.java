@@ -148,7 +148,10 @@ public class PageSpecificationResourceTest
 			layoutPageTemplateEntry.getPlid());
 
 		_assertProblemException(
-			"NOT_FOUND", null,
+			"NOT_FOUND",
+			"No entity with the external reference code " +
+				layoutPageTemplateEntryLayout.getExternalReferenceCode() +
+					" could be found.",
 			() -> pageSpecificationResource.deleteSitePageSpecification(
 				testGroup.getExternalReferenceCode(),
 				layoutPageTemplateEntryLayout.getExternalReferenceCode()));

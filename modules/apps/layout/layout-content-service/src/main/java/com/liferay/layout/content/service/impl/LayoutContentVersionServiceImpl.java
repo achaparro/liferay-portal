@@ -8,8 +8,10 @@ package com.liferay.layout.content.service.impl;
 import com.liferay.layout.content.model.LayoutContentVersion;
 import com.liferay.layout.content.service.base.LayoutContentVersionServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 
@@ -97,16 +99,29 @@ public class LayoutContentVersionServiceImpl
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		LayoutContentVersion layoutContentVersion =
-			layoutContentVersionLocalService.
-				getLayoutContentVersionByExternalReferenceCode(
-					externalReferenceCode, groupId);
+		try {
+			LayoutContentVersion layoutContentVersion =
+				layoutContentVersionLocalService.
+					getLayoutContentVersionByExternalReferenceCode(
+						externalReferenceCode, groupId);
 
-		_layoutModelResourcePermission.check(
-			getPermissionChecker(), layoutContentVersion.getPlid(),
-			ActionKeys.UPDATE);
+			_layoutModelResourcePermission.check(
+				getPermissionChecker(), layoutContentVersion.getPlid(),
+				ActionKeys.UPDATE);
 
-		return layoutContentVersion;
+			return layoutContentVersion;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

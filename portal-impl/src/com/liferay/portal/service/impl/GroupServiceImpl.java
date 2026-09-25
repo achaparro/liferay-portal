@@ -16,6 +16,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.NoSuchGroupException;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -300,13 +301,26 @@ public class GroupServiceImpl extends GroupServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		Group group = groupPersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			Group group = groupPersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		GroupPermissionUtil.check(
-			getPermissionChecker(), group, ActionKeys.VIEW);
+			GroupPermissionUtil.check(
+				getPermissionChecker(), group, ActionKeys.VIEW);
 
-		return group;
+			return group;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	/**

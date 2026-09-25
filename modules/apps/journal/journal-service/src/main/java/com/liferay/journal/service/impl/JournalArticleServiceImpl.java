@@ -17,8 +17,10 @@ import com.liferay.journal.service.base.JournalArticleServiceBaseImpl;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.PortletRequestModel;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
@@ -1551,14 +1553,28 @@ public class JournalArticleServiceImpl extends JournalArticleServiceBaseImpl {
 			long groupId, String externalReferenceCode)
 		throws PortalException {
 
-		JournalArticle article =
-			journalArticleLocalService.getLatestArticleByExternalReferenceCode(
-				groupId, externalReferenceCode);
+		try {
+			JournalArticle article =
+				journalArticleLocalService.
+					getLatestArticleByExternalReferenceCode(
+						groupId, externalReferenceCode);
 
-		_journalArticleModelResourcePermission.check(
-			getPermissionChecker(), article, ActionKeys.VIEW);
+			_journalArticleModelResourcePermission.check(
+				getPermissionChecker(), article, ActionKeys.VIEW);
 
-		return article;
+			return article;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

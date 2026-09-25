@@ -10,6 +10,7 @@ import com.liferay.fragment.service.base.FragmentEntryLinkServiceBaseImpl;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -95,9 +96,22 @@ public class FragmentEntryLinkServiceImpl
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		return fragmentEntryLinkLocalService.
-			getFragmentEntryLinkByExternalReferenceCode(
-				externalReferenceCode, groupId);
+		try {
+			return fragmentEntryLinkLocalService.
+				getFragmentEntryLinkByExternalReferenceCode(
+					externalReferenceCode, groupId);
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

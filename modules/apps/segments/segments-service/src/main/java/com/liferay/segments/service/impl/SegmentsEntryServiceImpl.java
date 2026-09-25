@@ -6,9 +6,11 @@
 package com.liferay.segments.service.impl;
 
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -171,14 +173,26 @@ public class SegmentsEntryServiceImpl extends SegmentsEntryServiceBaseImpl {
 			String segmentsEntryERC, long groupId)
 		throws PortalException {
 
-		SegmentsEntry segmentsEntry = segmentsEntryPersistence.findByERC_G(
-			segmentsEntryERC, groupId);
+		try {
+			SegmentsEntry segmentsEntry = segmentsEntryPersistence.findByERC_G(
+				segmentsEntryERC, groupId);
 
-		_segmentsEntryResourcePermission.check(
-			getPermissionChecker(), segmentsEntry.getSegmentsEntryId(),
-			ActionKeys.VIEW);
+			_segmentsEntryResourcePermission.check(
+				getPermissionChecker(), segmentsEntry.getSegmentsEntryId(),
+				ActionKeys.VIEW);
 
-		return segmentsEntry;
+			return segmentsEntry;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(segmentsEntryERC);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(segmentsEntryERC);
+
+			throw principalException;
+		}
 	}
 
 	@Override

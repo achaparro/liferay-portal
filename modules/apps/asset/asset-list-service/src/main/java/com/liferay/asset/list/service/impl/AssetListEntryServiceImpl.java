@@ -11,7 +11,9 @@ import com.liferay.asset.list.service.base.AssetListEntryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.dao.orm.WildcardMode;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -393,13 +395,27 @@ public class AssetListEntryServiceImpl extends AssetListEntryServiceBaseImpl {
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		AssetListEntry assetListEntry = assetListEntryPersistence.findByERC_G(
-			externalReferenceCode, groupId);
+		try {
+			AssetListEntry assetListEntry =
+				assetListEntryPersistence.findByERC_G(
+					externalReferenceCode, groupId);
 
-		_assetListEntryModelResourcePermission.check(
-			getPermissionChecker(), assetListEntry, ActionKeys.VIEW);
+			_assetListEntryModelResourcePermission.check(
+				getPermissionChecker(), assetListEntry, ActionKeys.VIEW);
 
-		return assetListEntry;
+			return assetListEntry;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

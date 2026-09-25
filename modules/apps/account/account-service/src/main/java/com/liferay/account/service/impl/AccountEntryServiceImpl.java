@@ -10,6 +10,7 @@ import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.base.AccountEntryServiceBaseImpl;
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -224,14 +225,27 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		AccountEntry accountEntry = accountEntryPersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			AccountEntry accountEntry = accountEntryPersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		_accountEntryModelResourcePermission.check(
-			getPermissionChecker(), accountEntry.getAccountEntryId(),
-			ActionKeys.VIEW);
+			_accountEntryModelResourcePermission.check(
+				getPermissionChecker(), accountEntry.getAccountEntryId(),
+				ActionKeys.VIEW);
 
-		return accountEntry;
+			return accountEntry;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	public AccountEntry getOrAddEmptyAccountEntry(

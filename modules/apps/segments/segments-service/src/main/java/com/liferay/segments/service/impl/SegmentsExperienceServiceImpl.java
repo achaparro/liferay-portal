@@ -6,8 +6,10 @@
 package com.liferay.segments.service.impl;
 
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -215,15 +217,28 @@ public class SegmentsExperienceServiceImpl
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		SegmentsExperience segmentsExperience =
-			segmentsExperienceLocalService.
-				getSegmentsExperienceByExternalReferenceCode(
-					externalReferenceCode, groupId);
+		try {
+			SegmentsExperience segmentsExperience =
+				segmentsExperienceLocalService.
+					getSegmentsExperienceByExternalReferenceCode(
+						externalReferenceCode, groupId);
 
-		_segmentsExperienceResourcePermission.check(
-			getPermissionChecker(), segmentsExperience, ActionKeys.VIEW);
+			_segmentsExperienceResourcePermission.check(
+				getPermissionChecker(), segmentsExperience, ActionKeys.VIEW);
 
-		return segmentsExperience;
+			return segmentsExperience;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

@@ -9,8 +9,10 @@ import com.liferay.oauth.client.persistence.constants.OAuthClientPersistenceActi
 import com.liferay.oauth.client.persistence.model.OAuthClientEntry;
 import com.liferay.oauth.client.persistence.service.base.OAuthClientEntryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
@@ -154,15 +156,28 @@ public class OAuthClientEntryServiceImpl
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		OAuthClientEntry oAuthClientEntry =
-			oAuthClientEntryLocalService.
-				getOAuthClientEntryByExternalReferenceCode(
-					externalReferenceCode, companyId);
+		try {
+			OAuthClientEntry oAuthClientEntry =
+				oAuthClientEntryLocalService.
+					getOAuthClientEntryByExternalReferenceCode(
+						externalReferenceCode, companyId);
 
-		_oAuthClientEntryModelResourcePermission.check(
-			getPermissionChecker(), oAuthClientEntry, ActionKeys.VIEW);
+			_oAuthClientEntryModelResourcePermission.check(
+				getPermissionChecker(), oAuthClientEntry, ActionKeys.VIEW);
 
-		return oAuthClientEntry;
+			return oAuthClientEntry;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

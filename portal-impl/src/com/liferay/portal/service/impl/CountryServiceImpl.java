@@ -5,6 +5,7 @@
 
 package com.liferay.portal.service.impl;
 
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
@@ -12,6 +13,7 @@ import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceMode;
 import com.liferay.portal.kernel.model.Country;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.security.access.control.AccessControlled;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -225,13 +227,27 @@ public class CountryServiceImpl extends CountryServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		Country country = countryPersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			Country country = countryPersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		CountryPermissionUtil.check(
-			getPermissionChecker(), country.getCountryId(), ActionKeys.VIEW);
+			CountryPermissionUtil.check(
+				getPermissionChecker(), country.getCountryId(),
+				ActionKeys.VIEW);
 
-		return country;
+			return country;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

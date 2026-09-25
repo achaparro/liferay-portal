@@ -15,12 +15,14 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Organization;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -199,15 +201,28 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		FileEntry fileEntry =
-			blogsEntryLocalService.
-				getAttachmentFileEntryByExternalReferenceCode(
-					externalReferenceCode, groupId);
+		try {
+			FileEntry fileEntry =
+				blogsEntryLocalService.
+					getAttachmentFileEntryByExternalReferenceCode(
+						externalReferenceCode, groupId);
 
-		_fileEntryModelResourcePermission.check(
-			getPermissionChecker(), fileEntry, ActionKeys.VIEW);
+			_fileEntryModelResourcePermission.check(
+				getPermissionChecker(), fileEntry, ActionKeys.VIEW);
 
-		return fileEntry;
+			return fileEntry;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override
@@ -215,13 +230,26 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			long groupId, String externalReferenceCode)
 		throws PortalException {
 
-		BlogsEntry entry = blogsEntryPersistence.findByERC_G(
-			externalReferenceCode, groupId);
+		try {
+			BlogsEntry entry = blogsEntryPersistence.findByERC_G(
+				externalReferenceCode, groupId);
 
-		_blogsEntryModelResourcePermission.check(
-			getPermissionChecker(), entry, ActionKeys.VIEW);
+			_blogsEntryModelResourcePermission.check(
+				getPermissionChecker(), entry, ActionKeys.VIEW);
 
-		return entry;
+			return entry;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

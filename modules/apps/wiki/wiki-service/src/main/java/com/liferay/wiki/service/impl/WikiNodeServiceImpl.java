@@ -6,7 +6,9 @@
 package com.liferay.wiki.service.impl;
 
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -172,13 +174,26 @@ public class WikiNodeServiceImpl extends WikiNodeServiceBaseImpl {
 			long groupId, String externalReferenceCode)
 		throws PortalException {
 
-		WikiNode node = wikiNodePersistence.findByERC_G(
-			externalReferenceCode, groupId);
+		try {
+			WikiNode node = wikiNodePersistence.findByERC_G(
+				externalReferenceCode, groupId);
 
-		_wikiNodeModelResourcePermission.check(
-			getPermissionChecker(), node, ActionKeys.VIEW);
+			_wikiNodeModelResourcePermission.check(
+				getPermissionChecker(), node, ActionKeys.VIEW);
 
-		return node;
+			return node;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

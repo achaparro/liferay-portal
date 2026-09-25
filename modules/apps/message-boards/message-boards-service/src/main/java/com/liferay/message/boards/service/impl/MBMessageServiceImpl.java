@@ -25,6 +25,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.comment.DiscussionPermission;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.lock.LockManager;
@@ -691,13 +692,26 @@ public class MBMessageServiceImpl extends MBMessageServiceBaseImpl {
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		MBMessage mbMessage = mbMessagePersistence.findByERC_G(
-			externalReferenceCode, groupId);
+		try {
+			MBMessage mbMessage = mbMessagePersistence.findByERC_G(
+				externalReferenceCode, groupId);
 
-		_messageModelResourcePermission.check(
-			getPermissionChecker(), mbMessage, ActionKeys.VIEW);
+			_messageModelResourcePermission.check(
+				getPermissionChecker(), mbMessage, ActionKeys.VIEW);
 
-		return mbMessage;
+			return mbMessage;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -321,13 +322,26 @@ public class DDMStructureServiceImpl extends DDMStructureServiceBaseImpl {
 			String externalReferenceCode, long groupId, long classNameId)
 		throws PortalException {
 
-		DDMStructure structure = ddmStructurePersistence.findByERC_G_C(
-			externalReferenceCode, groupId, classNameId);
+		try {
+			DDMStructure structure = ddmStructurePersistence.findByERC_G_C(
+				externalReferenceCode, groupId, classNameId);
 
-		_ddmStructureModelResourcePermission.check(
-			getPermissionChecker(), structure, ActionKeys.VIEW);
+			_ddmStructureModelResourcePermission.check(
+				getPermissionChecker(), structure, ActionKeys.VIEW);
 
-		return structure;
+			return structure;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

@@ -10,7 +10,9 @@ import com.liferay.object.constants.ObjectConstants;
 import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.service.base.ObjectFolderServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -71,13 +73,26 @@ public class ObjectFolderServiceImpl extends ObjectFolderServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		ObjectFolder objectFolder = objectFolderPersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			ObjectFolder objectFolder = objectFolderPersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		_objectFolderModelResourcePermission.check(
-			getPermissionChecker(), objectFolder, ActionKeys.VIEW);
+			_objectFolderModelResourcePermission.check(
+				getPermissionChecker(), objectFolder, ActionKeys.VIEW);
 
-		return objectFolder;
+			return objectFolder;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

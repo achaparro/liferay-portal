@@ -6,7 +6,9 @@
 package com.liferay.portal.language.override.service.impl;
 
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.permission.PortalPermissionUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -158,13 +160,26 @@ public class PLOEntryServiceImpl extends PLOEntryServiceBaseImpl {
 			String externalReferenceCode)
 		throws PortalException {
 
-		PermissionChecker permissionChecker = getPermissionChecker();
+		try {
+			PermissionChecker permissionChecker = getPermissionChecker();
 
-		PortalPermissionUtil.check(
-			permissionChecker, PLOActionKeys.MANAGE_LANGUAGE_OVERRIDES);
+			PortalPermissionUtil.check(
+				permissionChecker, PLOActionKeys.MANAGE_LANGUAGE_OVERRIDES);
 
-		return ploEntryLocalService.getPLOEntryByExternalReferenceCode(
-			externalReferenceCode, permissionChecker.getCompanyId());
+			return ploEntryLocalService.getPLOEntryByExternalReferenceCode(
+				externalReferenceCode, permissionChecker.getCompanyId());
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

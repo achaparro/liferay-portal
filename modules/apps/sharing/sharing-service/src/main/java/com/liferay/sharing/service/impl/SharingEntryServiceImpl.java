@@ -6,7 +6,9 @@
 package com.liferay.sharing.service.impl;
 
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.sharing.model.SharingEntry;
@@ -258,15 +260,28 @@ public class SharingEntryServiceImpl extends SharingEntryServiceBaseImpl {
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		SharingEntry sharingEntry = sharingEntryPersistence.findByERC_G(
-			externalReferenceCode, groupId);
+		try {
+			SharingEntry sharingEntry = sharingEntryPersistence.findByERC_G(
+				externalReferenceCode, groupId);
 
-		sharingPermission.check(
-			getPermissionChecker(), sharingEntry.getClassNameId(),
-			sharingEntry.getClassPK(), groupId,
-			Collections.singletonList(SharingEntryAction.VIEW));
+			sharingPermission.check(
+				getPermissionChecker(), sharingEntry.getClassNameId(),
+				sharingEntry.getClassPK(), groupId,
+				Collections.singletonList(SharingEntryAction.VIEW));
 
-		return sharingEntry;
+			return sharingEntry;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	/**

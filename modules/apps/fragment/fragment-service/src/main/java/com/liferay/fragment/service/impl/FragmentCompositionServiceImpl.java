@@ -13,7 +13,9 @@ import com.liferay.fragment.service.base.FragmentCompositionServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.dao.orm.WildcardMode;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -112,16 +114,29 @@ public class FragmentCompositionServiceImpl
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		FragmentComposition fragmentComposition =
-			fragmentCompositionLocalService.
-				getFragmentCompositionByExternalReferenceCode(
-					externalReferenceCode, groupId);
+		try {
+			FragmentComposition fragmentComposition =
+				fragmentCompositionLocalService.
+					getFragmentCompositionByExternalReferenceCode(
+						externalReferenceCode, groupId);
 
-		_portletResourcePermission.check(
-			getPermissionChecker(), fragmentComposition.getGroupId(),
-			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
+			_portletResourcePermission.check(
+				getPermissionChecker(), fragmentComposition.getGroupId(),
+				FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
 
-		return fragmentComposition;
+			return fragmentComposition;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

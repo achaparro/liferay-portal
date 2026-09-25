@@ -10,6 +10,7 @@ import com.liferay.commerce.product.model.CommerceCatalog;
 import com.liferay.commerce.product.service.CommerceCatalogLocalService;
 import com.liferay.commerce.product.service.base.CPConfigurationListServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.search.Indexable;
@@ -153,15 +154,28 @@ public class CPConfigurationListServiceImpl
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		CPConfigurationList cpConfigurationList =
-			cpConfigurationListLocalService.
-				getCPConfigurationListByExternalReferenceCode(
-					externalReferenceCode, companyId);
+		try {
+			CPConfigurationList cpConfigurationList =
+				cpConfigurationListLocalService.
+					getCPConfigurationListByExternalReferenceCode(
+						externalReferenceCode, companyId);
 
-		_checkCommerceCatalog(
-			cpConfigurationList.getGroupId(), ActionKeys.VIEW);
+			_checkCommerceCatalog(
+				cpConfigurationList.getGroupId(), ActionKeys.VIEW);
 
-		return cpConfigurationList;
+			return cpConfigurationList;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

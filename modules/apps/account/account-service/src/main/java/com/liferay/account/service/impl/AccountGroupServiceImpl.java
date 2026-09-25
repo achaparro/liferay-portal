@@ -11,8 +11,10 @@ import com.liferay.account.model.AccountGroup;
 import com.liferay.account.service.base.AccountGroupServiceBaseImpl;
 import com.liferay.account.service.persistence.AccountGroupRelPersistence;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
@@ -122,13 +124,26 @@ public class AccountGroupServiceImpl extends AccountGroupServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		AccountGroup accountGroup = accountGroupPersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			AccountGroup accountGroup = accountGroupPersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		_accountGroupModelResourcePermission.check(
-			getPermissionChecker(), accountGroup, ActionKeys.VIEW);
+			_accountGroupModelResourcePermission.check(
+				getPermissionChecker(), accountGroup, ActionKeys.VIEW);
 
-		return accountGroup;
+			return accountGroup;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

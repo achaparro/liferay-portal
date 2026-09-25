@@ -18,7 +18,9 @@ import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -120,15 +122,28 @@ public class NotificationTemplateServiceImpl
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		NotificationTemplate notificationTemplate =
-			notificationTemplateLocalService.
-				getNotificationTemplateByExternalReferenceCode(
-					externalReferenceCode, companyId);
+		try {
+			NotificationTemplate notificationTemplate =
+				notificationTemplateLocalService.
+					getNotificationTemplateByExternalReferenceCode(
+						externalReferenceCode, companyId);
 
-		_notificationTemplateModelResourcePermission.check(
-			getPermissionChecker(), notificationTemplate, ActionKeys.VIEW);
+			_notificationTemplateModelResourcePermission.check(
+				getPermissionChecker(), notificationTemplate, ActionKeys.VIEW);
 
-		return notificationTemplate;
+			return notificationTemplate;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

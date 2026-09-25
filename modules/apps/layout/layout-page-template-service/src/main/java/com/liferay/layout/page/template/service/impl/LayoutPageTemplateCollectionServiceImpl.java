@@ -12,7 +12,9 @@ import com.liferay.layout.page.template.service.base.LayoutPageTemplateCollectio
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.dao.orm.WildcardMode;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -192,16 +194,29 @@ public class LayoutPageTemplateCollectionServiceImpl
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		LayoutPageTemplateCollection layoutPageTemplateCollection =
-			layoutPageTemplateCollectionLocalService.
-				getLayoutPageTemplateCollectionByExternalReferenceCode(
-					externalReferenceCode, groupId);
+		try {
+			LayoutPageTemplateCollection layoutPageTemplateCollection =
+				layoutPageTemplateCollectionLocalService.
+					getLayoutPageTemplateCollectionByExternalReferenceCode(
+						externalReferenceCode, groupId);
 
-		_layoutPageTemplateCollectionModelResourcePermission.check(
-			getPermissionChecker(), layoutPageTemplateCollection,
-			ActionKeys.VIEW);
+			_layoutPageTemplateCollectionModelResourcePermission.check(
+				getPermissionChecker(), layoutPageTemplateCollection,
+				ActionKeys.VIEW);
 
-		return layoutPageTemplateCollection;
+			return layoutPageTemplateCollection;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

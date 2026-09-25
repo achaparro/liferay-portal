@@ -8,7 +8,9 @@ package com.liferay.site.navigation.service.impl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.dao.orm.WildcardMode;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -126,15 +128,28 @@ public class SiteNavigationMenuServiceImpl
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		SiteNavigationMenu siteNavigationMenu =
-			siteNavigationMenuLocalService.
-				getSiteNavigationMenuByExternalReferenceCode(
-					externalReferenceCode, groupId);
+		try {
+			SiteNavigationMenu siteNavigationMenu =
+				siteNavigationMenuLocalService.
+					getSiteNavigationMenuByExternalReferenceCode(
+						externalReferenceCode, groupId);
 
-		_siteNavigationMenuModelResourcePermission.check(
-			getPermissionChecker(), siteNavigationMenu, ActionKeys.VIEW);
+			_siteNavigationMenuModelResourcePermission.check(
+				getPermissionChecker(), siteNavigationMenu, ActionKeys.VIEW);
 
-		return siteNavigationMenu;
+			return siteNavigationMenu;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

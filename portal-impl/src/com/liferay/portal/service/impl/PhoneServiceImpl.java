@@ -6,9 +6,11 @@
 package com.liferay.portal.service.impl;
 
 import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Phone;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -99,14 +101,27 @@ public class PhoneServiceImpl extends PhoneServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		Phone phone = phonePersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			Phone phone = phonePersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		CommonPermissionUtil.check(
-			getPermissionChecker(), phone.getClassNameId(), phone.getClassPK(),
-			ActionKeys.VIEW);
+			CommonPermissionUtil.check(
+				getPermissionChecker(), phone.getClassNameId(),
+				phone.getClassPK(), ActionKeys.VIEW);
 
-		return phone;
+			return phone;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

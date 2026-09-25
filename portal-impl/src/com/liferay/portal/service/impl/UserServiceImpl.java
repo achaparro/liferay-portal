@@ -10,6 +10,7 @@ import com.liferay.announcements.kernel.service.AnnouncementsDeliveryService;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.RequiredUserException;
 import com.liferay.portal.kernel.exception.UserEmailAddressException;
@@ -1529,13 +1530,26 @@ public class UserServiceImpl extends UserServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		User user = userPersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			User user = userPersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		UserPermissionUtil.check(
-			getPermissionChecker(), user.getUserId(), ActionKeys.VIEW);
+			UserPermissionUtil.check(
+				getPermissionChecker(), user.getUserId(), ActionKeys.VIEW);
 
-		return user;
+			return user;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	/**

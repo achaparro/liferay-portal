@@ -7,6 +7,7 @@ package com.liferay.portal.workflow.kaleo.service.impl;
 
 import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -72,15 +73,28 @@ public class KaleoDefinitionServiceImpl extends KaleoDefinitionServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		KaleoDefinition kaleoDefinition =
-			_kaleoDefinitionLocalService.
-				getKaleoDefinitionByExternalReferenceCode(
-					externalReferenceCode, companyId);
+		try {
+			KaleoDefinition kaleoDefinition =
+				_kaleoDefinitionLocalService.
+					getKaleoDefinitionByExternalReferenceCode(
+						externalReferenceCode, companyId);
 
-		_kaleoDefinitionModelResourcePermission.check(
-			getPermissionChecker(), kaleoDefinition, ActionKeys.VIEW);
+			_kaleoDefinitionModelResourcePermission.check(
+				getPermissionChecker(), kaleoDefinition, ActionKeys.VIEW);
 
-		return kaleoDefinition;
+			return kaleoDefinition;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

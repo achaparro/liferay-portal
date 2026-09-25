@@ -10,9 +10,11 @@ import com.liferay.commerce.product.constants.CPConstants;
 import com.liferay.commerce.product.model.CPTaxCategory;
 import com.liferay.commerce.product.service.base.CPTaxCategoryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
@@ -156,14 +158,28 @@ public class CPTaxCategoryServiceImpl extends CPTaxCategoryServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		CPTaxCategory cpTaxCategory =
-			cpTaxCategoryLocalService.getCPTaxCategoryByExternalReferenceCode(
-				externalReferenceCode, companyId);
+		try {
+			CPTaxCategory cpTaxCategory =
+				cpTaxCategoryLocalService.
+					getCPTaxCategoryByExternalReferenceCode(
+						externalReferenceCode, companyId);
 
-		_modelResourcePermission.check(
-			getPermissionChecker(), cpTaxCategory, ActionKeys.VIEW);
+			_modelResourcePermission.check(
+				getPermissionChecker(), cpTaxCategory, ActionKeys.VIEW);
 
-		return cpTaxCategory;
+			return cpTaxCategory;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

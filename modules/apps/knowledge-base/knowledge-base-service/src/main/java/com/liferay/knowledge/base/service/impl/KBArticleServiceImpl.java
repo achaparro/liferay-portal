@@ -25,6 +25,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.model.Group;
@@ -704,14 +705,27 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 			long groupId, String externalReferenceCode)
 		throws PortalException {
 
-		KBArticle kbArticle =
-			kbArticleLocalService.getLatestKBArticleByExternalReferenceCode(
-				groupId, externalReferenceCode);
+		try {
+			KBArticle kbArticle =
+				kbArticleLocalService.getLatestKBArticleByExternalReferenceCode(
+					groupId, externalReferenceCode);
 
-		_kbArticleModelResourcePermission.check(
-			getPermissionChecker(), kbArticle, KBActionKeys.VIEW);
+			_kbArticleModelResourcePermission.check(
+				getPermissionChecker(), kbArticle, KBActionKeys.VIEW);
 
-		return kbArticle;
+			return kbArticle;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

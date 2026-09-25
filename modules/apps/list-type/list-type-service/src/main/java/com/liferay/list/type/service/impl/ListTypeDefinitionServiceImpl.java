@@ -11,7 +11,9 @@ import com.liferay.list.type.model.ListTypeDefinition;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.base.ListTypeDefinitionServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
@@ -114,16 +116,29 @@ public class ListTypeDefinitionServiceImpl
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		ListTypeDefinition listTypeDefinition =
-			listTypeDefinitionLocalService.
-				getListTypeDefinitionByExternalReferenceCode(
-					externalReferenceCode, companyId);
+		try {
+			ListTypeDefinition listTypeDefinition =
+				listTypeDefinitionLocalService.
+					getListTypeDefinitionByExternalReferenceCode(
+						externalReferenceCode, companyId);
 
-		_listTypeDefinitionModelResourcePermission.check(
-			getPermissionChecker(),
-			listTypeDefinition.getListTypeDefinitionId(), ActionKeys.VIEW);
+			_listTypeDefinitionModelResourcePermission.check(
+				getPermissionChecker(),
+				listTypeDefinition.getListTypeDefinitionId(), ActionKeys.VIEW);
 
-		return listTypeDefinition;
+			return listTypeDefinition;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

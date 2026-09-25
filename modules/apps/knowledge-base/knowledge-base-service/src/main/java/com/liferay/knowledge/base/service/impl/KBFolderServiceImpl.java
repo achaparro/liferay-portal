@@ -10,7 +10,9 @@ import com.liferay.knowledge.base.model.KBFolder;
 import com.liferay.knowledge.base.service.base.KBFolderServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
@@ -125,13 +127,26 @@ public class KBFolderServiceImpl extends KBFolderServiceBaseImpl {
 			long groupId, String externalReferenceCode)
 		throws PortalException {
 
-		KBFolder kbFolder = kbFolderPersistence.findByERC_G(
-			externalReferenceCode, groupId);
+		try {
+			KBFolder kbFolder = kbFolderPersistence.findByERC_G(
+				externalReferenceCode, groupId);
 
-		_kbFolderModelResourcePermission.check(
-			getPermissionChecker(), kbFolder, KBActionKeys.VIEW);
+			_kbFolderModelResourcePermission.check(
+				getPermissionChecker(), kbFolder, KBActionKeys.VIEW);
 
-		return kbFolder;
+			return kbFolder;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

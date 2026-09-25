@@ -9,9 +9,11 @@ import com.liferay.commerce.product.constants.CPActionKeys;
 import com.liferay.commerce.product.model.CPOptionCategory;
 import com.liferay.commerce.product.service.base.CPOptionCategoryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
@@ -155,16 +157,29 @@ public class CPOptionCategoryServiceImpl
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		CPOptionCategory cpOptionCategory =
-			cpOptionCategoryLocalService.
-				getCPOptionCategoryByExternalReferenceCode(
-					externalReferenceCode, companyId);
+		try {
+			CPOptionCategory cpOptionCategory =
+				cpOptionCategoryLocalService.
+					getCPOptionCategoryByExternalReferenceCode(
+						externalReferenceCode, companyId);
 
-		_cpOptionCategoryModelResourcePermission.check(
-			getPermissionChecker(), cpOptionCategory.getCPOptionCategoryId(),
-			ActionKeys.VIEW);
+			_cpOptionCategoryModelResourcePermission.check(
+				getPermissionChecker(),
+				cpOptionCategory.getCPOptionCategoryId(), ActionKeys.VIEW);
 
-		return cpOptionCategory;
+			return cpOptionCategory;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

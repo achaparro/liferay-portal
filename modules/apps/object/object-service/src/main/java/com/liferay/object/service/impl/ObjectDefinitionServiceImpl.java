@@ -17,8 +17,10 @@ import com.liferay.object.service.base.ObjectDefinitionServiceBaseImpl;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
@@ -210,15 +212,28 @@ public class ObjectDefinitionServiceImpl
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		ObjectDefinition objectDefinition =
-			objectDefinitionLocalService.
-				getObjectDefinitionByExternalReferenceCode(
-					externalReferenceCode, companyId);
+		try {
+			ObjectDefinition objectDefinition =
+				objectDefinitionLocalService.
+					getObjectDefinitionByExternalReferenceCode(
+						externalReferenceCode, companyId);
 
-		_objectDefinitionModelResourcePermission.check(
-			getPermissionChecker(), objectDefinition, ActionKeys.VIEW);
+			_objectDefinitionModelResourcePermission.check(
+				getPermissionChecker(), objectDefinition, ActionKeys.VIEW);
 
-		return objectDefinition;
+			return objectDefinition;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

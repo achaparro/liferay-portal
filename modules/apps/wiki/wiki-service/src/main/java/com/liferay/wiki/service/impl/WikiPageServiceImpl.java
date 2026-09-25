@@ -10,10 +10,12 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -402,14 +404,27 @@ public class WikiPageServiceImpl extends WikiPageServiceBaseImpl {
 			long groupId, String externalReferenceCode)
 		throws PortalException {
 
-		WikiPage wikiPage = wikiPagePersistence.findByG_ERC_First(
-			groupId, externalReferenceCode,
-			PageVersionComparator.getInstance(false));
+		try {
+			WikiPage wikiPage = wikiPagePersistence.findByG_ERC_First(
+				groupId, externalReferenceCode,
+				PageVersionComparator.getInstance(false));
 
-		_wikiPageModelResourcePermission.check(
-			getPermissionChecker(), wikiPage, ActionKeys.VIEW);
+			_wikiPageModelResourcePermission.check(
+				getPermissionChecker(), wikiPage, ActionKeys.VIEW);
 
-		return wikiPage;
+			return wikiPage;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

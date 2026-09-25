@@ -7,11 +7,13 @@ package com.liferay.portal.service.impl;
 
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.membershippolicy.OrganizationMembershipPolicyUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -256,13 +258,26 @@ public class RoleServiceImpl extends RoleServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		Role role = rolePersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			Role role = rolePersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		RolePermissionUtil.check(
-			getPermissionChecker(), role.getRoleId(), ActionKeys.VIEW);
+			RolePermissionUtil.check(
+				getPermissionChecker(), role.getRoleId(), ActionKeys.VIEW);
 
-		return role;
+			return role;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

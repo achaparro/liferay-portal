@@ -10,7 +10,9 @@ import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.base.ObjectEntryFolderServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
@@ -157,16 +159,29 @@ public class ObjectEntryFolderServiceImpl
 			String externalReferenceCode, long groupId, long companyId)
 		throws PortalException {
 
-		ObjectEntryFolder objectEntryFolder =
-			objectEntryFolderLocalService.
-				getObjectEntryFolderByExternalReferenceCode(
-					externalReferenceCode, groupId, companyId);
+		try {
+			ObjectEntryFolder objectEntryFolder =
+				objectEntryFolderLocalService.
+					getObjectEntryFolderByExternalReferenceCode(
+						externalReferenceCode, groupId, companyId);
 
-		ModelResourcePermissionUtil.check(
-			_modelResourcePermission, getPermissionChecker(), groupId,
-			objectEntryFolder.getObjectEntryFolderId(), ActionKeys.VIEW);
+			ModelResourcePermissionUtil.check(
+				_modelResourcePermission, getPermissionChecker(), groupId,
+				objectEntryFolder.getObjectEntryFolderId(), ActionKeys.VIEW);
 
-		return objectEntryFolder;
+			return objectEntryFolder;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

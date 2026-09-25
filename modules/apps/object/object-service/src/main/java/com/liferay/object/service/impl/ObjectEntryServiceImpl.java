@@ -35,6 +35,7 @@ import com.liferay.portal.aop.AopService;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -413,16 +414,29 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 			String externalReferenceCode, long groupId, long objectDefinitionId)
 		throws PortalException {
 
-		ObjectEntry objectEntry = objectEntryLocalService.getObjectEntry(
-			externalReferenceCode, groupId, objectDefinitionId);
+		try {
+			ObjectEntry objectEntry = objectEntryLocalService.getObjectEntry(
+				externalReferenceCode, groupId, objectDefinitionId);
 
-		if (!ObjectEntryThreadLocal.isSkipObjectEntryResourcePermission()) {
-			_checkPermission(
-				ActionKeys.VIEW, objectEntry.getObjectDefinitionId(),
-				objectEntry);
+			if (!ObjectEntryThreadLocal.isSkipObjectEntryResourcePermission()) {
+				_checkPermission(
+					ActionKeys.VIEW, objectEntry.getObjectDefinitionId(),
+					objectEntry);
+			}
+
+			return objectEntry;
 		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
 
-		return objectEntry;
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

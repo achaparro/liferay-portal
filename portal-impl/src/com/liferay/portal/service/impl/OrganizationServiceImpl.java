@@ -11,6 +11,7 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.model.EmailAddress;
@@ -23,6 +24,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.Website;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.membershippolicy.OrganizationMembershipPolicyUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -476,13 +478,26 @@ public class OrganizationServiceImpl extends OrganizationServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		Organization organization = organizationPersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			Organization organization = organizationPersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		OrganizationPermissionUtil.check(
-			getPermissionChecker(), organization, ActionKeys.VIEW);
+			OrganizationPermissionUtil.check(
+				getPermissionChecker(), organization, ActionKeys.VIEW);
 
-		return organization;
+			return organization;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	/**

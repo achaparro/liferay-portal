@@ -6,6 +6,7 @@
 package com.liferay.portal.service.impl;
 
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.User;
@@ -14,6 +15,7 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.SortFactoryUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -264,14 +266,27 @@ public class UserGroupServiceImpl extends UserGroupServiceBaseImpl {
 			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		UserGroup userGroup = userGroupPersistence.findByERC_C(
-			externalReferenceCode, companyId);
+		try {
+			UserGroup userGroup = userGroupPersistence.findByERC_C(
+				externalReferenceCode, companyId);
 
-		UserGroupPermissionUtil.check(
-			getPermissionChecker(), userGroup.getUserGroupId(),
-			ActionKeys.VIEW);
+			UserGroupPermissionUtil.check(
+				getPermissionChecker(), userGroup.getUserGroupId(),
+				ActionKeys.VIEW);
 
-		return userGroup;
+			return userGroup;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

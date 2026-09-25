@@ -21,6 +21,7 @@ import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -141,13 +142,26 @@ public class JournalFolderServiceImpl extends JournalFolderServiceBaseImpl {
 			long groupId, String externalReferenceCode)
 		throws PortalException {
 
-		JournalFolder folder = journalFolderPersistence.findByERC_G(
-			externalReferenceCode, groupId);
+		try {
+			JournalFolder folder = journalFolderPersistence.findByERC_G(
+				externalReferenceCode, groupId);
 
-		_journalFolderModelResourcePermission.check(
-			getPermissionChecker(), folder, ActionKeys.VIEW);
+			_journalFolderModelResourcePermission.check(
+				getPermissionChecker(), folder, ActionKeys.VIEW);
 
-		return folder;
+			return folder;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

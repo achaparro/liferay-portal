@@ -12,6 +12,7 @@ import com.liferay.dynamic.data.mapping.service.base.DDMTemplateServiceBaseImpl;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -366,13 +367,26 @@ public class DDMTemplateServiceImpl extends DDMTemplateServiceBaseImpl {
 			String externalReferenceCode, long groupId)
 		throws PortalException {
 
-		DDMTemplate ddmTemplate = ddmTemplatePersistence.findByERC_G(
-			externalReferenceCode, groupId);
+		try {
+			DDMTemplate ddmTemplate = ddmTemplatePersistence.findByERC_G(
+				externalReferenceCode, groupId);
 
-		_ddmTemplateModelResourcePermission.check(
-			getPermissionChecker(), ddmTemplate, ActionKeys.VIEW);
+			_ddmTemplateModelResourcePermission.check(
+				getPermissionChecker(), ddmTemplate, ActionKeys.VIEW);
 
-		return ddmTemplate;
+			return ddmTemplate;
+		}
+		catch (NoSuchModelException noSuchModelException) {
+			noSuchModelException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchModelException;
+		}
+		catch (PrincipalException principalException) {
+			principalException.setExternalReferenceCode(externalReferenceCode);
+
+			throw principalException;
+		}
 	}
 
 	@Override

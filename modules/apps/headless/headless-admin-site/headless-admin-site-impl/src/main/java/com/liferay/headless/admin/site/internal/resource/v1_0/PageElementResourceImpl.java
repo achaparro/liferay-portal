@@ -499,15 +499,8 @@ public class PageElementResourceImpl extends BasePageElementResourceImpl {
 
 		SegmentsExperience segmentsExperience =
 			_segmentsExperienceService.
-				fetchSegmentsExperienceByExternalReferenceCode(
+				getSegmentsExperienceByExternalReferenceCode(
 					pageExperienceExternalReferenceCode, groupId);
-
-		if (segmentsExperience == null) {
-			throw new NotFoundException(
-				StringBundler.concat(
-					"No page experience exists with the external reference ",
-					"code \"", pageExperienceExternalReferenceCode, "\""));
-		}
 
 		if (plid != segmentsExperience.getPlid()) {
 			throw new IllegalArgumentException(

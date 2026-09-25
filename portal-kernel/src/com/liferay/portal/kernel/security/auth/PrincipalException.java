@@ -34,6 +34,14 @@ public class PrincipalException extends PortalException {
 		super(throwable);
 	}
 
+	public String getExternalReferenceCode() {
+		return _externalReferenceCode;
+	}
+
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		_externalReferenceCode = externalReferenceCode;
+	}
+
 	public static class MustBeAuthenticated extends PrincipalException {
 
 		public MustBeAuthenticated(long userId) {
@@ -300,5 +308,7 @@ public class PrincipalException extends PortalException {
 		PrincipalException.MustHaveValidCSRFToken.class,
 		PrincipalException.MustHaveSessionCSRFToken.class
 	};
+
+	private String _externalReferenceCode;
 
 }

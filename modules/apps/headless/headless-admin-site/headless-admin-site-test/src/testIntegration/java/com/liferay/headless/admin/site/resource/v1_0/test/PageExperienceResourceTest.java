@@ -118,10 +118,11 @@ public class PageExperienceResourceTest
 		assertEquals(postPageExperience, getPageExperience);
 		assertValid(getPageExperience);
 
+		String externalReferenceCode = RandomTestUtil.randomString();
+
 		try {
 			pageExperienceResource.getSitePageExperience(
-				testGroup.getExternalReferenceCode(),
-				RandomTestUtil.randomString());
+				testGroup.getExternalReferenceCode(), externalReferenceCode);
 
 			Assert.fail();
 		}
@@ -129,7 +130,10 @@ public class PageExperienceResourceTest
 			Problem problem = problemException.getProblem();
 
 			Assert.assertEquals("NOT_FOUND", problem.getStatus());
-			Assert.assertNull(problem.getTitle());
+			Assert.assertEquals(
+				"No entity with the external reference code " +
+					externalReferenceCode + " could be found.",
+				problem.getTitle());
 		}
 	}
 
@@ -159,10 +163,12 @@ public class PageExperienceResourceTest
 
 		_testPatchSitePageExperienceWithPriority();
 
+		String externalReferenceCode = RandomTestUtil.randomString();
+
 		try {
 			pageExperienceResource.patchSitePageExperience(
-				testGroup.getExternalReferenceCode(),
-				RandomTestUtil.randomString(), randomPageExperience());
+				testGroup.getExternalReferenceCode(), externalReferenceCode,
+				randomPageExperience());
 
 			Assert.fail();
 		}
@@ -170,7 +176,10 @@ public class PageExperienceResourceTest
 			Problem problem = problemException.getProblem();
 
 			Assert.assertEquals("NOT_FOUND", problem.getStatus());
-			Assert.assertNull(problem.getTitle());
+			Assert.assertEquals(
+				"No entity with the external reference code " +
+					externalReferenceCode + " could be found.",
+				problem.getTitle());
 		}
 	}
 

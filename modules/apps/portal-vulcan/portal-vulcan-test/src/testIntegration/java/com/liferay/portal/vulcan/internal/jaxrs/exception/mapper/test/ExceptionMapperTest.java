@@ -121,6 +121,20 @@ public class ExceptionMapperTest {
 	}
 
 	@Test
+	@TestInfo("LPD-107137")
+	public void testNoSuchModelExceptionAndPrincipalExceptionWithExternalReferenceCodeReturnNotFound()
+		throws Exception {
+
+		_assertNotFoundWithExternalReferenceCode(
+			"/test-vulcan/testNoSuchModelExceptionWithExternalReferenceCode",
+			Http.Method.GET);
+		_assertNotFoundWithExternalReferenceCode(
+			"/test-vulcan/testPrincipalException3", Http.Method.GET);
+		_assertNotFoundWithExternalReferenceCode(
+			"/test-vulcan/testPrincipalException4", Http.Method.POST);
+	}
+
+	@Test
 	@TestInfo("LPD-63186")
 	public void testPrincipalExceptionReturnForbidden() throws Exception {
 		Assert.assertEquals(
@@ -222,10 +236,49 @@ public class ExceptionMapperTest {
 		}
 
 		@GET
+		@Path("/testPrincipalException3")
+		@Produces("application/json")
+		public String principalException3() throws PrincipalException {
+			PrincipalException principalException = new PrincipalException();
+
+			principalException.setExternalReferenceCode(
+				_EXTERNAL_REFERENCE_CODE);
+
+			throw principalException;
+		}
+
+		@Path("/testPrincipalException4")
+		@POST
+		@Produces("application/json")
+		public void principalException4() throws PrincipalException {
+			PrincipalException principalException = new PrincipalException();
+
+			principalException.setExternalReferenceCode(
+				_EXTERNAL_REFERENCE_CODE);
+
+			throw principalException;
+		}
+
+		@GET
 		@Path("/testNoSuchModelException")
 		@Produces("application/json")
 		public String testNoSuchModelException() throws NoSuchModelException {
 			throw new NoSuchModelException();
+		}
+
+		@GET
+		@Path("/testNoSuchModelExceptionWithExternalReferenceCode")
+		@Produces("application/json")
+		public String testNoSuchModelExceptionWithExternalReferenceCode()
+			throws NoSuchModelException {
+
+			NoSuchModelException noSuchModelException =
+				new NoSuchModelException();
+
+			noSuchModelException.setExternalReferenceCode(
+				_EXTERNAL_REFERENCE_CODE);
+
+			throw noSuchModelException;
 		}
 
 		@GET
@@ -245,7 +298,38 @@ public class ExceptionMapperTest {
 
 	}
 
+	private void _assertNotFoundWithExternalReferenceCode(
+			String path, Http.Method method)
+		throws Exception {
+
+		Assert.assertEquals(
+			404, HTTPTestUtil.invokeToHttpCode(null, path, method));
+
+		JSONObject jsonObject = HTTPTestUtil.invokeToJSONObject(
+			null, path,
+			HashMapBuilder.put(
+				"Accept-Language",
+				() -> {
+					Locale defaultLocale = LocaleUtil.getDefault();
+
+					return defaultLocale.toLanguageTag();
+				}
+			).build(),
+			method);
+
+		Assert.assertEquals("NOT_FOUND", jsonObject.getString("status"));
+		Assert.assertEquals(
+			LanguageUtil.format(
+				LocaleUtil.getDefault(),
+				"no-entity-with-the-external-reference-code-x-could-be-found",
+				_EXTERNAL_REFERENCE_CODE),
+			jsonObject.getString("title"));
+	}
+
 	private static final String _DETAIL = RandomTestUtil.randomString();
+
+	private static final String _EXTERNAL_REFERENCE_CODE =
+		RandomTestUtil.randomString();
 
 	private static final String _TITLE = RandomTestUtil.randomString();
 

@@ -1070,14 +1070,16 @@ public class ResourceFolderResourceTest
 		resourceFolder.setExternalReferenceCode(RandomTestUtil.randomString());
 		resourceFolder.setName(RandomTestUtil.randomString());
 
-		_assertProblemExceptionProblemStatus(
-			"FORBIDDEN",
+		_assertProblemException(
+			"NOT_FOUND",
+			"no-entity-with-the-external-reference-code-x-could-be-found",
 			() ->
 				_userWithoutPermissionsResourceFolderResource.
 					postSiteFragmentSetResourceFolder(
 						testGroup.getExternalReferenceCode(),
 						fragmentCollection.getExternalReferenceCode(),
-						resourceFolder));
+						resourceFolder),
+			fragmentCollection.getExternalReferenceCode());
 	}
 
 	private void _testPostSiteResourceFolder() throws Exception {

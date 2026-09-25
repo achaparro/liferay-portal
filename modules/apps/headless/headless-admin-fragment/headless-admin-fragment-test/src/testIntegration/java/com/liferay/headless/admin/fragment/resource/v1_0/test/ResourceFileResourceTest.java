@@ -1384,15 +1384,17 @@ public class ResourceFileResourceTest extends BaseResourceFileResourceTestCase {
 		FragmentCollection fragmentCollection = _addFragmentCollection(
 			testGroup.getGroupId());
 
-		_assertProblemExceptionProblemStatus(
-			"FORBIDDEN",
+		_assertProblemException(
+			"NOT_FOUND",
+			"no-entity-with-the-external-reference-code-x-could-be-found",
 			() ->
 				_userWithoutPermissionsResourceFileResource.
 					postSiteFragmentSetResourceFile(
 						testGroup.getExternalReferenceCode(),
 						fragmentCollection.getExternalReferenceCode(),
 						_randomResourceFile(
-							fragmentCollection.getExternalReferenceCode())));
+							fragmentCollection.getExternalReferenceCode())),
+			fragmentCollection.getExternalReferenceCode());
 	}
 
 	private void _testPostSiteResourceFile() throws Exception {

@@ -1982,19 +1982,15 @@ public class FragmentResourceTest extends BaseFragmentResourceTestCase {
 
 		fragment.setFragmentSet((FragmentSet)null);
 
-		try {
-			fragmentResource.postSiteFragmentSetFragment(
+		String fragmentSetExternalReferenceCode = RandomTestUtil.randomString();
+
+		_assertProblemException(
+			"NOT_FOUND",
+			"no-entity-with-the-external-reference-code-x-could-be-found",
+			() -> fragmentResource.postSiteFragmentSetFragment(
 				testGroup.getExternalReferenceCode(),
-				RandomTestUtil.randomString(), fragment);
-
-			Assert.fail();
-		}
-		catch (Problem.ProblemException problemException) {
-			Problem problem = problemException.getProblem();
-
-			Assert.assertEquals("NOT_FOUND", problem.getStatus());
-			Assert.assertNull(problem.getTitle());
-		}
+				fragmentSetExternalReferenceCode, fragment),
+			fragmentSetExternalReferenceCode);
 	}
 
 	private void _testPostSiteFragmentSetFragmentFragmentSetNonexisting()
@@ -2046,14 +2042,16 @@ public class FragmentResourceTest extends BaseFragmentResourceTestCase {
 	private void _testPostSiteFragmentSetFragmentWithoutPermissionsProblemException()
 		throws Exception {
 
-		_assertProblemExceptionProblemStatus(
-			"FORBIDDEN",
+		_assertProblemException(
+			"NOT_FOUND",
+			"no-entity-with-the-external-reference-code-x-could-be-found",
 			() ->
 				_userWithoutPermissionsFragmentResource.
 					postSiteFragmentSetFragment(
 						testGroup.getExternalReferenceCode(),
 						_fragmentCollection.getExternalReferenceCode(),
-						_randomFragment(true, true, _fragmentCollection)));
+						_randomFragment(true, true, _fragmentCollection)),
+			_fragmentCollection.getExternalReferenceCode());
 	}
 
 	private void _testPostSiteFragmentThumbnailURLReferenceExternalReferenceCode()
@@ -3023,12 +3021,15 @@ public class FragmentResourceTest extends BaseFragmentResourceTestCase {
 	private void _testPutSiteFragmentWithoutPermissionsProblemException()
 		throws Exception {
 
-		_assertProblemExceptionProblemStatus(
-			"FORBIDDEN",
+		String externalReferenceCode = RandomTestUtil.randomString();
+
+		_assertProblemException(
+			"NOT_FOUND",
+			"no-entity-with-the-external-reference-code-x-could-be-found",
 			() -> _userWithoutPermissionsFragmentResource.putSiteFragment(
-				testGroup.getExternalReferenceCode(),
-				RandomTestUtil.randomString(),
-				_randomFragment(true, true, _fragmentCollection)));
+				testGroup.getExternalReferenceCode(), externalReferenceCode,
+				_randomFragment(true, true, _fragmentCollection)),
+			externalReferenceCode);
 	}
 
 	private FragmentSet _toFragmentSet(FragmentCollection fragmentCollection) {

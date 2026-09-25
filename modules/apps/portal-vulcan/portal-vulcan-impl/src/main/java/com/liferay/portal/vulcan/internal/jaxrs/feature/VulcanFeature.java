@@ -144,7 +144,6 @@ public class VulcanFeature implements Feature {
 		featureContext.register(NotFoundExceptionMapper.class);
 		featureContext.register(ObjectMapperContextResolver.class);
 		featureContext.register(PageEntityExtensionWriterInterceptor.class);
-		featureContext.register(PrincipalExceptionMapper.class);
 		featureContext.register(ProblemWriterInterceptor.class);
 		featureContext.register(RestrictFieldsQueryParamContextProvider.class);
 		featureContext.register(
@@ -193,6 +192,7 @@ public class VulcanFeature implements Feature {
 			Priorities.USER - 10);
 		featureContext.register(
 			new PaginationContextProvider(_paginationProvider, _portal));
+		featureContext.register(new PrincipalExceptionMapper(_bundleContext));
 		featureContext.register(
 			new SiteParamConverterProvider(
 				_depotEntryLocalService, _groupLocalService));

@@ -7770,7 +7770,7 @@ paths:
                         "The request is invalid. For example, the page experience does not belong to the page specification, the page element definition is invalid, or a page element with the same external reference code already exists."
                 404:
                     description:
-                        "The requested page specification or page experience could not be found."
+                        "The requested page specification, page experience, or parent page element could not be found."
             # @review
             tags: ["PageElement"]
     "/sites/{siteExternalReferenceCode}/page-specifications/{pageSpecificationExternalReferenceCode}/page-experiences/{pageExperienceExternalReferenceCode}/page-elements/{pageElementExternalReferenceCode}":

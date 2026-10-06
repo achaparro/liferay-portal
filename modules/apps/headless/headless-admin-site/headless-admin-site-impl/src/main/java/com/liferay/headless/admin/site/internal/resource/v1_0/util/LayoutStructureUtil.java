@@ -14,6 +14,8 @@ import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import jakarta.ws.rs.NotFoundException;
+
 /**
  * @author Eudaldo Alonso
  */
@@ -43,7 +45,7 @@ public class LayoutStructureUtil {
 					parentExternalReferenceCode);
 
 			if (parentLayoutStructureItem == null) {
-				throw new IllegalArgumentException(
+				throw new NotFoundException(
 					"The parent page element \"" + parentExternalReferenceCode +
 						"\" does not exist");
 			}

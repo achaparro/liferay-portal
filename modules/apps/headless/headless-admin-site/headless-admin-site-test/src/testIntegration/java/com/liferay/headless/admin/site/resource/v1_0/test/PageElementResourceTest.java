@@ -2795,14 +2795,11 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 
 		PageElement pageElement = randomPageElement();
 
-		String parentExternalReferenceCode = RandomTestUtil.randomString();
-
-		pageElement.setParentExternalReferenceCode(parentExternalReferenceCode);
+		pageElement.setParentExternalReferenceCode(
+			RandomTestUtil.randomString());
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"BAD_REQUEST",
-			"The parent page element \"" + parentExternalReferenceCode +
-				"\" does not exist",
+			"NOT_FOUND", null,
 			() ->
 				pageElementResource.
 					postSitePageSpecificationPageExperiencePageElement(

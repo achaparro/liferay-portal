@@ -38,8 +38,6 @@ import com.liferay.portal.util.PortalInstances;
 import com.liferay.segments.constants.SegmentsEntryConstants;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.exception.DefaultSegmentsExperienceException;
-import com.liferay.segments.exception.DefaultSegmentsExperienceKeyException;
-import com.liferay.segments.exception.DefaultSegmentsExperiencePriorityException;
 import com.liferay.segments.exception.DuplicateSegmentsExperienceKeyException;
 import com.liferay.segments.exception.LockedSegmentsExperimentException;
 import com.liferay.segments.exception.RequiredSegmentsExperienceException;
@@ -899,7 +897,7 @@ public class SegmentsExperienceLocalServiceImpl
 		}
 
 		if (priority == 0) {
-			throw new DefaultSegmentsExperiencePriorityException(
+			throw new SegmentsExperiencePriorityException(
 				"Only the default segments experience can have priority 0");
 		}
 
@@ -916,20 +914,10 @@ public class SegmentsExperienceLocalServiceImpl
 			segmentsExperiencePersistence.fetchByG_SEK_P(
 				groupId, segmentsExperienceKey, plid);
 
-		if (segmentsExperience == null) {
-			return;
+		if (segmentsExperience != null) {
+			throw new DuplicateSegmentsExperienceKeyException(
+				segmentsExperienceKey);
 		}
-
-		if (SegmentsExperienceConstants.KEY_DEFAULT.equals(
-				segmentsExperienceKey)) {
-
-			throw new DefaultSegmentsExperienceKeyException(
-				"Only the default segments experience can use the key \"" +
-					SegmentsExperienceConstants.KEY_DEFAULT + "\"");
-		}
-
-		throw new DuplicateSegmentsExperienceKeyException(
-			segmentsExperienceKey);
 	}
 
 	private static final Snapshot<LayoutPageTemplateEntryLocalService>

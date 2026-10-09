@@ -676,8 +676,8 @@ public class PageExperienceResourceTest
 
 		ProblemExceptionTestUtil.assertProblemException(
 			"BAD_REQUEST",
-			"Only the default page experience can use the segments " +
-				"experience key \"Default\"",
+			"Only the default segments experience can use the key \"" +
+				SegmentsExperienceConstants.KEY_DEFAULT + "\"",
 			() ->
 				pageExperienceResource.postSitePageSpecificationPageExperience(
 					testGroup.getExternalReferenceCode(),
@@ -688,8 +688,8 @@ public class PageExperienceResourceTest
 		throws Exception {
 
 		ProblemExceptionTestUtil.assertProblemException(
-			"BAD_REQUEST",
-			"Only the default page experience can have a priority of 0",
+			"CONFLICT",
+			"Only the default segments experience can have priority 0",
 			() ->
 				pageExperienceResource.postSitePageSpecificationPageExperience(
 					testGroup.getExternalReferenceCode(),

@@ -7607,7 +7607,7 @@ paths:
                         "The requested page specification or page experience could not be found."
                 409:
                     description:
-                        "A page experience key is duplicated."
+                        "A page experience key or priority is duplicated."
             tags: ["PageExperience"]
     "/sites/{siteExternalReferenceCode}/page-specifications/{pageSpecificationExternalReferenceCode}":
         delete:
@@ -7863,9 +7863,15 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/PageExperience"
+                400:
+                    description:
+                        "The request is invalid. For example, the page specification is not a draft, or it does not belong to a site page."
                 404:
                     description:
                         "The requested page specification could not be found."
+                409:
+                    description:
+                        "A page experience key or priority is duplicated."
             # @review
             tags: ["PageExperience"]
     "/sites/{siteExternalReferenceCode}/page-specifications/{pageSpecificationExternalReferenceCode}/page-experiences/{pageExperienceExternalReferenceCode}/page-elements":

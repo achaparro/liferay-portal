@@ -721,8 +721,16 @@ public class AccountEntryPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchEntryException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1280,4 +1288,4 @@ public class AccountEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-168410417
+// LIFERAY-SERVICE-BUILDER-HASH:-289599786

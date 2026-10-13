@@ -454,8 +454,16 @@ public class BatchEngineImportTaskPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchImportTaskException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchImportTaskException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1010,4 +1018,4 @@ public class BatchEngineImportTaskPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1185923756
+// LIFERAY-SERVICE-BUILDER-HASH:1337245481

@@ -1761,8 +1761,16 @@ public class CPAttachmentFileEntryPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchCPAttachmentFileEntryException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchCPAttachmentFileEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2832,4 +2840,4 @@ public class CPAttachmentFileEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:367463050
+// LIFERAY-SERVICE-BUILDER-HASH:-248522159

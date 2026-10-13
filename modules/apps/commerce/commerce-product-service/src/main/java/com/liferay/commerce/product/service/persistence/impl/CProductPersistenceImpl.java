@@ -425,8 +425,16 @@ public class CProductPersistenceImpl
 	public CProduct findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchCProductException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchCProductException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1001,4 +1009,4 @@ public class CProductPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1029376175
+// LIFERAY-SERVICE-BUILDER-HASH:1413605352

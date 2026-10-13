@@ -1527,8 +1527,16 @@ public class JournalFolderPersistenceImpl
 	public JournalFolder findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchFolderException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchFolderException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2367,4 +2375,4 @@ public class JournalFolderPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-706472117
+// LIFERAY-SERVICE-BUILDER-HASH:1579588524

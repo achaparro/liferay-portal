@@ -4444,8 +4444,16 @@ public class BlogsEntryPersistenceImpl
 	public BlogsEntry findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchEntryException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -5805,4 +5813,4 @@ public class BlogsEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1836015658
+// LIFERAY-SERVICE-BUILDER-HASH:1747674089

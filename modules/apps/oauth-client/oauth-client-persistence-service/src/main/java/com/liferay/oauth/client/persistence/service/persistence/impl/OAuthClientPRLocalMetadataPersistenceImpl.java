@@ -863,8 +863,18 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchOAuthClientPRLocalMetadataException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchOAuthClientPRLocalMetadataException
+					noSuchEntityException) {
+
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1500,4 +1510,4 @@ public class OAuthClientPRLocalMetadataPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-918189797
+// LIFERAY-SERVICE-BUILDER-HASH:2041014064

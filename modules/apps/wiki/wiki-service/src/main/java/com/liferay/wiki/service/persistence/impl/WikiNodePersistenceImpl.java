@@ -822,8 +822,16 @@ public class WikiNodePersistenceImpl
 	public WikiNode findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchNodeException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchNodeException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1507,4 +1515,4 @@ public class WikiNodePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1587071644
+// LIFERAY-SERVICE-BUILDER-HASH:1006126919

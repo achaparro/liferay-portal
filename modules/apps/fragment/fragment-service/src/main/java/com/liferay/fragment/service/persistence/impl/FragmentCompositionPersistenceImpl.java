@@ -1139,8 +1139,16 @@ public class FragmentCompositionPersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchCompositionException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchCompositionException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1970,4 +1978,4 @@ public class FragmentCompositionPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-170403911
+// LIFERAY-SERVICE-BUILDER-HASH:-1452658330

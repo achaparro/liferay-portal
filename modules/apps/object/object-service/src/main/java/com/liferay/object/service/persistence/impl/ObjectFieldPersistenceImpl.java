@@ -1331,11 +1331,19 @@ public class ObjectFieldPersistenceImpl
 			long objectDefinitionId)
 		throws NoSuchObjectFieldException {
 
-		return _uniquePersistenceFinderByERC_C_ODI.find(
-			finderCache,
-			new Object[] {
-				externalReferenceCode, companyId, objectDefinitionId
-			});
+		try {
+			return _uniquePersistenceFinderByERC_C_ODI.find(
+				finderCache,
+				new Object[] {
+					externalReferenceCode, companyId, objectDefinitionId
+				});
+		}
+		catch (NoSuchObjectFieldException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2430,4 +2438,4 @@ public class ObjectFieldPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1596911318
+// LIFERAY-SERVICE-BUILDER-HASH:-1680873986

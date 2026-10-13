@@ -860,8 +860,16 @@ public class SXPElementPersistenceImpl
 	public SXPElement findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchSXPElementException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchSXPElementException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1486,4 +1494,4 @@ public class SXPElementPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-77974636
+// LIFERAY-SERVICE-BUILDER-HASH:-575081772

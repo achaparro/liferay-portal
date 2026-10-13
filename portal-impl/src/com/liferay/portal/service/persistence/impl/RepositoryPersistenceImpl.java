@@ -583,9 +583,17 @@ public class RepositoryPersistenceImpl
 	public Repository findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchRepositoryException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchRepositoryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1191,4 +1199,4 @@ public class RepositoryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-423413700
+// LIFERAY-SERVICE-BUILDER-HASH:1515142075

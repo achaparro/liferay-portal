@@ -2882,8 +2882,17 @@ public class StyleBookEntryPersistenceImpl
 			String externalReferenceCode, long groupId, boolean head)
 		throws NoSuchEntryException {
 
-		return _uniquePersistenceFinderByERC_G_Head.find(
-			finderCache, new Object[] {externalReferenceCode, groupId, head});
+		try {
+			return _uniquePersistenceFinderByERC_G_Head.find(
+				finderCache,
+				new Object[] {externalReferenceCode, groupId, head});
+		}
+		catch (NoSuchEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -4263,4 +4272,4 @@ public class StyleBookEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1849446001
+// LIFERAY-SERVICE-BUILDER-HASH:850520262

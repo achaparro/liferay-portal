@@ -2326,9 +2326,17 @@ public class AssetCategoryPersistenceImpl
 	public AssetCategory findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchCategoryException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchCategoryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -3259,4 +3267,4 @@ public class AssetCategoryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-2068111641
+// LIFERAY-SERVICE-BUILDER-HASH:1498616896

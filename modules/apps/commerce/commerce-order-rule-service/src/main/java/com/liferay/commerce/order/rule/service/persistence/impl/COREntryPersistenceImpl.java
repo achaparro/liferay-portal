@@ -1360,8 +1360,16 @@ public class COREntryPersistenceImpl
 	public COREntry findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchCOREntryException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchCOREntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1971,4 +1979,4 @@ public class COREntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:476327708
+// LIFERAY-SERVICE-BUILDER-HASH:129073929

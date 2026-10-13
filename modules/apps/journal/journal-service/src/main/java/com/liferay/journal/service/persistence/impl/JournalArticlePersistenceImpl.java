@@ -3208,9 +3208,17 @@ public class JournalArticlePersistenceImpl
 			long groupId, String externalReferenceCode, double version)
 		throws NoSuchArticleException {
 
-		return _uniquePersistenceFinderByG_ERC_V.find(
-			finderCache,
-			new Object[] {groupId, externalReferenceCode, version});
+		try {
+			return _uniquePersistenceFinderByG_ERC_V.find(
+				finderCache,
+				new Object[] {groupId, externalReferenceCode, version});
+		}
+		catch (NoSuchArticleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -7487,4 +7495,4 @@ public class JournalArticlePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1620966312
+// LIFERAY-SERVICE-BUILDER-HASH:-677920207

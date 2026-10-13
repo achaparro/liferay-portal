@@ -691,11 +691,19 @@ public class ListTypeEntryPersistenceImpl
 			long listTypeDefinitionId)
 		throws NoSuchListTypeEntryException {
 
-		return _uniquePersistenceFinderByERC_C_LTDI.find(
-			finderCache,
-			new Object[] {
-				externalReferenceCode, companyId, listTypeDefinitionId
-			});
+		try {
+			return _uniquePersistenceFinderByERC_C_LTDI.find(
+				finderCache,
+				new Object[] {
+					externalReferenceCode, companyId, listTypeDefinitionId
+				});
+		}
+		catch (NoSuchListTypeEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1270,4 +1278,4 @@ public class ListTypeEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1876127311
+// LIFERAY-SERVICE-BUILDER-HASH:314366082

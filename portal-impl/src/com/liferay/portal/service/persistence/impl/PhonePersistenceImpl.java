@@ -747,9 +747,17 @@ public class PhonePersistenceImpl
 	public Phone findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchPhoneException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchPhoneException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1413,4 +1421,4 @@ public class PhonePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1829182316
+// LIFERAY-SERVICE-BUILDER-HASH:-971606213

@@ -347,9 +347,17 @@ public class ObjectEntryFolderPersistenceImpl
 			String externalReferenceCode, long groupId, long companyId)
 		throws NoSuchObjectEntryFolderException {
 
-		return _uniquePersistenceFinderByERC_G_C.find(
-			finderCache,
-			new Object[] {externalReferenceCode, groupId, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_G_C.find(
+				finderCache,
+				new Object[] {externalReferenceCode, groupId, companyId});
+		}
+		catch (NoSuchObjectEntryFolderException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1669,4 +1677,4 @@ public class ObjectEntryFolderPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:852034374
+// LIFERAY-SERVICE-BUILDER-HASH:-928824302

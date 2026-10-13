@@ -1146,8 +1146,16 @@ public class DispatchTriggerPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchTriggerException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchTriggerException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1799,4 +1807,4 @@ public class DispatchTriggerPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-427324970
+// LIFERAY-SERVICE-BUILDER-HASH:1256310703

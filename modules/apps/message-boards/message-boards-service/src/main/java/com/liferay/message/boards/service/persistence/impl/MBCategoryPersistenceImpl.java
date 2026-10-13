@@ -2739,8 +2739,16 @@ public class MBCategoryPersistenceImpl
 	public MBCategory findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchCategoryException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchCategoryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -3619,4 +3627,4 @@ public class MBCategoryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:103568276
+// LIFERAY-SERVICE-BUILDER-HASH:1737750443

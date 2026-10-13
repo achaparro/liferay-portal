@@ -454,8 +454,16 @@ public class BatchEngineExportTaskPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchExportTaskException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchExportTaskException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1010,4 +1018,4 @@ public class BatchEngineExportTaskPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1607746729
+// LIFERAY-SERVICE-BUILDER-HASH:-118090887

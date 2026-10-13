@@ -468,8 +468,16 @@ public class SXPBlueprintPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchSXPBlueprintException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchSXPBlueprintException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -990,4 +998,4 @@ public class SXPBlueprintPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-241544417
+// LIFERAY-SERVICE-BUILDER-HASH:-540623466

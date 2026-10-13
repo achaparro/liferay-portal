@@ -2309,8 +2309,16 @@ public class SegmentsExperiencePersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchExperienceException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchExperienceException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -3379,4 +3387,4 @@ public class SegmentsExperiencePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-750899098
+// LIFERAY-SERVICE-BUILDER-HASH:-2009348215

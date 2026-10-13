@@ -480,8 +480,16 @@ public class CommercePricingClassPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchPricingClassException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchPricingClassException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1078,4 +1086,4 @@ public class CommercePricingClassPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:990254926
+// LIFERAY-SERVICE-BUILDER-HASH:-627126567

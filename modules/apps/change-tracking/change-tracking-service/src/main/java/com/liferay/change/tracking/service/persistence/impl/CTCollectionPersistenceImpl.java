@@ -941,8 +941,16 @@ public class CTCollectionPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchCollectionException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchCollectionException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1528,4 +1536,4 @@ public class CTCollectionPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-945247307
+// LIFERAY-SERVICE-BUILDER-HASH:-1015671424

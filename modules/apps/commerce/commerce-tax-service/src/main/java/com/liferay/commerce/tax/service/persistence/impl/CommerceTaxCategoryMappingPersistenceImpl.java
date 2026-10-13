@@ -504,8 +504,16 @@ public class CommerceTaxCategoryMappingPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchTaxCategoryMappingException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchTaxCategoryMappingException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1076,4 +1084,4 @@ public class CommerceTaxCategoryMappingPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1911429370
+// LIFERAY-SERVICE-BUILDER-HASH:-1770423436

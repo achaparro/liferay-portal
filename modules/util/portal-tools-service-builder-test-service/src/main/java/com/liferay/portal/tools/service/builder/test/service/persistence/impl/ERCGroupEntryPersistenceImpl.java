@@ -328,8 +328,16 @@ public class ERCGroupEntryPersistenceImpl
 	public ERCGroupEntry findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchERCGroupEntryException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchERCGroupEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -760,4 +768,4 @@ public class ERCGroupEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:146408240
+// LIFERAY-SERVICE-BUILDER-HASH:-59085010

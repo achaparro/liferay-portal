@@ -785,9 +785,17 @@ public class DLFileEntryTypePersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchFileEntryTypeException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchFileEntryTypeException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1780,4 +1788,4 @@ public class DLFileEntryTypePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:309385517
+// LIFERAY-SERVICE-BUILDER-HASH:-1642880808

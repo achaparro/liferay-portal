@@ -2987,8 +2987,17 @@ public class FragmentEntryPersistenceImpl
 			String externalReferenceCode, long groupId, boolean head)
 		throws NoSuchEntryException {
 
-		return _uniquePersistenceFinderByERC_G_Head.find(
-			finderCache, new Object[] {externalReferenceCode, groupId, head});
+		try {
+			return _uniquePersistenceFinderByERC_G_Head.find(
+				finderCache,
+				new Object[] {externalReferenceCode, groupId, head});
+		}
+		catch (NoSuchEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -4614,4 +4623,4 @@ public class FragmentEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-229637486
+// LIFERAY-SERVICE-BUILDER-HASH:-118421051

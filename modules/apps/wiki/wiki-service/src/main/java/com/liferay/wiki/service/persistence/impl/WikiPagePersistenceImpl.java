@@ -1696,9 +1696,17 @@ public class WikiPagePersistenceImpl
 			long groupId, String externalReferenceCode, double version)
 		throws NoSuchPageException {
 
-		return _uniquePersistenceFinderByG_ERC_V.find(
-			finderCache,
-			new Object[] {groupId, externalReferenceCode, version});
+		try {
+			return _uniquePersistenceFinderByG_ERC_V.find(
+				finderCache,
+				new Object[] {groupId, externalReferenceCode, version});
+		}
+		catch (NoSuchPageException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -5657,4 +5665,4 @@ public class WikiPagePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1242694185
+// LIFERAY-SERVICE-BUILDER-HASH:-263792189

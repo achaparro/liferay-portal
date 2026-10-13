@@ -667,8 +667,16 @@ public class OAuth2ApplicationPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchOAuth2ApplicationException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchOAuth2ApplicationException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1231,4 +1239,4 @@ public class OAuth2ApplicationPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-841992491
+// LIFERAY-SERVICE-BUILDER-HASH:456575005

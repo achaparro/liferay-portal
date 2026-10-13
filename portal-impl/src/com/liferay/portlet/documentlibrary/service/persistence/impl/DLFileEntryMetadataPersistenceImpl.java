@@ -527,9 +527,17 @@ public class DLFileEntryMetadataPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchFileEntryMetadataException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchFileEntryMetadataException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1103,4 +1111,4 @@ public class DLFileEntryMetadataPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:611787228
+// LIFERAY-SERVICE-BUILDER-HASH:-1171579880

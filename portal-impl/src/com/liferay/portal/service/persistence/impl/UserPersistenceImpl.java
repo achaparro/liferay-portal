@@ -1604,9 +1604,17 @@ public class UserPersistenceImpl
 	public User findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchUserException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchUserException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -4218,4 +4226,4 @@ public class UserPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-196259543
+// LIFERAY-SERVICE-BUILDER-HASH:109812811

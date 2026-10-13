@@ -1568,9 +1568,17 @@ public class RolePersistenceImpl
 	public Role findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchRoleException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchRoleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -3070,4 +3078,4 @@ public class RolePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1537799371
+// LIFERAY-SERVICE-BUILDER-HASH:2139078352

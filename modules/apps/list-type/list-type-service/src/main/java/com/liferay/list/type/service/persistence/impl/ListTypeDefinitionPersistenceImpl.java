@@ -480,8 +480,16 @@ public class ListTypeDefinitionPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchListTypeDefinitionException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchListTypeDefinitionException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -997,4 +1005,4 @@ public class ListTypeDefinitionPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1862331653
+// LIFERAY-SERVICE-BUILDER-HASH:-591592897

@@ -1158,9 +1158,17 @@ public class UserGroupPersistenceImpl
 	public UserGroup findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchUserGroupException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchUserGroupException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2811,4 +2819,4 @@ public class UserGroupPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:2036796658
+// LIFERAY-SERVICE-BUILDER-HASH:1443423013

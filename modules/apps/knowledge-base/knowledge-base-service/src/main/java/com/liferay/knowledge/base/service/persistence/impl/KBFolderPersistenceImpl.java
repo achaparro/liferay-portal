@@ -838,8 +838,16 @@ public class KBFolderPersistenceImpl
 	public KBFolder findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchFolderException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchFolderException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1536,4 +1544,4 @@ public class KBFolderPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:407544305
+// LIFERAY-SERVICE-BUILDER-HASH:-1051002182

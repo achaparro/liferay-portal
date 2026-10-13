@@ -432,8 +432,16 @@ public class PLOEntryPersistenceImpl
 	public PLOEntry findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchPLOEntryException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchPLOEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -954,4 +962,4 @@ public class PLOEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:976143785
+// LIFERAY-SERVICE-BUILDER-HASH:-664302777

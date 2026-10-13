@@ -782,8 +782,18 @@ public class CommerceInventoryReplenishmentItemPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchInventoryReplenishmentItemException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchInventoryReplenishmentItemException
+					noSuchEntityException) {
+
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1501,4 +1511,4 @@ public class CommerceInventoryReplenishmentItemPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1018793933
+// LIFERAY-SERVICE-BUILDER-HASH:-1513378531

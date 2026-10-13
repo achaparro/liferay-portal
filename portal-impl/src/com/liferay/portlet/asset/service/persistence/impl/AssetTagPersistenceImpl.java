@@ -1023,9 +1023,17 @@ public class AssetTagPersistenceImpl
 	public AssetTag findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchTagException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchTagException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2015,4 +2023,4 @@ public class AssetTagPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1983858886
+// LIFERAY-SERVICE-BUILDER-HASH:163306725

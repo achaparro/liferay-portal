@@ -649,9 +649,17 @@ public class ERCVersionedEntryPersistenceImpl
 			OrderByComparator<ERCVersionedEntry> orderByComparator)
 		throws NoSuchERCVersionedEntryException {
 
-		return _collectionPersistenceFinderByERC_G.findFirst(
-			dummyFinderCache, new Object[] {externalReferenceCode, groupId},
-			orderByComparator);
+		try {
+			return _collectionPersistenceFinderByERC_G.findFirst(
+				dummyFinderCache, new Object[] {externalReferenceCode, groupId},
+				orderByComparator);
+		}
+		catch (NoSuchERCVersionedEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -715,9 +723,17 @@ public class ERCVersionedEntryPersistenceImpl
 			String externalReferenceCode, long groupId, boolean head)
 		throws NoSuchERCVersionedEntryException {
 
-		return _uniquePersistenceFinderByERC_G_Head.find(
-			dummyFinderCache,
-			new Object[] {externalReferenceCode, groupId, head});
+		try {
+			return _uniquePersistenceFinderByERC_G_Head.find(
+				dummyFinderCache,
+				new Object[] {externalReferenceCode, groupId, head});
+		}
+		catch (NoSuchERCVersionedEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1393,4 +1409,4 @@ public class ERCVersionedEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:2074750634
+// LIFERAY-SERVICE-BUILDER-HASH:-939129436

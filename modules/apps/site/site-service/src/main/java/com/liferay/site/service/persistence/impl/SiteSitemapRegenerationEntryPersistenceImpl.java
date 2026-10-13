@@ -586,4 +586,4 @@ public class SiteSitemapRegenerationEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:20524505
+// LIFERAY-SERVICE-BUILDER-HASH:-1783112807

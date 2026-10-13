@@ -634,8 +634,16 @@ public class SiteNavigationMenuItemPersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchMenuItemException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchMenuItemException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1335,4 +1343,4 @@ public class SiteNavigationMenuItemPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:2041720805
+// LIFERAY-SERVICE-BUILDER-HASH:-1974483222

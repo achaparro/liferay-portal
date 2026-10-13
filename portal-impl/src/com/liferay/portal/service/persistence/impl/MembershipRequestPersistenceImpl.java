@@ -772,4 +772,4 @@ public class MembershipRequestPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-732588969
+// LIFERAY-SERVICE-BUILDER-HASH:1068764175

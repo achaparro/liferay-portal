@@ -719,8 +719,18 @@ public class
 			findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchPageTemplateStructureRelElementVariationAudienceEntryRelException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchPageTemplateStructureRelElementVariationAudienceEntryRelException
+					noSuchEntityException) {
+
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1575,4 +1585,4 @@ public class
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:903336351
+// LIFERAY-SERVICE-BUILDER-HASH:1706764987

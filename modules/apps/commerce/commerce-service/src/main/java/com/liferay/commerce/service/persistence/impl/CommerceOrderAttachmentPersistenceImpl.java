@@ -527,8 +527,16 @@ public class CommerceOrderAttachmentPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchOrderAttachmentException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchOrderAttachmentException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1107,4 +1115,4 @@ public class CommerceOrderAttachmentPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:148200460
+// LIFERAY-SERVICE-BUILDER-HASH:-251497240

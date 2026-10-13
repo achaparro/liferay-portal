@@ -761,8 +761,18 @@ public class LayoutPageTemplateStructureRelElementVariationPersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchPageTemplateStructureRelElementVariationException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchPageTemplateStructureRelElementVariationException
+					noSuchEntityException) {
+
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1602,4 +1612,4 @@ public class LayoutPageTemplateStructureRelElementVariationPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-743633007
+// LIFERAY-SERVICE-BUILDER-HASH:1503305714

@@ -190,8 +190,16 @@ public class CommerceDiscountRulePersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchDiscountRuleException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchDiscountRuleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -639,4 +647,4 @@ public class CommerceDiscountRulePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:2075401852
+// LIFERAY-SERVICE-BUILDER-HASH:-1684420908

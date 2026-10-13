@@ -639,4 +639,4 @@ public class ExportImportReportEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-2136779410
+// LIFERAY-SERVICE-BUILDER-HASH:1247678894

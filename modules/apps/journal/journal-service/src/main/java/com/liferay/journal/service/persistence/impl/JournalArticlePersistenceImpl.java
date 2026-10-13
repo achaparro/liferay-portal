@@ -968,9 +968,17 @@ public class JournalArticlePersistenceImpl
 			OrderByComparator<JournalArticle> orderByComparator)
 		throws NoSuchArticleException {
 
-		return _collectionPersistenceFinderByG_ERC.findFirst(
-			finderCache, new Object[] {groupId, externalReferenceCode},
-			orderByComparator);
+		try {
+			return _collectionPersistenceFinderByG_ERC.findFirst(
+				finderCache, new Object[] {groupId, externalReferenceCode},
+				orderByComparator);
+		}
+		catch (NoSuchArticleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2079,9 +2087,17 @@ public class JournalArticlePersistenceImpl
 			long groupId, String externalReferenceCode, double version)
 		throws NoSuchArticleException {
 
-		return _uniquePersistenceFinderByG_ERC_V.find(
-			finderCache,
-			new Object[] {groupId, externalReferenceCode, version});
+		try {
+			return _uniquePersistenceFinderByG_ERC_V.find(
+				finderCache,
+				new Object[] {groupId, externalReferenceCode, version});
+		}
+		catch (NoSuchArticleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2187,10 +2203,20 @@ public class JournalArticlePersistenceImpl
 			OrderByComparator<JournalArticle> orderByComparator)
 		throws NoSuchArticleException {
 
-		return _collectionPersistenceFinderByG_ERC_ST.findFirst(
-			finderCache,
-			new Object[] {groupId, externalReferenceCode, new int[] {status}},
-			orderByComparator);
+		try {
+			return _collectionPersistenceFinderByG_ERC_ST.findFirst(
+				finderCache,
+				new Object[] {
+					groupId, externalReferenceCode, new int[] {status}
+				},
+				orderByComparator);
+		}
+		catch (NoSuchArticleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -5137,4 +5163,4 @@ public class JournalArticlePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:883296951
+// LIFERAY-SERVICE-BUILDER-HASH:874700692

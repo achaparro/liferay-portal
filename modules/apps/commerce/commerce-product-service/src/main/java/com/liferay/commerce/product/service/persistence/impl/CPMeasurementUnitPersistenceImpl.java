@@ -691,8 +691,16 @@ public class CPMeasurementUnitPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchCPMeasurementUnitException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchCPMeasurementUnitException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1398,4 +1406,4 @@ public class CPMeasurementUnitPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1502229132
+// LIFERAY-SERVICE-BUILDER-HASH:-14015970

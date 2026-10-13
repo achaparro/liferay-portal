@@ -936,9 +936,17 @@ public class DDMStructurePersistenceImpl
 			String externalReferenceCode, long groupId, long classNameId)
 		throws NoSuchStructureException {
 
-		return _uniquePersistenceFinderByERC_G_C.find(
-			finderCache,
-			new Object[] {externalReferenceCode, groupId, classNameId});
+		try {
+			return _uniquePersistenceFinderByERC_G_C.find(
+				finderCache,
+				new Object[] {externalReferenceCode, groupId, classNameId});
+		}
+		catch (NoSuchStructureException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1724,4 +1732,4 @@ public class DDMStructurePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1939854454
+// LIFERAY-SERVICE-BUILDER-HASH:-722217072

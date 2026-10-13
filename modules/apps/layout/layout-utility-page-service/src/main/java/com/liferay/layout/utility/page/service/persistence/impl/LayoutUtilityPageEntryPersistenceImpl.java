@@ -1397,8 +1397,16 @@ public class LayoutUtilityPageEntryPersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchLayoutUtilityPageEntryException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchLayoutUtilityPageEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2188,4 +2196,4 @@ public class LayoutUtilityPageEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1534887553
+// LIFERAY-SERVICE-BUILDER-HASH:-1221915713

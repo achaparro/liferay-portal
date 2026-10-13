@@ -959,4 +959,4 @@ public class ObjectStateTransitionPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-264257705
+// LIFERAY-SERVICE-BUILDER-HASH:-1388125389

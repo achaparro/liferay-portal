@@ -2576,9 +2576,17 @@ public class FragmentEntryPersistenceImpl
 			OrderByComparator<FragmentEntry> orderByComparator)
 		throws NoSuchEntryException {
 
-		return _collectionPersistenceFinderByERC_G.findFirst(
-			finderCache, new Object[] {externalReferenceCode, groupId},
-			orderByComparator);
+		try {
+			return _collectionPersistenceFinderByERC_G.findFirst(
+				finderCache, new Object[] {externalReferenceCode, groupId},
+				orderByComparator);
+		}
+		catch (NoSuchEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2641,8 +2649,17 @@ public class FragmentEntryPersistenceImpl
 			String externalReferenceCode, long groupId, boolean head)
 		throws NoSuchEntryException {
 
-		return _uniquePersistenceFinderByERC_G_Head.find(
-			finderCache, new Object[] {externalReferenceCode, groupId, head});
+		try {
+			return _uniquePersistenceFinderByERC_G_Head.find(
+				finderCache,
+				new Object[] {externalReferenceCode, groupId, head});
+		}
+		catch (NoSuchEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -4149,4 +4166,4 @@ public class FragmentEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1070043847
+// LIFERAY-SERVICE-BUILDER-HASH:-421413797

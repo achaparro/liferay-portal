@@ -490,4 +490,4 @@ public class OAuth2ApplicationScopeAliasesPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1310573909
+// LIFERAY-SERVICE-BUILDER-HASH:-1695619547

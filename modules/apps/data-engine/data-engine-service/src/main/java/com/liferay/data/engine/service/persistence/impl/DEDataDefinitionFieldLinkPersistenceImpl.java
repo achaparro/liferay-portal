@@ -1678,4 +1678,4 @@ public class DEDataDefinitionFieldLinkPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1893471342
+// LIFERAY-SERVICE-BUILDER-HASH:-592399768

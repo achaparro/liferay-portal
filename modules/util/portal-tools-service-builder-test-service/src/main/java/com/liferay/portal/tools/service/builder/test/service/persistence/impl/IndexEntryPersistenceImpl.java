@@ -1073,8 +1073,16 @@ public class IndexEntryPersistenceImpl
 	public IndexEntry findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchIndexEntryException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchIndexEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1804,4 +1812,4 @@ public class IndexEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-2142693938
+// LIFERAY-SERVICE-BUILDER-HASH:-181438507

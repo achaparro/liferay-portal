@@ -490,4 +490,4 @@ public class CTCollectionTemplatePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-411924179
+// LIFERAY-SERVICE-BUILDER-HASH:-1861514947

@@ -1093,9 +1093,17 @@ public class WorkflowDefinitionLinkPersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchWorkflowDefinitionLinkException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				FinderCacheUtil.getFinderCache(),
+				new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchWorkflowDefinitionLinkException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1973,4 +1981,4 @@ public class WorkflowDefinitionLinkPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1953331442
+// LIFERAY-SERVICE-BUILDER-HASH:-454080991

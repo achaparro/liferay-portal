@@ -348,8 +348,16 @@ public class AssetCategoryPropertyPersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchCategoryPropertyException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchCategoryPropertyException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -926,4 +934,4 @@ public class AssetCategoryPropertyPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:471846412
+// LIFERAY-SERVICE-BUILDER-HASH:270585764

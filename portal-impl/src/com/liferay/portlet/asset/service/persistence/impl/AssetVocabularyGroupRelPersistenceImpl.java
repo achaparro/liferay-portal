@@ -1295,4 +1295,4 @@ public class AssetVocabularyGroupRelPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1600179607
+// LIFERAY-SERVICE-BUILDER-HASH:909816353

@@ -487,4 +487,4 @@ public class DefinedDefaultOrderEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:899918514
+// LIFERAY-SERVICE-BUILDER-HASH:-803150798

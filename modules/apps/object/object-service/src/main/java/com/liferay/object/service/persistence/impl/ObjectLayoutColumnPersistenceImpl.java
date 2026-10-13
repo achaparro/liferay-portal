@@ -834,4 +834,4 @@ public class ObjectLayoutColumnPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1164047811
+// LIFERAY-SERVICE-BUILDER-HASH:733621501

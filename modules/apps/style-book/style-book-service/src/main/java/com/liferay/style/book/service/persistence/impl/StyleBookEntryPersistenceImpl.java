@@ -2624,9 +2624,17 @@ public class StyleBookEntryPersistenceImpl
 			OrderByComparator<StyleBookEntry> orderByComparator)
 		throws NoSuchEntryException {
 
-		return _collectionPersistenceFinderByERC_G.findFirst(
-			finderCache, new Object[] {externalReferenceCode, groupId},
-			orderByComparator);
+		try {
+			return _collectionPersistenceFinderByERC_G.findFirst(
+				finderCache, new Object[] {externalReferenceCode, groupId},
+				orderByComparator);
+		}
+		catch (NoSuchEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2689,8 +2697,17 @@ public class StyleBookEntryPersistenceImpl
 			String externalReferenceCode, long groupId, boolean head)
 		throws NoSuchEntryException {
 
-		return _uniquePersistenceFinderByERC_G_Head.find(
-			finderCache, new Object[] {externalReferenceCode, groupId, head});
+		try {
+			return _uniquePersistenceFinderByERC_G_Head.find(
+				finderCache,
+				new Object[] {externalReferenceCode, groupId, head});
+		}
+		catch (NoSuchEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -3999,4 +4016,4 @@ public class StyleBookEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1479282226
+// LIFERAY-SERVICE-BUILDER-HASH:41029298

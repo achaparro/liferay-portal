@@ -799,4 +799,4 @@ public class ObjectFieldSettingPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:411234161
+// LIFERAY-SERVICE-BUILDER-HASH:442315677

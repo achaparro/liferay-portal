@@ -2735,8 +2735,16 @@ public class MBMessagePersistenceImpl
 	public MBMessage findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchMessageException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchMessageException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -4036,4 +4044,4 @@ public class MBMessagePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-504006621
+// LIFERAY-SERVICE-BUILDER-HASH:-939277141

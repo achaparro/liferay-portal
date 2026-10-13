@@ -1164,4 +1164,4 @@ public class MBSuspiciousActivityPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-934970993
+// LIFERAY-SERVICE-BUILDER-HASH:-706793573

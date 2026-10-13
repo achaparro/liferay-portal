@@ -345,8 +345,16 @@ public class LayoutContentVersionPersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchLayoutContentVersionException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchLayoutContentVersionException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -832,4 +840,4 @@ public class LayoutContentVersionPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1092274681
+// LIFERAY-SERVICE-BUILDER-HASH:1965716173

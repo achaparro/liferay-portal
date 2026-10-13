@@ -1306,4 +1306,4 @@ public class AssetListEntrySegmentsEntryRelPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1834419708
+// LIFERAY-SERVICE-BUILDER-HASH:1487619720

@@ -1601,11 +1601,20 @@ public class ObjectEntryPersistenceImpl
 			long objectDefinitionId)
 		throws NoSuchObjectEntryException {
 
-		return _uniquePersistenceFinderByERC_G_C_ODI.find(
-			finderCache,
-			new Object[] {
-				externalReferenceCode, groupId, companyId, objectDefinitionId
-			});
+		try {
+			return _uniquePersistenceFinderByERC_G_C_ODI.find(
+				finderCache,
+				new Object[] {
+					externalReferenceCode, groupId, companyId,
+					objectDefinitionId
+				});
+		}
+		catch (NoSuchObjectEntryException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2466,4 +2475,4 @@ public class ObjectEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1050007229
+// LIFERAY-SERVICE-BUILDER-HASH:-452194531

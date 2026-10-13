@@ -851,4 +851,4 @@ public class ObjectViewFilterColumnPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1509800438
+// LIFERAY-SERVICE-BUILDER-HASH:805218652

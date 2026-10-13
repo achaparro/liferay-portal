@@ -936,9 +936,17 @@ public class KBArticlePersistenceImpl
 			OrderByComparator<KBArticle> orderByComparator)
 		throws NoSuchArticleException {
 
-		return _collectionPersistenceFinderByG_ERC.findFirst(
-			finderCache, new Object[] {groupId, externalReferenceCode},
-			orderByComparator);
+		try {
+			return _collectionPersistenceFinderByG_ERC.findFirst(
+				finderCache, new Object[] {groupId, externalReferenceCode},
+				orderByComparator);
+		}
+		catch (NoSuchArticleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -3606,9 +3614,17 @@ public class KBArticlePersistenceImpl
 			long groupId, String externalReferenceCode, int version)
 		throws NoSuchArticleException {
 
-		return _uniquePersistenceFinderByG_ERC_V.find(
-			finderCache,
-			new Object[] {groupId, externalReferenceCode, version});
+		try {
+			return _uniquePersistenceFinderByG_ERC_V.find(
+				finderCache,
+				new Object[] {groupId, externalReferenceCode, version});
+		}
+		catch (NoSuchArticleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -3712,9 +3728,18 @@ public class KBArticlePersistenceImpl
 			OrderByComparator<KBArticle> orderByComparator)
 		throws NoSuchArticleException {
 
-		return _collectionPersistenceFinderByG_ERC_S.findFirst(
-			finderCache, new Object[] {groupId, externalReferenceCode, status},
-			orderByComparator);
+		try {
+			return _collectionPersistenceFinderByG_ERC_S.findFirst(
+				finderCache,
+				new Object[] {groupId, externalReferenceCode, status},
+				orderByComparator);
+		}
+		catch (NoSuchArticleException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -12390,4 +12415,4 @@ public class KBArticlePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-975399040
+// LIFERAY-SERVICE-BUILDER-HASH:-990293617

@@ -441,4 +441,4 @@ public class AuditEventPseudonymFieldPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1479114239
+// LIFERAY-SERVICE-BUILDER-HASH:-1339669119

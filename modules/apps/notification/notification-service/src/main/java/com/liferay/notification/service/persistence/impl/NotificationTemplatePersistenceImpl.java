@@ -474,8 +474,16 @@ public class NotificationTemplatePersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchNotificationTemplateException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchNotificationTemplateException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -998,4 +1006,4 @@ public class NotificationTemplatePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1323937362
+// LIFERAY-SERVICE-BUILDER-HASH:-1004455036

@@ -1297,4 +1297,4 @@ public class KaleoTaskAssignmentInstancePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1123615608
+// LIFERAY-SERVICE-BUILDER-HASH:-648556054

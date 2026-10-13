@@ -531,8 +531,16 @@ public class CPOptionPersistenceImpl
 	public CPOption findByERC_C(String externalReferenceCode, long companyId)
 		throws NoSuchCPOptionException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchCPOptionException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1119,4 +1127,4 @@ public class CPOptionPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:489992478
+// LIFERAY-SERVICE-BUILDER-HASH:-1241087921

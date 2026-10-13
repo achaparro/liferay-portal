@@ -474,8 +474,16 @@ public class CommerceAvailabilityEstimatePersistenceImpl
 			String externalReferenceCode, long companyId)
 		throws NoSuchAvailabilityEstimateException {
 
-		return _uniquePersistenceFinderByERC_C.find(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		try {
+			return _uniquePersistenceFinderByERC_C.find(
+				finderCache, new Object[] {externalReferenceCode, companyId});
+		}
+		catch (NoSuchAvailabilityEstimateException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1027,4 +1035,4 @@ public class CommerceAvailabilityEstimatePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1594100718
+// LIFERAY-SERVICE-BUILDER-HASH:1735913840

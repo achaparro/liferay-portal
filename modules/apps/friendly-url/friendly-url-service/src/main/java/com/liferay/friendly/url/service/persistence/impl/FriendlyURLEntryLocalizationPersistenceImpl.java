@@ -1425,4 +1425,4 @@ public class FriendlyURLEntryLocalizationPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1687259721
+// LIFERAY-SERVICE-BUILDER-HASH:-1178702497

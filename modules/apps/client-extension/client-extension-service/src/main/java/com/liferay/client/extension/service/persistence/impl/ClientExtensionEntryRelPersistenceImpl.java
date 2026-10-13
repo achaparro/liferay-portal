@@ -728,8 +728,16 @@ public class ClientExtensionEntryRelPersistenceImpl
 			String externalReferenceCode, long groupId)
 		throws NoSuchClientExtensionEntryRelException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchClientExtensionEntryRelException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -1466,4 +1474,4 @@ public class ClientExtensionEntryRelPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-340398348
+// LIFERAY-SERVICE-BUILDER-HASH:-44013816

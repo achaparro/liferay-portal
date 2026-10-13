@@ -1765,8 +1765,16 @@ public class DDMTemplatePersistenceImpl
 	public DDMTemplate findByERC_G(String externalReferenceCode, long groupId)
 		throws NoSuchTemplateException {
 
-		return _uniquePersistenceFinderByERC_G.find(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		try {
+			return _uniquePersistenceFinderByERC_G.find(
+				finderCache, new Object[] {externalReferenceCode, groupId});
+		}
+		catch (NoSuchTemplateException noSuchEntityException) {
+			noSuchEntityException.setExternalReferenceCode(
+				externalReferenceCode);
+
+			throw noSuchEntityException;
+		}
 	}
 
 	/**
@@ -2706,4 +2714,4 @@ public class DDMTemplatePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-956185470
+// LIFERAY-SERVICE-BUILDER-HASH:-2106941855

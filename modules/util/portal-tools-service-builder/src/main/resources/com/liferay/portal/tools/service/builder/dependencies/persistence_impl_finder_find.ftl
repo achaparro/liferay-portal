@@ -69,6 +69,16 @@ that may or may not be enforced with a unique index at the database level. Case
 9 can be considered a union of the literal and conceptual unique finders.
 -->
 
+<#assign hasExternalReferenceCodeEntityColumn = false />
+
+<#if serviceBuilder.isVersionGTE_7_4_0()>
+	<#list entityColumns as entityColumn>
+		<#if stringUtil.equals(entityColumn.name, "externalReferenceCode")>
+			<#assign hasExternalReferenceCodeEntityColumn = true />
+		</#if>
+	</#list>
+</#if>
+
 <#-- Case 1: entityFinder.isCollection() && entityFinder.isUnique() -->
 
 <#if entityFinder.isCollection() && entityFinder.isUnique()>
@@ -363,6 +373,10 @@ that may or may not be enforced with a unique index at the database level. Case
 
 	OrderByComparator<${entity.name}> orderByComparator) throws ${noSuchEntity}Exception {
 		<#if entityFinder.collectionPersistenceFinderEnabled>
+			<#if hasExternalReferenceCodeEntityColumn>
+				try {
+			</#if>
+
 			return _collectionPersistenceFinderBy${entityFinder.name}.findFirst(
 				${finderCacheInstance},
 				new Object[] {
@@ -379,6 +393,15 @@ that may or may not be enforced with a unique index at the database level. Case
 					</#list>
 				},
 				orderByComparator);
+
+			<#if hasExternalReferenceCodeEntityColumn>
+				}
+				catch (${noSuchEntity}Exception noSuchEntityException) {
+					noSuchEntityException.setExternalReferenceCode(externalReferenceCode);
+
+					throw noSuchEntityException;
+				}
+			</#if>
 		<#else>
 			${entity.name} ${entity.variableName} = fetchBy${entityFinder.name}_First(
 
@@ -405,7 +428,15 @@ that may or may not be enforced with a unique index at the database level. Case
 				</#if>
 			</#list>
 
-			throw new ${noSuchEntity}Exception(sb.toString());
+			<#if hasExternalReferenceCodeEntityColumn>
+				${noSuchEntity}Exception noSuchEntityException = new ${noSuchEntity}Exception(sb.toString());
+
+				noSuchEntityException.setExternalReferenceCode(externalReferenceCode);
+
+				throw noSuchEntityException;
+			<#else>
+				throw new ${noSuchEntity}Exception(sb.toString());
+			</#if>
 		</#if>
 	}
 
@@ -2359,6 +2390,10 @@ that may or may not be enforced with a unique index at the database level. Case
 
 	) throws ${noSuchEntity}Exception {
 		<#if entityFinder.uniquePersistenceFinderEnabled>
+			<#if hasExternalReferenceCodeEntityColumn>
+				try {
+			</#if>
+
 			return _uniquePersistenceFinderBy${entityFinder.name}.find(
 				${finderCacheInstance},
 				new Object[] {
@@ -2370,6 +2405,15 @@ that may or may not be enforced with a unique index at the database level. Case
 						</#if>
 					</#list>
 				});
+
+			<#if hasExternalReferenceCodeEntityColumn>
+				}
+				catch (${noSuchEntity}Exception noSuchEntityException) {
+					noSuchEntityException.setExternalReferenceCode(externalReferenceCode);
+
+					throw noSuchEntityException;
+				}
+			</#if>
 		<#else>
 			${entity.name} ${entity.variableName} = fetchBy${entityFinder.name}(
 
@@ -2401,7 +2445,15 @@ that may or may not be enforced with a unique index at the database level. Case
 					_log.debug(sb.toString());
 				}
 
-				throw new ${noSuchEntity}Exception(sb.toString());
+				<#if hasExternalReferenceCodeEntityColumn>
+					${noSuchEntity}Exception noSuchEntityException = new ${noSuchEntity}Exception(sb.toString());
+
+					noSuchEntityException.setExternalReferenceCode(externalReferenceCode);
+
+					throw noSuchEntityException;
+				<#else>
+					throw new ${noSuchEntity}Exception(sb.toString());
+				</#if>
 			}
 
 			return ${entity.variableName};

@@ -54,7 +54,8 @@ public class LayoutUtilityPageEntryUpgradeStepRegistrator
 
 		registry.register(
 			"1.4.1", "1.4.2",
-			new LayoutUtilityPageEntryLayoutExternalReferenceCodeUpgradeProcess());
+			new LayoutUtilityPageEntryLayoutExternalReferenceCodeUpgradeProcess(
+				_layoutLocalService));
 	}
 
 	@Reference

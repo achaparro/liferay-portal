@@ -8,9 +8,12 @@ package com.liferay.layout.utility.page.internal.upgrade.v1_4_2;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.sql.PreparedStatement;
 
@@ -20,15 +23,26 @@ import java.sql.PreparedStatement;
 public class LayoutUtilityPageEntryLayoutExternalReferenceCodeUpgradeProcess
 	extends UpgradeProcess {
 
+	public LayoutUtilityPageEntryLayoutExternalReferenceCodeUpgradeProcess(
+		LayoutLocalService layoutLocalService) {
+
+		_layoutLocalService = layoutLocalService;
+	}
+
 	@Override
 	protected void doUpgrade() throws Exception {
+		upgrade(
+			new LayoutUtilityPageEntryDraftLayoutUpgradeProcess(
+				_layoutLocalService));
+
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			processConcurrently(
 				StringBundler.concat(
 					"select LayoutUtilityPageEntry.externalReferenceCode, ",
 					"Layout.plid, Layout.classPK from LayoutUtilityPageEntry ",
-					"inner join Layout on Layout.classPK = ",
-					"LayoutUtilityPageEntry.plid where ",
+					"inner join Layout on Layout.classNameId = ",
+					PortalUtil.getClassNameId(Layout.class),
+					" and Layout.classPK = LayoutUtilityPageEntry.plid where ",
 					"LayoutUtilityPageEntry.externalReferenceCode like ",
 					"'LFR-%'"),
 				"update Layout set externalReferenceCode = ? where plid = ?",
@@ -97,5 +111,7 @@ public class LayoutUtilityPageEntryLayoutExternalReferenceCodeUpgradeProcess
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutUtilityPageEntryLayoutExternalReferenceCodeUpgradeProcess.class);
+
+	private final LayoutLocalService _layoutLocalService;
 
 }

@@ -15,9 +15,14 @@ import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.site.settings.configuration.admin.display.SiteSettingsConfigurationScreenContributor;
 import com.liferay.site.settings.configuration.admin.display.SiteSettingsConfigurationScreenFactory;
@@ -27,7 +32,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.io.Serializable;
 
+import java.util.Dictionary;
 import java.util.Locale;
 
 import org.osgi.framework.InvalidSyntaxException;
@@ -49,11 +56,29 @@ public class LockedLayoutsSiteSettingsConfigurationScreenWrapper
 			new LockedLayoutsSiteSettingsConfigurationScreenContributor());
 	}
 
+	private Dictionary<String, Object> _getConfigurationProperties(Group group)
+		throws Exception {
+
+		Configuration[] configurations = _configurationAdmin.listConfigurations(
+			ConfigurationFilterStringUtil.getGroupScopedFilterString(
+				group.getCompanyId(), group.getGroupId(),
+				LockedLayoutsGroupConfiguration.class.getName(), null));
+
+		if (ArrayUtil.isEmpty(configurations)) {
+			return new HashMapDictionary<>();
+		}
+
+		return configurations[0].getProperties();
+	}
+
 	@Reference
 	private ConfigurationAdmin _configurationAdmin;
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private Language _language;
@@ -69,6 +94,31 @@ public class LockedLayoutsSiteSettingsConfigurationScreenWrapper
 
 	private class LockedLayoutsSiteSettingsConfigurationScreenContributor
 		implements SiteSettingsConfigurationScreenContributor {
+
+		@Override
+		public Dictionary<String, Object> exportProperties(Serializable scopePK)
+			throws Exception {
+
+			Dictionary<String, Object> configurationProperties =
+				_getConfigurationProperties(
+					_groupLocalService.getGroup((long)scopePK));
+
+			if (configurationProperties.isEmpty()) {
+				return configurationProperties;
+			}
+
+			return HashMapDictionaryBuilder.<String, Object>put(
+				"allowAutomaticUnlockingProcess",
+				GetterUtil.getBoolean(
+					configurationProperties.get(
+						"allowAutomaticUnlockingProcess"),
+					true)
+			).put(
+				"autosaveMinutes",
+				GetterUtil.getInteger(
+					configurationProperties.get("autosaveMinutes"), 5)
+			).build();
+		}
 
 		@Override
 		public String getCategoryKey() {
@@ -98,6 +148,26 @@ public class LockedLayoutsSiteSettingsConfigurationScreenWrapper
 		@Override
 		public ServletContext getServletContext() {
 			return _servletContext;
+		}
+
+		@Override
+		public void importProperties(
+				Dictionary<String, Object> properties, Serializable scopePK)
+			throws Exception {
+
+			Group group = _groupLocalService.getGroup((long)scopePK);
+
+			_configurationProvider.saveGroupConfiguration(
+				LockedLayoutsGroupConfiguration.class, group.getCompanyId(),
+				group.getGroupId(),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"allowAutomaticUnlockingProcess",
+					GetterUtil.getBoolean(
+						properties.get("allowAutomaticUnlockingProcess"), true)
+				).put(
+					"autosaveMinutes",
+					GetterUtil.getInteger(properties.get("autosaveMinutes"), 5)
+				).build());
 		}
 
 		@Override

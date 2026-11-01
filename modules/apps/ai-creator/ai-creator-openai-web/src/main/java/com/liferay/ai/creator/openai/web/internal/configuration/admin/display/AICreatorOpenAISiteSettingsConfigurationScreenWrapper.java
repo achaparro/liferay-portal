@@ -5,11 +5,19 @@
 
 package com.liferay.ai.creator.openai.web.internal.configuration.admin.display;
 
+import com.liferay.ai.creator.openai.configuration.AICreatorOpenAIGroupConfiguration;
 import com.liferay.ai.creator.openai.configuration.manager.AICreatorOpenAIConfigurationManager;
 import com.liferay.ai.creator.openai.web.internal.display.context.AICreatorOpenAIGroupConfigurationDisplayContext;
 import com.liferay.configuration.admin.display.ConfigurationScreen;
 import com.liferay.configuration.admin.display.ConfigurationScreenWrapper;
+import com.liferay.configuration.admin.util.ConfigurationFilterStringUtil;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.site.settings.configuration.admin.display.SiteSettingsConfigurationScreenContributor;
 import com.liferay.site.settings.configuration.admin.display.SiteSettingsConfigurationScreenFactory;
 
@@ -17,8 +25,13 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.Serializable;
+
+import java.util.Dictionary;
 import java.util.Locale;
 
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,9 +48,30 @@ public class AICreatorOpenAISiteSettingsConfigurationScreenWrapper
 			new AICreatorOpenAISiteSettingsConfigurationScreenContributor());
 	}
 
+	private Dictionary<String, Object> _getConfigurationProperties(Group group)
+		throws Exception {
+
+		Configuration[] configurations = _configurationAdmin.listConfigurations(
+			ConfigurationFilterStringUtil.getGroupScopedFilterString(
+				group.getCompanyId(), group.getGroupId(),
+				AICreatorOpenAIGroupConfiguration.class.getName(), null));
+
+		if (ArrayUtil.isEmpty(configurations)) {
+			return new HashMapDictionary<>();
+		}
+
+		return configurations[0].getProperties();
+	}
+
 	@Reference
 	private AICreatorOpenAIConfigurationManager
 		_aiCreatorOpenAIConfigurationManager;
+
+	@Reference
+	private ConfigurationAdmin _configurationAdmin;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
 
 	@Reference
 	private Language _language;
@@ -53,6 +87,31 @@ public class AICreatorOpenAISiteSettingsConfigurationScreenWrapper
 
 	private class AICreatorOpenAISiteSettingsConfigurationScreenContributor
 		implements SiteSettingsConfigurationScreenContributor {
+
+		@Override
+		public Dictionary<String, Object> exportProperties(Serializable scopePK)
+			throws Exception {
+
+			Dictionary<String, Object> configurationProperties =
+				_getConfigurationProperties(
+					_groupLocalService.getGroup((long)scopePK));
+
+			if (configurationProperties.isEmpty()) {
+				return configurationProperties;
+			}
+
+			return HashMapDictionaryBuilder.<String, Object>put(
+				"enableChatGPTToCreateContent",
+				GetterUtil.getBoolean(
+					configurationProperties.get("enableChatGPTToCreateContent"),
+					true)
+			).put(
+				"enableDALLEToCreateImages",
+				GetterUtil.getBoolean(
+					configurationProperties.get("enableDALLEToCreateImages"),
+					true)
+			).build();
+		}
 
 		@Override
 		public String getCategoryKey() {
@@ -82,6 +141,28 @@ public class AICreatorOpenAISiteSettingsConfigurationScreenWrapper
 		@Override
 		public ServletContext getServletContext() {
 			return _servletContext;
+		}
+
+		@Override
+		public void importProperties(
+				Dictionary<String, Object> properties, Serializable scopePK)
+			throws Exception {
+
+			Dictionary<String, Object> configurationProperties =
+				_getConfigurationProperties(
+					_groupLocalService.getGroup((long)scopePK));
+
+			_aiCreatorOpenAIConfigurationManager.
+				saveAICreatorOpenAIGroupConfiguration(
+					(long)scopePK,
+					GetterUtil.getString(
+						properties.get("apiKey"),
+						GetterUtil.getString(
+							configurationProperties.get("apiKey"))),
+					GetterUtil.getBoolean(
+						properties.get("enableChatGPTToCreateContent"), true),
+					GetterUtil.getBoolean(
+						properties.get("enableDALLEToCreateImages"), true));
 		}
 
 		@Override

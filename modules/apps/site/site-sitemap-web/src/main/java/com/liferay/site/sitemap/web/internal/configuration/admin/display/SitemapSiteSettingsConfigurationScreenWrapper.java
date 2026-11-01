@@ -7,9 +7,15 @@ package com.liferay.site.sitemap.web.internal.configuration.admin.display;
 
 import com.liferay.configuration.admin.display.ConfigurationScreen;
 import com.liferay.configuration.admin.display.ConfigurationScreenWrapper;
+import com.liferay.configuration.admin.util.ConfigurationFilterStringUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.site.configuration.manager.SitemapConfigurationManager;
 import com.liferay.site.settings.configuration.admin.display.SiteSettingsConfigurationScreenContributor;
@@ -20,8 +26,13 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.Serializable;
+
+import java.util.Dictionary;
 import java.util.Locale;
 
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,6 +49,29 @@ public class SitemapSiteSettingsConfigurationScreenWrapper
 			new SitemapSiteSettingsConfigurationScreenContributor());
 	}
 
+	private Dictionary<String, Object> _getConfigurationProperties(Group group)
+		throws Exception {
+
+		Configuration[] configurations = _configurationAdmin.listConfigurations(
+			ConfigurationFilterStringUtil.getGroupScopedFilterString(
+				group.getCompanyId(), group.getGroupId(),
+				"com.liferay.site.internal.configuration." +
+					"SitemapGroupConfiguration",
+				null));
+
+		if (ArrayUtil.isEmpty(configurations)) {
+			return new HashMapDictionary<>();
+		}
+
+		return configurations[0].getProperties();
+	}
+
+	@Reference
+	private ConfigurationAdmin _configurationAdmin;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
+
 	@Reference
 	private Language _language;
 
@@ -53,6 +87,33 @@ public class SitemapSiteSettingsConfigurationScreenWrapper
 
 	private class SitemapSiteSettingsConfigurationScreenContributor
 		implements SiteSettingsConfigurationScreenContributor {
+
+		@Override
+		public Dictionary<String, Object> exportProperties(Serializable scopePK)
+			throws Exception {
+
+			Dictionary<String, Object> configurationProperties =
+				_getConfigurationProperties(
+					_groupLocalService.getGroup((long)scopePK));
+
+			if (configurationProperties.isEmpty()) {
+				return configurationProperties;
+			}
+
+			return HashMapDictionaryBuilder.<String, Object>put(
+				"includeCategories",
+				GetterUtil.getBoolean(
+					configurationProperties.get("includeCategories"), true)
+			).put(
+				"includePages",
+				GetterUtil.getBoolean(
+					configurationProperties.get("includePages"), true)
+			).put(
+				"includeWebContent",
+				GetterUtil.getBoolean(
+					configurationProperties.get("includeWebContent"), true)
+			).build();
+		}
 
 		@Override
 		public String getCategoryKey() {
@@ -82,6 +143,20 @@ public class SitemapSiteSettingsConfigurationScreenWrapper
 		@Override
 		public ServletContext getServletContext() {
 			return _servletContext;
+		}
+
+		@Override
+		public void importProperties(
+				Dictionary<String, Object> properties, Serializable scopePK)
+			throws Exception {
+
+			_sitemapConfigurationManager.saveSitemapGroupConfiguration(
+				(long)scopePK,
+				GetterUtil.getBoolean(
+					properties.get("includeCategories"), true),
+				GetterUtil.getBoolean(properties.get("includePages"), true),
+				GetterUtil.getBoolean(
+					properties.get("includeWebContent"), true));
 		}
 
 		@Override
